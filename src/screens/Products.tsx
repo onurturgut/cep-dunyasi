@@ -88,9 +88,9 @@ export default function Products() {
 
   return (
     <Layout>
-      <div className="container py-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-start">
-          <aside className="w-full space-y-4 md:w-56 md:shrink-0">
+      <div className="container py-6 sm:py-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+          <aside className="w-full space-y-4 rounded-3xl border border-border/60 bg-card/55 p-4 backdrop-blur-xl sm:p-5 lg:sticky lg:top-24 lg:w-72 lg:shrink-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -102,11 +102,11 @@ export default function Products() {
             </div>
             <div>
               <h3 className="mb-2 text-sm font-semibold text-muted-foreground">KATEGORILER</h3>
-              <div className="flex flex-wrap gap-2 md:flex-col">
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
                 <Button
                   variant={!activeCategory ? 'default' : 'ghost'}
                   size="sm"
-                  className="justify-start"
+                  className="shrink-0 justify-start"
                   onClick={() => setSearchParams({})}
                 >
                   Tumu
@@ -116,7 +116,7 @@ export default function Products() {
                     key={cat.id}
                     variant={activeCategory === cat.slug ? 'default' : 'ghost'}
                     size="sm"
-                    className="justify-start"
+                    className="shrink-0 justify-start"
                     onClick={() => setSearchParams({ category: cat.slug })}
                   >
                     {cat.name}
@@ -127,17 +127,17 @@ export default function Products() {
           </aside>
 
           <div className="flex-1">
-            <div className="mb-6 flex items-center justify-between">
-              <h1 className="font-display text-2xl font-bold">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h1 className="font-display text-2xl font-bold sm:text-3xl">
                 {activeCategory
                   ? categories.find((c) => c.slug === activeCategory)?.name || 'Urunler'
                   : 'Tum Urunler'}
               </h1>
-              <Badge variant="secondary">{products.length} urun</Badge>
+              <Badge variant="secondary" className="w-fit">{products.length} urun</Badge>
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="space-y-3">
                     <Skeleton className="aspect-square w-full rounded-lg" />
@@ -153,7 +153,7 @@ export default function Products() {
                 <p className="mt-1 text-sm text-muted-foreground">Farkli bir arama veya kategori deneyin.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-3">
                 {products.map((product) => {
                   const variant = product.product_variants?.[0];
                   return (

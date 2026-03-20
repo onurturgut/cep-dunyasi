@@ -20,7 +20,18 @@ interface ProductCardProps {
   category?: string;
 }
 
-export function ProductCard({ id, name, slug, brand, image, images, price, originalPrice, variantId, stock = 0, category }: ProductCardProps) {
+export function ProductCard({
+  id,
+  name,
+  slug,
+  brand,
+  image,
+  images,
+  price,
+  originalPrice,
+  variantId,
+  stock = 0,
+}: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
   const galleryImages = Array.from(new Set([...(images || []), image].filter(Boolean) as string[]));
   const primaryImage = galleryImages[0];
@@ -42,9 +53,9 @@ export function ProductCard({ id, name, slug, brand, image, images, price, origi
   };
 
   return (
-    <div>
-      <Link to={`/product/${slug}`}>
-        <Card className="group overflow-hidden border bg-card transition-shadow hover:shadow-lg">
+    <div className="h-full">
+      <Link to={`/product/${slug}`} className="block h-full">
+        <Card className="group flex h-full flex-col overflow-hidden border bg-card transition-shadow hover:shadow-lg">
           <div className="relative aspect-square overflow-hidden bg-muted">
             {galleryImages.length > 0 ? (
               <>
@@ -75,30 +86,30 @@ export function ProductCard({ id, name, slug, brand, image, images, price, origi
             )}
             {originalPrice && originalPrice > price && (
               <Badge className="absolute left-2 top-2 bg-accent text-accent-foreground">
-                %{Math.round(((originalPrice - price) / originalPrice) * 100)} İndirim
+                %{Math.round(((originalPrice - price) / originalPrice) * 100)} Indirim
               </Badge>
             )}
             {stock !== undefined && stock <= 0 && (
               <div className="absolute inset-0 flex items-center justify-center bg-background/60">
-                <Badge variant="secondary">Tükendi</Badge>
+                <Badge variant="secondary">Tukendi</Badge>
               </div>
             )}
           </div>
-          <CardContent className="p-4">
+          <CardContent className="flex h-full flex-col p-4">
             {brand && <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{brand}</p>}
             <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-foreground">{name}</h3>
-            <div className="mt-2 flex items-center justify-between">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-primary">₺{price.toLocaleString('tr-TR')}</span>
+            <div className="mt-3 flex items-end justify-between gap-3">
+              <div className="flex min-w-0 flex-col gap-1">
+                <span className="text-lg font-bold text-primary">TL {price.toLocaleString('tr-TR')}</span>
                 {originalPrice && originalPrice > price && (
-                  <span className="text-xs text-muted-foreground line-through">₺{originalPrice.toLocaleString('tr-TR')}</span>
+                  <span className="text-xs text-muted-foreground line-through">TL {originalPrice.toLocaleString('tr-TR')}</span>
                 )}
               </div>
               {variantId && stock > 0 && (
                 <Button
                   size="icon"
                   variant="secondary"
-                  className="h-8 w-8 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                  className="h-8 w-8 shrink-0 rounded-full opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="h-4 w-4" />
@@ -111,5 +122,3 @@ export function ProductCard({ id, name, slug, brand, image, images, price, origi
     </div>
   );
 }
-
-

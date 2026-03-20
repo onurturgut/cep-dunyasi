@@ -29,14 +29,14 @@ export default function Cart() {
 
   return (
     <Layout>
-      <div className="container py-8">
-        <h1 className="font-display text-2xl font-bold">Sepetim ({items.length})</h1>
+      <div className="container py-6 sm:py-8">
+        <h1 className="font-display text-2xl font-bold sm:text-3xl">Sepetim ({items.length})</h1>
 
-        <div className="mt-6 grid gap-6 md:grid-cols-3">
-          <div className="space-y-4 md:col-span-2">
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="space-y-4">
             {items.map((item) => (
-              <Card key={item.variantId} className="flex gap-4 p-4">
-                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+              <Card key={item.variantId} className="flex flex-col gap-4 p-4 sm:flex-row">
+                <div className="h-24 w-full shrink-0 overflow-hidden rounded-lg bg-muted sm:h-20 sm:w-20">
                   {item.image ? (
                     <img src={item.image} alt={item.productName} className="h-full w-full object-cover" />
                   ) : (
@@ -50,8 +50,8 @@ export default function Cart() {
                     <h3 className="font-semibold">{item.productName}</h3>
                     <p className="text-sm text-muted-foreground">{item.variantInfo}</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 rounded-lg border px-1">
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex w-full items-center justify-center gap-2 rounded-lg border px-1 sm:w-auto sm:justify-start">
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => updateQuantity(item.variantId, item.quantity - 1)}>
                         <Minus className="h-3 w-3" />
                       </Button>
@@ -60,7 +60,7 @@ export default function Cart() {
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-between gap-3 sm:justify-end">
                       <span className="font-semibold text-primary">TL {(item.price * item.quantity).toLocaleString('tr-TR')}</span>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeItem(item.variantId)}>
                         <Trash2 className="h-4 w-4" />
@@ -72,7 +72,7 @@ export default function Cart() {
             ))}
           </div>
 
-          <Card className="h-fit p-6">
+          <Card className="h-fit p-5 lg:sticky lg:top-24 lg:p-6">
             <h3 className="font-display text-lg font-bold">Siparis Ozeti</h3>
             <Separator className="my-4" />
             <div className="space-y-2 text-sm">

@@ -34,9 +34,9 @@ export function ExploreCategoriesSection({ categories }: ExploreCategoriesSectio
 
       <div className="container">
         <motion.div style={{ y: foregroundY }} className="space-y-4">
-          <h2 className="font-display text-3xl font-bold md:text-4xl">Explore Categories</h2>
+          <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">Kategorileri Kesfet</h2>
           <div className="explore-categories-scroll overflow-x-auto pb-2">
-            <motion.div style={{ x: driftX }} className="explore-category-list flex w-max gap-3 pr-2">
+            <motion.div style={{ x: driftX }} className="explore-category-list flex gap-3 pr-2">
               {exploreCategories.map((category, index) => {
                 const Icon = categoryIcons[category.icon || 'Smartphone'] || categoryIcons.Smartphone;
                 const isFirstColumn = index === 0;
@@ -73,13 +73,13 @@ export function ExploreCategoriesSection({ categories }: ExploreCategoriesSectio
                   <Link
                     key={`explore-${category.id}`}
                     to={`/products?category=${category.slug}`}
-                    className={`explore-category-card group flex min-h-[300px] w-[300px] shrink-0 items-center gap-3 bg-transparent transition-all hover:bg-transparent ${
+                    className={`explore-category-card group flex min-h-[240px] w-[78vw] max-w-[280px] shrink-0 items-center gap-3 bg-transparent transition-all hover:bg-transparent sm:min-h-[300px] sm:w-[300px] ${
                       cardImage ? 'flex-col overflow-hidden p-0' : 'p-4'
                     }`}
                   >
                     {cardImage ? (
                       <>
-                        <div className="flex h-[250px] w-full items-center justify-center">
+                        <div className="flex h-[190px] w-full items-center justify-center sm:h-[250px]">
                           <img
                             src={encodeURI(cardImage)}
                             alt={
@@ -105,14 +105,14 @@ export function ExploreCategoriesSection({ categories }: ExploreCategoriesSectio
                             loading="lazy"
                           />
                         </div>
-                        <span className="explore-category-label pb-2 text-base font-semibold text-foreground">{category.name}</span>
+                        <span className="explore-category-label pb-2 text-sm font-semibold text-foreground sm:text-base">{category.name}</span>
                       </>
                     ) : (
                       <>
                         <div className="flex h-10 w-10 items-center justify-center bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                           <Icon className="h-5 w-5" />
                         </div>
-                        <span className="explore-category-label text-base font-semibold text-foreground">{category.name}</span>
+                        <span className="explore-category-label text-sm font-semibold text-foreground sm:text-base">{category.name}</span>
                       </>
                     )}
                   </Link>

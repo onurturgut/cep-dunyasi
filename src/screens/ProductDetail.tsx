@@ -93,12 +93,12 @@ export default function ProductDetail() {
 
   return (
     <Layout>
-      <div className="container py-8">
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="space-y-3">
+      <div className="container py-6 sm:py-8">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start">
+          <div className="space-y-3 lg:sticky lg:top-24">
             <div className="relative aspect-square overflow-hidden rounded-xl border bg-muted">
               {selectedImage ? (
-                <img src={selectedImage} alt={product.name} className="h-full w-full object-cover" />
+                <img src={selectedImage} alt={product.name} className="h-full w-full object-contain p-4" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                   <ShoppingCart className="h-16 w-16 opacity-20" />
@@ -117,7 +117,7 @@ export default function ProductDetail() {
                     key={`${product.id}-thumb-${index}`}
                     type="button"
                     onClick={() => setActiveImageIndex(index)}
-                    className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border transition-colors ${
+                    className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border transition-colors sm:h-20 sm:w-20 ${
                       index === activeImageIndex ? "border-primary" : "border-border"
                     }`}
                   >
@@ -128,11 +128,11 @@ export default function ProductDetail() {
             )}
           </div>
 
-          <div>
+          <div className="min-w-0">
             {product.brand && (
               <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{product.brand}</p>
             )}
-            <h1 className="mt-1 font-display text-3xl font-bold">{product.name}</h1>
+            <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl lg:text-4xl">{product.name}</h1>
             {product.categories && (
               <Badge variant="secondary" className="mt-2">{product.categories.name}</Badge>
             )}
@@ -182,8 +182,8 @@ export default function ProductDetail() {
             )}
 
             {selectedVariant && selectedVariant.stock > 0 && (
-              <div className="mt-6 flex items-center gap-4">
-                <div className="flex items-center gap-2 rounded-lg border px-2">
+              <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="flex w-full items-center justify-center gap-2 rounded-lg border px-2 sm:w-auto sm:justify-start">
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -192,7 +192,7 @@ export default function ProductDetail() {
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
-                <Button size="lg" className="flex-1" onClick={handleAdd}>
+                <Button size="lg" className="w-full sm:flex-1" onClick={handleAdd}>
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Sepete Ekle
                 </Button>

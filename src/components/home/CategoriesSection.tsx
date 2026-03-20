@@ -39,14 +39,14 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
       <div className="container -mt-8 md:-mt-10">
         <motion.div
           style={{ y: foregroundY, scale }}
-          className="min-h-[2000px] rounded-3xl border border-border/70 bg-card/75 p-5 text-foreground shadow-lg backdrop-blur-xl md:p-8"
+          className="rounded-3xl border border-border/70 bg-card/75 p-4 text-foreground shadow-lg backdrop-blur-xl sm:p-5 md:p-8"
           variants={sectionReveal}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.15 }}
         >
-          <h2 className="font-display text-2xl font-bold text-foreground">Kategoriler</h2>
-          <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-5">
+          <h2 className="font-display text-xl font-bold text-foreground sm:text-2xl">Kategoriler</h2>
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {hasVisibleHomeCategories ? (
               visibleHomeCategories.map((category) => {
                 const Icon = categoryIcons[category.icon || 'Smartphone'] || categoryIcons.Smartphone;
@@ -55,19 +55,19 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
                   <div key={category.id}>
                     <Link
                       to={`/products?category=${category.slug}`}
-                      className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-5 text-center text-foreground transition-all hover:border-primary/30 hover:shadow-sm"
+                      className="group flex h-full flex-col items-center gap-3 rounded-xl border bg-card p-4 text-center text-foreground transition-all hover:border-primary/30 hover:shadow-sm sm:p-5"
                     >
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                         <Icon className="h-5 w-5" />
                       </div>
-                      <span className="text-sm font-semibold text-foreground">{category.name}</span>
+                      <span className="text-sm font-semibold text-foreground sm:text-[15px]">{category.name}</span>
                     </Link>
                   </div>
                 );
               })
             ) : (
               <div className="col-span-2 space-y-4 md:col-span-5">
-                <motion.div style={{ y: accentY }} className="h-[500px] w-full overflow-hidden rounded-xl border border-border/30 bg-card">
+                <motion.div style={{ y: accentY }} className="h-[260px] w-full overflow-hidden rounded-xl border border-border/30 bg-card sm:h-[360px] lg:h-[500px]">
                   <motion.img
                     src={encodeURI('/images/image copy.png')}
                     alt="Kategori banner"
@@ -77,9 +77,9 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
                   />
                 </motion.div>
 
-                <div className="space-y-[50px]">
+                <div className="space-y-8 sm:space-y-10 lg:space-y-12">
                   <motion.div
-                    className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
                     variants={staggerContainer}
                     initial="hidden"
                     whileInView="show"
@@ -92,7 +92,7 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
                       return (
                         <motion.div key={`category-slot-top-${index + 1}`} variants={staggerItem}>
                           <div
-                            className={`relative h-[500px] w-full overflow-hidden rounded-xl border border-background/30 ${
+                            className={`relative h-[280px] w-full overflow-hidden rounded-xl border border-background/30 sm:h-[360px] lg:h-[500px] ${
                               isFirstSlot ? 'bg-card' : 'bg-background/5'
                             }`}
                           >
@@ -136,21 +136,21 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
                       <img
                         src={encodeURI('/images/cep-dunyasi-logo-black-v3-tight.png')}
                         alt="Cep Dunyasi"
-                        className="h-auto w-[180px] dark:hidden md:w-[240px]"
+                        className="h-auto w-[150px] dark:hidden sm:w-[180px] md:w-[240px]"
                         loading="lazy"
                       />
                       <img
                         src={encodeURI('/images/cep-dunyasi-logo-dark-v3-tight.png')}
                         alt="Cep Dunyasi"
-                        className="hidden h-auto w-[180px] dark:block md:w-[240px]"
+                        className="hidden h-auto w-[150px] dark:block sm:w-[180px] md:w-[240px]"
                         loading="lazy"
                       />
-                      <h3 className="font-display text-4xl font-bold leading-tight text-foreground md:text-6xl">
+                      <h3 className="font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
                         Turkiye&apos;nin En Degerli Markalari Arasinda!
                       </h3>
                     </motion.div>
 
-                    <motion.div style={{ y: foregroundY }} className="space-y-6 text-lg leading-relaxed text-muted-foreground">
+                    <motion.div style={{ y: foregroundY }} className="space-y-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
                       <p>
                         Uluslararasi marka degerlendirme kurulusu Brand Finance&apos;in &quot;Turkiye 2025&quot; raporunda Reeder,
                         ulkemizin en degerli ve en guclu markalari arasinda yerini aldi.
@@ -161,7 +161,7 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
                   </div>
 
                   <motion.div
-                    className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
                     variants={staggerContainer}
                     initial="hidden"
                     whileInView="show"
@@ -173,7 +173,7 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
 
                       return (
                         <motion.div key={`category-slot-bottom-${slotIndex + 1}`} variants={staggerItem}>
-                          <div className="h-[500px] w-full overflow-hidden rounded-xl border border-background/30 bg-background/5">
+                          <div className="h-[280px] w-full overflow-hidden rounded-xl border border-background/30 bg-background/5 sm:h-[360px] lg:h-[500px]">
                             <img
                               src={encodeURI(`/images/${imageName}`)}
                               alt={`Kategori kisim ${slotIndex + 1}`}

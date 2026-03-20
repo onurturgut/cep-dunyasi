@@ -13,12 +13,7 @@ type FeaturedProductsSectionProps = {
 };
 
 export function FeaturedProductsSection({ featuredProducts }: FeaturedProductsSectionProps) {
-  const featuredFirstColumn = featuredProducts.filter((_, index) => index % 2 === 0);
-  const featuredSecondColumnBase = featuredProducts.filter((_, index) => index % 2 === 1);
-  const featuredSecondColumn = featuredSecondColumnBase.length > 0 ? featuredSecondColumnBase : featuredFirstColumn;
-  const featuredFirstTrack = [...featuredFirstColumn, ...featuredFirstColumn];
-  const featuredSecondTrack = [...featuredSecondColumn, ...featuredSecondColumn];
-  const { ref, backgroundY, foregroundY, accentY } = useSectionParallax<HTMLElement>({
+  const { ref, backgroundY, foregroundY } = useSectionParallax<HTMLElement>({
     distance: 85,
     rotate: 4,
   });
@@ -40,10 +35,10 @@ export function FeaturedProductsSection({ featuredProducts }: FeaturedProductsSe
       </motion.div>
 
       <div className="container">
-        <motion.div style={{ y: foregroundY }} className="p-5 shadow-sm md:p-8">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-5xl font-bold">One Cikan Urunler</h2>
-            <Button variant="ghost" asChild>
+        <motion.div style={{ y: foregroundY }} className="rounded-3xl border border-border/60 bg-card/55 p-4 shadow-sm backdrop-blur-xl sm:p-5 md:p-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-5xl">One Cikan Urunler</h2>
+            <Button variant="ghost" asChild className="w-full justify-center sm:w-auto">
               <Link to="/products">
                 Tum Urunleri Gor <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
@@ -51,54 +46,25 @@ export function FeaturedProductsSection({ featuredProducts }: FeaturedProductsSe
           </div>
 
           {featuredProducts.length > 0 ? (
-            <div className="mt-6 grid grid-cols-1 gap-4">
-              <div className="featured-marquee">
-                <motion.div style={{ y: accentY }} className="featured-marquee-track featured-marquee-track-ltr">
-                  {featuredFirstTrack.map((product, index) => {
-                    const variant = product.product_variants?.[0];
+            <div className="mt-6 grid grid-cols-1 gap-4 min-[500px]:grid-cols-2 xl:grid-cols-4">
+              {featuredProducts.map((product) => {
+                const variant = product.product_variants?.[0];
 
-                    return (
-                      <div key={`${product.id}-ltr-${index}`} className="featured-marquee-item">
-                        <ProductCard
-                          id={product.id}
-                          name={product.name}
-                          slug={product.slug}
-                          brand={product.brand}
-                          images={product.images}
-                          price={variant?.price || 0}
-                          variantId={variant?.id}
-                          stock={variant?.stock || 0}
-                          category={product.categories?.name}
-                        />
-                      </div>
-                    );
-                  })}
-                </motion.div>
-              </div>
-
-              <div className="featured-marquee">
-                <motion.div style={{ y: foregroundY }} className="featured-marquee-track featured-marquee-track-rtl">
-                  {featuredSecondTrack.map((product, index) => {
-                    const variant = product.product_variants?.[0];
-
-                    return (
-                      <div key={`${product.id}-rtl-${index}`} className="featured-marquee-item">
-                        <ProductCard
-                          id={product.id}
-                          name={product.name}
-                          slug={product.slug}
-                          brand={product.brand}
-                          images={product.images}
-                          price={variant?.price || 0}
-                          variantId={variant?.id}
-                          stock={variant?.stock || 0}
-                          category={product.categories?.name}
-                        />
-                      </div>
-                    );
-                  })}
-                </motion.div>
-              </div>
+                return (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    slug={product.slug}
+                    brand={product.brand}
+                    images={product.images}
+                    price={variant?.price || 0}
+                    variantId={variant?.id}
+                    stock={variant?.stock || 0}
+                    category={product.categories?.name}
+                  />
+                );
+              })}
             </div>
           ) : (
             <div className="mt-6 p-6 text-sm text-muted-foreground">

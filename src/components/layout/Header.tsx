@@ -290,16 +290,16 @@ export function Header() {
         className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/95 text-foreground backdrop-blur-2xl"
         onMouseLeave={scheduleCloseMegaMenu}
       >
-        <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
+        <div className="container flex h-16 items-center justify-between gap-3 sm:h-[4.5rem]">
+          <Link to="/" className="flex min-w-0 items-center gap-2">
             <img
               src={isDarkMode ? "/images/cep-dunyasi-logo-dark-v3-tight.png" : "/images/image.png"}
               alt="Cep Dunyasi"
-              className="h-10 w-auto rounded-lg md:h-11"
+              className="h-9 w-auto rounded-lg sm:h-10 md:h-11"
             />
               <span
                 className={cn(
-                  "font-display text-lg font-bold tracking-wide transition-colors md:text-xl",
+                  "hidden truncate font-display text-base font-bold tracking-wide transition-colors min-[390px]:inline sm:text-lg md:text-xl",
                   activeMegaData ? "text-primary" : "text-foreground",
                 )}
               >
@@ -343,12 +343,12 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/products')}>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate('/products')}>
               <Search className="h-5 w-5" />
             </Button>
 
-            <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/cart')}>
+            <Button variant="ghost" size="icon" className="relative h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate('/cart')}>
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
                 <div className="absolute -right-1 -top-1">
@@ -387,35 +387,59 @@ export function Header() {
 
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild className="lg:hidden">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[86vw] max-w-sm">
+              <SheetContent side="right" className="w-[92vw] max-w-xs px-5 sm:max-w-sm">
                 <SheetTitle className="font-display">Menu</SheetTitle>
-                <nav className="mt-6 flex flex-col gap-4">
+                <div className="mt-6 flex items-center justify-between rounded-2xl border border-border/70 bg-muted/40 px-4 py-3 sm:hidden">
+                  <span className="text-sm font-medium text-foreground">Tema</span>
+                  <Switch
+                    aria-label={isDarkMode ? 'Gunduz moduna gec' : 'Gece moduna gec'}
+                    checked={isDarkMode}
+                    disabled={!mounted}
+                    className="h-7 w-14 border border-border/70 bg-muted data-[state=checked]:bg-primary/90 data-[state=unchecked]:bg-muted [&>span]:h-6 [&>span]:w-6 [&>span[data-state=checked]]:translate-x-7 [&>span[data-state=unchecked]]:translate-x-0"
+                    thumbChildren={
+                      isDarkMode
+                        ? <Moon className="h-3.5 w-3.5 text-primary" />
+                        : <Sun className="h-3.5 w-3.5 text-amber-500" />
+                    }
+                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                  />
+                </div>
+                <nav className="mt-6 flex flex-col gap-3">
                   {navLinks.map((link) => (
                     <Link
                       key={link.href}
                       to={link.href}
-                      className="text-lg font-medium text-foreground"
+                      className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
                       onClick={() => setMobileOpen(false)}
                     >
                       {link.label}
                     </Link>
                   ))}
                   {user ? (
-                    <>
+                    <div className="mt-2 flex flex-col gap-3 border-t border-border/70 pt-4">
                       {isAdmin && (
-                        <Link to="/admin" className="text-lg font-medium text-foreground" onClick={() => setMobileOpen(false)}>
+                        <Link
+                          to="/admin"
+                          className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
+                          onClick={() => setMobileOpen(false)}
+                        >
                           Admin Panel
                         </Link>
                       )}
-                      <Link to="/account" className="text-lg font-medium text-foreground" onClick={() => setMobileOpen(false)}>
+                      <Link
+                        to="/account"
+                        className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
+                        onClick={() => setMobileOpen(false)}
+                      >
                         Hesabim
                       </Link>
                       <Button
                         variant="outline"
+                        className="w-full"
                         onClick={() => {
                           signOut();
                           setMobileOpen(false);
@@ -423,9 +447,10 @@ export function Header() {
                       >
                         Cikis Yap
                       </Button>
-                    </>
+                    </div>
                   ) : (
                     <Button
+                      className="mt-2 w-full"
                       onClick={() => {
                         navigate('/auth');
                         setMobileOpen(false);
@@ -438,7 +463,7 @@ export function Header() {
               </SheetContent>
             </Sheet>
 
-            <div className="ml-1 rounded-full border border-border/70 bg-background/80 p-1">
+            <div className="ml-1 hidden rounded-full border border-border/70 bg-background/80 p-1 sm:block">
               <Switch
                 aria-label={isDarkMode ? 'Gunduz moduna gec' : 'Gece moduna gec'}
                 checked={isDarkMode}

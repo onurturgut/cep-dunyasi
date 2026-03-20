@@ -137,16 +137,16 @@ export default function Checkout() {
 
   return (
     <Layout>
-      <div className="container py-8">
-        <h1 className="font-display text-2xl font-bold">Odeme</h1>
-        <form onSubmit={handleSubmit} className="mt-6 grid gap-6 md:grid-cols-3">
-          <div className="space-y-6 md:col-span-2">
+      <div className="container py-6 sm:py-8">
+        <h1 className="font-display text-2xl font-bold sm:text-3xl">Odeme</h1>
+        <form onSubmit={handleSubmit} className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+          <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Teslimat Bilgileri</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Ad Soyad</Label>
                     <Input required value={form.fullName} onChange={(e) => handleChange('fullName', e.target.value)} />
@@ -172,18 +172,18 @@ export default function Checkout() {
             </Card>
           </div>
 
-          <Card className="h-fit p-6">
+          <Card className="h-fit p-5 lg:sticky lg:top-24 lg:p-6">
             <h3 className="font-display text-lg font-bold">Siparis Ozeti</h3>
             <div className="mt-4 space-y-2 text-sm">
               {items.map((item) => (
-                <div key={item.variantId} className="flex justify-between">
-                  <span className="text-muted-foreground">{item.productName} x{item.quantity}</span>
-                  <span>TL {(item.price * item.quantity).toLocaleString('tr-TR')}</span>
+                <div key={item.variantId} className="flex items-start justify-between gap-3">
+                  <span className="line-clamp-2 text-muted-foreground">{item.productName} x{item.quantity}</span>
+                  <span className="shrink-0">TL {(item.price * item.quantity).toLocaleString('tr-TR')}</span>
                 </div>
               ))}
             </div>
             <Separator className="my-4" />
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Input placeholder="Kupon kodu" value={form.couponCode} onChange={(e) => handleChange('couponCode', e.target.value)} />
               <Button type="button" variant="outline" onClick={applyCoupon}>
                 Uygula

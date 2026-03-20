@@ -85,6 +85,7 @@
       radial-gradient(circle at 88% 14%, hsl(var(--secondary) / 0.08) 0%, transparent 46%),
       linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background)) 70%, hsl(var(--primary) / 0.025) 100%);
     background-attachment: fixed;
+    overflow-x: hidden;
     min-height: 100vh;
   }
 }
@@ -438,8 +439,8 @@
 
   .explore-category-list {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
   }
 
   .explore-category-card {
@@ -621,6 +622,10 @@
   }
 
   @media (max-width: 768px) {
+    body {
+      background-attachment: scroll;
+    }
+
     .iphone-stage {
       width: 250px;
       height: 274px;

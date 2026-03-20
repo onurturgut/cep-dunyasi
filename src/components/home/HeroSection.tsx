@@ -19,8 +19,8 @@ export function HeroSection({ activeSlide, onSlideChange }: HeroSectionProps) {
   });
 
   return (
-    <motion.section ref={ref} id="home-hero" data-section="hero" className="bg-background pb-10 md:pb-12">
-      <div className="relative min-h-[calc(100vh-6.5rem)] w-full overflow-hidden">
+    <motion.section ref={ref} id="home-hero" data-section="hero" className="bg-background pb-8 sm:pb-10 md:pb-12">
+      <div className="relative min-h-[calc(100svh-4rem)] w-full overflow-hidden sm:min-h-[calc(100svh-4.5rem)]">
         <motion.div style={{ y: backgroundY }} className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/10" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/6 via-transparent to-secondary/10" />
@@ -29,29 +29,29 @@ export function HeroSection({ activeSlide, onSlideChange }: HeroSectionProps) {
         </motion.div>
 
         <div className="relative">
-          <div className="container flex min-h-[calc(100vh-6.5rem)] items-center py-10 md:py-14">
-            <div className="grid w-full items-center gap-10 lg:grid-cols-[minmax(0,1fr)_540px] lg:gap-2">
+          <div className="container flex min-h-[calc(100svh-4rem)] items-center py-8 sm:py-10 md:py-14 sm:min-h-[calc(100svh-4.5rem)]">
+            <div className="grid w-full items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,540px)] lg:gap-6">
               <motion.div style={{ y: foregroundY }} className="max-w-2xl">
-                <h1 className="font-display text-4xl font-bold tracking-tight text-foreground drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] md:text-6xl xl:text-7xl">
+                <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] sm:text-5xl md:text-6xl xl:text-7xl">
                   Teknolojinin
                   <span className="text-primary"> Gucunu </span>
                   <img
                     src={encodeURI('/images/cep-dunyasi-logo-black-v3-tight.png')}
                     alt="Cep Dunyasi logosu"
-                    className="mx-1 inline-block h-auto w-[220px] align-middle dark:hidden md:w-[260px] xl:w-[300px]"
+                    className="mx-1 inline-block h-auto w-[160px] align-middle dark:hidden sm:w-[200px] md:w-[240px] xl:w-[300px]"
                   />
                   <img
                     src={encodeURI('/images/cep-dunyasi-logo-dark-v3-tight.png')}
                     alt="Cep Dunyasi logosu"
-                    className="mx-1 hidden h-auto w-[220px] align-middle dark:inline-block md:w-[260px] xl:w-[300px]"
+                    className="mx-1 hidden h-auto w-[160px] align-middle dark:inline-block sm:w-[200px] md:w-[240px] xl:w-[300px]"
                   />
                   ile kesfet
                 </h1>
-                <p className="mt-4 max-w-xl text-base text-muted-foreground drop-shadow-[0_8px_18px_rgba(0,0,0,0.16)] md:text-lg">
+                <p className="mt-4 max-w-xl text-sm text-muted-foreground drop-shadow-[0_8px_18px_rgba(0,0,0,0.16)] sm:text-base md:text-lg">
                   Premium telefon ve aksesuarlar
                 </p>
                 <div className="mt-7">
-                  <Button size="lg" asChild className="shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
+                  <Button size="lg" asChild className="w-full shadow-[0_12px_28px_rgba(0,0,0,0.24)] sm:w-auto">
                     <Link to="/products">
                       Urunleri Incele <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -73,8 +73,8 @@ export function HeroSection({ activeSlide, onSlideChange }: HeroSectionProps) {
                 </div>
               </motion.div>
 
-              <motion.div style={{ y: accentY, x: driftX, rotate: rotateZ }} className="mx-auto w-full max-w-[560px] lg:-ml-20">
-                <div className="relative h-[460px] w-full md:h-[560px] lg:h-[620px]">
+              <motion.div style={{ y: accentY, x: driftX, rotate: rotateZ }} className="mx-auto w-full max-w-[560px] lg:-ml-8">
+                <div className="relative h-[320px] w-full sm:h-[420px] md:h-[520px] lg:h-[620px]">
                   <div className="absolute inset-x-10 bottom-10 h-24 rounded-full bg-primary/15 blur-3xl" />
                   {heroSlides.map((slide, index) => (
                     <img
