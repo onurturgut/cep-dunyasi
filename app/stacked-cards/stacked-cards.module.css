@@ -1,0 +1,102 @@
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+.stack {
+  position: relative;
+  width: 450px;
+  height: 350px;
+}
+
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 450px;
+  height: 350px;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+
+  display: grid;
+  place-items: center;
+
+  --base-x: 0px;
+  --base-y: 0px;
+  --base-scale: 1;
+  --fan-x: 0px;
+  --fan-y: 0px;
+  --fan-r: 0deg;
+  --lift-y: 0px;
+  --hover-scale-multiplier: 1;
+  transform: translate(
+      calc(var(--base-x) + var(--fan-x)),
+      calc(var(--base-y) + var(--fan-y) + var(--lift-y))
+    )
+    rotate(var(--fan-r))
+    scale(calc(var(--base-scale) * var(--hover-scale-multiplier)));
+}
+
+.card[data-index='0'] {
+  --base-scale: 1;
+  --base-x: 0px;
+  --base-y: 0px;
+}
+
+.card[data-index='1'] {
+  --base-scale: 0.96;
+  --base-x: 16px;
+  --base-y: 14px;
+}
+
+.card[data-index='2'] {
+  --base-scale: 0.92;
+  --base-x: 32px;
+  --base-y: 28px;
+}
+
+.card[data-index='3'] {
+  --base-scale: 0.88;
+  --base-x: 48px;
+  --base-y: 42px;
+}
+
+.card:hover {
+  --lift-y: -12px;
+  --hover-scale-multiplier: 1.03;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
+}
+
+.stack:hover .card[data-index='1'] {
+  --fan-x: 180px;
+  --fan-y: -20px;
+  --fan-r: 6deg;
+}
+
+.stack:hover .card[data-index='2'] {
+  --fan-x: -180px;
+  --fan-y: 20px;
+  --fan-r: -6deg;
+}
+
+.stack:hover .card[data-index='3'] {
+  --fan-x: 0px;
+  --fan-y: 180px;
+  --fan-r: 3deg;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: 0.02em;
+}

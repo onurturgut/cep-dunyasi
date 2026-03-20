@@ -1,0 +1,181 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+import { useSearchParams } from '@/lib/router';
+import { Layout } from '@/components/layout/Layout';
+import { ProductCard } from '@/components/products/ProductCard';
+import { db } from '@/integrations/mongo/client';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Search, SlidersHorizontal } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const defaultCategories = [
+  { id: 'default-telefon', name: 'Telefon', slug: 'telefon', icon: 'Smartphone' },
+  { id: 'default-ikinci-el-telefon', name: '2. El Telefonlar', slug: 'ikinci-el-telefon', icon: 'Smartphone' },
+  { id: 'default-akilli-saat', name: 'Akilli Saatler', slug: 'akilli-saatler', icon: 'Watch' },
+  { id: 'default-kilif', name: 'Kilif', slug: 'kilif', icon: 'ShieldCheck' },
+  { id: 'default-sarj', name: 'Sarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging' },
+  { id: 'default-power', name: 'Power Bank', slug: 'power-bank', icon: 'Battery' },
+  { id: 'default-servis', name: 'Teknik Servis', slug: 'teknik-servis', icon: 'Wrench' },
+];
+
+const mergeCategories = (fallbackCategories: any[], dbCategories: any[]) => {
+  const categoriesBySlug = new Map<string, any>();
+
+  fallbackCategories.forEach((category) => {
+    categoriesBySlug.set(category.slug, category);
+  });
+
+  dbCategories.forEach((category) => {
+    categoriesBySlug.set(category.slug, category);
+  });
+
+  return Array.from(categoriesBySlug.values());
+};
+
+export default function Products() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>(defaultCategories);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+
+  const activeCategory = searchParams.get('category');
+
+  useEffect(() => {
+    db.from('categories').select('*').then(({ data }) => {
+      if (data && data.length > 0) setCategories(mergeCategories(defaultCategories, data));
+    });
+  }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      let query = db
+        .from('products')
+        .select('*, product_variants(*), categories(name, slug)')
+        .eq('is_active', true);
+
+      if (activeCategory) {
+        const { data: cat } = await db
+          .from('categories')
+          .select('id')
+          .eq('slug', activeCategory)
+          .single();
+
+        if (!cat) {
+          setProducts([]);
+          setLoading(false);
+          return;
+        }
+
+        query = query.eq('category_id', cat.id);
+      }
+
+      if (search) {
+        query = query.ilike('name', `%${search}%`);
+      }
+
+      const { data } = await query.order('created_at', { ascending: false });
+      setProducts(data || []);
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, [activeCategory, search]);
+
+  return (
+    <Layout>
+      <div className="container py-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start">
+          <aside className="w-full space-y-4 md:w-56 md:shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Urun ara..."
+                className="pl-9"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <div>
+              <h3 className="mb-2 text-sm font-semibold text-muted-foreground">KATEGORILER</h3>
+              <div className="flex flex-wrap gap-2 md:flex-col">
+                <Button
+                  variant={!activeCategory ? 'default' : 'ghost'}
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => setSearchParams({})}
+                >
+                  Tumu
+                </Button>
+                {categories.map((cat) => (
+                  <Button
+                    key={cat.id}
+                    variant={activeCategory === cat.slug ? 'default' : 'ghost'}
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => setSearchParams({ category: cat.slug })}
+                  >
+                    {cat.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          <div className="flex-1">
+            <div className="mb-6 flex items-center justify-between">
+              <h1 className="font-display text-2xl font-bold">
+                {activeCategory
+                  ? categories.find((c) => c.slug === activeCategory)?.name || 'Urunler'
+                  : 'Tum Urunler'}
+              </h1>
+              <Badge variant="secondary">{products.length} urun</Badge>
+            </div>
+
+            {loading ? (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="aspect-square w-full rounded-lg" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <SlidersHorizontal className="h-12 w-12 text-muted-foreground/30" />
+                <h3 className="mt-4 font-display font-semibold">Urun bulunamadi</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Farkli bir arama veya kategori deneyin.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                {products.map((product) => {
+                  const variant = product.product_variants?.[0];
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      slug={product.slug}
+                      brand={product.brand}
+                      images={product.images}
+                      price={variant?.price || 0}
+                      variantId={variant?.id}
+                      stock={variant?.stock || 0}
+                      category={product.categories?.name}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
