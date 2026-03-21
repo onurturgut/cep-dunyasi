@@ -72,6 +72,7 @@ export default function AdminProducts() {
     const body = new FormData();
     body.append('file', file);
     body.append('kind', 'image');
+    body.append('scope', 'products');
 
     const response = await fetch('/api/upload', {
       method: 'POST',

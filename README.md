@@ -76,6 +76,38 @@ Uygulama varsayilan olarak `http://localhost:3000` adresinde acilir.
 - `IYZICO_SECRET_KEY`: Iyzico secret key
 - `IYZICO_BASE_URL`: Genelde sandbox icin `https://sandbox-api.iyzipay.com`
 - `NEXT_PUBLIC_SITE_URL`: Ornek `http://localhost:3000`
+- `CLOUDFLARE_R2_ACCOUNT_ID`: Cloudflare account ID
+- `CLOUDFLARE_R2_ACCESS_KEY_ID`: R2 access key
+- `CLOUDFLARE_R2_SECRET_ACCESS_KEY`: R2 secret key
+- `CLOUDFLARE_R2_BUCKET_NAME`: Upload'larin yazilacagi R2 bucket adi
+- `CLOUDFLARE_R2_PUBLIC_BASE_URL`: Bucket'in public custom domain'i veya gelistirme icin `r2.dev` URL tabani
+
+## Dosya Yukleme ve Cloudflare R2
+
+Uygulamadaki aktif upload akislari Cloudflare R2'ye yazar:
+
+- teknik servis formu fotograf yuklemeleri
+- admin misyon medya ve poster yuklemeleri
+- admin urun fotograf yuklemeleri
+
+Kullanilan object key prefix'leri:
+
+- `uploads/technical-service/images`
+- `uploads/mission/images`
+- `uploads/mission/videos`
+- `uploads/products/images`
+
+R2 kurulumu:
+
+1. Bir R2 bucket olusturun.
+2. Bucket icin bir Access Key / Secret Key uretin.
+3. Bucket'i public erisim icin bir custom domain ile yayinlayin.
+4. `.env.local` icinde yukaridaki `CLOUDFLARE_R2_*` degiskenlerini doldurun.
+
+Not:
+
+- Uygulama public dosya URL'lerini `CLOUDFLARE_R2_PUBLIC_BASE_URL` uzerinden uretir.
+- Cloudflare dokumantasyonuna gore `r2.dev` URL'leri gelistirme icindir; production icin custom domain tercih edilmelidir.
 
 ## Admin Paneli Girisi
 

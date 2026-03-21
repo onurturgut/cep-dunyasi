@@ -136,6 +136,7 @@ export default function AdminMission() {
     const body = new FormData();
     body.append('file', file);
     body.append('kind', kind);
+    body.append('scope', 'mission');
 
     const response = await fetch('/api/upload', {
       method: 'POST',

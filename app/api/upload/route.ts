@@ -1,8 +1,6 @@
-import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import { getSessionUserFromRequest, isAdmin } from "@/server/auth-session";
+import { uploadToR2 } from "@/server/storage/r2";
 
 export const runtime = "nodejs";
 
@@ -10,23 +8,6 @@ const MAX_FILE_SIZE_BYTES = 120 * 1024 * 1024;
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ data: null, error: { message } }, { status });
-}
-
-function getSafeExtension(fileName: string, mimeType: string) {
-  const extFromName = path.extname(fileName || "").toLowerCase();
-  const safeFromName = extFromName.replace(/[^a-z0-9.]/g, "");
-
-  if (safeFromName) {
-    return safeFromName;
-  }
-
-  if (mimeType === "image/jpeg") return ".jpg";
-  if (mimeType === "image/png") return ".png";
-  if (mimeType === "image/webp") return ".webp";
-  if (mimeType === "video/mp4") return ".mp4";
-  if (mimeType === "video/webm") return ".webm";
-
-  return "";
 }
 
 export async function POST(request: Request) {
@@ -39,6 +20,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get("file");
     const kind = `${formData.get("kind") ?? ""}`.toLowerCase();
+    const scope = `${formData.get("scope") ?? "mission"}`.toLowerCase();
 
     if (!(file instanceof File)) {
       return jsonError("Yuklenecek dosya bulunamadi", 400);
@@ -68,23 +50,24 @@ export async function POST(request: Request) {
       return jsonError("Bu alan icin video yuklemelisiniz", 400);
     }
 
-    const bucket = isVideo ? "videos" : "images";
-    const extension = getSafeExtension(file.name, mimeType);
-    const fileName = `${Date.now()}-${randomUUID()}${extension}`;
+    if (!["mission", "products"].includes(scope)) {
+      return jsonError("Gecersiz upload alani", 400);
+    }
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "mission", bucket);
-    await mkdir(uploadDir, { recursive: true });
-
-    const targetPath = path.join(uploadDir, fileName);
     const data = Buffer.from(await file.arrayBuffer());
-    await writeFile(targetPath, data);
-
-    const url = `/uploads/mission/${bucket}/${fileName}`;
+    const mediaFolder = isVideo ? "videos" : "images";
+    const uploaded = await uploadToR2({
+      body: data,
+      contentType: mimeType,
+      fileName: file.name,
+      keyPrefix: `uploads/${scope}/${mediaFolder}`,
+    });
 
     return NextResponse.json({
       data: {
-        url,
-        fileName,
+        url: uploaded.url,
+        fileName: uploaded.fileName,
+        objectKey: uploaded.objectKey,
         mimeType,
         size: file.size,
       },

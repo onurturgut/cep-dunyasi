@@ -1,9 +1,7 @@
-import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
 import { TechnicalServiceRequest } from "@/server/models";
+import { uploadToR2 } from "@/server/storage/r2";
 
 export const runtime = "nodejs";
 
@@ -15,22 +13,6 @@ function jsonError(message: string, status: number) {
 
 function normalizeText(value: FormDataEntryValue | null) {
   return `${value ?? ""}`.trim();
-}
-
-function getSafeExtension(fileName: string, mimeType: string) {
-  const extFromName = path.extname(fileName || "").toLowerCase();
-  const safeFromName = extFromName.replace(/[^a-z0-9.]/g, "");
-
-  if (safeFromName) {
-    return safeFromName;
-  }
-
-  if (mimeType === "image/jpeg") return ".jpg";
-  if (mimeType === "image/png") return ".png";
-  if (mimeType === "image/webp") return ".webp";
-  if (mimeType === "image/heic") return ".heic";
-
-  return "";
 }
 
 export async function POST(request: Request) {
@@ -60,16 +42,15 @@ export async function POST(request: Request) {
         return jsonError("Sadece fotograf yukleyebilirsiniz", 400);
       }
 
-      const extension = getSafeExtension(photo.name, mimeType);
-      const fileName = `${Date.now()}-${randomUUID()}${extension}`;
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "technical-service", "images");
-      await mkdir(uploadDir, { recursive: true });
-
-      const targetPath = path.join(uploadDir, fileName);
       const data = Buffer.from(await photo.arrayBuffer());
-      await writeFile(targetPath, data);
+      const uploaded = await uploadToR2({
+        body: data,
+        contentType: mimeType,
+        fileName: photo.name,
+        keyPrefix: "uploads/technical-service/images",
+      });
 
-      photoUrl = `/uploads/technical-service/images/${fileName}`;
+      photoUrl = uploaded.url;
       photoName = photo.name;
     }
 
