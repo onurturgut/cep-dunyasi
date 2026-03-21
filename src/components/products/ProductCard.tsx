@@ -11,6 +11,7 @@ interface ProductCardProps {
   name: string;
   slug: string;
   brand?: string | null;
+  description?: string | null;
   image?: string;
   images?: string[];
   price: number;
@@ -25,6 +26,7 @@ export function ProductCard({
   name,
   slug,
   brand,
+  description,
   image,
   images,
   price,
@@ -98,6 +100,7 @@ export function ProductCard({
           <CardContent className="flex h-full flex-col p-4">
             {brand && <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{brand}</p>}
             <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-foreground">{name}</h3>
+            {description ? <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{description}</p> : null}
             <div className="mt-3 flex items-end justify-between gap-3">
               <div className="flex min-w-0 flex-col gap-1">
                 <span className="text-lg font-bold text-primary">TL {price.toLocaleString('tr-TR')}</span>

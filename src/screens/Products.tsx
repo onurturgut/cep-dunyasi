@@ -185,6 +185,7 @@ export default function Products() {
                       name={product.name}
                       slug={product.slug}
                       brand={product.brand}
+                      description={product.description}
                       images={product.images}
                       price={variant?.price || 0}
                       variantId={variant?.id}

@@ -148,6 +148,38 @@ export default function AdminProducts() {
         toast.error(error.message);
         return;
       }
+
+      const parsedPrice = Number.parseFloat(form.variantPrice);
+      const parsedStock = Number.parseInt(form.variantStock, 10);
+      const hasValidVariant = form.variantSku.trim() && Number.isFinite(parsedPrice) && parsedPrice > 0;
+      const primaryVariant = Array.isArray(editing.product_variants) ? editing.product_variants[0] : null;
+
+      if (hasValidVariant) {
+        const variantPayload = {
+          sku: form.variantSku.trim(),
+          price: parsedPrice,
+          stock: Number.isFinite(parsedStock) && parsedStock >= 0 ? parsedStock : 0,
+          is_active: true,
+        };
+
+        if (primaryVariant?.id) {
+          const { error: variantError } = await db.from('product_variants').update(variantPayload).eq('id', primaryVariant.id);
+          if (variantError) {
+            toast.error(variantError.message);
+            return;
+          }
+        } else {
+          const { error: variantError } = await db.from('product_variants').insert({
+            product_id: editing.id,
+            ...variantPayload,
+          });
+          if (variantError) {
+            toast.error(variantError.message);
+            return;
+          }
+        }
+      }
+
       toast.success('Urun guncellendi');
     } else {
       if (!form.variantSku.trim() || !form.variantPrice.trim()) {
@@ -216,9 +248,9 @@ export default function AdminProducts() {
       category_id: product.category_id || '',
       is_featured: Boolean(product.is_featured),
       is_active: product.is_active,
-      variantSku: '',
-      variantPrice: '',
-      variantStock: '10',
+      variantSku: product.product_variants?.[0]?.sku || '',
+      variantPrice: `${product.product_variants?.[0]?.price ?? ''}`,
+      variantStock: `${product.product_variants?.[0]?.stock ?? 10}`,
       images: Array.isArray(product.images) ? product.images : [],
     });
     setDialogOpen(true);
@@ -420,36 +452,34 @@ export default function AdminProducts() {
                 />
               </div>
 
-              {!editing && (
-                <>
-                  <h4 className="text-sm font-semibold">Varsayilan Varyant</h4>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="space-y-1">
-                      <Label className="text-xs">SKU</Label>
-                      <Input
-                        value={form.variantSku}
-                        onChange={(e) => setForm((current) => ({ ...current, variantSku: e.target.value }))}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Fiyat (TL)</Label>
-                      <Input
-                        type="number"
-                        value={form.variantPrice}
-                        onChange={(e) => setForm((current) => ({ ...current, variantPrice: e.target.value }))}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Stok</Label>
-                      <Input
-                        type="number"
-                        value={form.variantStock}
-                        onChange={(e) => setForm((current) => ({ ...current, variantStock: e.target.value }))}
-                      />
-                    </div>
+              <>
+                <h4 className="text-sm font-semibold">Varsayilan Varyant</h4>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">SKU</Label>
+                    <Input
+                      value={form.variantSku}
+                      onChange={(e) => setForm((current) => ({ ...current, variantSku: e.target.value }))}
+                    />
                   </div>
-                </>
-              )}
+                  <div className="space-y-1">
+                    <Label className="text-xs">Fiyat (TL)</Label>
+                    <Input
+                      type="number"
+                      value={form.variantPrice}
+                      onChange={(e) => setForm((current) => ({ ...current, variantPrice: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Stok</Label>
+                    <Input
+                      type="number"
+                      value={form.variantStock}
+                      onChange={(e) => setForm((current) => ({ ...current, variantStock: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              </>
 
               <Button className="w-full" onClick={handleSave}>
                 {editing ? 'Guncelle' : 'Kaydet'}
