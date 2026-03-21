@@ -27,7 +27,7 @@ export default function Index() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [catRes, siteContentRes, prodRes] = await Promise.all([
+      const [catRes, siteContentRes, featuredRes, activeRes] = await Promise.all([
         db.from('categories').select('*'),
         db.from('site_contents').select('*').eq('key', 'home').single(),
         db
@@ -36,6 +36,11 @@ export default function Index() {
           .eq('is_featured', true)
           .eq('is_active', true)
           .limit(8),
+        db
+          .from('products')
+          .select('*, product_variants(*), categories(name, slug)')
+          .eq('is_active', true)
+          .limit(16),
       ]);
 
       if (catRes.data && catRes.data.length > 0) {
@@ -46,8 +51,18 @@ export default function Index() {
         setSiteContent({ ...defaultSiteContent, ...siteContentRes.data });
       }
 
-      if (prodRes.data) {
-        setFeaturedProducts(prodRes.data);
+      const featuredRows = Array.isArray(featuredRes.data) ? featuredRes.data : [];
+      const activeRows = Array.isArray(activeRes.data) ? activeRes.data : [];
+
+      const featuredWithImages = featuredRows.filter((product) => Array.isArray(product.images) && product.images.some(Boolean));
+      const activeWithImages = activeRows.filter((product) => Array.isArray(product.images) && product.images.some(Boolean));
+
+      if (featuredWithImages.length > 0) {
+        setFeaturedProducts(featuredWithImages);
+      } else if (activeWithImages.length > 0) {
+        setFeaturedProducts(activeWithImages.slice(0, 8));
+      } else {
+        setFeaturedProducts(featuredRows.length > 0 ? featuredRows : activeRows.slice(0, 8));
       }
     };
 

@@ -41,13 +41,13 @@ export type HomeSiteContent = {
 };
 
 export const defaultCategories: HomeCategory[] = [
-  { id: 'default-telefon', name: 'Telefon', slug: 'telefon', icon: 'Smartphone', description: '', image_url: '' },
-  { id: 'default-ikinci-el-telefon', name: '2. El Telefonlar', slug: 'ikinci-el-telefon', icon: 'Smartphone', description: '', image_url: '' },
-  { id: 'default-akilli-saat', name: 'Akıllı Saatler', slug: 'akilli-saatler', icon: 'Watch', description: '', image_url: '' },
-  { id: 'default-kilif', name: 'Kılıf', slug: 'kilif', icon: 'ShieldCheck', description: '', image_url: '' },
-  { id: 'default-sarj', name: 'Şarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging', description: '', image_url: '' },
-  { id: 'default-power', name: 'Power Bank', slug: 'power-bank', icon: 'Battery', description: '', image_url: '' },
-  { id: 'default-servis', name: 'Teknik Servis', slug: 'teknik-servis', icon: 'Wrench', description: '', image_url: '' },
+  { id: 'default-telefon', name: 'Telefon', slug: 'telefon', icon: 'Smartphone', description: '', image_url: '/images/kategorileri_kesfet/telefon.png' },
+  { id: 'default-ikinci-el-telefon', name: '2. El Telefonlar', slug: 'ikinci-el-telefon', icon: 'Smartphone', description: '', image_url: '/images/kategorileri_kesfet/2.el_telefon.png' },
+  { id: 'default-akilli-saat', name: 'Akıllı Saatler', slug: 'akilli-saatler', icon: 'Watch', description: '', image_url: '/images/kategorileri_kesfet/saat.png' },
+  { id: 'default-kilif', name: 'Kılıf', slug: 'kilif', icon: 'ShieldCheck', description: '', image_url: '/images/kategorileri_kesfet/kılıf.png' },
+  { id: 'default-sarj', name: 'Şarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging', description: '', image_url: '/images/sarj_aleti.webp' },
+  { id: 'default-power', name: 'Power Bank', slug: 'power-bank', icon: 'Battery', description: '', image_url: '/images/kategorileri_kesfet/powerbank.png' },
+  { id: 'default-servis', name: 'Teknik Servis', slug: 'teknik-servis', icon: 'Wrench', description: '', image_url: '/images/kategorileri_kesfet/teknik_servis.png' },
 ];
 
 export const categoryIcons: Record<string, LucideIcon> = {
@@ -67,7 +67,14 @@ export function mergeCategories(fallbackCategories: HomeCategory[], dbCategories
   });
 
   dbCategories.forEach((category) => {
-    categoriesBySlug.set(category.slug, category);
+    const fallback = categoriesBySlug.get(category.slug);
+    categoriesBySlug.set(category.slug, {
+      ...fallback,
+      ...category,
+      icon: category.icon || fallback?.icon || 'Smartphone',
+      description: category.description || fallback?.description || '',
+      image_url: category.image_url || fallback?.image_url || '',
+    });
   });
 
   return Array.from(categoriesBySlug.values());
