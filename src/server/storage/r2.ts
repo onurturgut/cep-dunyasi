@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 type UploadToR2Input = {
   body: Buffer;
@@ -46,6 +46,14 @@ function getR2Client() {
   return client;
 }
 
+function getOptionalEnv(name: "MEDIA_PUBLIC_BASE_URL") {
+  return process.env[name]?.trim() || "";
+}
+
+export function getMediaPublicBaseUrl() {
+  return getOptionalEnv("MEDIA_PUBLIC_BASE_URL").replace(/\/+$/, "") || "/media";
+}
+
 export function getSafeUploadExtension(fileName: string, mimeType: string) {
   const extFromName = path.extname(fileName || "").toLowerCase();
   const safeFromName = extFromName.replace(/[^a-z0-9.]/g, "");
@@ -66,7 +74,6 @@ export function getSafeUploadExtension(fileName: string, mimeType: string) {
 
 export async function uploadToR2({ body, contentType, fileName, keyPrefix, cacheControl }: UploadToR2Input) {
   const bucketName = getRequiredEnv("CLOUDFLARE_R2_BUCKET_NAME");
-  const publicBaseUrl = getRequiredEnv("CLOUDFLARE_R2_PUBLIC_BASE_URL").replace(/\/+$/, "");
   const extension = getSafeUploadExtension(fileName, contentType);
   const objectKey = `${keyPrefix.replace(/^\/+|\/+$/g, "")}/${Date.now()}-${randomUUID()}${extension}`;
 
@@ -83,7 +90,7 @@ export async function uploadToR2({ body, contentType, fileName, keyPrefix, cache
   return {
     objectKey,
     fileName: path.basename(objectKey),
-    url: `${publicBaseUrl}/${objectKey}`,
+    url: getMediaUrlFromObjectKey(objectKey),
   };
 }
 
@@ -95,6 +102,39 @@ export function getObjectKeyFromR2Url(url: string) {
   }
 
   return url.slice(publicBaseUrl.length + 1);
+}
+
+export function getMediaUrlFromObjectKey(objectKey: string) {
+  const baseUrl = getMediaPublicBaseUrl();
+  return `${baseUrl}/${objectKey.replace(/^\/+/, "")}`;
+}
+
+export function getObjectKeyFromMediaUrl(url: string) {
+  const mediaBaseUrl = getMediaPublicBaseUrl();
+
+  if (url.startsWith(`${mediaBaseUrl}/`)) {
+    return url.slice(mediaBaseUrl.length + 1);
+  }
+
+  if (url.startsWith("/media/")) {
+    return url.slice("/media/".length);
+  }
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.pathname.startsWith("/media/")) {
+      return parsed.pathname.slice("/media/".length);
+    }
+  } catch {
+    // Ignore invalid URLs and continue to other matchers.
+  }
+
+  return getObjectKeyFromR2Url(url);
+}
+
+export function normalizeMediaUrl(url: string) {
+  const objectKey = getObjectKeyFromMediaUrl(url);
+  return objectKey ? getMediaUrlFromObjectKey(objectKey) : url;
 }
 
 export async function deleteFromR2ByObjectKey(objectKey: string) {
@@ -109,11 +149,22 @@ export async function deleteFromR2ByObjectKey(objectKey: string) {
 }
 
 export async function deleteFromR2ByUrl(url: string) {
-  const objectKey = getObjectKeyFromR2Url(url);
+  const objectKey = getObjectKeyFromMediaUrl(url);
   if (!objectKey) {
     return false;
   }
 
   await deleteFromR2ByObjectKey(objectKey);
   return true;
+}
+
+export async function getR2ObjectByKey(objectKey: string) {
+  const bucketName = getRequiredEnv("CLOUDFLARE_R2_BUCKET_NAME");
+
+  return getR2Client().send(
+    new GetObjectCommand({
+      Bucket: bucketName,
+      Key: objectKey,
+    })
+  );
 }

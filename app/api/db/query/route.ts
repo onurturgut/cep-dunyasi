@@ -8,6 +8,7 @@ import {
   tableModelMap,
   type DbTableName,
 } from "@/server/models";
+import { normalizeMediaUrl } from "@/server/storage/r2";
 import { ensureSeedData } from "@/server/seed";
 import { getSessionUserFromRequest, isAdmin } from "@/server/auth-session";
 
@@ -52,8 +53,12 @@ function normalizeEntity(entity: any) {
     return entity.map((item) => normalizeEntity(item));
   }
 
+  if (typeof entity === "string") {
+    return normalizeMediaUrl(entity);
+  }
+
   const { _id, __v, ...rest } = entity;
-  return rest;
+  return Object.fromEntries(Object.entries(rest).map(([key, value]) => [key, normalizeEntity(value)]));
 }
 
 function likePatternToRegex(value: string) {

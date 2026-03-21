@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Category, Coupon, MissionItem, Order, OrderItem, Product, ProductVariant, SiteContent } from "@/server/models";
-import { uploadToR2 } from "@/server/storage/r2";
+import { getObjectKeyFromMediaUrl, normalizeMediaUrl, uploadToR2 } from "@/server/storage/r2";
 
 let seeded = false;
 let seedPromise: Promise<void> | null = null;
@@ -709,8 +709,7 @@ const missionItemSeeds = [
 ];
 
 function isR2Url(value: string) {
-  const publicBaseUrl = process.env.CLOUDFLARE_R2_PUBLIC_BASE_URL?.trim().replace(/\/+$/, "");
-  return Boolean(publicBaseUrl && value.startsWith(`${publicBaseUrl}/`));
+  return Boolean(getObjectKeyFromMediaUrl(value));
 }
 
 function getMimeTypeFromFileName(fileName: string) {
@@ -728,7 +727,7 @@ async function uploadProductImageSourceToR2(sourceUrl: string) {
   }
 
   if (isR2Url(sourceUrl)) {
-    return sourceUrl;
+    return normalizeMediaUrl(sourceUrl);
   }
 
   const cachedPromise = migratedProductImageCache.get(sourceUrl);
