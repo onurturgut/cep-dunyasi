@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from '@/lib/router';
+import { useNavigate, useSearchParams } from '@/lib/router';
 import { Layout } from '@/components/layout/Layout';
 import { ProductCard } from '@/components/products/ProductCard';
 import { db } from '@/integrations/mongo/client';
@@ -37,6 +37,7 @@ const mergeCategories = (fallbackCategories: any[], dbCategories: any[]) => {
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>(defaultCategories);
   const [loading, setLoading] = useState(true);
@@ -45,12 +46,22 @@ export default function Products() {
   const activeCategory = searchParams.get('category');
 
   useEffect(() => {
+    if (activeCategory === 'teknik-servis') {
+      navigate('/technical-service', { replace: true });
+    }
+  }, [activeCategory, navigate]);
+
+  useEffect(() => {
     db.from('categories').select('*').then(({ data }) => {
       if (data && data.length > 0) setCategories(mergeCategories(defaultCategories, data));
     });
   }, []);
 
   useEffect(() => {
+    if (activeCategory === 'teknik-servis') {
+      return;
+    }
+
     const fetchProducts = async () => {
       setLoading(true);
       let query = db
@@ -86,6 +97,10 @@ export default function Products() {
     fetchProducts();
   }, [activeCategory, search]);
 
+  if (activeCategory === 'teknik-servis') {
+    return null;
+  }
+
   return (
     <Layout>
       <div className="container py-6 sm:py-8">
@@ -117,7 +132,14 @@ export default function Products() {
                     variant={activeCategory === cat.slug ? 'default' : 'ghost'}
                     size="sm"
                     className="shrink-0 justify-start"
-                    onClick={() => setSearchParams({ category: cat.slug })}
+                    onClick={() => {
+                      if (cat.slug === 'teknik-servis') {
+                        navigate('/technical-service');
+                        return;
+                      }
+
+                      setSearchParams({ category: cat.slug });
+                    }}
                   >
                     {cat.name}
                   </Button>

@@ -72,7 +72,7 @@ export function ExploreCategoriesSection({ categories }: ExploreCategoriesSectio
                 return (
                   <Link
                     key={`explore-${category.id}`}
-                    to={`/products?category=${category.slug}`}
+                    to={isServiceColumn ? '/technical-service' : `/products?category=${category.slug}`}
                     className={`explore-category-card group flex min-h-[240px] w-[78vw] max-w-[280px] shrink-0 items-center gap-3 bg-transparent transition-all hover:bg-transparent sm:min-h-[300px] sm:w-[300px] ${
                       cardImage ? 'flex-col overflow-hidden p-0' : 'p-4'
                     }`}

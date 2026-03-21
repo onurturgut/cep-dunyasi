@@ -62,7 +62,7 @@ export function Footer() {
             <h3 className="font-display font-semibold text-primary-foreground">Hizmetler</h3>
             <ul className="mt-3 space-y-2 text-sm text-primary-foreground/90">
               <li>
-                <Link to="/products?category=teknik-servis" className="hover:text-primary-foreground">
+                <Link to="/technical-service" className="hover:text-primary-foreground">
                   Teknik Servis
                 </Link>
               </li>

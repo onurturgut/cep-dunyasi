@@ -33,7 +33,7 @@ type QueryPayload = {
   data?: any;
 };
 
-const ADMIN_ONLY_SELECT_TABLES = new Set<DbTableName>(["order_items", "shipments"]);
+const ADMIN_ONLY_SELECT_TABLES = new Set<DbTableName>(["order_items", "shipments", "technical_service_requests"]);
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ data: null, error: { message } }, { status });
@@ -155,7 +155,13 @@ function withDefaults(table: DbTableName, data: Record<string, any>) {
     };
   }
 
-  if (table === "products" || table === "product_variants" || table === "shipments" || table === "mission_items") {
+  if (
+    table === "products" ||
+    table === "product_variants" ||
+    table === "shipments" ||
+    table === "mission_items" ||
+    table === "technical_service_requests"
+  ) {
     return {
       created_at: now,
       updated_at: now,
@@ -170,7 +176,7 @@ function withDefaults(table: DbTableName, data: Record<string, any>) {
 }
 
 function withUpdatedAt(table: DbTableName, data: Record<string, any>) {
-  if (["products", "product_variants", "orders", "shipments", "mission_items"].includes(table)) {
+  if (["products", "product_variants", "orders", "shipments", "mission_items", "technical_service_requests"].includes(table)) {
     return {
       ...data,
       updated_at: new Date(),

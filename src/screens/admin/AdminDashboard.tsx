@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from '@/lib/router';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Package, ShoppingCart, Tag, ArrowLeft, ImageIcon, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Tag, ArrowLeft, ImageIcon, LogOut, Wrench } from 'lucide-react';
 
 const sidebarItems = [
   { label: 'Genel Bakis', href: '/admin', icon: LayoutDashboard },
@@ -12,6 +12,7 @@ const sidebarItems = [
   { label: 'Siparisler', href: '/admin/orders', icon: ShoppingCart },
   { label: 'Kuponlar', href: '/admin/coupons', icon: Tag },
   { label: 'Misyon', href: '/admin/mission', icon: ImageIcon },
+  { label: 'Teknik Servis', href: '/admin/technical-service', icon: Wrench },
 ];
 
 export default function AdminDashboard({ children }: { children: ReactNode }) {

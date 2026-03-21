@@ -128,6 +128,23 @@ const missionItemSchema = new Schema(
   { versionKey: false }
 );
 
+const technicalServiceRequestSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    first_name: { type: String, required: true, trim: true },
+    last_name: { type: String, required: true, trim: true },
+    phone_number: { type: String, required: true, trim: true, index: true },
+    phone_model: { type: String, required: true, trim: true },
+    issue_description: { type: String, required: true, trim: true },
+    photo_url: { type: String, default: "" },
+    photo_name: { type: String, default: "" },
+    status: { type: String, default: "new", index: true },
+    created_at: { type: Date, default: Date.now, index: true },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
 const userSchema = new Schema(
   {
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
@@ -149,6 +166,8 @@ export const Order: any = models.Order || model("Order", orderSchema);
 export const OrderItem: any = models.OrderItem || model("OrderItem", orderItemSchema);
 export const Shipment: any = models.Shipment || model("Shipment", shipmentSchema);
 export const MissionItem: any = models.MissionItem || model("MissionItem", missionItemSchema);
+export const TechnicalServiceRequest: any =
+  models.TechnicalServiceRequest || model("TechnicalServiceRequest", technicalServiceRequestSchema);
 export const User: any = models.User || model("User", userSchema);
 
 export type DbTableName =
@@ -159,7 +178,8 @@ export type DbTableName =
   | "orders"
   | "order_items"
   | "shipments"
-  | "mission_items";
+  | "mission_items"
+  | "technical_service_requests";
 
 export const tableModelMap: Record<DbTableName, any> = {
   categories: Category,
@@ -170,4 +190,5 @@ export const tableModelMap: Record<DbTableName, any> = {
   order_items: OrderItem,
   shipments: Shipment,
   mission_items: MissionItem,
+  technical_service_requests: TechnicalServiceRequest,
 };

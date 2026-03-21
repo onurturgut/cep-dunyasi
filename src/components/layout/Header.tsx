@@ -20,7 +20,7 @@ const navLinks = [
   { label: 'Kiliflar', href: '/products?category=kilif' },
   { label: 'Sarj Aleti', href: '/products?category=sarj-aleti' },
   { label: 'Power Bank', href: '/products?category=power-bank' },
-  { label: 'Teknik Servis', href: '/products?category=teknik-servis' },
+  { label: 'Teknik Servis', href: '/technical-service' },
 ];
 
 const megaMenuData = {
@@ -221,7 +221,7 @@ const megaMenuData = {
 type MegaMenuKey = keyof typeof megaMenuData;
 
 const desktopStandaloneLinks = [
-  { label: 'Teknik Servis', href: '/products?category=teknik-servis' },
+  { label: 'Teknik Servis', href: '/technical-service' },
 ];
 
 export function Header() {
