@@ -7,11 +7,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+node_modules.bak*
+node.modules.bak*
+yarn.lock.bak*
+
+# Next.js / build outputs
 .next
 out
 dist
 dist-ssr
+build
+coverage
+.turbo
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# Local generated uploads
+public/uploads
+
+# Test / cache artifacts
+.eslintcache
+.cache
+vitest.config.ts.timestamp-*
 
 # Env files
 .env
