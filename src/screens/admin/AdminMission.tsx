@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { deleteMediaUrls, diffRemovedMediaUrls } from '@/lib/admin-media';
 
 type MissionForm = {
   title: string;
@@ -86,10 +87,20 @@ export default function AdminMission() {
     const payload = toPayload();
 
     if (editing) {
+      const previousMediaUrl = editing.media_url || '';
+      const previousPosterUrl = editing.media_poster || '';
       const { error } = await db.from('mission_items').update(payload).eq('id', editing.id);
       if (error) {
         toast.error(error.message);
         return;
+      }
+      const removedUrls = diffRemovedMediaUrls([previousMediaUrl, previousPosterUrl], [payload.media_url, payload.media_poster]);
+      if (removedUrls.length > 0) {
+        try {
+          await deleteMediaUrls(removedUrls);
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : 'Eski medya silinemedi');
+        }
       }
       toast.success('Misyon kaydi guncellendi');
     } else {
@@ -123,10 +134,16 @@ export default function AdminMission() {
   };
 
   const handleDelete = async (id: string) => {
+    const item = items.find((current) => current.id === id);
     const { error } = await db.from('mission_items').delete().eq('id', id);
     if (error) {
       toast.error(error.message);
       return;
+    }
+    try {
+      await deleteMediaUrls([item?.media_url, item?.media_poster]);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Misyon medyasi silinemedi');
     }
     toast.success('Misyon kaydi silindi');
     fetchItems();

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 type UploadToR2Input = {
   body: Buffer;
@@ -85,4 +85,35 @@ export async function uploadToR2({ body, contentType, fileName, keyPrefix, cache
     fileName: path.basename(objectKey),
     url: `${publicBaseUrl}/${objectKey}`,
   };
+}
+
+export function getObjectKeyFromR2Url(url: string) {
+  const publicBaseUrl = getRequiredEnv("CLOUDFLARE_R2_PUBLIC_BASE_URL").replace(/\/+$/, "");
+
+  if (!url.startsWith(`${publicBaseUrl}/`)) {
+    return null;
+  }
+
+  return url.slice(publicBaseUrl.length + 1);
+}
+
+export async function deleteFromR2ByObjectKey(objectKey: string) {
+  const bucketName = getRequiredEnv("CLOUDFLARE_R2_BUCKET_NAME");
+
+  await getR2Client().send(
+    new DeleteObjectCommand({
+      Bucket: bucketName,
+      Key: objectKey,
+    })
+  );
+}
+
+export async function deleteFromR2ByUrl(url: string) {
+  const objectKey = getObjectKeyFromR2Url(url);
+  if (!objectKey) {
+    return false;
+  }
+
+  await deleteFromR2ByObjectKey(objectKey);
+  return true;
 }

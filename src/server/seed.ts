@@ -1,7 +1,11 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { Category, Coupon, MissionItem, Order, OrderItem, Product, ProductVariant, SiteContent } from "@/server/models";
+import { uploadToR2 } from "@/server/storage/r2";
 
 let seeded = false;
 let seedPromise: Promise<void> | null = null;
+const migratedProductImageCache = new Map<string, Promise<string>>();
 
 type ProductSample = {
   name: string;
@@ -704,6 +708,85 @@ const missionItemSeeds = [
   },
 ];
 
+function isR2Url(value: string) {
+  const publicBaseUrl = process.env.CLOUDFLARE_R2_PUBLIC_BASE_URL?.trim().replace(/\/+$/, "");
+  return Boolean(publicBaseUrl && value.startsWith(`${publicBaseUrl}/`));
+}
+
+function getMimeTypeFromFileName(fileName: string) {
+  const extension = path.extname(fileName).toLowerCase();
+  if (extension === ".jpg" || extension === ".jpeg") return "image/jpeg";
+  if (extension === ".png") return "image/png";
+  if (extension === ".webp") return "image/webp";
+  if (extension === ".heic") return "image/heic";
+  return "application/octet-stream";
+}
+
+async function uploadProductImageSourceToR2(sourceUrl: string) {
+  if (!sourceUrl) {
+    return sourceUrl;
+  }
+
+  if (isR2Url(sourceUrl)) {
+    return sourceUrl;
+  }
+
+  const cachedPromise = migratedProductImageCache.get(sourceUrl);
+  if (cachedPromise) {
+    return cachedPromise;
+  }
+
+  const migrationPromise = (async () => {
+    if (sourceUrl.startsWith("/")) {
+      const relativePath = decodeURIComponent(sourceUrl).replace(/^\/+/, "");
+      const localFilePath = path.join(process.cwd(), "public", relativePath);
+      const body = await fs.readFile(localFilePath);
+      const fileName = path.basename(localFilePath);
+      const contentType = getMimeTypeFromFileName(fileName);
+      const uploaded = await uploadToR2({
+        body,
+        contentType,
+        fileName,
+        keyPrefix: "uploads/products/images/seeded",
+      });
+      return uploaded.url;
+    }
+
+    const response = await fetch(sourceUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch product image: ${sourceUrl}`);
+    }
+
+    const contentType = response.headers.get("content-type")?.split(";")[0]?.trim() || getMimeTypeFromFileName(sourceUrl);
+    const arrayBuffer = await response.arrayBuffer();
+    const fileNameFromUrl = path.basename(new URL(sourceUrl).pathname) || "product-image";
+    const uploaded = await uploadToR2({
+      body: Buffer.from(arrayBuffer),
+      contentType,
+      fileName: fileNameFromUrl,
+      keyPrefix: "uploads/products/images/seeded",
+    });
+    return uploaded.url;
+  })();
+
+  migratedProductImageCache.set(sourceUrl, migrationPromise);
+  return migrationPromise;
+}
+
+async function migrateProductImageListToR2(imageUrls: string[]) {
+  const migrated = await Promise.all(
+    imageUrls.filter(Boolean).map(async (imageUrl) => {
+      try {
+        return await uploadProductImageSourceToR2(imageUrl);
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  return Array.from(new Set(migrated.filter(Boolean)));
+}
+
 const defaultSiteContent = {
   key: "home",
   hero_title_prefix: "Teknolojinin",
@@ -810,7 +893,14 @@ export async function ensureSeedData() {
       const existingProducts = await Product.find({ slug: { $in: seedSlugs } }).lean();
       const existingSlugSet = new Set(existingProducts.map((item: any) => item.slug));
       const seedImagesBySlug = new Map<string, string[]>(
-        productSeeds.map((sample) => [sample.slug, buildSeedGalleryImages(sample)])
+        await Promise.all(
+          productSeeds.map(
+            async (sample): Promise<[string, string[]]> => [
+              sample.slug,
+              await migrateProductImageListToR2(buildSeedGalleryImages(sample)),
+            ]
+          )
+        )
       );
 
       const productsToInsert = productSeeds
@@ -853,6 +943,43 @@ export async function ensureSeedData() {
               }
             )
           )
+        );
+      }
+
+      const allProducts = await Product.find({}).lean();
+      const productsWithNonR2Images = allProducts.filter((product: any) => {
+        const currentImages = Array.isArray(product.images) ? product.images.filter(Boolean) : [];
+        return currentImages.some((imageUrl: string) => !isR2Url(imageUrl));
+      });
+
+      if (productsWithNonR2Images.length > 0) {
+        await Promise.all(
+          productsWithNonR2Images.map(async (product: any) => {
+            const currentImages = Array.isArray(product.images) ? product.images.filter(Boolean) : [];
+            const migratedImages = await migrateProductImageListToR2(currentImages);
+
+            if (migratedImages.length === 0) {
+              return;
+            }
+
+            const isSameList =
+              migratedImages.length === currentImages.length &&
+              migratedImages.every((imageUrl, index) => imageUrl === currentImages[index]);
+
+            if (isSameList) {
+              return;
+            }
+
+            await Product.updateOne(
+              { id: product.id },
+              {
+                $set: {
+                  images: migratedImages,
+                  updated_at: new Date(),
+                },
+              }
+            );
+          })
         );
       }
 

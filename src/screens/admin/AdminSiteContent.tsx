@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { defaultSiteContent } from "@/components/home/home-data";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
 
 type HeroSlide = {
   id: string;
@@ -163,6 +164,28 @@ export default function AdminSiteContent() {
     if (result.error) {
       toast.error(result.error.message);
       return;
+    }
+
+    if (existing.data) {
+      const previousUrls = [
+        existing.data.hero_logo_light_url,
+        existing.data.hero_logo_dark_url,
+        ...(Array.isArray(existing.data.hero_slides) ? existing.data.hero_slides.map((slide: HeroSlide) => slide.image_url) : []),
+      ];
+      const nextUrls = [
+        payload.hero_logo_light_url,
+        payload.hero_logo_dark_url,
+        ...payload.hero_slides.map((slide) => slide.image_url),
+      ];
+      const removedUrls = diffRemovedMediaUrls(previousUrls, nextUrls);
+
+      if (removedUrls.length > 0) {
+        try {
+          await deleteMediaUrls(removedUrls);
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : "Eski site gorselleri silinemedi");
+        }
+      }
     }
 
     toast.success("Site icerigi kaydedildi");

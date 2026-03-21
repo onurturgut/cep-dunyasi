@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { deleteMediaUrls, diffRemovedMediaUrls } from '@/lib/admin-media';
 
 type ProductForm = {
   name: string;
@@ -129,6 +130,7 @@ export default function AdminProducts() {
     const slug = form.slug || form.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
     if (editing) {
+      const previousImages = Array.isArray(editing.images) ? editing.images : [];
       const { error } = await db
         .from('products')
         .update({
@@ -177,6 +179,15 @@ export default function AdminProducts() {
             toast.error(variantError.message);
             return;
           }
+        }
+      }
+
+      const removedImages = diffRemovedMediaUrls(previousImages, form.images);
+      if (removedImages.length > 0) {
+        try {
+          await deleteMediaUrls(removedImages);
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : 'Eski fotograflar silinemedi');
         }
       }
 
@@ -257,7 +268,15 @@ export default function AdminProducts() {
   };
 
   const handleDelete = async (id: string) => {
+    const product = products.find((item) => item.id === id);
     await db.from('products').delete().eq('id', id);
+    if (product?.images?.length) {
+      try {
+        await deleteMediaUrls(product.images);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Urun fotograflari silinemedi');
+      }
+    }
     toast.success('Urun silindi');
     fetchProducts();
   };

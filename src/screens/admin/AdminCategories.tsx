@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
 
 type CategoryForm = {
   name: string;
@@ -117,10 +118,19 @@ export default function AdminCategories() {
     };
 
     if (editing) {
+      const previousImageUrl = editing.image_url || "";
       const { error } = await db.from("categories").update(payload).eq("id", editing.id);
       if (error) {
         toast.error(error.message);
         return;
+      }
+      const removedUrls = diffRemovedMediaUrls([previousImageUrl], [payload.image_url]);
+      if (removedUrls.length > 0) {
+        try {
+          await deleteMediaUrls(removedUrls);
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : "Eski kategori gorseli silinemedi");
+        }
       }
       toast.success("Kategori guncellendi");
     } else {
@@ -151,10 +161,18 @@ export default function AdminCategories() {
   };
 
   const handleDelete = async (id: string) => {
+    const category = categories.find((item) => item.id === id);
     const { error } = await db.from("categories").delete().eq("id", id);
     if (error) {
       toast.error(error.message);
       return;
+    }
+    if (category?.image_url) {
+      try {
+        await deleteMediaUrls([category.image_url]);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Kategori gorseli silinemedi");
+      }
     }
     toast.success("Kategori silindi");
     fetchCategories();
