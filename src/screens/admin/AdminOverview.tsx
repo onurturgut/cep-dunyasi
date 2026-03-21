@@ -5,6 +5,7 @@ import { AlertTriangle, Package, ShoppingCart, TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/integrations/mongo/client";
+import { parseValidDate, toIsoDateKey } from "@/lib/date";
 
 type DashboardOrderItem = {
   variant_id: string;
@@ -52,10 +53,6 @@ function formatCurrency(value: number) {
 
 function getMonthKey(date: Date) {
   return `${date.getFullYear()}-${date.getMonth() + 1}`;
-}
-
-function getDateKey(date: Date) {
-  return date.toISOString().slice(0, 10);
 }
 
 export default function AdminOverview() {
@@ -113,7 +110,12 @@ export default function AdminOverview() {
     for (let i = 13; i >= 0; i -= 1) {
       const dayDate = new Date(now);
       dayDate.setDate(now.getDate() - i);
-      const key = getDateKey(dayDate);
+      const key = toIsoDateKey(dayDate);
+
+      if (!key) {
+        continue;
+      }
+
       dailyMap.set(key, {
         label: dayDate.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit" }),
         revenue: 0,
@@ -126,9 +128,14 @@ export default function AdminOverview() {
     const productMap = new Map<string, { revenue: number; quantity: number }>();
 
     for (const order of orders) {
-      const createdAt = new Date(order.created_at);
+      const createdAt = parseValidDate(order.created_at);
+
+      if (!createdAt) {
+        continue;
+      }
+
       const monthKey = getMonthKey(createdAt);
-      const dayKey = getDateKey(createdAt);
+      const dayKey = toIsoDateKey(createdAt);
       const isPaid = order.payment_status === "paid";
 
       const monthEntry = monthlyMap.get(monthKey);
@@ -139,7 +146,7 @@ export default function AdminOverview() {
         }
       }
 
-      const dayEntry = dailyMap.get(dayKey);
+      const dayEntry = dayKey ? dailyMap.get(dayKey) : null;
       if (dayEntry) {
         dayEntry.orders += 1;
         if (isPaid) {

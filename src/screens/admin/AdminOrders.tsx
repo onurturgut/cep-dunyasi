@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { formatDate } from '@/lib/date';
 import { toast } from 'sonner';
 import { Truck } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
@@ -81,7 +82,7 @@ export default function AdminOrders() {
             {orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-mono text-xs">#{order.id.slice(0, 8)}</TableCell>
-                <TableCell className="text-sm">{new Date(order.created_at).toLocaleDateString('tr-TR')}</TableCell>
+                <TableCell className="text-sm">{formatDate(order.created_at)}</TableCell>
                 <TableCell className="font-medium">{formatCurrency(order.final_price)}</TableCell>
                 <TableCell>
                   <Badge variant={order.payment_status === 'paid' ? 'default' : 'secondary'}>

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/integrations/mongo/client';
+import { formatDate } from '@/lib/date';
 import { Package, Clock } from 'lucide-react';
 import { formatCurrency, toPriceNumber } from '@/lib/utils';
 
@@ -79,7 +80,7 @@ export default function Account() {
                 <CardContent>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-3.5 w-3.5" />
-                    {new Date(order.created_at).toLocaleDateString('tr-TR')}
+                    {formatDate(order.created_at)}
                   </div>
                   <div className="mt-2 space-y-1 text-sm">
                     {order.order_items?.map((item: any) => (

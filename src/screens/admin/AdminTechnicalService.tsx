@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Eye, Phone, Smartphone } from "lucide-react";
 import { db } from "@/integrations/mongo/client";
+import { formatDateTime } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,16 +23,6 @@ type TechnicalServiceRequest = {
   status?: string;
   created_at: string;
 };
-
-function formatDate(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-
-  return date.toLocaleString("tr-TR");
-}
 
 export default function AdminTechnicalService() {
   const [requests, setRequests] = useState<TechnicalServiceRequest[]>([]);
@@ -95,7 +86,7 @@ export default function AdminTechnicalService() {
           </CardHeader>
           <CardContent>
             <p className="text-sm font-medium text-foreground">
-              {loading ? "..." : requests[0] ? formatDate(requests[0].created_at) : "Kayit yok"}
+              {loading ? "..." : requests[0] ? formatDateTime(requests[0].created_at) : "Kayit yok"}
             </p>
           </CardContent>
         </Card>
@@ -143,7 +134,7 @@ export default function AdminTechnicalService() {
                       {item.status === "new" ? "Yeni" : item.status || "-"}
                     </Badge>
                   </TableCell>
-                  <TableCell>{formatDate(item.created_at)}</TableCell>
+                  <TableCell>{formatDateTime(item.created_at)}</TableCell>
                   <TableCell className="text-right">
                     <Dialog>
                       <DialogTrigger asChild>
@@ -180,7 +171,7 @@ export default function AdminTechnicalService() {
 
                               <div>
                                 <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Kayit Tarihi</p>
-                                <p className="mt-1 font-medium">{formatDate(item.created_at)}</p>
+                                <p className="mt-1 font-medium">{formatDateTime(item.created_at)}</p>
                               </div>
                             </CardContent>
                           </Card>
