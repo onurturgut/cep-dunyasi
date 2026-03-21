@@ -33,6 +33,7 @@ export default function Index() {
         db
           .from('products')
           .select('*, product_variants(*), categories(name, slug)')
+          .eq('is_featured', true)
           .eq('is_active', true)
           .limit(8),
       ]);
@@ -74,7 +75,7 @@ export default function Index() {
       <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} content={siteContent} />
       <CategoriesSection categories={categories} content={siteContent} />
       <ExploreCategoriesSection categories={categories.length > 0 ? categories : defaultCategories} content={siteContent} />
-      <FeaturedProductsSection featuredProducts={featuredProducts} />
+      <FeaturedProductsSection featuredProducts={featuredProducts} content={siteContent} />
     </Layout>
   );
 }

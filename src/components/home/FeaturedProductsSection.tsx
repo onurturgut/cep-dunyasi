@@ -5,14 +5,15 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/products/ProductCard';
 import { Link } from '@/lib/router';
-import { sectionReveal, type HomeProduct } from '@/components/home/home-data';
+import { sectionReveal, type HomeProduct, type HomeSiteContent } from '@/components/home/home-data';
 import { useSectionParallax } from '@/components/home/useSectionParallax';
 
 type FeaturedProductsSectionProps = {
   featuredProducts: HomeProduct[];
+  content: HomeSiteContent;
 };
 
-export function FeaturedProductsSection({ featuredProducts }: FeaturedProductsSectionProps) {
+export function FeaturedProductsSection({ featuredProducts, content }: FeaturedProductsSectionProps) {
   const { ref, backgroundY, foregroundY } = useSectionParallax<HTMLElement>({
     distance: 85,
     rotate: 4,
@@ -37,10 +38,10 @@ export function FeaturedProductsSection({ featuredProducts }: FeaturedProductsSe
       <div className="container">
         <motion.div style={{ y: foregroundY }} className="rounded-3xl border border-border/60 bg-card/55 p-4 shadow-sm backdrop-blur-xl sm:p-5 md:p-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-5xl">One Cikan Urunler</h2>
+            <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-5xl">{content.featured_section_title}</h2>
             <Button variant="ghost" asChild className="w-full justify-center sm:w-auto">
-              <Link to="/products">
-                Tum Urunleri Gor <ArrowRight className="ml-1 h-4 w-4" />
+              <Link to={content.featured_section_cta_href || '/products'}>
+                {content.featured_section_cta_label} <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
           </div>

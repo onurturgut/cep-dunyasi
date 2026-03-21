@@ -728,6 +728,9 @@ const defaultSiteContent = {
   category_section_title: "Kategoriler",
   category_section_description: "",
   explore_section_title: "Kategorileri Kesfet",
+  featured_section_title: "One Cikan Urunler",
+  featured_section_cta_label: "Tum Urunleri Gor",
+  featured_section_cta_href: "/products",
 };
 
 export async function ensureSeedData() {
@@ -820,6 +823,7 @@ export async function ensureSeedData() {
           brand: sample.brand,
           type: sample.type,
           images: seedImagesBySlug.get(sample.slug) ?? [sample.image],
+          is_featured: ["iphone-15-pro-max", "iphone-15", "hizli-usb-c-sarj-aleti", "iphone-15-dayanikli-kilif"].includes(sample.slug),
           is_active: true,
         }));
 

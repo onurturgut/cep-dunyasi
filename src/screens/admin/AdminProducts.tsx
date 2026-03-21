@@ -21,6 +21,7 @@ type ProductForm = {
   brand: string;
   type: 'phone' | 'accessory' | 'service';
   category_id: string;
+  is_featured: boolean;
   is_active: boolean;
   variantSku: string;
   variantPrice: string;
@@ -35,6 +36,7 @@ const defaultForm: ProductForm = {
   brand: '',
   type: 'accessory',
   category_id: '',
+  is_featured: false,
   is_active: true,
   variantSku: '',
   variantPrice: '',
@@ -136,6 +138,7 @@ export default function AdminProducts() {
           brand: form.brand,
           type: form.type,
           category_id: form.category_id || null,
+          is_featured: form.is_featured,
           is_active: form.is_active,
           images: form.images,
         })
@@ -173,6 +176,7 @@ export default function AdminProducts() {
           brand: form.brand,
           type: form.type,
           category_id: form.category_id || null,
+          is_featured: form.is_featured,
           is_active: form.is_active,
           images: form.images,
         })
@@ -210,6 +214,7 @@ export default function AdminProducts() {
       brand: product.brand || '',
       type: product.type,
       category_id: product.category_id || '',
+      is_featured: Boolean(product.is_featured),
       is_active: product.is_active,
       variantSku: '',
       variantPrice: '',
@@ -346,6 +351,39 @@ export default function AdminProducts() {
                 </Select>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Ana Sayfada Goster</Label>
+                  <Select
+                    value={form.is_featured ? 'true' : 'false'}
+                    onValueChange={(value) => setForm((current) => ({ ...current, is_featured: value === 'true' }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">One Cikan</SelectItem>
+                      <SelectItem value="false">Normal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Yayin Durumu</Label>
+                  <Select
+                    value={form.is_active ? 'true' : 'false'}
+                    onValueChange={(value) => setForm((current) => ({ ...current, is_active: value === 'true' }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">Aktif</SelectItem>
+                      <SelectItem value="false">Pasif</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label>Urun Fotograflari</Label>
                 <Input type="file" accept="image/*" multiple onChange={handleImageFilesChange} disabled={uploadingImages} />
@@ -452,6 +490,7 @@ export default function AdminProducts() {
               <TableHead>Tur</TableHead>
               <TableHead>Varyant</TableHead>
               <TableHead>Durum</TableHead>
+              <TableHead>One Cikan</TableHead>
               <TableHead className="text-right">Islem</TableHead>
             </TableRow>
           </TableHeader>
@@ -472,6 +511,9 @@ export default function AdminProducts() {
                 <TableCell>
                   <Badge variant={product.is_active ? 'default' : 'secondary'}>{product.is_active ? 'Aktif' : 'Pasif'}</Badge>
                 </TableCell>
+                <TableCell>
+                  <Badge variant={product.is_featured ? 'default' : 'secondary'}>{product.is_featured ? 'Evet' : 'Hayir'}</Badge>
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
@@ -486,7 +528,7 @@ export default function AdminProducts() {
             ))}
             {filteredProducts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
                   Bu kategoride urun yok.
                 </TableCell>
               </TableRow>

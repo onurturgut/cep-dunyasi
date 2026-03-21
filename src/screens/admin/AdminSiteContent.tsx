@@ -36,6 +36,9 @@ type SiteContentForm = {
   category_section_title: string;
   category_section_description: string;
   explore_section_title: string;
+  featured_section_title: string;
+  featured_section_cta_label: string;
+  featured_section_cta_href: string;
   hero_slides: HeroSlide[];
   hero_benefits: HeroBenefit[];
 };
@@ -413,6 +416,13 @@ export default function AdminSiteContent() {
               onChange={(e) => setForm((current) => ({ ...current, explore_section_title: e.target.value }))}
             />
           </div>
+          <div className="space-y-2">
+            <Label>One Cikan Urunler Basligi</Label>
+            <Input
+              value={form.featured_section_title}
+              onChange={(e) => setForm((current) => ({ ...current, featured_section_title: e.target.value }))}
+            />
+          </div>
         </div>
         <div className="space-y-2">
           <Label>Kategori Aciklamasi</Label>
@@ -420,6 +430,22 @@ export default function AdminSiteContent() {
             value={form.category_section_description}
             onChange={(e) => setForm((current) => ({ ...current, category_section_description: e.target.value }))}
           />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label>One Cikan CTA Metni</Label>
+            <Input
+              value={form.featured_section_cta_label}
+              onChange={(e) => setForm((current) => ({ ...current, featured_section_cta_label: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>One Cikan CTA Linki</Label>
+            <Input
+              value={form.featured_section_cta_href}
+              onChange={(e) => setForm((current) => ({ ...current, featured_section_cta_href: e.target.value }))}
+            />
+          </div>
         </div>
       </Card>
 

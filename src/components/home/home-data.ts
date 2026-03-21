@@ -35,6 +35,9 @@ export type HomeSiteContent = {
   category_section_title: string;
   category_section_description: string;
   explore_section_title: string;
+  featured_section_title: string;
+  featured_section_cta_label: string;
+  featured_section_cta_href: string;
 };
 
 export const defaultCategories: HomeCategory[] = [
@@ -93,6 +96,9 @@ export const defaultSiteContent: HomeSiteContent = {
   category_section_title: 'Kategoriler',
   category_section_description: '',
   explore_section_title: 'Kategorileri Kesfet',
+  featured_section_title: 'One Cikan Urunler',
+  featured_section_cta_label: 'Tum Urunleri Gor',
+  featured_section_cta_href: '/products',
 };
 
 export const sectionReveal = {
