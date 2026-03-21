@@ -2,14 +2,15 @@
 
 import { motion } from 'framer-motion';
 import { Link } from '@/lib/router';
-import { categoryIcons, sectionReveal, type HomeCategory } from '@/components/home/home-data';
+import { categoryIcons, sectionReveal, type HomeCategory, type HomeSiteContent } from '@/components/home/home-data';
 import { useSectionParallax } from '@/components/home/useSectionParallax';
 
 type ExploreCategoriesSectionProps = {
   categories: HomeCategory[];
+  content: HomeSiteContent;
 };
 
-export function ExploreCategoriesSection({ categories }: ExploreCategoriesSectionProps) {
+export function ExploreCategoriesSection({ categories, content }: ExploreCategoriesSectionProps) {
   const exploreCategories = categories.slice(0, 12);
   const { ref, backgroundY, foregroundY, driftX } = useSectionParallax<HTMLElement>({
     distance: 70,
@@ -34,78 +35,35 @@ export function ExploreCategoriesSection({ categories }: ExploreCategoriesSectio
 
       <div className="container">
         <motion.div style={{ y: foregroundY }} className="space-y-4">
-          <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">Kategorileri Kesfet</h2>
+          <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">{content.explore_section_title}</h2>
           <div className="explore-categories-scroll overflow-x-auto pb-2">
             <motion.div style={{ x: driftX }} className="explore-category-list flex gap-3 pr-2">
-              {exploreCategories.map((category, index) => {
+              {exploreCategories.map((category) => {
                 const Icon = categoryIcons[category.icon || 'Smartphone'] || categoryIcons.Smartphone;
-                const isFirstColumn = index === 0;
                 const categoryName = `${category.name || ''}`.toLowerCase();
                 const categorySlug = `${category.slug || ''}`.toLowerCase();
-                const isSecondHandPhoneColumn =
-                  categorySlug === 'ikinci-el-telefon' || categoryName.includes('2. el') || categoryName.includes('ikinci el');
-                const isSmartWatchColumn =
-                  categorySlug === 'akilli-saatler' || categorySlug === 'akilli-saat' || categoryName.includes('saat');
-                const isCaseColumn = categorySlug === 'kilif' || categoryName.includes('kilif');
-                const isChargerColumn = categorySlug === 'sarj-aleti' || categorySlug === 'sarj' || categoryName.includes('sarj');
-                const isPowerBankColumn =
-                  categorySlug === 'power-bank' || categorySlug === 'powerbank' || categoryName.includes('power') || categoryName.includes('bank');
                 const isServiceColumn =
                   categorySlug === 'teknik-servis' || categorySlug === 'servis' || categoryName.includes('teknik') || categoryName.includes('servis');
-
-                const cardImage = isFirstColumn
-                  ? '/images/kategorileri_kesfet/telefon.png'
-                  : isSecondHandPhoneColumn
-                    ? '/images/kategorileri_kesfet/2.el_telefon.png'
-                    : isSmartWatchColumn
-                      ? '/images/kategorileri_kesfet/saat.png'
-                      : isCaseColumn
-                        ? '/images/kategorileri_kesfet/kılıf.png'
-                        : isPowerBankColumn
-                          ? '/images/kategorileri_kesfet/powerbank.png'
-                          : isServiceColumn
-                            ? '/images/kategorileri_kesfet/teknik_servis.png'
-                            : isChargerColumn
-                              ? '/images/kategorileri_kesfet/kulaklık.png'
-                              : null;
 
                 return (
                   <Link
                     key={`explore-${category.id}`}
                     to={isServiceColumn ? '/technical-service' : `/products?category=${category.slug}`}
-                    className={`explore-category-card group flex min-h-[240px] w-[78vw] max-w-[280px] shrink-0 items-center gap-3 bg-transparent transition-all hover:bg-transparent sm:min-h-[300px] sm:w-[300px] ${
-                      cardImage ? 'flex-col overflow-hidden p-0' : 'p-4'
-                    }`}
+                    className="explore-category-card group flex min-h-[240px] w-[78vw] max-w-[280px] shrink-0 flex-col overflow-hidden bg-transparent p-0 transition-all hover:bg-transparent sm:min-h-[300px] sm:w-[300px]"
                   >
-                    {cardImage ? (
+                    {category.image_url ? (
                       <>
-                        <div className="flex h-[190px] w-full items-center justify-center sm:h-[250px]">
+                        <div className="flex h-[190px] w-full items-center justify-center overflow-hidden sm:h-[250px]">
                           <img
-                            src={encodeURI(cardImage)}
-                            alt={
-                              isFirstColumn
-                                ? 'Telefon'
-                                : isSecondHandPhoneColumn
-                                  ? '2. El Telefonlar'
-                                  : isSmartWatchColumn
-                                    ? 'Akilli saatler'
-                                    : isCaseColumn
-                                      ? 'Telefon kiliflari'
-                                      : isPowerBankColumn
-                                        ? 'Powerbank'
-                                        : isServiceColumn
-                                          ? 'Teknik servis'
-                                          : isChargerColumn
-                                            ? 'Sarj aleti'
-                                            : 'iPhone modelleri'
-                            }
+                            src={category.image_url}
+                            alt={category.name}
                             className={`h-full w-full ${
-                              cardImage.startsWith('/images/kategorileri_kesfet/') ? 'object-contain p-2' : 'object-cover'
+                              category.image_url.startsWith('/images/') ? 'object-contain p-2' : 'object-cover'
                             }`}
                             loading="lazy"
                           />
                         </div>
-                        <span className="explore-category-label pb-2 text-sm font-semibold text-foreground sm:text-base">{category.name}</span>
+                        <span className="explore-category-label px-3 pb-2 text-sm font-semibold text-foreground sm:text-base">{category.name}</span>
                       </>
                     ) : (
                       <>

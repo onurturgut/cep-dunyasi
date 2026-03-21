@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       return jsonError("Bu alan icin video yuklemelisiniz", 400);
     }
 
-    if (!["mission", "products"].includes(scope)) {
+    if (!["mission", "products", "categories", "site-content"].includes(scope)) {
       return jsonError("Gecersiz upload alani", 400);
     }
 

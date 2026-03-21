@@ -4,22 +4,18 @@ import { motion } from 'framer-motion';
 import { Link } from '@/lib/router';
 import {
   categoryIcons,
-  categorySlotImages,
-  hiddenHomeCategorySlugs,
   sectionReveal,
-  staggerContainer,
-  staggerItem,
   type HomeCategory,
+  type HomeSiteContent,
 } from '@/components/home/home-data';
 import { useSectionParallax } from '@/components/home/useSectionParallax';
 
 type CategoriesSectionProps = {
   categories: HomeCategory[];
+  content: HomeSiteContent;
 };
 
-export function CategoriesSection({ categories }: CategoriesSectionProps) {
-  const visibleHomeCategories = categories.filter((category) => !hiddenHomeCategorySlugs.has(category.slug));
-  const hasVisibleHomeCategories = visibleHomeCategories.length > 0;
+export function CategoriesSection({ categories, content }: CategoriesSectionProps) {
   const { ref, backgroundY, foregroundY, accentY, driftX, scale } = useSectionParallax<HTMLElement>({
     distance: 90,
     rotate: 4,
@@ -45,149 +41,51 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
           whileInView="show"
           viewport={{ once: true, amount: 0.15 }}
         >
-          <h2 className="font-display text-xl font-bold text-foreground sm:text-2xl">Kategoriler</h2>
+          <div className="space-y-2">
+            <h2 className="font-display text-xl font-bold text-foreground sm:text-2xl">{content.category_section_title}</h2>
+            {content.category_section_description ? (
+              <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">{content.category_section_description}</p>
+            ) : null}
+          </div>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {hasVisibleHomeCategories ? (
-              visibleHomeCategories.map((category) => {
+            {categories.map((category) => {
                 const Icon = categoryIcons[category.icon || 'Smartphone'] || categoryIcons.Smartphone;
 
                 return (
                   <div key={category.id}>
                     <Link
                       to={`/products?category=${category.slug}`}
-                      className="group flex h-full flex-col items-center gap-3 rounded-xl border bg-card p-4 text-center text-foreground transition-all hover:border-primary/30 hover:shadow-sm sm:p-5"
+                      className="group flex h-full flex-col overflow-hidden rounded-xl border bg-card text-left text-foreground transition-all hover:border-primary/30 hover:shadow-sm"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                        <Icon className="h-5 w-5" />
+                      {category.image_url ? (
+                        <div className="relative h-32 w-full overflow-hidden bg-muted sm:h-40">
+                          <motion.img
+                            src={category.image_url}
+                            alt={category.name}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                            style={{ x: driftX }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                          <div className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg bg-background/85 text-primary backdrop-blur-sm">
+                            <Icon className="h-5 w-5" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex h-28 w-full items-center justify-center bg-primary/10 text-primary">
+                          <Icon className="h-7 w-7" />
+                        </div>
+                      )}
+                      <div className="space-y-1 p-4">
+                        <span className="block text-sm font-semibold text-foreground sm:text-[15px]">{category.name}</span>
+                        {category.description ? (
+                          <p className="line-clamp-2 text-xs text-muted-foreground sm:text-sm">{category.description}</p>
+                        ) : null}
                       </div>
-                      <span className="text-sm font-semibold text-foreground sm:text-[15px]">{category.name}</span>
                     </Link>
                   </div>
                 );
-              })
-            ) : (
-              <div className="col-span-2 space-y-4 md:col-span-5">
-                <motion.div style={{ y: accentY }} className="h-[260px] w-full overflow-hidden rounded-xl border border-border/30 bg-card sm:h-[360px] lg:h-[500px]">
-                  <motion.img
-                    src={encodeURI('/images/image copy.png')}
-                    alt="Kategori banner"
-                    className="h-full w-full object-contain"
-                    loading="lazy"
-                    style={{ x: driftX }}
-                  />
-                </motion.div>
-
-                <div className="space-y-8 sm:space-y-10 lg:space-y-12">
-                  <motion.div
-                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
-                    variants={staggerContainer}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, amount: 0.2 }}
-                  >
-                    {Array.from({ length: 3 }).map((_, index) => {
-                      const imageName = categorySlotImages[index % categorySlotImages.length];
-                      const isFirstSlot = index === 0;
-
-                      return (
-                        <motion.div key={`category-slot-top-${index + 1}`} variants={staggerItem}>
-                          <div
-                            className={`relative h-[280px] w-full overflow-hidden rounded-xl border border-background/30 sm:h-[360px] lg:h-[500px] ${
-                              isFirstSlot ? 'bg-card' : 'bg-background/5'
-                            }`}
-                          >
-                            {isFirstSlot ? (
-                              <>
-                                <video
-                                  className="absolute inset-0 h-full w-full object-contain object-center"
-                                  autoPlay
-                                  muted
-                                  loop
-                                  playsInline
-                                  preload="metadata"
-                                >
-                                  <source src="/images/AF%C4%B0%C5%9E1.mp4" type="video/mp4" />
-                                </video>
-                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-transparent" />
-                                <Link
-                                  to="/products?category=telefon"
-                                  aria-label="Hemen satin al"
-                                  className="absolute bottom-[14px] left-1/2 z-20 h-[40px] w-[132px] -translate-x-1/2 rounded-[12px] bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/80"
-                                >
-                                  <span className="sr-only">Hemen Satin Al</span>
-                                </Link>
-                              </>
-                            ) : (
-                              <img
-                                src={encodeURI(`/images/${imageName}`)}
-                                alt={`Kategori kisim ${index + 1}`}
-                                className="h-full w-full object-cover"
-                                loading="lazy"
-                              />
-                            )}
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </motion.div>
-
-                  <div className="grid gap-8 text-left lg:grid-cols-2 lg:gap-16">
-                    <motion.div style={{ y: accentY }} className="space-y-4">
-                      <img
-                        src={encodeURI('/images/cep-dunyasi-logo-black-v3-tight.png')}
-                        alt="Cep Dunyasi"
-                        className="h-auto w-[150px] dark:hidden sm:w-[180px] md:w-[240px]"
-                        loading="lazy"
-                      />
-                      <img
-                        src={encodeURI('/images/cep-dunyasi-logo-dark-v3-tight.png')}
-                        alt="Cep Dunyasi"
-                        className="hidden h-auto w-[150px] dark:block sm:w-[180px] md:w-[240px]"
-                        loading="lazy"
-                      />
-                      <h3 className="font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-                        Turkiye&apos;nin En Degerli Markalari Arasinda!
-                      </h3>
-                    </motion.div>
-
-                    <motion.div style={{ y: foregroundY }} className="space-y-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-                      <p>
-                        Uluslararasi marka degerlendirme kurulusu Brand Finance&apos;in &quot;Turkiye 2025&quot; raporunda Reeder,
-                        ulkemizin en degerli ve en guclu markalari arasinda yerini aldi.
-                      </p>
-                      <p className="font-semibold text-foreground">Brand Finance &quot;Turkiye 2025&quot; listesinde</p>
-                      <p>Reeder, Turkiye&apos;nin en degerli 3. cihaz ureticisi konumunda.</p>
-                    </motion.div>
-                  </div>
-
-                  <motion.div
-                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
-                    variants={staggerContainer}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, amount: 0.2 }}
-                  >
-                    {Array.from({ length: 3 }).map((_, index) => {
-                      const slotIndex = index + 3;
-                      const imageName = categorySlotImages[slotIndex % categorySlotImages.length];
-
-                      return (
-                        <motion.div key={`category-slot-bottom-${slotIndex + 1}`} variants={staggerItem}>
-                          <div className="h-[280px] w-full overflow-hidden rounded-xl border border-background/30 bg-background/5 sm:h-[360px] lg:h-[500px]">
-                            <img
-                              src={encodeURI(`/images/${imageName}`)}
-                              alt={`Kategori kisim ${slotIndex + 1}`}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </motion.div>
-                </div>
-              </div>
-            )}
+              })}
           </div>
         </motion.div>
       </div>

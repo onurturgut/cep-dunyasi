@@ -1,4 +1,4 @@
-import { Category, Coupon, MissionItem, Order, OrderItem, Product, ProductVariant } from "@/server/models";
+import { Category, Coupon, MissionItem, Order, OrderItem, Product, ProductVariant, SiteContent } from "@/server/models";
 
 let seeded = false;
 let seedPromise: Promise<void> | null = null;
@@ -704,6 +704,32 @@ const missionItemSeeds = [
   },
 ];
 
+const defaultSiteContent = {
+  key: "home",
+  hero_title_prefix: "Teknolojinin",
+  hero_title_highlight: "Gucunu",
+  hero_title_suffix: "ile kesfet",
+  hero_subtitle: "Premium telefon ve aksesuarlar",
+  hero_logo_light_url: "/images/cep-dunyasi-logo-black-v3-tight.png",
+  hero_logo_dark_url: "/images/cep-dunyasi-logo-dark-v3-tight.png",
+  hero_cta_label: "Urunleri Incele",
+  hero_cta_href: "/products",
+  hero_slides: [
+    { id: "slide-iphone", image_url: "/images/iphone15.png", alt: "iPhone 15" },
+    { id: "slide-s24", image_url: "/images/samsung s24.png", alt: "Samsung S24" },
+    { id: "slide-kilif", image_url: "/images/kılıf.png", alt: "Telefon Kilifi" },
+    { id: "slide-airpods", image_url: "/images/airpods.png", alt: "AirPods" },
+  ],
+  hero_benefits: [
+    { icon: "Truck", title: "Ayni gun kargo", desc: "Hizli ve guvenli teslimat" },
+    { icon: "ShieldCheck", title: "Orijinal urunler", desc: "Yetkili distributor garantili" },
+    { icon: "CreditCard", title: "2 yil garanti", desc: "Tum cihazlarda gecerli" },
+  ],
+  category_section_title: "Kategoriler",
+  category_section_description: "",
+  explore_section_title: "Kategorileri Kesfet",
+};
+
 export async function ensureSeedData() {
   if (seeded) {
     return;
@@ -712,7 +738,6 @@ export async function ensureSeedData() {
   if (!seedPromise) {
     seedPromise = (async () => {
       const seedCategorySlugs = categorySeeds.map((category) => category.slug);
-      const seedCategorySlugSet = new Set(seedCategorySlugs);
       const existingCategories = await Category.find({}).lean();
       const existingCategoryBySlug = new Map<string, any>(
         existingCategories.map((category: any) => [category.slug, category])
@@ -755,21 +780,6 @@ export async function ensureSeedData() {
             )
           )
         );
-      }
-
-      const extraCategories = existingCategories.filter((category: any) => !seedCategorySlugSet.has(category.slug));
-      if (extraCategories.length > 0) {
-        const extraCategoryIds = extraCategories.map((category: any) => category.id);
-        await Product.updateMany(
-          { category_id: { $in: extraCategoryIds } },
-          {
-            $set: {
-              category_id: null,
-              updated_at: new Date(),
-            },
-          }
-        );
-        await Category.deleteMany({ id: { $in: extraCategoryIds } });
       }
 
       const categories = await Category.find({ slug: { $in: seedCategorySlugs } }).lean();
@@ -840,6 +850,11 @@ export async function ensureSeedData() {
             )
           )
         );
+      }
+
+      const homeSiteContent = await SiteContent.findOne({ key: "home" }).lean();
+      if (!homeSiteContent) {
+        await SiteContent.create(defaultSiteContent);
       }
 
       const productBySlug = new Map<string, string>(seedProducts.map((item: any) => [item.slug, item.id]));

@@ -4,11 +4,13 @@ import { ReactNode, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from '@/lib/router';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Package, ShoppingCart, Tag, ArrowLeft, ImageIcon, LogOut, Wrench } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Tag, ArrowLeft, ImageIcon, LogOut, Wrench, FolderTree, MonitorSmartphone } from 'lucide-react';
 
 const sidebarItems = [
   { label: 'Genel Bakis', href: '/admin', icon: LayoutDashboard },
   { label: 'Urunler', href: '/admin/products', icon: Package },
+  { label: 'Kategoriler', href: '/admin/categories', icon: FolderTree },
+  { label: 'Site Icerigi', href: '/admin/site-content', icon: MonitorSmartphone },
   { label: 'Siparisler', href: '/admin/orders', icon: ShoppingCart },
   { label: 'Kuponlar', href: '/admin/coupons', icon: Tag },
   { label: 'Misyon', href: '/admin/mission', icon: ImageIcon },

@@ -15,18 +15,36 @@ export type HomeCategory = {
   name: string;
   slug: string;
   icon?: string;
+  description?: string;
+  image_url?: string;
 };
 
 export type HomeProduct = any;
 
+export type HomeSiteContent = {
+  hero_title_prefix: string;
+  hero_title_highlight: string;
+  hero_title_suffix: string;
+  hero_subtitle: string;
+  hero_logo_light_url: string;
+  hero_logo_dark_url: string;
+  hero_cta_label: string;
+  hero_cta_href: string;
+  hero_slides: Array<{ id: string; image_url: string; alt: string }>;
+  hero_benefits: Array<{ icon: string; title: string; desc: string }>;
+  category_section_title: string;
+  category_section_description: string;
+  explore_section_title: string;
+};
+
 export const defaultCategories: HomeCategory[] = [
-  { id: 'default-telefon', name: 'Telefon', slug: 'telefon', icon: 'Smartphone' },
-  { id: 'default-ikinci-el-telefon', name: '2. El Telefonlar', slug: 'ikinci-el-telefon', icon: 'Smartphone' },
-  { id: 'default-akilli-saat', name: 'Akilli Saatler', slug: 'akilli-saatler', icon: 'Watch' },
-  { id: 'default-kilif', name: 'Kilif', slug: 'kilif', icon: 'ShieldCheck' },
-  { id: 'default-sarj', name: 'Sarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging' },
-  { id: 'default-power', name: 'Power Bank', slug: 'power-bank', icon: 'Battery' },
-  { id: 'default-servis', name: 'Teknik Servis', slug: 'teknik-servis', icon: 'Wrench' },
+  { id: 'default-telefon', name: 'Telefon', slug: 'telefon', icon: 'Smartphone', description: '', image_url: '' },
+  { id: 'default-ikinci-el-telefon', name: '2. El Telefonlar', slug: 'ikinci-el-telefon', icon: 'Smartphone', description: '', image_url: '' },
+  { id: 'default-akilli-saat', name: 'Akilli Saatler', slug: 'akilli-saatler', icon: 'Watch', description: '', image_url: '' },
+  { id: 'default-kilif', name: 'Kilif', slug: 'kilif', icon: 'ShieldCheck', description: '', image_url: '' },
+  { id: 'default-sarj', name: 'Sarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging', description: '', image_url: '' },
+  { id: 'default-power', name: 'Power Bank', slug: 'power-bank', icon: 'Battery', description: '', image_url: '' },
+  { id: 'default-servis', name: 'Teknik Servis', slug: 'teknik-servis', icon: 'Wrench', description: '', image_url: '' },
 ];
 
 export const categoryIcons: Record<string, LucideIcon> = {
@@ -52,17 +70,30 @@ export function mergeCategories(fallbackCategories: HomeCategory[], dbCategories
   return Array.from(categoriesBySlug.values());
 }
 
-export const hiddenHomeCategorySlugs = new Set([
-  'telefon',
-  'ikinci-el-telefon',
-  'akilli-saatler',
-  'kilif',
-  'sarj-aleti',
-  'power-bank',
-  'teknik-servis',
-]);
-
-export const categorySlotImages = ['image copy 2.png', 'image copy 3.png', 'image copy 4.png'];
+export const defaultSiteContent: HomeSiteContent = {
+  hero_title_prefix: 'Teknolojinin',
+  hero_title_highlight: 'Gucunu',
+  hero_title_suffix: 'ile kesfet',
+  hero_subtitle: 'Premium telefon ve aksesuarlar',
+  hero_logo_light_url: '/images/cep-dunyasi-logo-black-v3-tight.png',
+  hero_logo_dark_url: '/images/cep-dunyasi-logo-dark-v3-tight.png',
+  hero_cta_label: 'Urunleri Incele',
+  hero_cta_href: '/products',
+  hero_slides: [
+    { id: 'slide-iphone', image_url: '/images/iphone15.png', alt: 'iPhone 15' },
+    { id: 'slide-s24', image_url: '/images/samsung s24.png', alt: 'Samsung S24' },
+    { id: 'slide-kilif', image_url: '/images/kılıf.png', alt: 'Telefon Kilifi' },
+    { id: 'slide-airpods', image_url: '/images/airpods.png', alt: 'AirPods' },
+  ],
+  hero_benefits: [
+    { icon: 'Truck', title: 'Ayni gun kargo', desc: 'Hizli ve guvenli teslimat' },
+    { icon: 'ShieldCheck', title: 'Orijinal urunler', desc: 'Yetkili distributor garantili' },
+    { icon: 'CreditCard', title: '2 yil garanti', desc: 'Tum cihazlarda gecerli' },
+  ],
+  category_section_title: 'Kategoriler',
+  category_section_description: '',
+  explore_section_title: 'Kategorileri Kesfet',
+};
 
 export const sectionReveal = {
   hidden: { opacity: 0, y: 36 },
@@ -90,15 +121,13 @@ export const staggerItem = {
   },
 };
 
-export const topBenefits = [
-  { icon: Truck, title: 'Ayni gun kargo', desc: 'Hizli ve guvenli teslimat' },
-  { icon: ShieldCheck, title: 'Orijinal urunler', desc: 'Yetkili distributor garantili' },
-  { icon: CreditCard, title: '2 yil garanti', desc: 'Tum cihazlarda gecerli' },
-];
-
-export const heroSlides = [
-  { id: 'slide-iphone', src: '/images/iphone15.png', alt: 'iPhone 15' },
-  { id: 'slide-s24', src: '/images/samsung s24.png', alt: 'Samsung S24' },
-  { id: 'slide-kilif', src: '/images/kılıf.png', alt: 'Telefon Kilifi' },
-  { id: 'slide-airpods', src: '/images/airpods.png', alt: 'AirPods' },
-];
+export const benefitIcons: Record<string, LucideIcon> = {
+  Truck,
+  ShieldCheck,
+  CreditCard,
+  Smartphone,
+  BatteryCharging,
+  Battery,
+  Wrench,
+  Watch,
+};

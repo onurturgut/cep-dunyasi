@@ -160,6 +160,8 @@ function withDefaults(table: DbTableName, data: Record<string, any>) {
     table === "product_variants" ||
     table === "shipments" ||
     table === "mission_items" ||
+    table === "site_contents" ||
+    table === "categories" ||
     table === "technical_service_requests"
   ) {
     return {
@@ -176,7 +178,7 @@ function withDefaults(table: DbTableName, data: Record<string, any>) {
 }
 
 function withUpdatedAt(table: DbTableName, data: Record<string, any>) {
-  if (["products", "product_variants", "orders", "shipments", "mission_items", "technical_service_requests"].includes(table)) {
+  if (["products", "product_variants", "orders", "shipments", "mission_items", "site_contents", "categories", "technical_service_requests"].includes(table)) {
     return {
       ...data,
       updated_at: new Date(),

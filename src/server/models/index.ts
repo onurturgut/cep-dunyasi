@@ -7,7 +7,10 @@ const categorySchema = new Schema(
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true, index: true },
     icon: { type: String, default: null },
+    description: { type: String, default: "" },
+    image_url: { type: String, default: "" },
     created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
   },
   { versionKey: false }
 );
@@ -128,6 +131,53 @@ const missionItemSchema = new Schema(
   { versionKey: false }
 );
 
+const siteContentSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    key: { type: String, required: true, unique: true, index: true },
+    hero_title_prefix: { type: String, default: "Teknolojinin" },
+    hero_title_highlight: { type: String, default: "Gucunu" },
+    hero_title_suffix: { type: String, default: "ile kesfet" },
+    hero_subtitle: { type: String, default: "Premium telefon ve aksesuarlar" },
+    hero_logo_light_url: { type: String, default: "" },
+    hero_logo_dark_url: { type: String, default: "" },
+    hero_cta_label: { type: String, default: "Urunleri Incele" },
+    hero_cta_href: { type: String, default: "/products" },
+    hero_slides: {
+      type: [
+        new Schema(
+          {
+            id: { type: String, required: true },
+            image_url: { type: String, default: "" },
+            alt: { type: String, default: "" },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
+    hero_benefits: {
+      type: [
+        new Schema(
+          {
+            icon: { type: String, default: "Truck" },
+            title: { type: String, default: "" },
+            desc: { type: String, default: "" },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
+    category_section_title: { type: String, default: "Kategoriler" },
+    category_section_description: { type: String, default: "" },
+    explore_section_title: { type: String, default: "Kategorileri Kesfet" },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
 const technicalServiceRequestSchema = new Schema(
   {
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
@@ -166,6 +216,7 @@ export const Order: any = models.Order || model("Order", orderSchema);
 export const OrderItem: any = models.OrderItem || model("OrderItem", orderItemSchema);
 export const Shipment: any = models.Shipment || model("Shipment", shipmentSchema);
 export const MissionItem: any = models.MissionItem || model("MissionItem", missionItemSchema);
+export const SiteContent: any = models.SiteContent || model("SiteContent", siteContentSchema);
 export const TechnicalServiceRequest: any =
   models.TechnicalServiceRequest || model("TechnicalServiceRequest", technicalServiceRequestSchema);
 export const User: any = models.User || model("User", userSchema);
@@ -179,6 +230,7 @@ export type DbTableName =
   | "order_items"
   | "shipments"
   | "mission_items"
+  | "site_contents"
   | "technical_service_requests";
 
 export const tableModelMap: Record<DbTableName, any> = {
@@ -190,5 +242,6 @@ export const tableModelMap: Record<DbTableName, any> = {
   order_items: OrderItem,
   shipments: Shipment,
   mission_items: MissionItem,
+  site_contents: SiteContent,
   technical_service_requests: TechnicalServiceRequest,
 };

@@ -9,12 +9,13 @@ import { CategoriesSection } from '@/components/home/CategoriesSection';
 import { ExploreCategoriesSection } from '@/components/home/ExploreCategoriesSection';
 import { FeaturedProductsSection } from '@/components/home/FeaturedProductsSection';
 import { HeroSection } from '@/components/home/HeroSection';
-import { defaultCategories, heroSlides, mergeCategories, type HomeCategory } from '@/components/home/home-data';
+import { defaultCategories, defaultSiteContent, mergeCategories, type HomeCategory, type HomeSiteContent } from '@/components/home/home-data';
 
 export default function Index() {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<HomeCategory[]>(defaultCategories);
+  const [siteContent, setSiteContent] = useState<HomeSiteContent>(defaultSiteContent);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -26,8 +27,9 @@ export default function Index() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [catRes, prodRes] = await Promise.all([
+      const [catRes, siteContentRes, prodRes] = await Promise.all([
         db.from('categories').select('*'),
+        db.from('site_contents').select('*').eq('key', 'home').single(),
         db
           .from('products')
           .select('*, product_variants(*), categories(name, slug)')
@@ -39,6 +41,10 @@ export default function Index() {
         setCategories(mergeCategories(defaultCategories, catRes.data));
       }
 
+      if (siteContentRes.data) {
+        setSiteContent({ ...defaultSiteContent, ...siteContentRes.data });
+      }
+
       if (prodRes.data) {
         setFeaturedProducts(prodRes.data);
       }
@@ -48,16 +54,16 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (heroSlides.length < 2) {
+    if (siteContent.hero_slides.length < 2) {
       return;
     }
 
     const intervalId = window.setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+      setActiveSlide((prev) => (prev + 1) % siteContent.hero_slides.length);
     }, 3500);
 
     return () => window.clearInterval(intervalId);
-  }, []);
+  }, [siteContent.hero_slides.length]);
 
   if (!loading && user && isAdmin) {
     return null;
@@ -65,9 +71,9 @@ export default function Index() {
 
   return (
     <Layout>
-      <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} />
-      <CategoriesSection categories={categories} />
-      <ExploreCategoriesSection categories={categories.length > 0 ? categories : defaultCategories} />
+      <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} content={siteContent} />
+      <CategoriesSection categories={categories} content={siteContent} />
+      <ExploreCategoriesSection categories={categories.length > 0 ? categories : defaultCategories} content={siteContent} />
       <FeaturedProductsSection featuredProducts={featuredProducts} />
     </Layout>
   );
