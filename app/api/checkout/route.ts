@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       error: null,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Checkout baslatilamadi";
+    const message = error instanceof Error ? error.message : "Ödeme başlatılamadı";
     return NextResponse.json({ data: null, error: { message } }, { status: 400 });
   }
 }

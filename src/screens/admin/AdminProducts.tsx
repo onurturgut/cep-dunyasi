@@ -85,12 +85,12 @@ export default function AdminProducts() {
     const payload = await response.json();
 
     if (!response.ok || payload?.error) {
-      throw new Error(payload?.error?.message || 'Foto yuklenemedi');
+      throw new Error(payload?.error?.message || 'Foto yüklenemedi');
     }
 
     const url = payload?.data?.url;
     if (!url) {
-      throw new Error('Yukleme tamamlandi ama URL donmedi');
+      throw new Error('Yükleme tamamlandı ama URL dönmedi');
     }
 
     return `${url}`;
@@ -111,9 +111,9 @@ export default function AdminProducts() {
         ...current,
         images: Array.from(new Set([...current.images, ...uploadedUrls])),
       }));
-      toast.success(`${uploadedUrls.length} foto yuklendi`);
+      toast.success(`${uploadedUrls.length} foto yüklendi`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Foto yukleme hatasi');
+      toast.error(error instanceof Error ? error.message : 'Foto yükleme hatası');
     } finally {
       setUploadingImages(false);
     }
@@ -187,26 +187,26 @@ export default function AdminProducts() {
         try {
           await deleteMediaUrls(removedImages);
         } catch (error) {
-          toast.error(error instanceof Error ? error.message : 'Eski fotograflar silinemedi');
+          toast.error(error instanceof Error ? error.message : 'Eski fotoğraflar silinemedi');
         }
       }
 
-      toast.success('Urun guncellendi');
+      toast.success('Ürün güncellendi');
     } else {
       if (!form.variantSku.trim() || !form.variantPrice.trim()) {
-        toast.error('Urun yayinlamak icin varsayilan varyant SKU ve fiyat zorunlu');
+        toast.error('Ürün yayınlamak için varsayılan varyant SKU ve fiyat zorunlu');
         return;
       }
 
       const parsedPrice = Number.parseFloat(form.variantPrice);
       if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
-        toast.error('Varyant fiyati 0 dan buyuk olmali');
+        toast.error('Varyant fiyatı 0’dan büyük olmalı');
         return;
       }
 
       const parsedStock = Number.parseInt(form.variantStock, 10);
       if (!Number.isFinite(parsedStock) || parsedStock <= 0) {
-        toast.error('Varyant stogu 1 veya daha fazla olmali');
+        toast.error('Varyant stoğu 1 veya daha fazla olmalı');
         return;
       }
 
@@ -239,7 +239,7 @@ export default function AdminProducts() {
           stock: parsedStock,
         });
       }
-      toast.success('Urun eklendi');
+      toast.success('Ürün eklendi');
     }
 
     setDialogOpen(false);
@@ -274,10 +274,10 @@ export default function AdminProducts() {
       try {
         await deleteMediaUrls(product.images);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Urun fotograflari silinemedi');
+        toast.error(error instanceof Error ? error.message : 'Ürün fotoğrafları silinemedi');
       }
     }
-    toast.success('Urun silindi');
+    toast.success('Ürün silindi');
     fetchProducts();
   };
 
@@ -322,7 +322,7 @@ export default function AdminProducts() {
   }, [activeCategoryId, products, categoryIdSet]);
 
   const activeCategoryLabel = useMemo(() => {
-    if (activeCategoryId === 'all') return 'Tum Kategoriler';
+    if (activeCategoryId === 'all') return 'Tüm Kategoriler';
     if (activeCategoryId === 'uncategorized') return 'Kategorisiz';
     return categoryFilters.find((category) => category.id === activeCategoryId)?.name || 'Kategori';
   }, [activeCategoryId, categoryFilters]);
@@ -338,7 +338,7 @@ export default function AdminProducts() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold">Urunler</h1>
+        <h1 className="font-display text-2xl font-bold">Ürünler</h1>
         <Dialog
           open={dialogOpen}
           onOpenChange={(open) => {
@@ -351,16 +351,16 @@ export default function AdminProducts() {
         >
           <DialogTrigger asChild>
             <Button>
-              <Plus className="mr-1 h-4 w-4" /> Urun Ekle
+              <Plus className="mr-1 h-4 w-4" /> Ürün Ekle
             </Button>
           </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>{editing ? 'Urun Duzenle' : 'Yeni Urun'}</DialogTitle>
+              <DialogTitle>{editing ? 'Ürün Düzenle' : 'Yeni Ürün'}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Urun Adi</Label>
+                <Label>Ürün Adı</Label>
                 <Input value={form.name} onChange={(e) => setForm((current) => ({ ...current, name: e.target.value }))} />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -369,7 +369,7 @@ export default function AdminProducts() {
                   <Input value={form.brand} onChange={(e) => setForm((current) => ({ ...current, brand: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Tur</Label>
+                  <Label>Tür</Label>
                   <Select value={form.type} onValueChange={(value) => setForm((current) => ({ ...current, type: value as ProductForm['type'] }))}>
                     <SelectTrigger>
                       <SelectValue />
@@ -389,7 +389,7 @@ export default function AdminProducts() {
                   onValueChange={(value) => setForm((current) => ({ ...current, category_id: value === 'none' ? '' : value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Secin" />
+                    <SelectValue placeholder="Seçin" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Kategorisiz</SelectItem>
@@ -404,7 +404,7 @@ export default function AdminProducts() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Ana Sayfada Goster</Label>
+                  <Label>Ana Sayfada Göster</Label>
                   <Select
                     value={form.is_featured ? 'true' : 'false'}
                     onValueChange={(value) => setForm((current) => ({ ...current, is_featured: value === 'true' }))}
@@ -413,13 +413,13 @@ export default function AdminProducts() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="true">One Cikan</SelectItem>
+                      <SelectItem value="true">Öne Çıkan</SelectItem>
                       <SelectItem value="false">Normal</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Yayin Durumu</Label>
+                  <Label>Yayın Durumu</Label>
                   <Select
                     value={form.is_active ? 'true' : 'false'}
                     onValueChange={(value) => setForm((current) => ({ ...current, is_active: value === 'true' }))}
@@ -436,18 +436,18 @@ export default function AdminProducts() {
               </div>
 
               <div className="space-y-2">
-                <Label>Urun Fotograflari</Label>
+                <Label>Ürün Fotoğrafları</Label>
                 <Input type="file" accept="image/*" multiple onChange={handleImageFilesChange} disabled={uploadingImages} />
                 <p className="text-xs text-muted-foreground">
                   {uploadingImages
-                    ? 'Fotograflar yukleniyor...'
-                    : 'Birden fazla fotograf secerek urune gorsel ekleyebilirsiniz.'}
+                    ? 'Fotoğraflar yükleniyor...'
+                    : 'Birden fazla fotoğraf seçerek ürüne görsel ekleyebilirsiniz.'}
                 </p>
                 {form.images.length > 0 && (
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {form.images.map((imageUrl) => (
                       <div key={imageUrl} className="relative overflow-hidden rounded-md border">
-                        <img src={imageUrl} alt="Urun fotografigi" className="h-20 w-full object-cover" />
+                        <img src={imageUrl} alt="Ürün fotoğrafı" className="h-20 w-full object-cover" />
                         <Button
                           type="button"
                           variant="destructive"
@@ -464,7 +464,7 @@ export default function AdminProducts() {
               </div>
 
               <div className="space-y-2">
-                <Label>Aciklama</Label>
+                <Label>Açıklama</Label>
                 <Textarea
                   value={form.description}
                   onChange={(e) => setForm((current) => ({ ...current, description: e.target.value }))}
@@ -501,7 +501,7 @@ export default function AdminProducts() {
               </>
 
               <Button className="w-full" onClick={handleSave}>
-                {editing ? 'Guncelle' : 'Kaydet'}
+                {editing ? 'Güncelle' : 'Kaydet'}
               </Button>
             </div>
           </DialogContent>
@@ -510,7 +510,7 @@ export default function AdminProducts() {
 
       <div className="mt-6 flex flex-wrap gap-2">
         <Button size="sm" variant={activeCategoryId === 'all' ? 'default' : 'outline'} onClick={() => setActiveCategoryId('all')}>
-          Tumu
+          Tümü
           <span className="ml-2 rounded-full bg-background/20 px-2 py-0.5 text-xs">{products.length}</span>
         </Button>
         {categoryFilters.map((category) => (
@@ -527,20 +527,20 @@ export default function AdminProducts() {
       </div>
 
       <div className="mt-3 text-sm text-muted-foreground">
-        {activeCategoryLabel}: {filteredProducts.length} urun
+        {activeCategoryLabel}: {filteredProducts.length} ürün
       </div>
 
       <Card className="mt-6 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Urun</TableHead>
+              <TableHead>Ürün</TableHead>
               <TableHead>Kategori</TableHead>
-              <TableHead>Tur</TableHead>
+              <TableHead>Tür</TableHead>
               <TableHead>Varyant</TableHead>
               <TableHead>Durum</TableHead>
-              <TableHead>One Cikan</TableHead>
-              <TableHead className="text-right">Islem</TableHead>
+              <TableHead>Öne Çıkan</TableHead>
+              <TableHead className="text-right">İşlem</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -578,7 +578,7 @@ export default function AdminProducts() {
             {filteredProducts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
-                  Bu kategoride urun yok.
+                  Bu kategoride ürün yok.
                 </TableCell>
               </TableRow>
             )}

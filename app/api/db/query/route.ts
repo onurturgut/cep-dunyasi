@@ -205,7 +205,7 @@ export async function POST(request: Request) {
     const admin = isAdmin(sessionUser);
 
     if (payload.action !== "select" && !canMutate(payload, admin)) {
-      return jsonError("Bu islem icin admin yetkisi gerekiyor", 403);
+      return jsonError("Bu işlem için admin yetkisi gerekiyor", 403);
     }
 
     if (payload.action === "select" && ADMIN_ONLY_SELECT_TABLES.has(payload.table) && !admin) {
@@ -226,7 +226,7 @@ export async function POST(request: Request) {
 
     if (payload.table === "orders" && payload.action === "select" && !admin) {
       if (!sessionUser?.id) {
-        return jsonError("Siparisleri gormek icin giris yapmaniz gerekiyor", 401);
+        return jsonError("Siparişleri görmek için giriş yapmanız gerekiyor", 401);
       }
 
       mongoQuery.user_id = sessionUser.id;

@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   try {
     const sessionUser = getSessionUserFromRequest(request);
     if (!isAdmin(sessionUser)) {
-      return jsonError("Bu islem icin admin yetkisi gerekiyor", 403);
+      return jsonError("Bu işlem için admin yetkisi gerekiyor", 403);
     }
 
     const formData = await request.formData();
@@ -23,11 +23,11 @@ export async function POST(request: Request) {
     const scope = `${formData.get("scope") ?? "mission"}`.toLowerCase();
 
     if (!(file instanceof File)) {
-      return jsonError("Yuklenecek dosya bulunamadi", 400);
+      return jsonError("Yüklenecek dosya bulunamadı", 400);
     }
 
     if (file.size <= 0) {
-      return jsonError("Bos dosya yuklenemez", 400);
+      return jsonError("Boş dosya yüklenemez", 400);
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
@@ -39,19 +39,19 @@ export async function POST(request: Request) {
     const isVideo = mimeType.startsWith("video/");
 
     if (!isImage && !isVideo) {
-      return jsonError("Sadece foto veya video dosyasi yukleyebilirsiniz", 400);
+      return jsonError("Sadece foto veya video dosyası yükleyebilirsiniz", 400);
     }
 
     if (kind === "image" && !isImage) {
-      return jsonError("Bu alan icin foto yuklemelisiniz", 400);
+      return jsonError("Bu alan için foto yüklemelisiniz", 400);
     }
 
     if (kind === "video" && !isVideo) {
-      return jsonError("Bu alan icin video yuklemelisiniz", 400);
+      return jsonError("Bu alan için video yüklemelisiniz", 400);
     }
 
     if (!["mission", "products", "categories", "site-content"].includes(scope)) {
-      return jsonError("Gecersiz upload alani", 400);
+      return jsonError("Geçersiz yükleme alanı", 400);
     }
 
     const data = Buffer.from(await file.arrayBuffer());
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
       error: null,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Yukleme hatasi";
+    const message = error instanceof Error ? error.message : "Yükleme hatası";
     return jsonError(message, 500);
   }
 }
@@ -83,7 +83,7 @@ export async function DELETE(request: Request) {
   try {
     const sessionUser = getSessionUserFromRequest(request);
     if (!isAdmin(sessionUser)) {
-      return jsonError("Bu islem icin admin yetkisi gerekiyor", 403);
+      return jsonError("Bu işlem için admin yetkisi gerekiyor", 403);
     }
 
     const body = await request.json().catch(() => null);
@@ -106,7 +106,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ data: { deleted: urls.length + objectKeys.length }, error: null });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Silme hatasi";
+    const message = error instanceof Error ? error.message : "Silme hatası";
     return jsonError(message, 500);
   }
 }

@@ -10,6 +10,7 @@ import { useCartStore } from '@/lib/cart-store';
 import { ShoppingCart, Minus, Plus, Check, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatCurrency, toPriceNumber } from '@/lib/utils';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -52,7 +53,7 @@ export default function ProductDetail() {
         productId: product.id,
         productName: product.name,
         variantInfo: JSON.stringify(selectedVariant.attributes || {}),
-        price: selectedVariant.price,
+        price: toPriceNumber(selectedVariant.price),
         image: product.images?.[0],
         stock: selectedVariant.stock,
       });
@@ -82,7 +83,7 @@ export default function ProductDetail() {
     return (
       <Layout>
         <div className="container flex items-center justify-center py-20">
-          <p className="text-muted-foreground">Urun bulunamadi.</p>
+          <p className="text-muted-foreground">Ürün bulunamadı.</p>
         </div>
       </Layout>
     );
@@ -140,7 +141,7 @@ export default function ProductDetail() {
             {selectedVariant && (
               <div className="mt-6">
                 <span className="text-3xl font-bold text-primary">
-                  TL {selectedVariant.price.toLocaleString('tr-TR')}
+                  {formatCurrency(selectedVariant.price)}
                 </span>
                 <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                   {selectedVariant.stock > 0 ? (
@@ -201,14 +202,14 @@ export default function ProductDetail() {
 
             {product.description && (
               <div className="mt-8 space-y-2">
-                <h3 className="font-display font-semibold">Aciklama</h3>
+                <h3 className="font-display font-semibold">Açıklama</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{product.description}</p>
               </div>
             )}
 
             <div className="mt-6 flex items-center gap-2 rounded-lg border bg-muted/50 p-3 text-sm text-muted-foreground">
               <Truck className="h-4 w-4 shrink-0" />
-              <span>Siparisleriniz ayni gun kargoya teslim edilir.</span>
+              <span>Siparişleriniz aynı gün kargoya teslim edilir.</span>
             </div>
           </div>
         </div>

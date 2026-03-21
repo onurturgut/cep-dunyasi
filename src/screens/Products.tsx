@@ -14,9 +14,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 const defaultCategories = [
   { id: 'default-telefon', name: 'Telefon', slug: 'telefon', icon: 'Smartphone' },
   { id: 'default-ikinci-el-telefon', name: '2. El Telefonlar', slug: 'ikinci-el-telefon', icon: 'Smartphone' },
-  { id: 'default-akilli-saat', name: 'Akilli Saatler', slug: 'akilli-saatler', icon: 'Watch' },
-  { id: 'default-kilif', name: 'Kilif', slug: 'kilif', icon: 'ShieldCheck' },
-  { id: 'default-sarj', name: 'Sarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging' },
+  { id: 'default-akilli-saat', name: 'Akıllı Saatler', slug: 'akilli-saatler', icon: 'Watch' },
+  { id: 'default-kilif', name: 'Kılıf', slug: 'kilif', icon: 'ShieldCheck' },
+  { id: 'default-sarj', name: 'Şarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging' },
   { id: 'default-power', name: 'Power Bank', slug: 'power-bank', icon: 'Battery' },
   { id: 'default-servis', name: 'Teknik Servis', slug: 'teknik-servis', icon: 'Wrench' },
 ];
@@ -109,14 +109,14 @@ export default function Products() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Urun ara..."
+                placeholder="Ürün ara..."
                 className="pl-9"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <div>
-              <h3 className="mb-2 text-sm font-semibold text-muted-foreground">KATEGORILER</h3>
+              <h3 className="mb-2 text-sm font-semibold text-muted-foreground">KATEGORİLER</h3>
               <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
                 <Button
                   variant={!activeCategory ? 'default' : 'ghost'}
@@ -124,7 +124,7 @@ export default function Products() {
                   className="shrink-0 justify-start"
                   onClick={() => setSearchParams({})}
                 >
-                  Tumu
+                  Tümü
                 </Button>
                 {categories.map((cat) => (
                   <Button
@@ -152,10 +152,10 @@ export default function Products() {
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h1 className="font-display text-2xl font-bold sm:text-3xl">
                 {activeCategory
-                  ? categories.find((c) => c.slug === activeCategory)?.name || 'Urunler'
-                  : 'Tum Urunler'}
+                  ? categories.find((c) => c.slug === activeCategory)?.name || 'Ürünler'
+                  : 'Tüm Ürünler'}
               </h1>
-              <Badge variant="secondary" className="w-fit">{products.length} urun</Badge>
+              <Badge variant="secondary" className="w-fit">{products.length} ürün</Badge>
             </div>
 
             {loading ? (
@@ -171,8 +171,8 @@ export default function Products() {
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <SlidersHorizontal className="h-12 w-12 text-muted-foreground/30" />
-                <h3 className="mt-4 font-display font-semibold">Urun bulunamadi</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Farkli bir arama veya kategori deneyin.</p>
+                <h3 className="mt-4 font-display font-semibold">Ürün bulunamadı</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Farklı bir arama veya kategori deneyin.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-3">

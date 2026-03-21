@@ -12,15 +12,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Truck } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 const statusOptions = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 const statusLabels: Record<string, string> = {
   pending: 'Beklemede',
-  confirmed: 'Onaylandi',
-  processing: 'Hazirlaniyor',
+  confirmed: 'Onaylandı',
+  processing: 'Hazırlanıyor',
   shipped: 'Kargoda',
   delivered: 'Teslim Edildi',
-  cancelled: 'Iptal',
+  cancelled: 'İptal',
 };
 
 export default function AdminOrders() {
@@ -42,7 +43,7 @@ export default function AdminOrders() {
 
   const updateStatus = async (orderId: string, status: string) => {
     await db.from('orders').update({ order_status: status }).eq('id', orderId);
-    toast.success('Durum guncellendi');
+    toast.success('Durum güncellendi');
     fetchOrders();
   };
 
@@ -62,18 +63,18 @@ export default function AdminOrders() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold">Siparisler</h1>
+      <h1 className="font-display text-2xl font-bold">Siparişler</h1>
 
       <Card className="mt-6 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Siparis</TableHead>
+              <TableHead>Sipariş</TableHead>
               <TableHead>Tarih</TableHead>
               <TableHead>Tutar</TableHead>
-              <TableHead>Odeme</TableHead>
+              <TableHead>Ödeme</TableHead>
               <TableHead>Durum</TableHead>
-              <TableHead className="text-right">Islem</TableHead>
+              <TableHead className="text-right">İşlem</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -81,7 +82,7 @@ export default function AdminOrders() {
               <TableRow key={order.id}>
                 <TableCell className="font-mono text-xs">#{order.id.slice(0, 8)}</TableCell>
                 <TableCell className="text-sm">{new Date(order.created_at).toLocaleDateString('tr-TR')}</TableCell>
-                <TableCell className="font-medium">TL {order.final_price?.toLocaleString('tr-TR')}</TableCell>
+                <TableCell className="font-medium">{formatCurrency(order.final_price)}</TableCell>
                 <TableCell>
                   <Badge variant={order.payment_status === 'paid' ? 'default' : 'secondary'}>
                     {order.payment_status}
@@ -117,15 +118,15 @@ export default function AdminOrders() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Kargo Firmasi</Label>
+              <Label>Kargo Firması</Label>
               <Input
                 value={shipForm.cargoCompany}
                 onChange={(e) => setShipForm((current) => ({ ...current, cargoCompany: e.target.value }))}
-                placeholder="Aras, Yurtici, MNG..."
+                placeholder="Aras, Yurtiçi, MNG..."
               />
             </div>
             <div className="space-y-2">
-              <Label>Takip Numarasi</Label>
+              <Label>Takip Numarası</Label>
               <Input
                 value={shipForm.trackingNumber}
                 onChange={(e) => setShipForm((current) => ({ ...current, trackingNumber: e.target.value }))}

@@ -63,10 +63,10 @@ export default function AdminTechnicalService() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">Teknik Servis Talepleri</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Musteri formundan gelen teknik servis kayitlari burada listelenir.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Müşteri formundan gelen teknik servis kayıtlari burada listelenir.</p>
         </div>
         <Badge variant="secondary" className="w-fit">
-          {loading ? "Yukleniyor..." : `${requests.length} talep`}
+          {loading ? "Yükleniyor..." : `${requests.length} talep`}
         </Badge>
       </div>
 
@@ -81,7 +81,7 @@ export default function AdminTechnicalService() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Fotografli Kayit</CardDescription>
+            <CardDescription>Fotoğraflı Kayıt</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
@@ -109,7 +109,7 @@ export default function AdminTechnicalService() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Musteri</TableHead>
+                <TableHead>Müşteri</TableHead>
                 <TableHead>Telefon</TableHead>
                 <TableHead>Model</TableHead>
                 <TableHead>Durum</TableHead>
@@ -121,7 +121,7 @@ export default function AdminTechnicalService() {
               {!loading && requests.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                    Henuz teknik servis talebi yok.
+                    Henüz teknik servis talebi yok.
                   </TableCell>
                 </TableRow>
               ) : null}
@@ -149,7 +149,7 @@ export default function AdminTechnicalService() {
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm">
                           <Eye className="h-4 w-4" />
-                          Incele
+                          İncele
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
@@ -187,7 +187,7 @@ export default function AdminTechnicalService() {
 
                           <Card className="border-border/70">
                             <CardContent className="p-5">
-                              <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Sorun Aciklamasi</p>
+                              <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Sorun Açıklaması</p>
                               <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-foreground">{item.issue_description}</p>
                             </CardContent>
                           </Card>
@@ -196,13 +196,13 @@ export default function AdminTechnicalService() {
                         {item.photo_url ? (
                           <Card className="border-border/70">
                             <CardHeader>
-                              <CardTitle className="text-base">Yuklenen Fotograf</CardTitle>
-                              <CardDescription>{item.photo_name || "Fotograf eklendi"}</CardDescription>
+                              <CardTitle className="text-base">Yüklenen Fotoğraf</CardTitle>
+                              <CardDescription>{item.photo_name || "Fotoğraf eklendi"}</CardDescription>
                             </CardHeader>
                             <CardContent>
                               <img
                                 src={item.photo_url}
-                                alt={`${item.first_name} ${item.last_name} teknik servis fotografi`}
+                                alt={`${item.first_name} ${item.last_name} teknik servis fotoğrafı`}
                                 className="max-h-[28rem] w-full rounded-2xl border border-border/70 object-contain"
                               />
                             </CardContent>

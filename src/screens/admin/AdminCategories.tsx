@@ -70,12 +70,12 @@ export default function AdminCategories() {
     const payload = await response.json();
 
     if (!response.ok || payload?.error) {
-      throw new Error(payload?.error?.message || "Gorsel yuklenemedi");
+      throw new Error(payload?.error?.message || "Görsel yüklenemedi");
     }
 
     const url = payload?.data?.url;
     if (!url) {
-      throw new Error("Yukleme tamamlandi ama URL donmedi");
+      throw new Error("Yükleme tamamlandı ama URL dönmedi");
     }
 
     return `${url}`;
@@ -93,9 +93,9 @@ export default function AdminCategories() {
       setUploadingImage(true);
       const url = await uploadImage(file);
       setForm((current) => ({ ...current, image_url: url }));
-      toast.success("Kategori gorseli yuklendi");
+      toast.success("Kategori görseli yüklendi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Gorsel yukleme hatasi");
+      toast.error(error instanceof Error ? error.message : "Görsel yükleme hatası");
     } finally {
       setUploadingImage(false);
     }
@@ -129,10 +129,10 @@ export default function AdminCategories() {
         try {
           await deleteMediaUrls(removedUrls);
         } catch (error) {
-          toast.error(error instanceof Error ? error.message : "Eski kategori gorseli silinemedi");
+          toast.error(error instanceof Error ? error.message : "Eski kategori görseli silinemedi");
         }
       }
-      toast.success("Kategori guncellendi");
+      toast.success("Kategori güncellendi");
     } else {
       const { error } = await db.from("categories").insert(payload);
       if (error) {
@@ -171,7 +171,7 @@ export default function AdminCategories() {
       try {
         await deleteMediaUrls([category.image_url]);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Kategori gorseli silinemedi");
+        toast.error(error instanceof Error ? error.message : "Kategori görseli silinemedi");
       }
     }
     toast.success("Kategori silindi");
@@ -183,7 +183,7 @@ export default function AdminCategories() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">Kategoriler</h1>
-          <p className="text-sm text-muted-foreground">Kategori bilgileri ve gorselleri admin panelden R2 uzerinden yonetilir.</p>
+          <p className="text-sm text-muted-foreground">Kategori bilgileri ve görselleri admin panelden R2 üzerinden yönetilir.</p>
         </div>
         <Dialog
           open={dialogOpen}
@@ -216,7 +216,7 @@ export default function AdminCategories() {
               </div>
 
               <div className="space-y-2">
-                <Label>Ikon</Label>
+                <Label>İkon</Label>
                 <Select value={form.icon} onValueChange={(value) => setForm((current) => ({ ...current, icon: value }))}>
                   <SelectTrigger>
                     <SelectValue />
@@ -232,7 +232,7 @@ export default function AdminCategories() {
               </div>
 
               <div className="space-y-2">
-                <Label>Aciklama</Label>
+                <Label>Açıklama</Label>
                 <Textarea
                   rows={4}
                   value={form.description}
@@ -241,24 +241,24 @@ export default function AdminCategories() {
               </div>
 
               <div className="space-y-2">
-                <Label>Gorsel URL</Label>
+                <Label>Görsel URL</Label>
                 <Input
                   value={form.image_url}
                   onChange={(e) => setForm((current) => ({ ...current, image_url: e.target.value }))}
                   placeholder="https://..."
                 />
                 <Input type="file" accept="image/*" onChange={handleImageChange} disabled={uploadingImage} />
-                {uploadingImage ? <p className="text-xs text-muted-foreground">Gorsel yukleniyor...</p> : null}
+                {uploadingImage ? <p className="text-xs text-muted-foreground">Görsel yükleniyor...</p> : null}
               </div>
 
               {form.image_url ? (
                 <Card className="overflow-hidden">
-                  <img src={form.image_url} alt={form.name || "Kategori gorseli"} className="h-40 w-full object-cover" />
+                  <img src={form.image_url} alt={form.name || "Kategori görseli"} className="h-40 w-full object-cover" />
                 </Card>
               ) : null}
 
               <Button className="w-full" onClick={handleSave} disabled={uploadingImage}>
-                {editing ? "Guncelle" : "Kaydet"}
+                {editing ? "Güncelle" : "Kaydet"}
               </Button>
             </div>
           </DialogContent>
@@ -271,9 +271,9 @@ export default function AdminCategories() {
             <TableRow>
               <TableHead>Kategori</TableHead>
               <TableHead>Slug</TableHead>
-              <TableHead>Ikon</TableHead>
-              <TableHead>Gorsel</TableHead>
-              <TableHead className="w-[120px]">Islem</TableHead>
+              <TableHead>İkon</TableHead>
+              <TableHead>Görsel</TableHead>
+              <TableHead className="w-[120px]">İşlem</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

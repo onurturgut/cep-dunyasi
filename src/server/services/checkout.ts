@@ -94,13 +94,13 @@ export function calculateCouponDiscount(totalPrice: number, coupon: CouponLike |
   }
 
   if (coupon.usage_limit && (coupon.usage_count ?? 0) >= coupon.usage_limit) {
-    return { discount: 0, error: "Kupon kullanim limiti dolmus" };
+    return { discount: 0, error: "Kupon kullanım limiti dolmuş" };
   }
 
   if (coupon.min_order_amount && totalPrice < coupon.min_order_amount) {
     return {
       discount: 0,
-      error: `Minimum siparis tutari: TL ${coupon.min_order_amount.toLocaleString("tr-TR")}`,
+      error: `Minimum sipariş tutarı: TL ${coupon.min_order_amount.toLocaleString("tr-TR")}`,
     };
   }
 
@@ -111,8 +111,8 @@ export function calculateCouponDiscount(totalPrice: number, coupon: CouponLike |
 function splitFullName(fullName: string) {
   const pieces = fullName.trim().split(/\s+/).filter(Boolean);
   return {
-    name: pieces[0] || "Musteri",
-    surname: pieces.slice(1).join(" ") || "Musteri",
+    name: pieces[0] || "Müşteri",
+    surname: pieces.slice(1).join(" ") || "Müşteri",
   };
 }
 
@@ -137,7 +137,7 @@ function validateShippingAddress(shippingAddress: ShippingAddress) {
   if (!shippingAddress.email.trim()) return "E-posta zorunludur";
   if (!shippingAddress.phone.trim()) return "Telefon zorunludur";
   if (!shippingAddress.address.trim()) return "Adres zorunludur";
-  if (!shippingAddress.city.trim()) return "Sehir zorunludur";
+  if (!shippingAddress.city.trim()) return "Şehir zorunludur";
   return null;
 }
 
@@ -174,17 +174,17 @@ export async function createCheckoutSession(
     const product = variant ? productsById.get(variant.product_id) : null;
 
     if (!variant || !product) {
-      throw new Error("Sepetteki bazi urunler artik satista degil");
+      throw new Error("Sepetteki bazi ürünler artik satista degil");
     }
 
     if (variant.stock < item.quantity) {
-      throw new Error(`${product.name} icin yeterli stok yok`);
+      throw new Error(`${product.name} için yeterli stok yok`);
     }
 
     const unitPrice = Number(variant.price ?? 0);
 
     if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
-      throw new Error(`${product.name} icin gecerli fiyat bulunamadi`);
+      throw new Error(`${product.name} için geçerli fiyat bulunamadı`);
     }
 
     return {
@@ -204,7 +204,7 @@ export async function createCheckoutSession(
     : null;
 
   if (normalizedCouponCode && !coupon) {
-    throw new Error("Gecersiz kupon kodu");
+    throw new Error("Geçersiz kupon kodu");
   }
 
   const { discount, error: couponError } = calculateCouponDiscount(totalPrice, coupon);
@@ -216,7 +216,7 @@ export async function createCheckoutSession(
   const finalPrice = Math.max(totalPrice - discount, 0);
 
   if (finalPrice <= 0) {
-    throw new Error("Odeme tutari sifirdan buyuk olmali");
+    throw new Error("Ödeme tutarı sıfırdan büyük olmalı");
   }
 
   const now = new Date();
@@ -305,7 +305,7 @@ export async function createCheckoutSession(
     });
 
     if (result?.status !== "success" || !result?.paymentPageUrl) {
-      throw new Error(result?.errorMessage || "Iyzico odeme sayfasi olusturulamadi");
+      throw new Error(result?.errorMessage || "iyzico ödeme sayfası oluşturulamadı");
     }
 
     return {

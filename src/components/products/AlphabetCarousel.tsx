@@ -30,16 +30,16 @@ const DEFAULT_ITEMS: MissionCarouselItem[] = [
   {
     id: 'mission-b',
     label: 'B',
-    title: 'Hizli Servis',
-    description: 'Ayni gun isleme alinan teknik destek.',
-    listItems: ['Ekran', 'Batarya', 'Sarj', 'Yazilim', 'Bakim'],
+    title: 'Hızlı Servis',
+    description: 'Aynı gün işleme alınan teknik destek.',
+    listItems: ['Ekran', 'Batarya', 'Şarj', 'Yazılım', 'Bakım'],
   },
   {
     id: 'mission-c',
     label: 'C',
-    title: 'Guvenli Teslimat',
-    description: 'Urunleriniz sigortali ve takipli gelir.',
-    listItems: ['Kargo', 'Takip', 'Paketleme', 'Teslim', 'Iade'],
+    title: 'Güvenli Teslimat',
+    description: 'Ürünleriniz sigortali ve takipli gelir.',
+    listItems: ['Kargo', 'Takip', 'Paketleme', 'Teslim', 'İade'],
   },
 ];
 

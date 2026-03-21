@@ -4,8 +4,8 @@ import { AppProviders } from "@/components/AppProviders";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Cep Dunyasi",
-  description: "Cep Dunyasi e-ticaret uygulamasi",
+  title: "Cep Dünyası",
+  description: "Cep Dünyası e-ticaret uygulaması",
   icons: {
     icon: "/images/home-icon.png",
     shortcut: "/images/home-icon.png",

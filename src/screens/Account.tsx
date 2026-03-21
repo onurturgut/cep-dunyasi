@@ -8,14 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/integrations/mongo/client';
 import { Package, Clock } from 'lucide-react';
+import { formatCurrency, toPriceNumber } from '@/lib/utils';
 
 const statusLabels: Record<string, string> = {
   pending: 'Beklemede',
-  confirmed: 'Onaylandi',
-  processing: 'Hazirlaniyor',
+  confirmed: 'Onaylandı',
+  processing: 'Hazırlanıyor',
   shipped: 'Kargoda',
   delivered: 'Teslim Edildi',
-  cancelled: 'Iptal',
+  cancelled: 'İptal',
 };
 
 const statusColors: Record<string, string> = {
@@ -59,11 +60,11 @@ export default function Account() {
         <h1 className="font-display text-2xl font-bold">Hesabim</h1>
         <p className="text-muted-foreground">{user.email}</p>
 
-        <h2 className="mt-8 font-display text-lg font-bold">Siparislerim</h2>
+        <h2 className="mt-8 font-display text-lg font-bold">Siparişlerim</h2>
         {orders.length === 0 ? (
           <div className="mt-4 flex flex-col items-center py-12 text-center">
             <Package className="h-12 w-12 text-muted-foreground/30" />
-            <p className="mt-2 text-muted-foreground">Henuz siparis yok.</p>
+            <p className="mt-2 text-muted-foreground">Henüz sipariş yok.</p>
           </div>
         ) : (
           <div className="mt-4 space-y-4">
@@ -84,13 +85,13 @@ export default function Account() {
                     {order.order_items?.map((item: any) => (
                       <div key={item.id} className="flex justify-between">
                         <span>{item.product_name} x{item.quantity}</span>
-                        <span>TL {(item.unit_price * item.quantity).toLocaleString('tr-TR')}</span>
+                        <span>{formatCurrency(toPriceNumber(item.unit_price) * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
                   <div className="mt-2 flex justify-between font-semibold">
                     <span>Toplam</span>
-                    <span className="text-primary">TL {order.final_price?.toLocaleString('tr-TR')}</span>
+                    <span className="text-primary">{formatCurrency(order.final_price)}</span>
                   </div>
                 </CardContent>
               </Card>

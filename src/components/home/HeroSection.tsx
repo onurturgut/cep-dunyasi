@@ -40,12 +40,12 @@ export function HeroSection({ activeSlide, onSlideChange, content }: HeroSection
                   <span className="text-primary"> {content.hero_title_highlight} </span>
                   <img
                     src={content.hero_logo_light_url || encodeURI('/images/cep-dunyasi-logo-black-v3-tight.png')}
-                    alt="Cep Dunyasi logosu"
+                    alt="Cep Dünyası logosu"
                     className="mx-1 inline-block h-auto w-[160px] align-middle dark:hidden sm:w-[200px] md:w-[240px] xl:w-[300px]"
                   />
                   <img
                     src={content.hero_logo_dark_url || content.hero_logo_light_url || encodeURI('/images/cep-dunyasi-logo-dark-v3-tight.png')}
-                    alt="Cep Dunyasi logosu"
+                    alt="Cep Dünyası logosu"
                     className="mx-1 hidden h-auto w-[160px] align-middle dark:inline-block sm:w-[200px] md:w-[240px] xl:w-[300px]"
                   />
                   {content.hero_title_suffix}
@@ -100,7 +100,7 @@ export function HeroSection({ activeSlide, onSlideChange, content }: HeroSection
                         key={`${slide.id}-dot`}
                         type="button"
                         onClick={() => onSlideChange(index)}
-                        aria-label={`${slide.alt} gorseline git`}
+                        aria-label={`${slide.alt} görseline git`}
                         className={`h-2.5 w-2.5 rounded-full transition-all ${
                           index === activeSlide ? 'bg-background' : 'bg-background/45 hover:bg-background/70'
                         }`}

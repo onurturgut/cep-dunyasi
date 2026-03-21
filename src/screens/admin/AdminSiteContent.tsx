@@ -100,12 +100,12 @@ export default function AdminSiteContent() {
     const payload = await response.json();
 
     if (!response.ok || payload?.error) {
-      throw new Error(payload?.error?.message || "Gorsel yuklenemedi");
+      throw new Error(payload?.error?.message || "Görsel yüklenemedi");
     }
 
     const url = payload?.data?.url;
     if (!url) {
-      throw new Error("Yukleme tamamlandi ama URL donmedi");
+      throw new Error("Yükleme tamamlandı ama URL dönmedi");
     }
 
     return `${url}`;
@@ -136,9 +136,9 @@ export default function AdminSiteContent() {
         }));
       }
 
-      toast.success("Gorsel yuklendi");
+      toast.success("Görsel yüklendi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Gorsel yukleme hatasi");
+      toast.error(error instanceof Error ? error.message : "Görsel yükleme hatası");
     } finally {
       setUploadingTarget(null);
     }
@@ -183,7 +183,7 @@ export default function AdminSiteContent() {
         try {
           await deleteMediaUrls(removedUrls);
         } catch (error) {
-          toast.error(error instanceof Error ? error.message : "Eski site gorselleri silinemedi");
+          toast.error(error instanceof Error ? error.message : "Eski site görselleri silinemedi");
         }
       }
     }
@@ -192,14 +192,14 @@ export default function AdminSiteContent() {
   };
 
   if (loading) {
-    return <div className="text-sm text-muted-foreground">Yukleniyor...</div>;
+    return <div className="text-sm text-muted-foreground">Yükleniyor...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold">Site Icerikleri</h1>
-        <p className="text-sm text-muted-foreground">Anasayfa gorselleri ve metinleri admin panelden R2 destekli olarak yonetilir.</p>
+        <p className="text-sm text-muted-foreground">Anasayfa görselleri ve metinleri admin panelden R2 destekli olarak yönetilir.</p>
       </div>
 
       <Card className="space-y-6 p-5">
@@ -292,7 +292,7 @@ export default function AdminSiteContent() {
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Gorsel URL</Label>
+                  <Label>Görsel URL</Label>
                   <Input
                     value={slide.image_url}
                     onChange={(e) =>
@@ -364,7 +364,7 @@ export default function AdminSiteContent() {
               </div>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>Ikon</Label>
+                  <Label>İkon</Label>
                   <Select
                     value={benefit.icon}
                     onValueChange={(value) =>
@@ -403,7 +403,7 @@ export default function AdminSiteContent() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Aciklama</Label>
+                  <Label>Açıklama</Label>
                   <Input
                     value={benefit.desc}
                     onChange={(e) =>
@@ -423,24 +423,24 @@ export default function AdminSiteContent() {
       </Card>
 
       <Card className="space-y-4 p-5">
-        <h2 className="font-display text-lg font-semibold">Kategori ve Kesfet Basliklari</h2>
+        <h2 className="font-display text-lg font-semibold">Kategori ve Keşfet Başlıkları</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label>Kategoriler Basligi</Label>
+            <Label>Kategoriler Başlığı</Label>
             <Input
               value={form.category_section_title}
               onChange={(e) => setForm((current) => ({ ...current, category_section_title: e.target.value }))}
             />
           </div>
           <div className="space-y-2">
-            <Label>Kesfet Basligi</Label>
+            <Label>Keşfet Başlığı</Label>
             <Input
               value={form.explore_section_title}
               onChange={(e) => setForm((current) => ({ ...current, explore_section_title: e.target.value }))}
             />
           </div>
           <div className="space-y-2">
-            <Label>One Cikan Urunler Basligi</Label>
+            <Label>Öne Çıkan Ürünler Başlığı</Label>
             <Input
               value={form.featured_section_title}
               onChange={(e) => setForm((current) => ({ ...current, featured_section_title: e.target.value }))}
@@ -448,7 +448,7 @@ export default function AdminSiteContent() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label>Kategori Aciklamasi</Label>
+          <Label>Kategori Açıklaması</Label>
           <Textarea
             value={form.category_section_description}
             onChange={(e) => setForm((current) => ({ ...current, category_section_description: e.target.value }))}
@@ -456,14 +456,14 @@ export default function AdminSiteContent() {
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label>One Cikan CTA Metni</Label>
+            <Label>Öne Çıkan CTA Metni</Label>
             <Input
               value={form.featured_section_cta_label}
               onChange={(e) => setForm((current) => ({ ...current, featured_section_cta_label: e.target.value }))}
             />
           </div>
           <div className="space-y-2">
-            <Label>One Cikan CTA Linki</Label>
+            <Label>Öne Çıkan CTA Linki</Label>
             <Input
               value={form.featured_section_cta_href}
               onChange={(e) => setForm((current) => ({ ...current, featured_section_cta_href: e.target.value }))}
@@ -473,7 +473,7 @@ export default function AdminSiteContent() {
       </Card>
 
       <Button onClick={handleSave} disabled={saving || Boolean(uploadingTarget)}>
-        {saving ? "Kaydediliyor..." : "Tum Icerigi Kaydet"}
+        {saving ? "Kaydediliyor..." : "Tüm İçeriği Kaydet"}
       </Button>
     </div>
   );

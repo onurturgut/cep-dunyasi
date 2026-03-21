@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/integrations/mongo/client';
 import { toast } from 'sonner';
 import { CreditCard, Lock } from 'lucide-react';
+import { formatCurrency, toPriceNumber } from '@/lib/utils';
 
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCartStore();
@@ -61,20 +62,20 @@ export default function Checkout() {
       .single();
 
     if (!data) {
-      toast.error('Gecersiz kupon kodu');
+      toast.error('Geçersiz kupon kodu');
       return;
     }
 
     const total = totalPrice();
 
     if (data.min_order_amount && total < data.min_order_amount) {
-      toast.error(`Minimum siparis tutari: TL ${data.min_order_amount}`);
+      toast.error(`Minimum sipariş tutarı: ${formatCurrency(data.min_order_amount)}`);
       return;
     }
 
     const calculatedDiscount = data.type === 'percentage' ? (total * data.value) / 100 : data.value;
     setDiscount(Math.min(calculatedDiscount, total));
-    toast.success('Kupon uygulandi');
+    toast.success('Kupon uygulandı');
   };
 
   const startCheckout = async () => {
@@ -102,7 +103,7 @@ export default function Checkout() {
     const body = await response.json();
 
     if (!response.ok || !body?.data?.paymentPageUrl) {
-      throw new Error(body?.error?.message || 'Checkout baslatilamadi');
+      throw new Error(body?.error?.message || 'Ödeme başlatılamadı');
     }
 
     return body.data.paymentPageUrl as string;
@@ -119,11 +120,11 @@ export default function Checkout() {
       const paymentPageUrl = await startCheckout();
 
       clearCart();
-      toast.success('Iyzico odeme sayfasina yonlendiriliyorsunuz');
+      toast.success('iyzico ödeme sayfasına yönlendiriliyorsunuz');
       window.location.href = paymentPageUrl;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Odeme baslatilamadi';
-      toast.error('Odeme baslatilamadi', { description: message });
+      const message = error instanceof Error ? error.message : 'Ödeme baslatilamadi';
+      toast.error('Ödeme baslatilamadi', { description: message });
     } finally {
       setLoading(false);
     }
@@ -138,7 +139,7 @@ export default function Checkout() {
   return (
     <Layout>
       <div className="container py-6 sm:py-8">
-        <h1 className="font-display text-2xl font-bold sm:text-3xl">Odeme</h1>
+        <h1 className="font-display text-2xl font-bold sm:text-3xl">Ödeme</h1>
         <form onSubmit={handleSubmit} className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <div className="space-y-6">
             <Card>
@@ -165,7 +166,7 @@ export default function Checkout() {
                   <Input required value={form.address} onChange={(e) => handleChange('address', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Sehir</Label>
+                  <Label>Şehir</Label>
                   <Input required value={form.city} onChange={(e) => handleChange('city', e.target.value)} />
                 </div>
               </CardContent>
@@ -173,12 +174,12 @@ export default function Checkout() {
           </div>
 
           <Card className="h-fit p-5 lg:sticky lg:top-24 lg:p-6">
-            <h3 className="font-display text-lg font-bold">Siparis Ozeti</h3>
+            <h3 className="font-display text-lg font-bold">Sipariş Özeti</h3>
             <div className="mt-4 space-y-2 text-sm">
               {items.map((item) => (
                 <div key={item.variantId} className="flex items-start justify-between gap-3">
                   <span className="line-clamp-2 text-muted-foreground">{item.productName} x{item.quantity}</span>
-                  <span className="shrink-0">TL {(item.price * item.quantity).toLocaleString('tr-TR')}</span>
+                  <span className="shrink-0">{formatCurrency(toPriceNumber(item.price) * item.quantity)}</span>
                 </div>
               ))}
             </div>
@@ -191,22 +192,22 @@ export default function Checkout() {
             </div>
             {discount > 0 && (
               <div className="mt-2 flex justify-between text-sm text-success">
-                <span>Indirim</span>
-                <span>-TL {discount.toLocaleString('tr-TR')}</span>
+                <span>İndirim</span>
+                <span>-{formatCurrency(discount)}</span>
               </div>
             )}
             <Separator className="my-4" />
             <div className="flex justify-between text-lg font-bold">
               <span>Toplam</span>
-              <span className="text-primary">TL {finalPrice.toLocaleString('tr-TR')}</span>
+              <span className="text-primary">{formatCurrency(finalPrice)}</span>
             </div>
             <Button type="submit" className="mt-4 w-full" size="lg" disabled={loading}>
               <Lock className="mr-2 h-4 w-4" />
-              {loading ? 'Isleniyor...' : 'Iyzico ile Ode'}
+              {loading ? 'İşleniyor...' : 'iyzico ile Ode'}
             </Button>
             <p className="mt-2 text-center text-xs text-muted-foreground">
               <CreditCard className="mr-1 inline h-3 w-3" />
-              Iyzico guvenli odeme altyapisi
+              iyzico güvenli ödeme altyapısı
             </p>
           </Card>
         </form>
@@ -214,4 +215,3 @@ export default function Checkout() {
     </Layout>
   );
 }
-

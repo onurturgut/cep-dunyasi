@@ -8,10 +8,10 @@ import { LayoutDashboard, Package, ShoppingCart, Tag, ArrowLeft, ImageIcon, LogO
 
 const sidebarItems = [
   { label: 'Genel Bakis', href: '/admin', icon: LayoutDashboard },
-  { label: 'Urunler', href: '/admin/products', icon: Package },
+  { label: 'Ürünler', href: '/admin/products', icon: Package },
   { label: 'Kategoriler', href: '/admin/categories', icon: FolderTree },
   { label: 'Site Icerigi', href: '/admin/site-content', icon: MonitorSmartphone },
-  { label: 'Siparisler', href: '/admin/orders', icon: ShoppingCart },
+  { label: 'Siparişler', href: '/admin/orders', icon: ShoppingCart },
   { label: 'Kuponlar', href: '/admin/coupons', icon: Tag },
   { label: 'Misyon', href: '/admin/mission', icon: ImageIcon },
   { label: 'Teknik Servis', href: '/admin/technical-service', icon: Wrench },

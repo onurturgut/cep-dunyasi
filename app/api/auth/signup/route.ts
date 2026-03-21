@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const existing = await User.findOne({ email: normalizedEmail }).lean();
 
     if (existing) {
-      return NextResponse.json({ error: { message: "Bu e-posta zaten kayitli" } }, { status: 409 });
+      return NextResponse.json({ error: { message: "Bu e-posta zaten kayıtli" } }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);

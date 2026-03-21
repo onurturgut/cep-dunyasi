@@ -12,13 +12,13 @@ export function Footer() {
             <Link to="/" className="flex items-center gap-3 font-display text-lg font-bold">
               <img
                 src="/images/_preview-white-v4.png"
-                alt="Cep Dunyasi"
+                alt="Cep Dünyası"
                 className="h-10 w-auto rounded-lg bg-primary-foreground/5 p-1"
               />
-              Cep Dunyasi
+              Cep Dünyası
             </Link>
             <p className="mt-3 text-sm text-primary-foreground/85">
-              Premium telefonlar, aksesuarlar ve teknik servis cozumleriyle her ekranda hizli ve guvenilir alisveris deneyimi.
+              Premium telefonlar, aksesuarlar ve teknik servis çözümleriyle her ekranda hızlı ve güvenilir alışveriş deneyimi.
             </p>
           </div>
 
@@ -37,17 +37,17 @@ export function Footer() {
               </li>
               <li>
                 <Link to="/products?category=akilli-saatler" className="hover:text-primary-foreground">
-                  Akilli Saatler
+                  Akıllı Saatler
                 </Link>
               </li>
               <li>
                 <Link to="/products?category=kilif" className="hover:text-primary-foreground">
-                  Kiliflar
+                  Kılıflar
                 </Link>
               </li>
               <li>
                 <Link to="/products?category=sarj-aleti" className="hover:text-primary-foreground">
-                  Sarj Aletleri
+                  Şarj Aletleri
                 </Link>
               </li>
               <li>
@@ -75,7 +75,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-display font-semibold text-primary-foreground">Iletisim</h3>
+            <h3 className="font-display font-semibold text-primary-foreground">İletişim</h3>
             <ul className="mt-3 space-y-2 text-sm text-primary-foreground/90">
               <li className="flex items-start gap-2">
                 <Mail className="mt-0.5 h-4 w-4 shrink-0" /> info@cepdunyasi.com
@@ -84,14 +84,14 @@ export function Footer() {
                 <Phone className="mt-0.5 h-4 w-4 shrink-0" /> +90 555 123 45 67
               </li>
               <li className="flex items-start gap-2">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0" /> Mugla / Fethiye, Turkiye
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0" /> Muğla / Fethiye, Türkiye
               </li>
             </ul>
           </div>
         </div>
 
         <div className="mt-8 border-t border-primary-foreground/25 pt-6 text-center text-sm text-primary-foreground/80">
-          &copy; {new Date().getFullYear()} Cep Dunyasi. Tum haklari saklidir.
+          &copy; {new Date().getFullYear()} Cep Dünyası. Tüm hakları saklıdır.
         </div>
       </div>
     </footer>

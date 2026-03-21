@@ -43,9 +43,9 @@ export type HomeSiteContent = {
 export const defaultCategories: HomeCategory[] = [
   { id: 'default-telefon', name: 'Telefon', slug: 'telefon', icon: 'Smartphone', description: '', image_url: '' },
   { id: 'default-ikinci-el-telefon', name: '2. El Telefonlar', slug: 'ikinci-el-telefon', icon: 'Smartphone', description: '', image_url: '' },
-  { id: 'default-akilli-saat', name: 'Akilli Saatler', slug: 'akilli-saatler', icon: 'Watch', description: '', image_url: '' },
-  { id: 'default-kilif', name: 'Kilif', slug: 'kilif', icon: 'ShieldCheck', description: '', image_url: '' },
-  { id: 'default-sarj', name: 'Sarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging', description: '', image_url: '' },
+  { id: 'default-akilli-saat', name: 'Akıllı Saatler', slug: 'akilli-saatler', icon: 'Watch', description: '', image_url: '' },
+  { id: 'default-kilif', name: 'Kılıf', slug: 'kilif', icon: 'ShieldCheck', description: '', image_url: '' },
+  { id: 'default-sarj', name: 'Şarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging', description: '', image_url: '' },
   { id: 'default-power', name: 'Power Bank', slug: 'power-bank', icon: 'Battery', description: '', image_url: '' },
   { id: 'default-servis', name: 'Teknik Servis', slug: 'teknik-servis', icon: 'Wrench', description: '', image_url: '' },
 ];
@@ -75,29 +75,29 @@ export function mergeCategories(fallbackCategories: HomeCategory[], dbCategories
 
 export const defaultSiteContent: HomeSiteContent = {
   hero_title_prefix: 'Teknolojinin',
-  hero_title_highlight: 'Gucunu',
-  hero_title_suffix: 'ile kesfet',
+  hero_title_highlight: 'Gücünü',
+  hero_title_suffix: 'ile keşfet',
   hero_subtitle: 'Premium telefon ve aksesuarlar',
   hero_logo_light_url: '/images/cep-dunyasi-logo-black-v3-tight.png',
   hero_logo_dark_url: '/images/cep-dunyasi-logo-dark-v3-tight.png',
-  hero_cta_label: 'Urunleri Incele',
+  hero_cta_label: 'Ürünleri İncele',
   hero_cta_href: '/products',
   hero_slides: [
     { id: 'slide-iphone', image_url: '/images/iphone15.png', alt: 'iPhone 15' },
     { id: 'slide-s24', image_url: '/images/samsung s24.png', alt: 'Samsung S24' },
-    { id: 'slide-kilif', image_url: '/images/kılıf.png', alt: 'Telefon Kilifi' },
+    { id: 'slide-kilif', image_url: '/images/kılıf.png', alt: 'Telefon Kılıfı' },
     { id: 'slide-airpods', image_url: '/images/airpods.png', alt: 'AirPods' },
   ],
   hero_benefits: [
-    { icon: 'Truck', title: 'Ayni gun kargo', desc: 'Hizli ve guvenli teslimat' },
-    { icon: 'ShieldCheck', title: 'Orijinal urunler', desc: 'Yetkili distributor garantili' },
-    { icon: 'CreditCard', title: '2 yil garanti', desc: 'Tum cihazlarda gecerli' },
+    { icon: 'Truck', title: 'Aynı gün kargo', desc: 'Hızlı ve güvenli teslimat' },
+    { icon: 'ShieldCheck', title: 'Orijinal ürünler', desc: 'Yetkili distribütör garantili' },
+    { icon: 'CreditCard', title: '2 yıl garanti', desc: 'Tüm cihazlarda geçerli' },
   ],
   category_section_title: 'Kategoriler',
   category_section_description: '',
-  explore_section_title: 'Kategorileri Kesfet',
-  featured_section_title: 'One Cikan Urunler',
-  featured_section_cta_label: 'Tum Urunleri Gor',
+  explore_section_title: 'Kategorileri Keşfet',
+  featured_section_title: 'Öne Çıkan Ürünler',
+  featured_section_cta_label: 'Tüm Ürünleri Gör',
   featured_section_cta_href: '/products',
 };
 

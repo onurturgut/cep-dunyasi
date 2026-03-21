@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as RequestBody;
 
     if (!body.orderId) {
-      return NextResponse.json({ error: { message: "Odeme istegi eksik" } }, { status: 400 });
+      return NextResponse.json({ error: { message: "Ödeme isteği eksik" } }, { status: 400 });
     }
 
     await connectToDatabase();
@@ -23,15 +23,15 @@ export async function POST(request: Request) {
     const orderItems = await OrderItem.find({ order_id: body.orderId }).lean();
 
     if (!order) {
-      return NextResponse.json({ error: { message: "Siparis bulunamadi" } }, { status: 404 });
+      return NextResponse.json({ error: { message: "Sipariş bulunamadı" } }, { status: 404 });
     }
 
     if (orderItems.length === 0) {
-      return NextResponse.json({ error: { message: "Siparis kalemleri bulunamadi" } }, { status: 400 });
+      return NextResponse.json({ error: { message: "Sipariş kalemleri bulunamadı" } }, { status: 400 });
     }
 
     if (!order.shipping_address?.fullName || !order.shipping_address?.email) {
-      return NextResponse.json({ error: { message: "Siparis bilgileri eksik" } }, { status: 400 });
+      return NextResponse.json({ error: { message: "Sipariş bilgileri eksik" } }, { status: 400 });
     }
 
     const fullName = `${order.shipping_address.fullName}`.trim();
@@ -53,8 +53,8 @@ export async function POST(request: Request) {
       enabledInstallments: [1, 2, 3, 6, 9],
       buyer: {
         id: order.user_id || order.id,
-        name: nameParts[0] || "Musteri",
-        surname: nameParts.slice(1).join(" ") || "Musteri",
+        name: nameParts[0] || "Müşteri",
+        surname: nameParts.slice(1).join(" ") || "Müşteri",
         email: `${order.shipping_address.email}`,
         gsmNumber: `${order.shipping_address.phone || "+905550000000"}`,
         registrationAddress: `${order.shipping_address.address || ""}`,
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
 
     if (result?.status !== "success") {
       return NextResponse.json(
-        { error: { message: result?.errorMessage || "Iyzico odeme baslatilamadi" } },
+        { error: { message: result?.errorMessage || "iyzico ödeme başlatılamadı" } },
         { status: 400 }
       );
     }
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
       paymentPageUrl: result.paymentPageUrl,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Iyzico odeme hatasi";
+    const message = error instanceof Error ? error.message : "iyzico ödeme hatası";
     return NextResponse.json({ error: { message } }, { status: 500 });
   }
 }

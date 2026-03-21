@@ -70,7 +70,7 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
             </div>
           ) : (
             <div className="mt-6 p-6 text-sm text-muted-foreground">
-              Henuz one cikan urun eklenmedi.
+              Henüz öne çıkan ürün eklenmedi.
             </div>
           )}
         </motion.div>

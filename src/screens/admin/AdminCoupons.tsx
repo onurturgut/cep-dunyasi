@@ -41,7 +41,7 @@ export default function AdminCoupons() {
       return;
     }
 
-    toast.success('Kupon olusturuldu');
+    toast.success('Kupon oluşturuldu');
     setDialogOpen(false);
     setForm({ code: '', type: 'percentage', value: '', minOrder: '', usageLimit: '' });
     fetchCoupons();
@@ -70,31 +70,31 @@ export default function AdminCoupons() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Tur</Label>
+                  <Label>Tür</Label>
                   <Select value={form.type} onValueChange={(value) => setForm((current) => ({ ...current, type: value }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="percentage">Yuzde (%)</SelectItem>
+                      <SelectItem value="percentage">Yüzde (%)</SelectItem>
                       <SelectItem value="fixed">Sabit (TL)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Deger</Label>
+                  <Label>Değer</Label>
                   <Input type="number" value={form.value} onChange={(e) => setForm((current) => ({ ...current, value: e.target.value }))} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Min. Siparis (TL)</Label>
+                  <Label>Min. Sipariş (TL)</Label>
                   <Input type="number" value={form.minOrder} onChange={(e) => setForm((current) => ({ ...current, minOrder: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Kullanim Limiti</Label>
+                  <Label>Kullanım Limiti</Label>
                   <Input type="number" value={form.usageLimit} onChange={(e) => setForm((current) => ({ ...current, usageLimit: e.target.value }))} />
                 </div>
               </div>
-              <Button className="w-full" onClick={handleSave}>Olustur</Button>
+              <Button className="w-full" onClick={handleSave}>Oluştur</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -105,18 +105,18 @@ export default function AdminCoupons() {
           <TableHeader>
             <TableRow>
               <TableHead>Kod</TableHead>
-              <TableHead>Tur</TableHead>
-              <TableHead>Deger</TableHead>
-              <TableHead>Kullanim</TableHead>
+              <TableHead>Tür</TableHead>
+              <TableHead>Değer</TableHead>
+              <TableHead>Kullanım</TableHead>
               <TableHead>Durum</TableHead>
-              <TableHead className="text-right">Islem</TableHead>
+              <TableHead className="text-right">İşlem</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {coupons.map((coupon) => (
               <TableRow key={coupon.id}>
                 <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
-                <TableCell>{coupon.type === 'percentage' ? 'Yuzde' : 'Sabit'}</TableCell>
+                <TableCell>{coupon.type === 'percentage' ? 'Yüzde' : 'Sabit'}</TableCell>
                 <TableCell>{coupon.type === 'percentage' ? `%${coupon.value}` : `TL ${coupon.value}`}</TableCell>
                 <TableCell>{coupon.usage_count}/{coupon.usage_limit || 'sinirsiz'}</TableCell>
                 <TableCell>

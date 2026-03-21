@@ -7,6 +7,7 @@ import { useCartStore } from '@/lib/cart-store';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { formatCurrency, toPriceNumber } from '@/lib/utils';
 
 export default function Cart() {
   const { items, updateQuantity, removeItem, totalPrice } = useCartStore();
@@ -17,10 +18,10 @@ export default function Cart() {
       <Layout>
         <div className="container flex flex-col items-center justify-center py-20 text-center">
           <ShoppingBag className="h-16 w-16 text-muted-foreground/30" />
-          <h2 className="mt-4 font-display text-xl font-bold">Sepetiniz bos</h2>
-          <p className="mt-2 text-muted-foreground">Hemen urunlere goz atin ve sepetinizi doldurun.</p>
+          <h2 className="mt-4 font-display text-xl font-bold">Sepetiniz boş</h2>
+          <p className="mt-2 text-muted-foreground">Hemen ürünlere goz atin ve sepetinizi doldürün.</p>
           <Button className="mt-6" asChild>
-            <Link to="/products">Alisverise Basla</Link>
+            <Link to="/products">Alışverişe Başla</Link>
           </Button>
         </div>
       </Layout>
@@ -61,7 +62,7 @@ export default function Cart() {
                       </Button>
                     </div>
                     <div className="flex items-center justify-between gap-3 sm:justify-end">
-                      <span className="font-semibold text-primary">TL {(item.price * item.quantity).toLocaleString('tr-TR')}</span>
+                      <span className="font-semibold text-primary">{formatCurrency(toPriceNumber(item.price) * item.quantity)}</span>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeItem(item.variantId)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -73,25 +74,25 @@ export default function Cart() {
           </div>
 
           <Card className="h-fit p-5 lg:sticky lg:top-24 lg:p-6">
-            <h3 className="font-display text-lg font-bold">Siparis Ozeti</h3>
+            <h3 className="font-display text-lg font-bold">Sipariş Özeti</h3>
             <Separator className="my-4" />
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Ara Toplam</span>
-                <span>TL {totalPrice().toLocaleString('tr-TR')}</span>
+                <span>{formatCurrency(totalPrice())}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Kargo</span>
-                <span className="text-success">Ucretsiz</span>
+                <span className="text-success">Ücretsiz</span>
               </div>
             </div>
             <Separator className="my-4" />
             <div className="flex justify-between text-lg font-bold">
               <span>Toplam</span>
-              <span className="text-primary">TL {totalPrice().toLocaleString('tr-TR')}</span>
+              <span className="text-primary">{formatCurrency(totalPrice())}</span>
             </div>
             <Button className="mt-4 w-full" size="lg" onClick={() => navigate('/checkout')}>
-              Siparisi Tamamla <ArrowRight className="ml-2 h-4 w-4" />
+              Siparişi Tamamla <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Card>
         </div>

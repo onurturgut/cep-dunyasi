@@ -17,8 +17,8 @@ const navLinks = [
   { label: 'Telefonlar', href: '/products?category=telefon' },
   { label: '2. El Telefonlar', href: '/products?category=ikinci-el-telefon' },
   { label: 'Saatler', href: '/products?category=akilli-saatler' },
-  { label: 'Kiliflar', href: '/products?category=kilif' },
-  { label: 'Sarj Aleti', href: '/products?category=sarj-aleti' },
+  { label: 'Kılıflar', href: '/products?category=kilif' },
+  { label: 'Şarj Aleti', href: '/products?category=sarj-aleti' },
   { label: 'Power Bank', href: '/products?category=power-bank' },
   { label: 'Teknik Servis', href: '/technical-service' },
 ];
@@ -38,7 +38,7 @@ const megaMenuData = {
         ],
       },
       {
-        title: 'Populer Modeller',
+        title: 'Popüler Modeller',
         items: [
           { label: 'iPhone 15', href: '/products?category=telefon' },
           { label: 'iPhone 14', href: '/products?category=telefon' },
@@ -71,7 +71,7 @@ const megaMenuData = {
         ],
       },
       {
-        title: 'Populer Modeller',
+        title: 'Popüler Modeller',
         items: [
           { label: 'iPhone 15', href: '/products?category=ikinci-el-telefon' },
           { label: 'iPhone 14', href: '/products?category=ikinci-el-telefon' },
@@ -111,7 +111,7 @@ const megaMenuData = {
         ],
       },
       {
-        title: 'Akilli Bileklikler',
+        title: 'Akıllı Bileklikler',
         items: [
           { label: 'Xiaomi Smart Band 8', href: '/products?category=akilli-saatler' },
           { label: 'Huawei Band 9', href: '/products?category=akilli-saatler' },
@@ -121,31 +121,31 @@ const megaMenuData = {
     ],
   },
   kiliflar: {
-    label: 'Kiliflar',
+    label: 'Kılıflar',
     href: '/products?category=kilif',
     columns: [
       {
-        title: 'iPhone Modellerine Gore',
+        title: 'iPhone Modellerine Göre',
         items: [
-          { label: 'iPhone 15 Kiliflari', href: '/products?category=kilif' },
-          { label: 'iPhone 14 Kiliflari', href: '/products?category=kilif' },
-          { label: 'iPhone 13 Kiliflari', href: '/products?category=kilif' },
+          { label: 'iPhone 15 Kılıfları', href: '/products?category=kilif' },
+          { label: 'iPhone 14 Kılıfları', href: '/products?category=kilif' },
+          { label: 'iPhone 13 Kılıfları', href: '/products?category=kilif' },
         ],
       },
       {
-        title: 'Samsung Modellerine Gore',
+        title: 'Samsung Modellerine Göre',
         items: [
-          { label: 'Galaxy S24 Kiliflari', href: '/products?category=kilif' },
-          { label: 'Galaxy S23 Kiliflari', href: '/products?category=kilif' },
-          { label: 'Galaxy A55 Kiliflari', href: '/products?category=kilif' },
+          { label: 'Galaxy S24 Kılıfları', href: '/products?category=kilif' },
+          { label: 'Galaxy S23 Kılıfları', href: '/products?category=kilif' },
+          { label: 'Galaxy A55 Kılıfları', href: '/products?category=kilif' },
         ],
       },
       {
         title: 'Filtreler',
         items: [
-          { label: 'Seffaf Kiliflar', href: '/products?category=kilif' },
-          { label: 'Deri Kiliflar', href: '/products?category=kilif' },
-          { label: 'Silikon Kiliflar', href: '/products?category=kilif' },
+          { label: 'Şeffaf Kılıflar', href: '/products?category=kilif' },
+          { label: 'Deri Kılıflar', href: '/products?category=kilif' },
+          { label: 'Silikon Kılıflar', href: '/products?category=kilif' },
         ],
       },
     ],
@@ -173,18 +173,18 @@ const megaMenuData = {
         ],
       },
       {
-        title: 'Ozellikler',
+        title: 'Özellikler',
         items: [
-          { label: 'PD Hizli Sarj', href: '/products?category=power-bank' },
-          { label: 'Kablosuz Sarj', href: '/products?category=power-bank' },
+          { label: 'PD Hızlı Şarj', href: '/products?category=power-bank' },
+          { label: 'Kablosuz Şarj', href: '/products?category=power-bank' },
           { label: 'MagSafe Uyumlu', href: '/products?category=power-bank' },
-          { label: 'Ince Tasarim', href: '/products?category=power-bank' },
+          { label: 'İnce Tasarım', href: '/products?category=power-bank' },
         ],
       },
     ],
   },
   sarjAleti: {
-    label: 'Sarj Aleti',
+    label: 'Şarj Aleti',
     href: '/products?category=sarj-aleti',
     columns: [
       {
@@ -197,7 +197,7 @@ const megaMenuData = {
         ],
       },
       {
-        title: 'Guc Secenekleri',
+        title: 'Güç Seçenekleri',
         items: [
           { label: '20W', href: '/products?category=sarj-aleti' },
           { label: '33W', href: '/products?category=sarj-aleti' },
@@ -208,10 +208,10 @@ const megaMenuData = {
       {
         title: 'Tipler',
         items: [
-          { label: 'USB-C Adaptorlu', href: '/products?category=sarj-aleti' },
-          { label: 'Coklu Port', href: '/products?category=sarj-aleti' },
+          { label: 'USB-C Adaptörlü', href: '/products?category=sarj-aleti' },
+          { label: 'Çoklu Port', href: '/products?category=sarj-aleti' },
           { label: 'GaN Teknolojili', href: '/products?category=sarj-aleti' },
-          { label: 'Arac Sarj Aleti', href: '/products?category=sarj-aleti' },
+          { label: 'Araç Şarj Aleti', href: '/products?category=sarj-aleti' },
         ],
       },
     ],
@@ -294,7 +294,7 @@ export function Header() {
           <Link to="/" className="flex min-w-0 items-center gap-2">
             <img
               src={isDarkMode ? "/images/cep-dunyasi-logo-dark-v3-tight.png" : "/images/image.png"}
-              alt="Cep Dunyasi"
+              alt="Cep Dünyası"
               className="h-9 w-auto rounded-lg sm:h-10 md:h-11"
             />
               <span
@@ -498,7 +498,7 @@ export function Header() {
                       className="text-sm font-semibold text-primary/90 transition-colors hover:text-primary"
                       onClick={closeMegaMenu}
                     >
-                      Tumunu Gor
+                      Tümünü Gör
                     </Link>
                   </div>
                   <div className="grid gap-6 md:grid-cols-3">
@@ -541,5 +541,4 @@ export function Header() {
     </>
   );
 }
-
 

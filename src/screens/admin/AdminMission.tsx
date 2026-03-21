@@ -102,14 +102,14 @@ export default function AdminMission() {
           toast.error(error instanceof Error ? error.message : 'Eski medya silinemedi');
         }
       }
-      toast.success('Misyon kaydi guncellendi');
+      toast.success('Misyon kaydı güncellendi');
     } else {
       const { error } = await db.from('mission_items').insert(payload);
       if (error) {
         toast.error(error.message);
         return;
       }
-      toast.success('Misyon kaydi eklendi');
+      toast.success('Misyon kaydı eklendi');
     }
 
     setDialogOpen(false);
@@ -145,7 +145,7 @@ export default function AdminMission() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Misyon medyasi silinemedi');
     }
-    toast.success('Misyon kaydi silindi');
+    toast.success('Misyon kaydı silindi');
     fetchItems();
   };
 
@@ -163,12 +163,12 @@ export default function AdminMission() {
     const payload = await response.json();
 
     if (!response.ok || payload?.error) {
-      throw new Error(payload?.error?.message || 'Dosya yuklenemedi');
+      throw new Error(payload?.error?.message || 'Dosya yüklenemedi');
     }
 
     const url = payload?.data?.url;
     if (!url) {
-      throw new Error('Yukleme tamamlandi ama URL donmedi');
+      throw new Error('Yükleme tamamlandı ama URL dönmedi');
     }
 
     return `${url}`;
@@ -186,9 +186,9 @@ export default function AdminMission() {
       setUploadingMedia(true);
       const url = await uploadFile(file, form.media_type);
       setForm((current) => ({ ...current, media_url: url }));
-      toast.success('Medya yuklendi ve URL alana eklendi');
+      toast.success('Medya yüklendi ve URL alana eklendi');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Medya yukleme hatasi');
+      toast.error(error instanceof Error ? error.message : 'Medya yükleme hatası');
     } finally {
       setUploadingMedia(false);
     }
@@ -206,9 +206,9 @@ export default function AdminMission() {
       setUploadingPoster(true);
       const url = await uploadFile(file, 'image');
       setForm((current) => ({ ...current, media_poster: url }));
-      toast.success('Poster yuklendi ve URL alana eklendi');
+      toast.success('Poster yüklendi ve URL alana eklendi');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Poster yukleme hatasi');
+      toast.error(error instanceof Error ? error.message : 'Poster yükleme hatası');
     } finally {
       setUploadingPoster(false);
     }
@@ -253,7 +253,7 @@ export default function AdminMission() {
               </div>
 
               <div className="space-y-2">
-                <Label>Aciklama</Label>
+                <Label>Açıklama</Label>
                 <Textarea
                   value={form.description}
                   onChange={(e) => setForm((current) => ({ ...current, description: e.target.value }))}
@@ -262,7 +262,7 @@ export default function AdminMission() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Medya Turu</Label>
+                  <Label>Medya Türü</Label>
                   <Select
                     value={form.media_type}
                     onValueChange={(value) =>
@@ -312,7 +312,7 @@ export default function AdminMission() {
                 />
                 <p className="text-xs text-muted-foreground">
                   {uploadingMedia
-                    ? 'Yukleniyor...'
+                    ? 'Yükleniyor...'
                     : form.media_type === 'video'
                       ? 'Video secerek Medya URL alanini otomatik doldurabilirsiniz.'
                       : 'Foto secerek Medya URL alanini otomatik doldurabilirsiniz.'}
@@ -338,8 +338,8 @@ export default function AdminMission() {
                 />
                 <p className="text-xs text-muted-foreground">
                   {uploadingPoster
-                    ? 'Yukleniyor...'
-                    : 'Poster gorseli yukleyerek Video Poster URL alanini otomatik doldurabilirsiniz.'}
+                    ? 'Yükleniyor...'
+                    : 'Poster görseli yükleyerek Video Poster URL alanını otomatik doldurabilirsiniz.'}
                 </p>
               </div>
 
@@ -348,12 +348,12 @@ export default function AdminMission() {
                 <Textarea
                   value={form.list_items_text}
                   onChange={(e) => setForm((current) => ({ ...current, list_items_text: e.target.value }))}
-                  placeholder={'Urun Danismanligi\nHizli Kargo\nTeknik Destek'}
+                  placeholder={'Ürün Danışmanlığı\nHızlı Kargo\nTeknik Destek'}
                 />
               </div>
 
               <Button className="w-full" onClick={handleSave}>
-                {editing ? 'Guncelle' : 'Kaydet'}
+                {editing ? 'Güncelle' : 'Kaydet'}
               </Button>
             </div>
           </DialogContent>
@@ -365,10 +365,10 @@ export default function AdminMission() {
           <TableHeader>
             <TableRow>
               <TableHead>Baslik</TableHead>
-              <TableHead>Tur</TableHead>
+              <TableHead>Tür</TableHead>
               <TableHead>Sira</TableHead>
               <TableHead>Durum</TableHead>
-              <TableHead className="text-right">Islem</TableHead>
+              <TableHead className="text-right">İşlem</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

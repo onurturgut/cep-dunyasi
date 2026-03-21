@@ -188,7 +188,7 @@ class MongoQueryBuilder<T = any> implements PromiseLike<QueryResult<T>> {
 
       return body;
     } catch (error) {
-      return createErrorResult(error instanceof Error ? error.message : "Ag hatasi");
+      return createErrorResult(error instanceof Error ? error.message : "Ağ hatası");
     }
   }
 }
@@ -215,7 +215,7 @@ const db = {
 
       return body;
     } catch (error) {
-      return { data: null, error: { message: error instanceof Error ? error.message : "RPC hatasi" } };
+      return { data: null, error: { message: error instanceof Error ? error.message : "RPC hatası" } };
     }
   },
   auth: {
@@ -293,7 +293,7 @@ const db = {
       } catch (error) {
         return {
           data: { user: null },
-          error: { message: error instanceof Error ? error.message : "Kayit hatasi" },
+          error: { message: error instanceof Error ? error.message : "Kayıt hatası" },
         };
       }
     },
@@ -322,7 +322,7 @@ const db = {
       } catch (error) {
         return {
           data: { user: null },
-          error: { message: error instanceof Error ? error.message : "Giris hatasi" },
+          error: { message: error instanceof Error ? error.message : "Giriş hatası" },
         };
       }
     },

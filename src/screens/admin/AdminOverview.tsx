@@ -37,11 +37,11 @@ type DashboardVariant = {
 
 const statusLabels: Record<string, string> = {
   pending: "Beklemede",
-  confirmed: "Onaylandi",
-  processing: "Hazirlaniyor",
+  confirmed: "Onaylandı",
+  processing: "Hazırlanıyor",
   shipped: "Kargoda",
   delivered: "Teslim Edildi",
-  cancelled: "Iptal",
+  cancelled: "İptal",
 };
 
 const pieColors = ["#98111E", "#c43a46", "#e36b75", "#f2a1a8", "#6b7280", "#d4d4d8"];
@@ -202,11 +202,11 @@ export default function AdminOverview() {
       .slice(0, 6);
 
     const kpis = [
-      { title: "Toplam Urun", value: products.length.toLocaleString("tr-TR"), icon: Package, color: "text-primary" },
-      { title: "Toplam Siparis", value: totalOrders.toLocaleString("tr-TR"), icon: ShoppingCart, color: "text-accent" },
+      { title: "Toplam Ürün", value: products.length.toLocaleString("tr-TR"), icon: Package, color: "text-primary" },
+      { title: "Toplam Sipariş", value: totalOrders.toLocaleString("tr-TR"), icon: ShoppingCart, color: "text-accent" },
       { title: "Ciro", value: formatCurrency(totalRevenue), icon: TrendingUp, color: "text-success" },
       {
-        title: "Iptal Siparis",
+        title: "İptal Sipariş",
         value: cancelledOrders.toLocaleString("tr-TR"),
         icon: AlertTriangle,
         color: "text-destructive",
@@ -247,7 +247,7 @@ export default function AdminOverview() {
       <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Odeme Alinan Siparis</CardDescription>
+            <CardDescription>Ödeme Alınan Sipariş</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-xl font-semibold">{loading ? "..." : analytics.paidOrders.toLocaleString("tr-TR")}</p>
@@ -267,7 +267,7 @@ export default function AdminOverview() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Dashboard, son verilerle otomatik guncellenir. Siparis trendi ve kategori ciro dagilimi asagidaki grafiklerde.
+              Dashboard, son verilerle otomatik güncellenir. Sipariş trendi ve kategori ciro dağılımı aşağıdaki grafiklerde.
             </p>
           </CardContent>
         </Card>
@@ -319,7 +319,7 @@ export default function AdminOverview() {
       <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_1.4fr]">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Siparis Durumu Dagilimi</CardTitle>
+            <CardTitle className="text-base">Sipariş Durumu Dağılımı</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -355,7 +355,7 @@ export default function AdminOverview() {
 
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle className="text-base">En Cok Gelir Getiren Urunler</CardTitle>
+          <CardTitle className="text-base">En Cok Gelir Getiren Ürünler</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">

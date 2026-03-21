@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const photo = formData.get("photo");
 
     if (!firstName || !lastName || !phoneNumber || !phoneModel || !issueDescription) {
-      return jsonError("Lutfen zorunlu alanlari doldurun", 400);
+      return jsonError("Lütfen zorunlu alanları doldurun", 400);
     }
 
     let photoUrl = "";
@@ -34,12 +34,12 @@ export async function POST(request: Request) {
 
     if (photo instanceof File && photo.size > 0) {
       if (photo.size > MAX_FILE_SIZE_BYTES) {
-        return jsonError("Fotograf boyutu 8MB sinirini asiyor", 400);
+        return jsonError("Fotoğraf boyutu 8MB sinirini asiyor", 400);
       }
 
       const mimeType = `${photo.type || ""}`.toLowerCase();
       if (!mimeType.startsWith("image/")) {
-        return jsonError("Sadece fotograf yukleyebilirsiniz", 400);
+        return jsonError("Sadece fotoğraf yükleyebilirsiniz", 400);
       }
 
       const data = Buffer.from(await photo.arrayBuffer());
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       error: null,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Teknik servis formu gonderilemedi";
+    const message = error instanceof Error ? error.message : "Teknik servis formu gönderilemedi";
     return jsonError(message, 500);
   }
 }

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCartStore } from '@/lib/cart-store';
 import { toast } from 'sonner';
+import { formatCurrency, toPriceNumber } from '@/lib/utils';
 
 interface ProductCardProps {
   id: string;
@@ -35,6 +36,8 @@ export function ProductCard({
   stock = 0,
 }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
+  const normalizedPrice = toPriceNumber(price);
+  const normalizedOriginalPrice = toPriceNumber(originalPrice);
   const galleryImages = Array.from(new Set([...(images || []), image].filter(Boolean) as string[]));
   const primaryImage = galleryImages[0];
 
@@ -47,7 +50,7 @@ export function ProductCard({
       productId: id,
       productName: name,
       variantInfo: brand || '',
-      price,
+      price: normalizedPrice,
       image: primaryImage,
       stock,
     });
@@ -86,9 +89,9 @@ export function ProductCard({
                 <ShoppingCart className="h-12 w-12 opacity-20" />
               </div>
             )}
-            {originalPrice && originalPrice > price && (
+            {normalizedOriginalPrice > normalizedPrice && (
               <Badge className="absolute left-2 top-2 bg-accent text-accent-foreground">
-                %{Math.round(((originalPrice - price) / originalPrice) * 100)} Indirim
+                %{Math.round(((normalizedOriginalPrice - normalizedPrice) / normalizedOriginalPrice) * 100)} İndirim
               </Badge>
             )}
             {stock !== undefined && stock <= 0 && (
@@ -103,9 +106,9 @@ export function ProductCard({
             {description ? <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{description}</p> : null}
             <div className="mt-3 flex items-end justify-between gap-3">
               <div className="flex min-w-0 flex-col gap-1">
-                <span className="text-lg font-bold text-primary">TL {price.toLocaleString('tr-TR')}</span>
-                {originalPrice && originalPrice > price && (
-                  <span className="text-xs text-muted-foreground line-through">TL {originalPrice.toLocaleString('tr-TR')}</span>
+                <span className="text-lg font-bold text-primary">{formatCurrency(normalizedPrice)}</span>
+                {normalizedOriginalPrice > normalizedPrice && (
+                  <span className="text-xs text-muted-foreground line-through">{formatCurrency(normalizedOriginalPrice)}</span>
                 )}
               </div>
               {variantId && stock > 0 && (
