@@ -9,6 +9,7 @@ import { CategoriesSection } from '@/components/home/CategoriesSection';
 import { ExploreCategoriesSection } from '@/components/home/ExploreCategoriesSection';
 import { FeaturedProductsSection } from '@/components/home/FeaturedProductsSection';
 import { HeroSection } from '@/components/home/HeroSection';
+import { PromoVideoModal } from '@/components/home/PromoVideoModal';
 import { defaultCategories, defaultSiteContent, mergeCategories, type HomeCategory, type HomeSiteContent } from '@/components/home/home-data';
 
 export default function Index() {
@@ -87,6 +88,7 @@ export default function Index() {
 
   return (
     <Layout>
+      <PromoVideoModal />
       <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} content={siteContent} />
       <CategoriesSection categories={categories} content={siteContent} />
       <ExploreCategoriesSection categories={categories.length > 0 ? categories : defaultCategories} content={siteContent} />
