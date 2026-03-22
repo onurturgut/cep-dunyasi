@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { defaultSiteContent } from "@/components/home/home-data";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -36,6 +37,15 @@ type SiteContentForm = {
   hero_cta_href: string;
   category_section_title: string;
   category_section_description: string;
+  category_banner_enabled: boolean;
+  category_banner_main_image: string;
+  category_banner_video: string;
+  category_banner_video_link: string;
+  category_banner_brand_title: string;
+  category_banner_brand_desc_1: string;
+  category_banner_brand_desc_2: string;
+  category_banner_brand_desc_3: string;
+  category_banner_slots: string[];
   explore_section_title: string;
   featured_section_title: string;
   featured_section_cta_label: string;
@@ -89,7 +99,7 @@ export default function AdminSiteContent() {
   const uploadImage = async (file: File) => {
     const body = new FormData();
     body.append("file", file);
-    body.append("kind", "image");
+    body.append("kind", file.type.startsWith("video/") ? "video" : "image");
     body.append("scope", "site-content");
 
     const response = await fetch("/api/upload", {
@@ -113,7 +123,7 @@ export default function AdminSiteContent() {
 
   const handleUpload = async (
     event: ChangeEvent<HTMLInputElement>,
-    target: "hero_logo_light_url" | "hero_logo_dark_url" | { slideIndex: number }
+    target: keyof SiteContentForm | { slideIndex: number } | { slotIndex: number }
   ) => {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -123,20 +133,32 @@ export default function AdminSiteContent() {
     }
 
     try {
-      const targetKey = typeof target === "string" ? target : `slide-${target.slideIndex}`;
+      let targetKey: string;
+      if (typeof target === "string") {
+        targetKey = target as string;
+      } else if ('slideIndex' in target) {
+        targetKey = `slide-${target.slideIndex}`;
+      } else {
+        targetKey = `slot-${target.slotIndex}`;
+      }
       setUploadingTarget(targetKey);
       const url = await uploadImage(file);
 
       if (typeof target === "string") {
-        setForm((current) => ({ ...current, [target]: url }));
-      } else {
+        setForm((current) => ({ ...current, [target as keyof SiteContentForm]: url as never }));
+      } else if ('slideIndex' in target) {
         setForm((current) => ({
           ...current,
           hero_slides: current.hero_slides.map((slide, index) => (index === target.slideIndex ? { ...slide, image_url: url } : slide)),
         }));
+      } else if ('slotIndex' in target) {
+        setForm((current) => ({
+          ...current,
+          category_banner_slots: current.category_banner_slots.map((item, index) => (index === target.slotIndex ? url : item)),
+        }));
       }
 
-      toast.success("Görsel yüklendi");
+      toast.success("Medya yüklendi");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Görsel yükleme hatası");
     } finally {
@@ -167,17 +189,26 @@ export default function AdminSiteContent() {
     }
 
     if (existing.data) {
+      const existingSlots = Array.isArray(existing.data.category_banner_slots) ? existing.data.category_banner_slots : [];
       const previousUrls = [
         existing.data.hero_logo_light_url,
         existing.data.hero_logo_dark_url,
+        existing.data.category_banner_main_image,
+        existing.data.category_banner_video,
+        ...existingSlots,
         ...(Array.isArray(existing.data.hero_slides) ? existing.data.hero_slides.map((slide: HeroSlide) => slide.image_url) : []),
-      ];
+      ].filter(Boolean);
+
       const nextUrls = [
         payload.hero_logo_light_url,
         payload.hero_logo_dark_url,
-        ...payload.hero_slides.map((slide) => slide.image_url),
-      ];
-      const removedUrls = diffRemovedMediaUrls(previousUrls, nextUrls);
+        payload.category_banner_main_image,
+        payload.category_banner_video,
+        ...(payload.category_banner_slots || []),
+        ...payload.hero_slides.map((slide: HeroSlide) => slide.image_url),
+      ].filter(Boolean);
+
+      const removedUrls = diffRemovedMediaUrls(previousUrls as string[], nextUrls as string[]);
 
       if (removedUrls.length > 0) {
         try {
@@ -420,6 +451,84 @@ export default function AdminSiteContent() {
             </Card>
           ))}
         </div>
+      </Card>
+
+      <Card className="space-y-4 p-5">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-lg font-semibold">Kategori Banner Alanı</h2>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={form.category_banner_enabled}
+              onCheckedChange={(checked) => setForm((curr) => ({ ...curr, category_banner_enabled: checked }))}
+              id="banner-mode"
+            />
+            <Label htmlFor="banner-mode">Banner Aktif (Kategoriler yerine gösterilir)</Label>
+          </div>
+        </div>
+
+        {form.category_banner_enabled && (
+          <div className="space-y-6 pt-4 border-t">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Ana Görsel URL (Sol Üst)</Label>
+                <Input value={form.category_banner_main_image} onChange={(e) => setForm((c) => ({ ...c, category_banner_main_image: e.target.value }))} />
+                <Input type="file" accept="image/*" onChange={(e) => handleUpload(e, "category_banner_main_image")} disabled={uploadingTarget === "category_banner_main_image"} />
+              </div>
+              <div className="space-y-2">
+                <Label>Video URL</Label>
+                <Input value={form.category_banner_video} onChange={(e) => setForm((c) => ({ ...c, category_banner_video: e.target.value }))} />
+                <Input type="file" accept="video/mp4,video/webm" onChange={(e) => handleUpload(e, "category_banner_video")} disabled={uploadingTarget === "category_banner_video"} />
+              </div>
+              <div className="space-y-2">
+                <Label>Video Tıklama Linki</Label>
+                <Input value={form.category_banner_video_link} onChange={(e) => setForm((c) => ({ ...c, category_banner_video_link: e.target.value }))} />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="font-semibold">Marka Metinleri</h3>
+              <div className="space-y-2">
+                <Label>Başlık (Türkiye'nin En Değerli...)</Label>
+                <Input value={form.category_banner_brand_title} onChange={(e) => setForm((c) => ({ ...c, category_banner_brand_title: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Açıklama 1 (Uluslararası marka...)</Label>
+                <Textarea value={form.category_banner_brand_desc_1} onChange={(e) => setForm((c) => ({ ...c, category_banner_brand_desc_1: e.target.value }))} />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Açıklama 2 (Brand Finance listesinde...)</Label>
+                  <Input value={form.category_banner_brand_desc_2} onChange={(e) => setForm((c) => ({ ...c, category_banner_brand_desc_2: e.target.value }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Açıklama 3 (Reeder, Türkiye'nin...)</Label>
+                  <Input value={form.category_banner_brand_desc_3} onChange={(e) => setForm((c) => ({ ...c, category_banner_brand_desc_3: e.target.value }))} />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="font-semibold">Slot Görselleri (Küçük Kutular)</h3>
+              <div className="grid gap-4 md:grid-cols-3">
+                {form.category_banner_slots?.map((slotUrl, index) => (
+                  <div key={index} className="space-y-2 border rounded-md p-3">
+                    <Label>Kutu {index + 1}</Label>
+                    <Input
+                      value={slotUrl}
+                      onChange={(e) =>
+                        setForm((c) => ({
+                          ...c,
+                          category_banner_slots: c.category_banner_slots.map((item, i) => (i === index ? e.target.value : item)),
+                        }))
+                      }
+                    />
+                    <Input type="file" accept="image/*" onChange={(e) => handleUpload(e, { slotIndex: index })} disabled={uploadingTarget === `slot-${index}`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </Card>
 
       <Card className="space-y-4 p-5">

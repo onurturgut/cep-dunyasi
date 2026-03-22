@@ -34,6 +34,15 @@ export type HomeSiteContent = {
   hero_benefits: Array<{ icon: string; title: string; desc: string }>;
   category_section_title: string;
   category_section_description: string;
+  category_banner_enabled: boolean;
+  category_banner_main_image: string;
+  category_banner_video: string;
+  category_banner_video_link: string;
+  category_banner_brand_title: string;
+  category_banner_brand_desc_1: string;
+  category_banner_brand_desc_2: string;
+  category_banner_brand_desc_3: string;
+  category_banner_slots: string[];
   explore_section_title: string;
   featured_section_title: string;
   featured_section_cta_label: string;
@@ -49,6 +58,18 @@ export const defaultCategories: HomeCategory[] = [
   { id: 'default-power', name: 'Power Bank', slug: 'power-bank', icon: 'Battery', description: '', image_url: '/images/kategorileri_kesfet/powerbank.png' },
   { id: 'default-servis', name: 'Teknik Servis', slug: 'teknik-servis', icon: 'Wrench', description: '', image_url: '/images/kategorileri_kesfet/teknik_servis.png' },
 ];
+
+export const hiddenHomeCategorySlugs = new Set([
+  'telefon',
+  'ikinci-el-telefon',
+  'akilli-saatler',
+  'kilif',
+  'sarj-aleti',
+  'power-bank',
+  'teknik-servis',
+]);
+
+export const categorySlotImages = ['image copy 2.png', 'image copy 3.png', 'image copy 4.png'];
 
 export const categoryIcons: Record<string, LucideIcon> = {
   Smartphone,
@@ -102,6 +123,21 @@ export const defaultSiteContent: HomeSiteContent = {
   ],
   category_section_title: 'Kategoriler',
   category_section_description: '',
+  category_banner_enabled: true,
+  category_banner_main_image: 'https://pub-61300b39f2f74b558f60e467b6c2d588.r2.dev/banner/image-copy.png',
+  category_banner_video: 'https://pub-61300b39f2f74b558f60e467b6c2d588.r2.dev/banner/afis1.mp4',
+  category_banner_video_link: '/products?category=telefon',
+  category_banner_brand_title: 'Türkiye\'nin En Değerli Markaları Arasında!',
+  category_banner_brand_desc_1: 'Uluslararası marka değerlendirme kuruluşu Brand Finance\'in "Türkiye 2025" raporunda Reeder, ülkemizin en değerli ve en güçlü markaları arasında yerini aldı.',
+  category_banner_brand_desc_2: 'Brand Finance "Türkiye 2025" listesinde',
+  category_banner_brand_desc_3: 'Reeder, Türkiye\'nin en değerli 3. cihaz üreticisi konumunda.',
+  category_banner_slots: [
+    'https://pub-61300b39f2f74b558f60e467b6c2d588.r2.dev/banner/image-copy-2.png',
+    'https://pub-61300b39f2f74b558f60e467b6c2d588.r2.dev/banner/image-copy-3.png',
+    'https://pub-61300b39f2f74b558f60e467b6c2d588.r2.dev/banner/image-copy-4.png',
+    'https://pub-61300b39f2f74b558f60e467b6c2d588.r2.dev/banner/image-copy-2.png',
+    'https://pub-61300b39f2f74b558f60e467b6c2d588.r2.dev/banner/image-copy-3.png'
+  ],
   explore_section_title: 'Kategorileri Keşfet',
   featured_section_title: 'Öne Çıkan Ürünler',
   featured_section_cta_label: 'Tüm Ürünleri Gör',

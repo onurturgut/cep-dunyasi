@@ -126,7 +126,10 @@ export default function AdminOverview() {
     const productMap = new Map<string, { revenue: number; quantity: number }>();
 
     for (const order of orders) {
+      if (!order.created_at) continue;
       const createdAt = new Date(order.created_at);
+      if (isNaN(createdAt.getTime())) continue;
+      
       const monthKey = getMonthKey(createdAt);
       const dayKey = getDateKey(createdAt);
       const isPaid = order.payment_status === "paid";
