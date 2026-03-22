@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { db } from '@/integrations/mongo/client';
 import { useCartStore } from '@/lib/cart-store';
-import { ShoppingCart, Minus, Plus, Check, Truck } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, Check, Truck, RefreshCcw, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency, toPriceNumber } from '@/lib/utils';
 
 export default function ProductDetail() {
@@ -183,33 +184,102 @@ export default function ProductDetail() {
             )}
 
             {selectedVariant && selectedVariant.stock > 0 && (
-              <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
                 <div className="flex w-full items-center justify-center gap-2 rounded-lg border px-2 sm:w-auto sm:justify-start">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
+                  <Button variant="ghost" size="icon" className="h-[42px] w-[42px]" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
                     <Minus className="h-4 w-4" />
                   </Button>
                   <span className="w-8 text-center font-medium">{quantity}</span>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.min(selectedVariant.stock, quantity + 1))}>
+                  <Button variant="ghost" size="icon" className="h-[42px] w-[42px]" onClick={() => setQuantity(Math.min(selectedVariant.stock, quantity + 1))}>
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
-                <Button size="lg" className="w-full sm:flex-1" onClick={handleAdd}>
+                <Button size="lg" className="h-[42px] w-full sm:flex-1" onClick={handleAdd}>
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Sepete Ekle
                 </Button>
               </div>
             )}
 
-            {product.description && (
-              <div className="mt-8 space-y-2">
-                <h3 className="font-display font-semibold">Açıklama</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{product.description}</p>
-              </div>
-            )}
-
-            <div className="mt-6 flex items-center gap-2 rounded-lg border bg-muted/50 p-3 text-sm text-muted-foreground">
-              <Truck className="h-4 w-4 shrink-0" />
-              <span>Siparişleriniz aynı gün kargoya teslim edilir.</span>
+            <div className="mt-10 pt-6 border-t border-border/50">
+              <Tabs defaultValue="description" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
+                  <TabsTrigger value="description">Ürün Açıklaması</TabsTrigger>
+                  <TabsTrigger value="delivery">Teslimat ve İade</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="description" className="mt-6 space-y-6">
+                  <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
+                    {product.description ? (
+                      <p>{product.description}</p>
+                    ) : (
+                      <p>Bu ürün için henüz detaylı bir açıklama girilmemiş.</p>
+                    )}
+                  </div>
+                  
+                  <div className="rounded-xl border border-border/70 bg-secondary/20 p-5">
+                    <h4 className="font-semibold text-foreground mb-4">Öne Çıkan Özellikler</h4>
+                    <ul className="grid gap-3 sm:grid-cols-2">
+                      <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Check className="h-4 w-4 text-primary shrink-0" />
+                        %100 Orijinal Ürün Garantisi
+                      </li>
+                      <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Check className="h-4 w-4 text-primary shrink-0" />
+                        2 Yıl Resmi Distribütör Garantili
+                      </li>
+                      <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Check className="h-4 w-4 text-primary shrink-0" />
+                        Aynı Gün Hızlı Kargo İmkanı
+                      </li>
+                      <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Check className="h-4 w-4 text-primary shrink-0" />
+                        Güvenli Paketleme
+                      </li>
+                    </ul>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="delivery" className="mt-6 space-y-6">
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="flex flex-col items-center text-center gap-3 p-5 rounded-xl border border-border/70 bg-card">
+                      <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary/10">
+                        <Truck className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-foreground text-sm">Hızlı Kargo</h4>
+                        <p className="text-xs text-muted-foreground mt-1">Aynı gün kargoya teslim</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col items-center text-center gap-3 p-5 rounded-xl border border-border/70 bg-card">
+                      <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary/10">
+                        <RefreshCcw className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-foreground text-sm">Kolay İade</h4>
+                        <p className="text-xs text-muted-foreground mt-1">14 gün içinde koşulsuz iade</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col items-center text-center gap-3 p-5 rounded-xl border border-border/70 bg-card">
+                      <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary/10">
+                        <ShieldCheck className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-foreground text-sm">Güvenli İşlem</h4>
+                        <p className="text-xs text-muted-foreground mt-1">256-bit SSL koruması</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm leading-relaxed text-muted-foreground pt-4 border-t border-border/50">
+                    <p>
+                      Siparişleriniz güvenle paketlenerek en hızlı şekilde size ulaştırılır. Hafta içi saat 15:00'a kadar verilen siparişler aynı gün kargoya teslim edilir. Cumartesi veya Pazar günleri verilen siparişler, pazartesi günü kargoya verilir.
+                    </p>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </div>

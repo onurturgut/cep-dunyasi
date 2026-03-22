@@ -163,14 +163,14 @@ export default function TechnicalService() {
       <section className="container py-10 sm:py-14">
         <div className="grid gap-5 md:grid-cols-3">
           {serviceHighlights.map((item) => (
-            <Card key={item.title} className="rounded-3xl border-border/70 bg-card/75">
-              <CardHeader className="space-y-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <item.icon className="h-6 w-6" />
+            <Card key={item.title} className="rounded-3xl border-border/70 bg-card/75 p-2 sm:p-4">
+              <CardHeader className="space-y-6">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <item.icon className="h-8 w-8" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">{item.title}</CardTitle>
-                  <CardDescription className="mt-2 leading-6">{item.description}</CardDescription>
+                  <CardTitle className="text-xl sm:text-2xl">{item.title}</CardTitle>
+                  <CardDescription className="mt-3 text-base leading-7">{item.description}</CardDescription>
                 </div>
               </CardHeader>
             </Card>
@@ -178,8 +178,8 @@ export default function TechnicalService() {
         </div>
       </section>
 
-      <section className="container pb-14">
-        <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
+      <section className="container pb-14 relative">
+        <div className="grid gap-8 lg:grid-cols-[1fr_1fr] xl:grid-cols-[0.9fr_1.1fr] items-start">
           <div className="space-y-6">
             <Card className="rounded-3xl border-border/70">
               <CardHeader>
@@ -223,7 +223,7 @@ export default function TechnicalService() {
             </Card>
           </div>
 
-          <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-black/5">
+          <Card className="sticky top-28 z-10 rounded-[2rem] border-border/70 shadow-lg shadow-black/5">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
