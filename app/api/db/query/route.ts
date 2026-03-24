@@ -53,8 +53,16 @@ function normalizeEntity(entity: any) {
     return entity.map((item) => normalizeEntity(item));
   }
 
+  if (entity instanceof Date) {
+    return entity.toISOString();
+  }
+
   if (typeof entity === "string") {
     return normalizeMediaUrl(entity);
+  }
+
+  if (typeof entity !== "object") {
+    return entity;
   }
 
   const { _id, __v, ...rest } = entity;

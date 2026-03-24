@@ -60,6 +60,7 @@ export default function AdminProducts() {
       .select('*, product_variants(*), categories(name)')
       .order('created_at', { ascending: false });
     setProducts(data || []);
+
   };
 
   useEffect(() => {
@@ -250,6 +251,7 @@ export default function AdminProducts() {
 
   const handleEdit = (product: any) => {
     setEditing(product);
+
     setForm({
       name: product.name,
       slug: product.slug,
