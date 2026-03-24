@@ -40,7 +40,7 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
       <div className="container -mt-8 md:-mt-10">
         <motion.div
           style={{ y: foregroundY, scale }}
-          className="min-h-[2000px] rounded-3xl border border-border/70 bg-card/75 p-5 text-foreground shadow-lg backdrop-blur-xl md:p-8"
+          className="min-h-[2000px] rounded-3xl border border-border bg-card p-5 text-foreground shadow-lg md:border-border/70 md:bg-card/75 md:backdrop-blur-xl md:p-8"
           variants={sectionReveal}
           initial="hidden"
           whileInView="show"
@@ -74,9 +74,9 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
                     viewport={{ once: true, amount: 0.2 }}
                   >
                     <motion.div variants={staggerItem}>
-                      <div className="relative h-[500px] w-full overflow-hidden rounded-xl border border-background/30 bg-card">
+                      <div className="relative h-[500px] w-full overflow-hidden rounded-xl border border-border bg-card md:border-background/30">
                         <video
-                          className="absolute inset-0 h-full w-full object-contain object-center bg-black/5"
+                          className="absolute inset-0 h-full w-full object-contain object-center bg-black md:bg-black/5"
                           autoPlay
                           muted
                           loop
@@ -85,7 +85,7 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
                         >
                           <source src={content.category_banner_video} type="video/mp4" />
                         </video>
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-transparent" />
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-transparent md:from-primary/30" />
                         {content.category_banner_video_link && (
                           <Link
                             to={content.category_banner_video_link}
@@ -104,7 +104,7 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
 
                       return (
                         <motion.div key={`category-slot-top-${index}`} variants={staggerItem}>
-                          <div className="h-[500px] w-full overflow-hidden rounded-xl border border-background/30 bg-background/5">
+                          <div className="h-[500px] w-full overflow-hidden rounded-xl border border-border bg-background md:border-background/30 md:bg-background/5">
                             <img
                               src={imageUrl}
                               alt={`Kategori kisim ${index + 1}`}
@@ -160,7 +160,7 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
 
                       return (
                         <motion.div key={`category-slot-bottom-${index}`} variants={staggerItem}>
-                          <div className="h-[500px] w-full overflow-hidden rounded-xl border border-background/30 bg-background/5">
+                          <div className="h-[500px] w-full overflow-hidden rounded-xl border border-border bg-background md:border-background/30 md:bg-background/5">
                             <img
                               src={imageUrl}
                               alt={`Kategori kisim ${index + 1}`}
