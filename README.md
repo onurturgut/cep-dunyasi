@@ -72,6 +72,7 @@ Uygulama varsayilan olarak `http://localhost:3000` adresinde acilir.
 
 - `MONGODB_URI`: Mongo baglanti adresi
 - `MONGODB_SERVER_SELECTION_TIMEOUT_MS`: (Opsiyonel) Mongo baglanti bekleme suresi, milisaniye (varsayilan `10000`)
+- `MONGODB_DNS_SERVERS`: (Opsiyonel) `mongodb+srv` kullaniyorsan SRV sorgulari icin DNS sunuculari. Virgulle ayir, varsayilan `1.1.1.1,8.8.8.8`
 - `IYZICO_API_KEY`: Iyzico API key
 - `IYZICO_SECRET_KEY`: Iyzico secret key
 - `IYZICO_BASE_URL`: Genelde sandbox icin `https://sandbox-api.iyzipay.com`

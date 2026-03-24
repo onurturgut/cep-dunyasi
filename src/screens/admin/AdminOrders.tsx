@@ -118,6 +118,19 @@ export default function AdminOrders() {
             <DialogTitle>Kargo Bilgisi Ekle</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {selected?.order_items?.length ? (
+              <div className="rounded-lg border p-3">
+                <p className="text-sm font-medium">Siparis Kalemleri</p>
+                <div className="mt-2 space-y-2 text-sm text-muted-foreground">
+                  {selected.order_items.map((item: any) => (
+                    <div key={item.id}>
+                      <p>{item.product_name} x{item.quantity}</p>
+                      {item.variant_info && <p className="text-xs">{item.variant_info}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             <div className="space-y-2">
               <Label>Kargo Firması</Label>
               <Input

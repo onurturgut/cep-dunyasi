@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { Category, Coupon, MissionItem, Order, OrderItem, Product, ProductVariant, SiteContent } from "@/server/models";
 import { getObjectKeyFromMediaUrl, normalizeMediaUrl, uploadToR2 } from "@/server/storage/r2";
+import { normalizeProductVariant } from "@/lib/product-variants";
 
 let seeded = false;
 let seedPromise: Promise<void> | null = null;
@@ -64,6 +65,23 @@ type SeedVariantRecord = {
   price: number;
 };
 
+type ProductVariantSeed = {
+  productSlug: string;
+  variant: {
+    sku: string;
+    attributes?: Record<string, string>;
+    color_name?: string;
+    color_code?: string;
+    storage?: string;
+    ram?: string;
+    price: number;
+    compare_at_price?: number;
+    stock: number;
+    images?: string[];
+    is_active?: boolean;
+  };
+};
+
 type FakeSaleTemplate = {
   token: string;
   createdAt: Date;
@@ -108,6 +126,22 @@ const categorySeeds = [
 ];
 
 const baseProductSeeds: ProductSample[] = [
+  {
+    name: "iPhone 16 Pro",
+    slug: "iphone-16-pro",
+    description: "Apple'in profesyonel segmenti icin tasarlanan guclu iPhone modeli.",
+    categorySlug: "telefon",
+    brand: "Apple",
+    type: "phone",
+    image: "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-1.jpg",
+    phoneModelKey: "iphone-15-pro",
+    variant: {
+      sku: "IPHONE-16-PRO-BLK-128",
+      attributes: { renk: "Siyah", hafiza: "128 GB" },
+      price: 89999,
+      stock: 8,
+    },
+  },
   {
     name: "iPhone 15 Pro Max",
     slug: "iphone-15-pro-max",
@@ -232,8 +266,68 @@ const baseProductSeeds: ProductSample[] = [
   },
 ];
 
-const TOTAL_PRODUCT_SEED_COUNT = 100;
-const TOTAL_FAKE_SALES_COUNT = 100;
+const additionalVariantSeeds: ProductVariantSeed[] = [
+  {
+    productSlug: "iphone-16-pro",
+    variant: {
+      sku: "IPHONE-16-PRO-BLK-256",
+      color_name: "Siyah",
+      color_code: "#1C1C1E",
+      storage: "256 GB",
+      price: 95999,
+      compare_at_price: 98999,
+      stock: 6,
+      images: ["https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-1.jpg"],
+      is_active: true,
+    },
+  },
+  {
+    productSlug: "iphone-16-pro",
+    variant: {
+      sku: "IPHONE-16-PRO-WHT-128",
+      color_name: "Beyaz",
+      color_code: "#F5F5F7",
+      storage: "128 GB",
+      price: 89999,
+      stock: 5,
+      images: ["https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-2.jpg"],
+      is_active: true,
+    },
+  },
+  {
+    productSlug: "iphone-16-pro",
+    variant: {
+      sku: "IPHONE-16-PRO-WHT-256",
+      color_name: "Beyaz",
+      color_code: "#F5F5F7",
+      storage: "256 GB",
+      price: 95999,
+      compare_at_price: 98999,
+      stock: 4,
+      images: ["https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-2.jpg"],
+      is_active: true,
+    },
+  },
+  {
+    productSlug: "iphone-16-pro",
+    variant: {
+      sku: "IPHONE-16-PRO-NAT-256",
+      color_name: "Natural Titanium",
+      color_code: "#B8B3A9",
+      storage: "256 GB",
+      price: 97999,
+      compare_at_price: 100999,
+      stock: 3,
+      images: ["https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-3.jpg"],
+      is_active: true,
+    },
+  },
+];
+
+// Keep the overall seed footprint at 100 records total:
+// 7 categories + 42 products + 46 variants + 2 coupons + 2 mission items + 1 site content = 100
+const TOTAL_PRODUCT_SEED_COUNT = 42;
+const TOTAL_FAKE_SALES_COUNT = 0;
 
 const generatedProductTemplates: GeneratedProductTemplate[] = [
   {
@@ -799,7 +893,7 @@ const defaultSiteContent = {
   hero_slides: [
     { id: "slide-iphone", image_url: "/images/iphone15.png", alt: "iPhone 15" },
     { id: "slide-s24", image_url: "/images/samsung s24.png", alt: "Samsung S24" },
-    { id: "slide-kilif", image_url: "/images/kılıf.png", alt: "Telefon Kılıfı" },
+    { id: "slide-kilif", image_url: "/images/kilif.png", alt: "Telefon Kılıfı" },
     { id: "slide-airpods", image_url: "/images/airpods.png", alt: "AirPods" },
   ],
   hero_benefits: [
@@ -912,7 +1006,8 @@ export async function ensureSeedData() {
           brand: sample.brand,
           type: sample.type,
           images: seedImagesBySlug.get(sample.slug) ?? [sample.image],
-          is_featured: ["iphone-15-pro-max", "iphone-15", "hizli-usb-c-sarj-aleti", "iphone-15-dayanikli-kilif"].includes(sample.slug),
+          starting_price: sample.variant.price,
+          is_featured: ["iphone-16-pro", "iphone-15-pro-max", "iphone-15", "hizli-usb-c-sarj-aleti", "iphone-15-dayanikli-kilif"].includes(sample.slug),
           is_active: true,
         }));
 
@@ -989,21 +1084,67 @@ export async function ensureSeedData() {
 
       const productBySlug = new Map<string, string>(seedProducts.map((item: any) => [item.slug, item.id]));
 
-      const seedSkus = productSeeds.map((item) => item.variant.sku);
-      const existingVariants = await ProductVariant.find({ sku: { $in: seedSkus } }).lean();
-      const existingSkuSet = new Set(existingVariants.map((item: any) => item.sku));
-
-      const variantsToInsert = productSeeds
-        .filter((sample) => !existingSkuSet.has(sample.variant.sku))
-        .map((sample) => ({
-          product_id: productBySlug.get(sample.slug),
+      const baseVariantSeeds: ProductVariantSeed[] = productSeeds.map((sample) => ({
+        productSlug: sample.slug,
+        variant: {
           sku: sample.variant.sku,
           attributes: sample.variant.attributes,
           price: sample.variant.price,
           stock: sample.variant.stock,
+          images: seedImagesBySlug.get(sample.slug) ?? [sample.image],
           is_active: true,
-        }))
-        .filter((sample) => Boolean(sample.product_id));
+        },
+      }));
+      const allVariantSeeds = [...baseVariantSeeds, ...additionalVariantSeeds];
+      const seedSkus = allVariantSeeds.map((item) => item.variant.sku);
+      const existingVariants = await ProductVariant.find({ sku: { $in: seedSkus } }).lean();
+      const existingSkuSet = new Set(existingVariants.map((item: any) => item.sku));
+
+      const variantsToInsert = (
+        await Promise.all(
+          allVariantSeeds
+            .filter((sample) => !existingSkuSet.has(sample.variant.sku))
+            .map(async (sample) => {
+              const productId = productBySlug.get(sample.productSlug);
+              if (!productId) {
+                return null;
+              }
+
+              const migratedVariantImages = await migrateProductImageListToR2(sample.variant.images ?? []);
+              const normalizedVariant = normalizeProductVariant({
+                product_id: productId,
+                sku: sample.variant.sku,
+                attributes: sample.variant.attributes,
+                color_name: sample.variant.color_name,
+                color_code: sample.variant.color_code,
+                storage: sample.variant.storage,
+                ram: sample.variant.ram,
+                price: sample.variant.price,
+                compare_at_price: sample.variant.compare_at_price,
+                stock: sample.variant.stock,
+                images: migratedVariantImages,
+                is_active: sample.variant.is_active ?? true,
+              });
+
+              return {
+                product_id: productId,
+                sku: normalizedVariant.sku,
+                color_name: normalizedVariant.color_name,
+                color_code: normalizedVariant.color_code,
+                storage: normalizedVariant.storage,
+                ram: normalizedVariant.ram,
+                attributes: normalizedVariant.attributes,
+                option_signature: normalizedVariant.option_signature,
+                price: normalizedVariant.price,
+                compare_at_price: normalizedVariant.compare_at_price,
+                stock: normalizedVariant.stock,
+                images: normalizedVariant.images,
+                is_active: normalizedVariant.is_active,
+                sort_order: normalizedVariant.sort_order,
+              };
+            })
+        )
+      ).filter(Boolean);
 
       if (variantsToInsert.length > 0) {
         await ProductVariant.insertMany(variantsToInsert);

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from '@/lib/product-variants';
 
 const defaultCategories = [
   { id: 'default-telefon', name: 'Telefon', slug: 'telefon', icon: 'Smartphone' },
@@ -159,7 +160,7 @@ export default function Products() {
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="space-y-3">
                     <Skeleton className="aspect-square w-full rounded-lg" />
@@ -175,9 +176,9 @@ export default function Products() {
                 <p className="mt-1 text-sm text-muted-foreground">Farklı bir arama veya kategori deneyin.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
                 {products.map((product) => {
-                  const variant = product.product_variants?.[0];
+                  const variant = getDefaultProductVariant(normalizeProductVariants(product.product_variants || []));
                   return (
                     <ProductCard
                       key={product.id}
@@ -186,9 +187,10 @@ export default function Products() {
                       slug={product.slug}
                       brand={product.brand}
                       description={product.description}
-                      images={product.images}
+                      images={getVariantGallery(variant, product.images)}
                       price={variant?.price || 0}
                       variantId={variant?.id}
+                      variantInfo={variant ? getVariantLabel(variant) : undefined}
                       stock={variant?.stock || 0}
                       category={product.categories?.name}
                     />

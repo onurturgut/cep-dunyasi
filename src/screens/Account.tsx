@@ -84,8 +84,11 @@ export default function Account() {
                   </div>
                   <div className="mt-2 space-y-1 text-sm">
                     {order.order_items?.map((item: any) => (
-                      <div key={item.id} className="flex justify-between">
-                        <span>{item.product_name} x{item.quantity}</span>
+                      <div key={item.id} className="flex justify-between gap-3">
+                        <div className="min-w-0">
+                          <p>{item.product_name} x{item.quantity}</p>
+                          {item.variant_info && <p className="text-xs text-muted-foreground">{item.variant_info}</p>}
+                        </div>
                         <span>{formatCurrency(toPriceNumber(item.unit_price) * item.quantity)}</span>
                       </div>
                     ))}

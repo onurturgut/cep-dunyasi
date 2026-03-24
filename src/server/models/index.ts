@@ -25,6 +25,7 @@ const productSchema = new Schema(
     brand: { type: String, default: "" },
     type: { type: String, default: "accessory" },
     images: { type: [String], default: [] },
+    starting_price: { type: Number, default: 0 },
     is_featured: { type: Boolean, default: false, index: true },
     is_active: { type: Boolean, default: true, index: true },
     created_at: { type: Date, default: Date.now },
@@ -38,15 +39,29 @@ const productVariantSchema = new Schema(
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
     product_id: { type: String, required: true, index: true },
     sku: { type: String, required: true, unique: true, index: true },
+    color_name: { type: String, default: "Standart" },
+    color_code: { type: String, default: null },
+    storage: { type: String, default: "Standart" },
+    ram: { type: String, default: null },
     attributes: { type: Schema.Types.Mixed, default: {} },
-    price: { type: Number, required: true, default: 0 },
-    stock: { type: Number, required: true, default: 0 },
+    option_signature: { type: String, required: true, index: true },
+    price: { type: Number, required: true, default: 0, min: 0 },
+    compare_at_price: { type: Number, default: null, min: 0 },
+    stock: { type: Number, required: true, default: 0, min: 0 },
+    images: { type: [String], default: [] },
     barcode: { type: String, default: null },
-    is_active: { type: Boolean, default: true },
+    sort_order: { type: Number, default: 0 },
+    is_active: { type: Boolean, default: true, index: true },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
   },
   { versionKey: false }
+);
+
+productVariantSchema.index({ product_id: 1, is_active: 1, sort_order: 1 });
+productVariantSchema.index(
+  { product_id: 1, option_signature: 1 },
+  { unique: true, partialFilterExpression: { option_signature: { $type: "string" } } }
 );
 
 const couponSchema = new Schema(
@@ -92,6 +107,9 @@ const orderItemSchema = new Schema(
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
     order_id: { type: String, required: true, index: true },
     variant_id: { type: String, required: true },
+    variant_sku: { type: String, default: null },
+    variant_attributes: { type: Schema.Types.Mixed, default: null },
+    variant_image: { type: String, default: null },
     product_name: { type: String, required: true },
     variant_info: { type: String, default: null },
     quantity: { type: Number, required: true, default: 1 },

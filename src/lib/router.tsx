@@ -3,7 +3,7 @@
 import NextLink from "next/link";
 import { useParams as useNextParams, usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
 import type { AnchorHTMLAttributes } from "react";
-import { forwardRef, useMemo } from "react";
+import { forwardRef, useCallback, useMemo } from "react";
 
 type SearchParamsInit = Record<string, string | number | boolean | null | undefined> | URLSearchParams;
 
@@ -38,14 +38,15 @@ export function useParams<T extends Record<string, string | string[] | undefined
   return useNextParams() as T;
 }
 
-export function useSearchParams(): [URLSearchParams, (next: SearchParamsInit) => void] {
+export function useSearchParams(): [URLSearchParams, (next: SearchParamsInit, options?: NavigateOptions) => void] {
   const router = useRouter();
   const pathname = usePathname();
   const current = useNextSearchParams();
 
   const params = useMemo(() => new URLSearchParams(current.toString()), [current]);
+  const currentQuery = current.toString();
 
-  const setSearchParams = (next: SearchParamsInit) => {
+  const setSearchParams = useCallback((next: SearchParamsInit, options?: NavigateOptions) => {
     const nextParams = next instanceof URLSearchParams ? next : new URLSearchParams();
 
     if (!(next instanceof URLSearchParams)) {
@@ -57,8 +58,20 @@ export function useSearchParams(): [URLSearchParams, (next: SearchParamsInit) =>
     }
 
     const query = nextParams.toString();
-    router.push(query ? `${pathname}?${query}` : pathname);
-  };
+    const nextUrl = query ? `${pathname}?${query}` : pathname;
+    const currentUrl = currentQuery ? `${pathname}?${currentQuery}` : pathname;
+
+    if (nextUrl === currentUrl) {
+      return;
+    }
+
+    if (options?.replace) {
+      router.replace(nextUrl);
+      return;
+    }
+
+    router.push(nextUrl);
+  }, [currentQuery, pathname, router]);
 
   return [params, setSearchParams];
 }

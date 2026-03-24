@@ -18,6 +18,7 @@ interface ProductCardProps {
   price: number;
   originalPrice?: number;
   variantId?: string;
+  variantInfo?: string;
   stock?: number;
   category?: string;
 }
@@ -33,6 +34,7 @@ export function ProductCard({
   price,
   originalPrice,
   variantId,
+  variantInfo,
   stock = 0,
 }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
@@ -49,7 +51,7 @@ export function ProductCard({
       variantId,
       productId: id,
       productName: name,
-      variantInfo: brand || '',
+      variantInfo: variantInfo || brand || '',
       price: normalizedPrice,
       image: primaryImage,
       stock,
@@ -61,36 +63,38 @@ export function ProductCard({
     <div className="h-full">
       <Link to={`/product/${slug}`} className="block h-full">
         <Card className="group flex h-full flex-col overflow-hidden border bg-card transition-shadow hover:shadow-lg">
-          <div className="relative aspect-square overflow-hidden bg-muted">
+          <div className="relative aspect-[5/4] overflow-hidden bg-muted sm:aspect-square">
             {galleryImages.length > 0 ? (
               <>
                 <div className="h-full w-full snap-x snap-mandatory overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
                   <div className="grid h-full grid-flow-col auto-cols-[100%]">
                     {galleryImages.map((galleryImage, index) => (
-                      <div key={`${id}-image-${index}`} className="h-full w-full snap-start">
-                        <img
-                          src={galleryImage}
-                          alt={`${name} - ${index + 1}`}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
+                      <div key={`${id}-image-${index}`} className="overflow-hidden">
+                        <div className="flex h-full w-full items-center justify-center p-2 sm:p-4">
+                          <img
+                            src={galleryImage}
+                            alt={`${name} - ${index + 1}`}
+                            className="h-full w-full object-cover rounded-md overflow-hidden"
+                            loading="lazy"
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
                 {galleryImages.length > 1 && (
-                  <Badge className="absolute bottom-2 right-2 bg-background/85 text-foreground hover:bg-background/85">
+                  <Badge className="absolute bottom-1.5 right-1.5 bg-background/85 px-2 py-0.5 text-[10px] text-foreground hover:bg-background/85 sm:bottom-2 sm:right-2 sm:text-xs">
                     {galleryImages.length} foto
                   </Badge>
                 )}
               </>
             ) : (
               <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                <ShoppingCart className="h-12 w-12 opacity-20" />
+                <ShoppingCart className="h-10 w-10 opacity-20 sm:h-12 sm:w-12" />
               </div>
             )}
             {normalizedOriginalPrice > normalizedPrice && (
-              <Badge className="absolute left-2 top-2 bg-accent text-accent-foreground">
+              <Badge className="absolute left-1.5 top-1.5 bg-accent px-2 py-0.5 text-[10px] text-accent-foreground sm:left-2 sm:top-2 sm:text-xs">
                 %{Math.round(((normalizedOriginalPrice - normalizedPrice) / normalizedOriginalPrice) * 100)} İndirim
               </Badge>
             )}
@@ -100,25 +104,25 @@ export function ProductCard({
               </div>
             )}
           </div>
-          <CardContent className="flex h-full flex-col p-4">
-            {brand && <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{brand}</p>}
-            <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-foreground">{name}</h3>
-            {description ? <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{description}</p> : null}
-            <div className="mt-3 flex items-end justify-between gap-3">
+          <CardContent className="flex flex-col p-3 sm:p-4">
+            {brand && <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground sm:text-xs sm:tracking-wider">{brand}</p>}
+            <h3 className="mt-1 line-clamp-2 text-xs font-semibold text-foreground sm:text-sm">{name}</h3>
+            {description ? <p className="mt-1.5 line-clamp-1 text-[11px] text-muted-foreground sm:mt-2 sm:line-clamp-2 sm:text-xs">{description}</p> : null}
+            <div className="mt-2.5 flex items-end justify-between gap-2 sm:mt-3 sm:gap-3">
               <div className="flex min-w-0 flex-col gap-1">
-                <span className="text-lg font-bold text-primary">{formatCurrency(normalizedPrice)}</span>
+                <span className="text-base font-bold text-primary sm:text-lg">{formatCurrency(normalizedPrice)}</span>
                 {normalizedOriginalPrice > normalizedPrice && (
-                  <span className="text-xs text-muted-foreground line-through">{formatCurrency(normalizedOriginalPrice)}</span>
+                  <span className="text-[11px] text-muted-foreground line-through sm:text-xs">{formatCurrency(normalizedOriginalPrice)}</span>
                 )}
               </div>
               {variantId && stock > 0 && (
                 <Button
                   size="icon"
                   variant="secondary"
-                  className="h-8 w-8 shrink-0 rounded-full opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+                  className="h-7 w-7 shrink-0 rounded-full opacity-100 transition-opacity sm:h-8 sm:w-8 sm:opacity-0 sm:group-hover:opacity-100"
                   onClick={handleAddToCart}
                 >
-                  <ShoppingCart className="h-4 w-4" />
+                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
               )}
             </div>

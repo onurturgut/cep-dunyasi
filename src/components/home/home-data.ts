@@ -53,7 +53,7 @@ export const defaultCategories: HomeCategory[] = [
   { id: 'default-telefon', name: 'Telefon', slug: 'telefon', icon: 'Smartphone', description: '', image_url: '/images/kategorileri_kesfet/telefon.png' },
   { id: 'default-ikinci-el-telefon', name: '2. El Telefonlar', slug: 'ikinci-el-telefon', icon: 'Smartphone', description: '', image_url: '/images/kategorileri_kesfet/2.el_telefon.png' },
   { id: 'default-akilli-saat', name: 'Akıllı Saatler', slug: 'akilli-saatler', icon: 'Watch', description: '', image_url: '/images/kategorileri_kesfet/saat.png' },
-  { id: 'default-kilif', name: 'Kılıf', slug: 'kilif', icon: 'ShieldCheck', description: '', image_url: '/images/kategorileri_kesfet/kılıf.png' },
+  { id: 'default-kilif', name: 'Kılıf', slug: 'kilif', icon: 'ShieldCheck', description: '', image_url: '/images/kategorileri_kesfet/kilif.png' },
   { id: 'default-sarj', name: 'Şarj Aleti', slug: 'sarj-aleti', icon: 'BatteryCharging', description: '', image_url: '/images/sarj_aleti.webp' },
   { id: 'default-power', name: 'Power Bank', slug: 'power-bank', icon: 'Battery', description: '', image_url: '/images/kategorileri_kesfet/powerbank.png' },
   { id: 'default-servis', name: 'Teknik Servis', slug: 'teknik-servis', icon: 'Wrench', description: '', image_url: '/images/kategorileri_kesfet/teknik_servis.png' },
@@ -113,7 +113,7 @@ export const defaultSiteContent: HomeSiteContent = {
   hero_slides: [
     { id: 'slide-iphone', image_url: '/images/iphone15.png', alt: 'iPhone 15' },
     { id: 'slide-s24', image_url: '/images/samsung s24.png', alt: 'Samsung S24' },
-    { id: 'slide-kilif', image_url: '/images/kılıf.png', alt: 'Telefon Kılıfı' },
+    { id: 'slide-kilif', image_url: '/images/kilif.png', alt: 'Telefon Kılıfı' },
     { id: 'slide-airpods', image_url: '/images/airpods.png', alt: 'AirPods' },
   ],
   hero_benefits: [

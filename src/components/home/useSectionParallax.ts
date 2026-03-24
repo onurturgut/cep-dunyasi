@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
 
 type SectionParallaxOptions = {
@@ -13,9 +13,15 @@ export function useSectionParallax<T extends HTMLElement>({
   rotate = 6,
 }: SectionParallaxOptions = {}) {
   const ref = useRef<T | null>(null);
+  const [mounted, setMounted] = useState(false);
   const prefersReducedMotion = useReducedMotion();
-  const safeDistance = prefersReducedMotion ? 0 : distance;
-  const safeRotate = prefersReducedMotion ? 0 : rotate;
+  const motionEnabled = mounted && !prefersReducedMotion;
+  const safeDistance = motionEnabled ? distance : 0;
+  const safeRotate = motionEnabled ? rotate : 0;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -33,7 +39,7 @@ export function useSectionParallax<T extends HTMLElement>({
   const accentY = useTransform(progress, [0, 1], [-safeDistance * 0.3, safeDistance * 0.3]);
   const driftX = useTransform(progress, [0, 1], [-safeDistance * 0.2, safeDistance * 0.2]);
   const rotateZ = useTransform(progress, [0, 1], [-safeRotate, safeRotate]);
-  const scale = useTransform(progress, [0, 0.5, 1], [0.97, 1, 0.97]);
+  const scale = useTransform(progress, [0, 0.5, 1], motionEnabled ? [0.97, 1, 0.97] : [1, 1, 1]);
 
   return {
     ref,

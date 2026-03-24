@@ -7,6 +7,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { Link } from '@/lib/router';
 import { sectionReveal, type HomeProduct, type HomeSiteContent } from '@/components/home/home-data';
 import { useSectionParallax } from '@/components/home/useSectionParallax';
+import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from '@/lib/product-variants';
 
 type FeaturedProductsSectionProps = {
   featuredProducts: HomeProduct[];
@@ -47,9 +48,9 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
           </div>
 
           {featuredProducts.length > 0 ? (
-            <div className="mt-6 grid grid-cols-1 gap-4 min-[500px]:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
               {featuredProducts.map((product) => {
-                const variant = product.product_variants?.[0];
+                const variant = getDefaultProductVariant(normalizeProductVariants(product.product_variants || []));
 
                 return (
                   <ProductCard
@@ -59,9 +60,10 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
                     slug={product.slug}
                     brand={product.brand}
                     description={product.description}
-                    images={product.images}
+                    images={getVariantGallery(variant, product.images)}
                     price={variant?.price || 0}
                     variantId={variant?.id}
+                    variantInfo={variant ? getVariantLabel(variant) : undefined}
                     stock={variant?.stock || 0}
                     category={product.categories?.name}
                   />

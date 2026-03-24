@@ -178,7 +178,10 @@ export default function Checkout() {
             <div className="mt-4 space-y-2 text-sm">
               {items.map((item) => (
                 <div key={item.variantId} className="flex items-start justify-between gap-3">
-                  <span className="line-clamp-2 text-muted-foreground">{item.productName} x{item.quantity}</span>
+                  <div className="min-w-0">
+                    <p className="line-clamp-2 text-muted-foreground">{item.productName} x{item.quantity}</p>
+                    {item.variantInfo && <p className="text-xs text-muted-foreground/80">{item.variantInfo}</p>}
+                  </div>
                   <span className="shrink-0">{formatCurrency(toPriceNumber(item.price) * item.quantity)}</span>
                 </div>
               ))}

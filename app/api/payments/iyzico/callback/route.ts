@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       const callbackSucceeded = result?.paymentStatus === "SUCCESS";
       const paymentStatus =
         existingOrder?.payment_status === "paid" ? "paid" : callbackSucceeded ? "paid" : "failed";
-      const orderStatus =
+      let orderStatus =
         paymentStatus === "paid"
           ? existingOrder?.order_status && existingOrder.order_status !== "pending"
             ? existingOrder.order_status
@@ -39,21 +39,29 @@ export async function POST(request: Request) {
         const orderItems = await OrderItem.find({ order_id: orderId }).lean();
 
         if (orderItems.length > 0) {
-          await ProductVariant.bulkWrite(
-            orderItems.map((item: any) => ({
-              updateOne: {
-                filter: { id: item.variant_id },
-                update: {
+          const stockResults = await Promise.all(
+            orderItems.map((item: any) =>
+              ProductVariant.updateOne(
+                {
+                  id: item.variant_id,
+                  is_active: true,
+                  stock: { $gte: Number(item.quantity ?? 0) },
+                },
+                {
                   $inc: { stock: -Number(item.quantity ?? 0) },
                   $set: { updated_at: new Date() },
-                },
-              },
-            })),
-            { ordered: false }
+                }
+              )
+            )
           );
+          const stockAdjusted = stockResults.every((result) => (result.modifiedCount ?? 0) === 1);
+
+          if (!stockAdjusted) {
+            orderStatus = "cancelled";
+          }
         }
 
-        if (existingOrder.coupon_id) {
+        if (existingOrder.coupon_id && orderStatus !== "cancelled") {
           await Coupon.updateOne({ id: existingOrder.coupon_id }, { $inc: { usage_count: 1 } });
         }
       }

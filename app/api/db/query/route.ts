@@ -9,8 +9,8 @@ import {
   type DbTableName,
 } from "@/server/models";
 import { normalizeMediaUrl } from "@/server/storage/r2";
-import { ensureSeedData } from "@/server/seed";
 import { getSessionUserFromRequest, isAdmin } from "@/server/auth-session";
+import { normalizeProductVariants, sortProductVariants } from "@/lib/product-variants";
 
 export const runtime = "nodejs";
 
@@ -97,7 +97,29 @@ function buildMongoQuery(filters: QueryFilter[]) {
   return query;
 }
 
-async function attachProductRelations(products: any[], selectClause: string) {
+function getProjection(selectClause?: string) {
+  const clause = `${selectClause ?? "*"}`.trim();
+
+  if (!clause || clause === "*") {
+    return null;
+  }
+
+  const projection: Record<string, 1> = {};
+
+  for (const segment of clause.split(",")) {
+    const token = segment.trim();
+
+    if (!token || token === "*" || token.includes("(") || token.includes(")")) {
+      continue;
+    }
+
+    projection[token] = 1;
+  }
+
+  return Object.keys(projection).length > 0 ? projection : null;
+}
+
+async function attachProductRelations(products: any[], selectClause: string, admin: boolean) {
   if (products.length === 0) {
     return products;
   }
@@ -110,7 +132,10 @@ async function attachProductRelations(products: any[], selectClause: string) {
 
   if (withVariants) {
     const productIds = products.map((product) => product.id);
-    const variants = normalizeEntity(await ProductVariant.find({ product_id: { $in: productIds } }).lean());
+    const rawVariants = normalizeEntity(await ProductVariant.find({ product_id: { $in: productIds } }).lean());
+    const variants = sortProductVariants(normalizeProductVariants(rawVariants)).filter((variant) =>
+      admin ? true : variant.is_active
+    );
     variantsByProductId = new Map<string, any[]>();
 
     for (const variant of variants) {
@@ -221,7 +246,6 @@ export async function POST(request: Request) {
     }
 
     await connectToDatabase();
-    await ensureSeedData();
 
     const model = tableModelMap[payload.table];
 
@@ -248,7 +272,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ data: null, error: null, count });
       }
 
-      let query = model.find(mongoQuery);
+      const projection = getProjection(payload.select);
+      let query = model.find(mongoQuery, projection);
 
       if (payload.order?.field) {
         query = query.sort({ [payload.order.field]: payload.order.ascending ? 1 : -1 });
@@ -261,7 +286,12 @@ export async function POST(request: Request) {
       let data = normalizeEntity(await query.lean());
 
       if (payload.table === "products") {
-        data = await attachProductRelations(data, payload.select ?? "*");
+        data = await attachProductRelations(data, payload.select ?? "*", admin);
+      }
+
+      if (payload.table === "product_variants") {
+        const normalizedVariants = sortProductVariants(normalizeProductVariants(data));
+        data = admin ? normalizedVariants : normalizedVariants.filter((variant) => variant.is_active);
       }
 
       if (payload.table === "orders") {

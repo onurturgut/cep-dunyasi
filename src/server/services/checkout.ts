@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Coupon, Order, OrderItem, Product, ProductVariant } from "@/server/models";
 import { createIyzicoClient, initializeCheckoutForm } from "@/server/services/iyzico";
 import type { SessionUser } from "@/server/auth-session";
+import { getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
 
 type CheckoutRequestItem = {
   variantId: string;
@@ -30,11 +31,20 @@ type CouponLike = {
 
 type PreparedCheckoutItem = {
   variantId: string;
+  variantSku: string;
+  variantAttributes: Record<string, string>;
+  variantImage: string | null;
   quantity: number;
   unitPrice: number;
   linePrice: number;
   productName: string;
   variantInfo: string | null;
+};
+
+type CheckoutProductRecord = {
+  id: string;
+  name: string;
+  images: string[];
 };
 
 export type CheckoutRequestBody = {
@@ -116,22 +126,6 @@ function splitFullName(fullName: string) {
   };
 }
 
-function formatVariantInfo(attributes: Record<string, unknown> | null | undefined, fallbackSku: string) {
-  if (!attributes) {
-    return fallbackSku || null;
-  }
-
-  const values = Object.values(attributes)
-    .map((value) => `${value ?? ""}`.trim())
-    .filter(Boolean);
-
-  if (values.length === 0) {
-    return fallbackSku || null;
-  }
-
-  return values.join(" / ");
-}
-
 function validateShippingAddress(shippingAddress: ShippingAddress) {
   if (!shippingAddress.fullName.trim()) return "Ad soyad zorunludur";
   if (!shippingAddress.email.trim()) return "E-posta zorunludur";
@@ -158,16 +152,16 @@ export async function createCheckoutSession(
   }
 
   const variantIds = normalizedItems.map((item) => item.variantId);
-  const variants = await ProductVariant.find({ id: { $in: variantIds }, is_active: true }).lean();
-  const variantsById = new Map<string, any>(variants.map((variant: any) => [variant.id, variant]));
+  const variants = normalizeProductVariants(await ProductVariant.find({ id: { $in: variantIds }, is_active: true }).lean());
+  const variantsById = new Map(variants.map((variant) => [variant.id, variant]));
 
   if (variants.length !== variantIds.length) {
     throw new Error("Sepetteki bazi varyantlar artik kullanilamiyor");
   }
 
-  const productIds = Array.from(new Set(variants.map((variant: any) => variant.product_id)));
-  const products = await Product.find({ id: { $in: productIds }, is_active: true }).lean();
-  const productsById = new Map<string, any>(products.map((product: any) => [product.id, product]));
+  const productIds = Array.from(new Set(variants.map((variant) => variant.product_id).filter(Boolean))) as string[];
+  const products = (await Product.find({ id: { $in: productIds }, is_active: true }).lean()) as CheckoutProductRecord[];
+  const productsById = new Map<string, CheckoutProductRecord>(products.map((product) => [product.id, product]));
 
   const preparedItems: PreparedCheckoutItem[] = normalizedItems.map((item) => {
     const variant = variantsById.get(item.variantId);
@@ -189,11 +183,14 @@ export async function createCheckoutSession(
 
     return {
       variantId: variant.id,
+      variantSku: variant.sku,
+      variantAttributes: variant.attributes,
+      variantImage: getVariantGallery(variant, product.images)[0] ?? null,
       quantity: item.quantity,
       unitPrice,
       linePrice: unitPrice * item.quantity,
       productName: product.name,
-      variantInfo: formatVariantInfo(variant.attributes, variant.sku),
+      variantInfo: getVariantLabel(variant),
     };
   });
 
@@ -247,6 +244,9 @@ export async function createCheckoutSession(
     preparedItems.map((item) => ({
       order_id: order.id,
       variant_id: item.variantId,
+      variant_sku: item.variantSku,
+      variant_attributes: item.variantAttributes,
+      variant_image: item.variantImage,
       product_name: item.productName,
       variant_info: item.variantInfo,
       quantity: item.quantity,
