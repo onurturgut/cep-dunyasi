@@ -4,8 +4,6 @@ import { motion } from 'framer-motion';
 import { Link } from '@/lib/router';
 import {
   categoryIcons,
-  categorySlotImages,
-  hiddenHomeCategorySlugs,
   sectionReveal,
   staggerContainer,
   staggerItem,
@@ -25,6 +23,48 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
     distance: 90,
     rotate: 4,
   });
+  const categoryGrid = categories.length > 0 ? (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+      {categories.map((category) => {
+        const Icon = categoryIcons[category.icon || 'Smartphone'] || categoryIcons.Smartphone;
+
+        return (
+          <div key={category.id}>
+            <Link
+              to={`/products?category=${category.slug}`}
+              className="group flex h-full flex-col overflow-hidden rounded-xl border bg-card text-left text-foreground transition-all hover:border-primary/30 hover:shadow-sm"
+            >
+              {category.image_url ? (
+                <div className="relative h-32 w-full overflow-hidden bg-muted sm:h-40">
+                  <motion.img
+                    src={category.image_url}
+                    alt={category.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    style={{ x: driftX }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                  <div className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg bg-background/85 text-primary backdrop-blur-sm">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex h-28 w-full items-center justify-center bg-primary/10 text-primary">
+                  <Icon className="h-7 w-7" />
+                </div>
+              )}
+              <div className="space-y-1 p-4">
+                <span className="block text-sm font-semibold text-foreground sm:text-[15px]">{category.name}</span>
+                {category.description ? (
+                  <p className="line-clamp-2 text-xs text-muted-foreground sm:text-sm">{category.description}</p>
+                ) : null}
+              </div>
+            </Link>
+          </div>
+        );
+      })}
+    </div>
+  ) : null;
 
   return (
     <motion.section ref={ref} id="home-categories" data-section="categories" className="relative bg-background pb-10 md:pb-12">
@@ -40,7 +80,7 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
       <div className="container -mt-8 md:-mt-10">
         <motion.div
           style={{ y: foregroundY, scale }}
-          className="min-h-[2000px] rounded-3xl border border-border bg-card p-5 text-foreground shadow-lg md:border-border/70 md:bg-card/75 md:backdrop-blur-xl md:p-8"
+          className="min-h-0 rounded-3xl border border-border bg-card p-5 text-foreground shadow-lg md:min-h-[2000px] md:border-border/70 md:bg-card/75 md:backdrop-blur-xl md:p-8"
           variants={sectionReveal}
           initial="hidden"
           whileInView="show"
@@ -53,6 +93,7 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
             ) : null}
           </div>
           <div className="mt-6 flex flex-col gap-12">
+            {categoryGrid}
             {showBanner && (
               <div className="space-y-4">
                 <motion.div style={{ y: accentY }} className="h-[500px] w-full overflow-hidden rounded-xl border border-border/30 bg-card">
@@ -176,48 +217,6 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
               </div>
             )}
 
-            {categories.length > 0 && (
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-                {categories.map((category) => {
-                  const Icon = categoryIcons[category.icon || 'Smartphone'] || categoryIcons.Smartphone;
-
-                  return (
-                    <div key={category.id}>
-                      <Link
-                        to={`/products?category=${category.slug}`}
-                        className="group flex h-full flex-col overflow-hidden rounded-xl border bg-card text-left text-foreground transition-all hover:border-primary/30 hover:shadow-sm"
-                      >
-                        {category.image_url ? (
-                          <div className="relative h-32 w-full overflow-hidden bg-muted sm:h-40">
-                            <motion.img
-                              src={category.image_url}
-                              alt={category.name}
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                              loading="lazy"
-                              style={{ x: driftX }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                            <div className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg bg-background/85 text-primary backdrop-blur-sm">
-                              <Icon className="h-5 w-5" />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex h-28 w-full items-center justify-center bg-primary/10 text-primary">
-                            <Icon className="h-7 w-7" />
-                          </div>
-                        )}
-                        <div className="space-y-1 p-4">
-                          <span className="block text-sm font-semibold text-foreground sm:text-[15px]">{category.name}</span>
-                          {category.description ? (
-                            <p className="line-clamp-2 text-xs text-muted-foreground sm:text-sm">{category.description}</p>
-                          ) : null}
-                        </div>
-                      </Link>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
         </motion.div>
       </div>
