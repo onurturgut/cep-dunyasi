@@ -365,7 +365,7 @@ export function Header() {
               variant="ghost"
               size="icon"
               className="relative h-9 w-9 sm:h-10 sm:w-10"
-              onClick={() => navigate(user ? '/favorites' : '/auth')}
+              onClick={() => navigate(user ? '/account/favorites' : '/auth')}
             >
               <Heart className="h-5 w-5" />
               {mounted && user && wishlistProductIds.length > 0 ? (

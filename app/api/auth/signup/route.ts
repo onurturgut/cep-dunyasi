@@ -11,7 +11,21 @@ function sanitizeUser(user: any) {
     id: user.id,
     email: user.email,
     full_name: user.full_name,
+    first_name: user.first_name ?? "",
+    last_name: user.last_name ?? "",
+    phone: user.phone ?? "",
     roles: user.roles ?? [],
+    permissions: user.permissions ?? [],
+    is_active: user.is_active !== false,
+  };
+}
+
+function splitFullName(fullName: string) {
+  const pieces = fullName.trim().split(/\s+/).filter(Boolean);
+
+  return {
+    firstName: pieces[0] || "",
+    lastName: pieces.slice(1).join(" "),
   };
 }
 
@@ -34,12 +48,17 @@ export async function POST(request: Request) {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const roles = ["customer"];
+    const names = splitFullName(`${fullName ?? ""}`);
 
     const user = await User.create({
       email: normalizedEmail,
       password_hash: passwordHash,
       full_name: fullName ?? "",
+      first_name: names.firstName,
+      last_name: names.lastName,
       roles,
+      permissions: [],
+      is_active: true,
       created_at: new Date(),
       updated_at: new Date(),
     });

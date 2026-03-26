@@ -1,9 +1,17 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import { hasAdminAccess, hasPermission as userHasPermission, type AdminPermission } from "@/lib/admin";
+
 export type SessionUser = {
   id: string;
   email: string;
+  full_name?: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
   roles: string[];
+  permissions?: string[];
+  is_active?: boolean;
 };
 
 type SessionPayload = {
@@ -150,5 +158,13 @@ export function clearSessionCookie(response: Response) {
 }
 
 export function isAdmin(user: SessionUser | null) {
-  return Boolean(user?.roles?.includes("admin"));
+  return hasAdminAccess(user?.roles, user?.permissions, user?.is_active !== false);
+}
+
+export function hasPermission(user: SessionUser | null, permission: AdminPermission) {
+  if (!user) {
+    return false;
+  }
+
+  return userHasPermission(user.roles, user.permissions, permission);
 }

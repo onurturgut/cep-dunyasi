@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { db } from '@/integrations/mongo/client';
+import { hasAdminAccess } from '@/lib/admin';
 import type { AuthSession, AuthUser } from '@/types/auth';
 
 interface AuthContextType {
@@ -20,9 +21,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAdmin = async (userId: string) => {
-    const { data } = await db.rpc('has_role', { _user_id: userId, _role: 'admin' });
-    setIsAdmin(!!data);
+  const syncAdminState = (authUser: AuthUser | null) => {
+    setIsAdmin(
+      Boolean(authUser && hasAdminAccess(authUser.roles ?? [], authUser.permissions ?? [], authUser.is_active !== false)),
+    );
   };
 
   useEffect(() => {
@@ -31,12 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = db.auth.onAuthStateChange((_event, authSession) => {
       setSession(authSession);
       setUser(authSession?.user ?? null);
-
-      if (authSession?.user) {
-        setTimeout(() => checkAdmin(authSession.user.id), 0);
-      } else {
-        setIsAdmin(false);
-      }
+      syncAdminState(authSession?.user ?? null);
 
       setLoading(false);
     });
@@ -44,10 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     db.auth.getSession().then(({ data: { session: existingSession } }) => {
       setSession(existingSession);
       setUser(existingSession?.user ?? null);
-
-      if (existingSession?.user) {
-        checkAdmin(existingSession.user.id);
-      }
+      syncAdminState(existingSession?.user ?? null);
 
       setLoading(false);
     });

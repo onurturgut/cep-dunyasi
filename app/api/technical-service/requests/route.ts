@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getSessionUserFromRequest } from "@/server/auth-session";
 import { connectToDatabase } from "@/server/mongodb";
 import { TechnicalServiceRequest } from "@/server/models";
 import { uploadToR2 } from "@/server/storage/r2";
@@ -17,6 +18,7 @@ function normalizeText(value: FormDataEntryValue | null) {
 
 export async function POST(request: Request) {
   try {
+    const sessionUser = getSessionUserFromRequest(request);
     const formData = await request.formData();
     const firstName = normalizeText(formData.get("firstName"));
     const lastName = normalizeText(formData.get("lastName"));
@@ -58,14 +60,17 @@ export async function POST(request: Request) {
     const now = new Date();
 
     const created = await TechnicalServiceRequest.create({
+      user_id: sessionUser?.id ?? null,
       first_name: firstName,
       last_name: lastName,
+      email: sessionUser?.email ?? "",
       phone_number: phoneNumber,
       phone_model: phoneModel,
       issue_description: issueDescription,
       photo_url: photoUrl,
       photo_name: photoName,
       status: "new",
+      admin_note: null,
       created_at: now,
       updated_at: now,
     });

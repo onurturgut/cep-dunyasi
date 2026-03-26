@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
-import { getSessionUserFromRequest, isAdmin } from "@/server/auth-session";
+import { handleAdminRouteError, requireAdminAccess } from "@/server/admin-api";
 import { saveAdminProduct } from "@/server/services/admin-products";
+import { createAuditLog } from "@/server/services/admin";
 
 export const runtime = "nodejs";
 
@@ -9,23 +10,24 @@ type RequestBody = {
   productId?: string | null;
 } & Record<string, unknown>;
 
-function forbidden() {
-  return NextResponse.json({ data: null, error: { message: "Bu islem icin admin yetkisi gerekiyor" } }, { status: 403 });
-}
-
 export async function POST(request: Request) {
   try {
-    if (!isAdmin(getSessionUserFromRequest(request))) {
-      return forbidden();
-    }
-
-    const body = (await request.json()) as RequestBody;
     await connectToDatabase();
+    const adminContext = await requireAdminAccess(request, "manage_products");
+    const body = (await request.json()) as RequestBody;
 
     const result = await saveAdminProduct(body, body.productId ?? null);
+    await createAuditLog({
+      actor: adminContext.sessionUser,
+      actionType: body.productId ? "product.updated" : "product.created",
+      entityType: "product",
+      entityId: result.productId,
+      message: body.productId ? "Urun guncellendi" : "Urun olusturuldu",
+      metadata: { productId: result.productId },
+      ip: request.headers.get("x-forwarded-for"),
+    });
     return NextResponse.json({ data: result, error: null });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Urun kaydi tamamlanamadi";
-    return NextResponse.json({ data: null, error: { message } }, { status: 400 });
+    return handleAdminRouteError(error, "Urun kaydi tamamlanamadi");
   }
 }

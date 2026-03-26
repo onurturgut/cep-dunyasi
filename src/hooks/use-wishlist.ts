@@ -106,6 +106,8 @@ export function useWishlist() {
         productIds: data.productIds,
         products: data.products,
       });
+      queryClient.invalidateQueries({ queryKey: ["account", "favorites"] });
+      queryClient.invalidateQueries({ queryKey: ["account", "profile"] });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey, refetchType: "all" });

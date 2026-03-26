@@ -11,7 +11,12 @@ function sanitizeUser(user: any) {
     id: user.id,
     email: user.email,
     full_name: user.full_name,
+    first_name: user.first_name ?? "",
+    last_name: user.last_name ?? "",
+    phone: user.phone ?? "",
     roles: user.roles ?? [],
+    permissions: user.permissions ?? [],
+    is_active: user.is_active !== false,
   };
 }
 
@@ -56,11 +61,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: { message: "Kullanici bulunamadi" } }, { status: 404 });
     }
 
+    if (user.is_active === false) {
+      return NextResponse.json({ error: { message: "Bu hesap pasif durumda" } }, { status: 403 });
+    }
+
     const valid = envAdminLogin ? true : await bcrypt.compare(password, user.password_hash);
 
     if (!valid) {
       return NextResponse.json({ error: { message: "Email veya sifre hatali" } }, { status: 401 });
     }
+
+    user.last_login_at = new Date();
+    user.updated_at = new Date();
+    await user.save();
 
     const response = NextResponse.json({ user: sanitizeUser(user) });
     setSessionCookie(response, sanitizeUser(user));

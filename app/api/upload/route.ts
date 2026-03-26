@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const scope = `${formData.get("scope") ?? "mission"}`.toLowerCase();
     const sessionUser = getSessionUserFromRequest(request);
 
-    if (scope === "reviews") {
+    if (["reviews", "returns", "avatars"].includes(scope)) {
       if (!sessionUser?.id) {
         return jsonError("Bu islem icin giris yapmaniz gerekiyor", 403);
       }
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       return jsonError("Bu alan icin video yuklemelisiniz", 400);
     }
 
-    if (!["mission", "products", "categories", "site-content", "reviews"].includes(scope)) {
+    if (!["mission", "products", "categories", "site-content", "reviews", "returns", "avatars"].includes(scope)) {
       return jsonError("Gecersiz yukleme alani", 400);
     }
 

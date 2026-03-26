@@ -1,7 +1,5 @@
-import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import FavoritesScreen from "@/screens/Favorites";
 import { AUTH_COOKIE_NAME, verifySessionToken } from "@/server/auth-session";
 
 export default async function FavoritesPage() {
@@ -12,9 +10,5 @@ export default async function FavoritesPage() {
     redirect("/auth");
   }
 
-  return (
-    <Suspense fallback={null}>
-      <FavoritesScreen />
-    </Suspense>
-  );
+  redirect("/account/favorites");
 }

@@ -83,6 +83,7 @@ const productVariantSchema = new Schema(
     price: { type: Number, required: true, default: 0, min: 0 },
     compare_at_price: { type: Number, default: null, min: 0 },
     stock: { type: Number, required: true, default: 0, min: 0 },
+    stock_alert_threshold: { type: Number, default: 5, min: 0 },
     images: { type: [String], default: [] },
     barcode: { type: String, default: null },
     sort_order: { type: Number, default: 0 },
@@ -130,6 +131,21 @@ const orderSchema = new Schema(
     payment_provider: { type: String, default: "iyzico" },
     payment_status: { type: String, default: "pending" },
     order_status: { type: String, default: "pending" },
+    status_history: {
+      type: [
+        new Schema(
+          {
+            status: { type: String, required: true },
+            note: { type: String, default: null },
+            changed_by_user_id: { type: String, default: null },
+            created_at: { type: Date, default: Date.now },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
+    admin_note: { type: String, default: null },
     shipping_address: { type: Schema.Types.Mixed, default: null },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
@@ -273,18 +289,47 @@ const siteContentSchema = new Schema(
 const technicalServiceRequestSchema = new Schema(
   {
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    user_id: { type: String, default: null, index: true },
     first_name: { type: String, required: true, trim: true },
     last_name: { type: String, required: true, trim: true },
+    email: { type: String, default: "", trim: true, index: true },
     phone_number: { type: String, required: true, trim: true, index: true },
     phone_model: { type: String, required: true, trim: true },
     issue_description: { type: String, required: true, trim: true },
     photo_url: { type: String, default: "" },
     photo_name: { type: String, default: "" },
     status: { type: String, default: "new", index: true },
+    admin_note: { type: String, default: null },
     created_at: { type: Date, default: Date.now, index: true },
     updated_at: { type: Date, default: Date.now },
   },
   { versionKey: false }
+);
+
+const userAddressSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), index: true },
+    title: { type: String, required: true, trim: true },
+    full_name: { type: String, required: true, trim: true },
+    phone: { type: String, required: true, trim: true },
+    city: { type: String, required: true, trim: true },
+    district: { type: String, required: true, trim: true },
+    neighborhood: { type: String, required: true, trim: true },
+    address_line: { type: String, required: true, trim: true },
+    postal_code: { type: String, default: "", trim: true },
+    is_default: { type: Boolean, default: false },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
+const communicationPreferencesSchema = new Schema(
+  {
+    email: { type: Boolean, default: true },
+    sms: { type: Boolean, default: false },
+  },
+  { _id: false }
 );
 
 const userSchema = new Schema(
@@ -293,13 +338,89 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true, index: true },
     password_hash: { type: String, required: true },
     full_name: { type: String, default: "" },
+    first_name: { type: String, default: "", trim: true },
+    last_name: { type: String, default: "", trim: true },
+    phone: { type: String, default: "", trim: true, index: true },
+    profile_image_url: { type: String, default: null },
+    communication_preferences: { type: communicationPreferencesSchema, default: () => ({ email: true, sms: false }) },
+    addresses: { type: [userAddressSchema], default: [] },
     roles: { type: [String], default: ["customer"] },
+    permissions: { type: [String], default: [] },
+    is_active: { type: Boolean, default: true, index: true },
+    last_login_at: { type: Date, default: null },
     wishlist_product_ids: { type: [String], default: [] },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
   },
   { versionKey: false }
 );
+
+const bannerCampaignSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    placement: { type: String, required: true, index: true },
+    title: { type: String, required: true, trim: true },
+    subtitle: { type: String, default: null, trim: true },
+    description: { type: String, default: null, trim: true },
+    image_url: { type: String, required: true, trim: true },
+    mobile_image_url: { type: String, default: null, trim: true },
+    cta_label: { type: String, default: null, trim: true },
+    cta_href: { type: String, default: null, trim: true },
+    badge_text: { type: String, default: null, trim: true },
+    start_at: { type: Date, default: null, index: true },
+    end_at: { type: Date, default: null, index: true },
+    is_active: { type: Boolean, default: true, index: true },
+    sort_order: { type: Number, default: 0, index: true },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
+bannerCampaignSchema.index({ placement: 1, is_active: 1, sort_order: 1 });
+
+const auditLogSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    actor_user_id: { type: String, required: true, index: true },
+    actor_email: { type: String, default: null, index: true },
+    action_type: { type: String, required: true, index: true },
+    entity_type: { type: String, required: true, index: true },
+    entity_id: { type: String, default: null, index: true },
+    message: { type: String, required: true },
+    metadata: { type: Schema.Types.Mixed, default: null },
+    ip: { type: String, default: null },
+    created_at: { type: Date, default: Date.now, index: true },
+  },
+  { versionKey: false }
+);
+
+auditLogSchema.index({ action_type: 1, created_at: -1 });
+auditLogSchema.index({ actor_user_id: 1, created_at: -1 });
+
+const returnRequestSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    user_id: { type: String, required: true, index: true },
+    order_id: { type: String, required: true, index: true },
+    order_item_id: { type: String, required: true, index: true },
+    product_name: { type: String, required: true, trim: true },
+    variant_info: { type: String, default: null, trim: true },
+    request_type: { type: String, enum: ["return", "exchange"], required: true, index: true },
+    reason_code: { type: String, required: true, trim: true },
+    reason_text: { type: String, required: true, trim: true },
+    images: { type: [String], default: [] },
+    status: { type: String, enum: ["pending", "approved", "rejected", "completed"], default: "pending", index: true },
+    admin_note: { type: String, default: null, trim: true },
+    created_at: { type: Date, default: Date.now, index: true },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
+returnRequestSchema.index({ user_id: 1, created_at: -1 });
+returnRequestSchema.index({ user_id: 1, order_id: 1 });
+returnRequestSchema.index({ user_id: 1, order_item_id: 1 }, { unique: true });
 
 export const Category: any = models.Category || model("Category", categorySchema);
 export const Product: any = models.Product || model("Product", productSchema);
@@ -314,6 +435,9 @@ export const SiteContent: any = models.SiteContent || model("SiteContent", siteC
 export const TechnicalServiceRequest: any =
   models.TechnicalServiceRequest || model("TechnicalServiceRequest", technicalServiceRequestSchema);
 export const User: any = models.User || model("User", userSchema);
+export const ReturnRequest: any = models.ReturnRequest || model("ReturnRequest", returnRequestSchema);
+export const BannerCampaign: any = models.BannerCampaign || model("BannerCampaign", bannerCampaignSchema);
+export const AuditLog: any = models.AuditLog || model("AuditLog", auditLogSchema);
 
 export type DbTableName =
   | "categories"
@@ -325,7 +449,12 @@ export type DbTableName =
   | "shipments"
   | "mission_items"
   | "site_contents"
-  | "technical_service_requests";
+  | "technical_service_requests"
+  | "return_requests"
+  | "users"
+  | "product_reviews"
+  | "banner_campaigns"
+  | "audit_logs";
 
 export const tableModelMap: Record<DbTableName, any> = {
   categories: Category,
@@ -338,4 +467,9 @@ export const tableModelMap: Record<DbTableName, any> = {
   mission_items: MissionItem,
   site_contents: SiteContent,
   technical_service_requests: TechnicalServiceRequest,
+  return_requests: ReturnRequest,
+  users: User,
+  product_reviews: ProductReview,
+  banner_campaigns: BannerCampaign,
+  audit_logs: AuditLog,
 };

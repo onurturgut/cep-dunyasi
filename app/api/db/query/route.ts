@@ -9,7 +9,8 @@ import {
   type DbTableName,
 } from "@/server/models";
 import { normalizeMediaUrl } from "@/server/storage/r2";
-import { getSessionUserFromRequest, isAdmin } from "@/server/auth-session";
+import { getSessionUserFromRequest, hasPermission, isAdmin, type SessionUser } from "@/server/auth-session";
+import { type AdminPermission } from "@/lib/admin";
 import { normalizeProductVariants, sortProductVariants } from "@/lib/product-variants";
 
 export const runtime = "nodejs";
@@ -34,14 +35,56 @@ type QueryPayload = {
   data?: any;
 };
 
-const ADMIN_ONLY_SELECT_TABLES = new Set<DbTableName>(["order_items", "shipments", "technical_service_requests"]);
+const ADMIN_ONLY_SELECT_TABLES = new Set<DbTableName>([
+  "order_items",
+  "shipments",
+  "technical_service_requests",
+  "users",
+  "product_reviews",
+  "banner_campaigns",
+  "audit_logs",
+]);
+
+const TABLE_PERMISSION_MAP: Partial<Record<DbTableName, AdminPermission>> = {
+  products: "manage_products",
+  product_variants: "manage_products",
+  categories: "manage_products",
+  coupons: "manage_campaigns",
+  orders: "manage_orders",
+  order_items: "manage_orders",
+  shipments: "manage_shipments",
+  mission_items: "manage_site_content",
+  site_contents: "manage_site_content",
+  technical_service_requests: "manage_technical_service",
+  users: "manage_users",
+  product_reviews: "manage_products",
+  banner_campaigns: "manage_campaigns",
+  audit_logs: "view_logs",
+};
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ data: null, error: { message } }, { status });
 }
 
-function canMutate(payload: QueryPayload, admin: boolean) {
-  return admin;
+function hasTablePermission(table: DbTableName, sessionUser: SessionUser | null) {
+  if (!isAdmin(sessionUser)) {
+    return false;
+  }
+
+  const requiredPermission = TABLE_PERMISSION_MAP[table];
+  if (!requiredPermission) {
+    return true;
+  }
+
+  return hasPermission(sessionUser, requiredPermission);
+}
+
+function canMutate(payload: QueryPayload, sessionUser: SessionUser | null) {
+  if (payload.table === "audit_logs") {
+    return false;
+  }
+
+  return hasTablePermission(payload.table, sessionUser);
 }
 
 function normalizeEntity(entity: any) {
@@ -237,11 +280,11 @@ export async function POST(request: Request) {
     const sessionUser = getSessionUserFromRequest(request);
     const admin = isAdmin(sessionUser);
 
-    if (payload.action !== "select" && !canMutate(payload, admin)) {
+    if (payload.action !== "select" && !canMutate(payload, sessionUser)) {
       return jsonError("Bu işlem için admin yetkisi gerekiyor", 403);
     }
 
-    if (payload.action === "select" && ADMIN_ONLY_SELECT_TABLES.has(payload.table) && !admin) {
+    if (payload.action === "select" && ADMIN_ONLY_SELECT_TABLES.has(payload.table) && !hasTablePermission(payload.table, sessionUser)) {
       return jsonError("Bu veriye erisim yetkiniz yok", 403);
     }
 

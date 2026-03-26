@@ -2,6 +2,7 @@
 
 import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { db } from "@/integrations/mongo/client";
+import { Link } from "@/lib/router";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,9 +14,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
 import { getVariantLabel, normalizeProductVariants, type ProductVariantRecord } from "@/lib/product-variants";
 import type { ProductSpecs } from "@/lib/product-specs";
+import { useBulkProductActions } from "@/hooks/use-admin";
 
 type ProductType = "phone" | "accessory" | "service";
 
@@ -170,6 +174,8 @@ export default function AdminProducts() {
   const [editing, setEditing] = useState<AdminProductRecord | null>(null);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [form, setForm] = useState<ProductForm>(defaultForm);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const bulkActions = useBulkProductActions();
 
   const fetchProducts = async () => {
     const { data, error } = await db.from("products").select("*, product_variants(*), categories(name)").order("created_at", { ascending: false });
@@ -473,6 +479,8 @@ export default function AdminProducts() {
     return products.filter((product) => product.category_id === activeCategoryId);
   }, [activeCategoryId, products, categoryIdSet]);
 
+  const allFilteredSelected = filteredProducts.length > 0 && filteredProducts.every((product) => selectedProductIds.includes(product.id));
+
   const activeCategoryLabel = useMemo(() => {
     if (activeCategoryId === "all") return "Tum Kategoriler";
     if (activeCategoryId === "uncategorized") return "Kategorisiz";
@@ -491,21 +499,25 @@ export default function AdminProducts() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Urunler</h1>
-        <Dialog
-          open={dialogOpen}
-          onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) {
-              setEditing(null);
-              resetForm();
-            }
-          }}
-        >
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-1 h-4 w-4" /> Urun Ekle
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link to="/admin/import-export">Import / Export</Link>
+          </Button>
+          <Dialog
+            open={dialogOpen}
+            onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (!open) {
+                setEditing(null);
+                resetForm();
+              }
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-1 h-4 w-4" /> Urun Ekle
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
             <DialogHeader>
               <DialogTitle>{editing ? "Urun Duzenle" : "Yeni Urun"}</DialogTitle>
@@ -815,7 +827,8 @@ export default function AdminProducts() {
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -835,10 +848,40 @@ export default function AdminProducts() {
         {activeCategoryLabel}: {filteredProducts.length} urun
       </div>
 
+      <BulkActionsToolbar
+        selectedCount={selectedProductIds.length}
+        onApply={async (payload) => {
+          try {
+            const result = await bulkActions.mutateAsync({
+              productIds: selectedProductIds,
+              action: payload.action,
+              value: payload.value,
+            });
+            toast.success(result.message);
+            setSelectedProductIds([]);
+            fetchProducts();
+          } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Toplu islem tamamlanamadi");
+          }
+        }}
+      />
+
       <Card className="mt-6 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <Checkbox
+                  checked={allFilteredSelected}
+                  onCheckedChange={(checked) =>
+                    setSelectedProductIds((current) =>
+                      checked
+                        ? Array.from(new Set([...current, ...filteredProducts.map((product) => product.id)]))
+                        : current.filter((id) => !filteredProducts.some((product) => product.id === id)),
+                    )
+                  }
+                />
+              </TableHead>
               <TableHead>Urun</TableHead>
               <TableHead>Kategori</TableHead>
               <TableHead>Tur</TableHead>
@@ -851,6 +894,16 @@ export default function AdminProducts() {
           <TableBody>
             {filteredProducts.map((product) => (
               <TableRow key={product.id}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedProductIds.includes(product.id)}
+                    onCheckedChange={(checked) =>
+                      setSelectedProductIds((current) =>
+                        checked ? Array.from(new Set([...current, product.id])) : current.filter((id) => id !== product.id),
+                      )
+                    }
+                  />
+                </TableCell>
                 <TableCell>
                   <div>
                     <p className="font-medium">{product.name}</p>
@@ -894,7 +947,7 @@ export default function AdminProducts() {
             ))}
             {filteredProducts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">
                   Bu kategoride urun yok.
                 </TableCell>
               </TableRow>
