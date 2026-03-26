@@ -13,24 +13,24 @@ type HeroCampaignSlideProps = {
 
 const themeClassMap: Record<CampaignThemeVariant, { shell: string; accent: string; glow: string }> = {
   midnight: {
-    shell: "from-slate-950 via-slate-900 to-slate-950",
-    accent: "from-cyan-400/10 via-transparent to-fuchsia-400/10",
-    glow: "bg-cyan-400/20",
+    shell: "md:from-slate-50 md:via-slate-100 md:to-white dark:md:from-slate-950 dark:md:via-slate-900 dark:md:to-slate-950",
+    accent: "from-primary/10 via-transparent to-secondary/10 dark:from-cyan-400/10 dark:via-transparent dark:to-fuchsia-400/10",
+    glow: "bg-secondary/18 dark:bg-cyan-400/20",
   },
   violet: {
-    shell: "from-slate-950 via-violet-950/80 to-slate-950",
-    accent: "from-violet-400/14 via-transparent to-fuchsia-400/12",
-    glow: "bg-violet-400/20",
+    shell: "md:from-violet-50 md:via-slate-50 md:to-fuchsia-50 dark:md:from-slate-950 dark:md:via-violet-950/80 dark:md:to-slate-950",
+    accent: "from-violet-400/10 via-transparent to-fuchsia-300/10 dark:from-violet-400/14 dark:via-transparent dark:to-fuchsia-400/12",
+    glow: "bg-violet-300/20 dark:bg-violet-400/20",
   },
   graphite: {
-    shell: "from-slate-950 via-slate-800 to-zinc-950",
-    accent: "from-slate-200/12 via-transparent to-sky-300/10",
-    glow: "bg-slate-200/15",
+    shell: "md:from-zinc-50 md:via-slate-50 md:to-white dark:md:from-slate-950 dark:md:via-slate-800 dark:md:to-zinc-950",
+    accent: "from-slate-300/16 via-transparent to-sky-200/10 dark:from-slate-200/12 dark:via-transparent dark:to-sky-300/10",
+    glow: "bg-slate-300/20 dark:bg-slate-200/15",
   },
   emerald: {
-    shell: "from-slate-950 via-emerald-950/70 to-slate-950",
-    accent: "from-emerald-300/14 via-transparent to-cyan-300/12",
-    glow: "bg-emerald-300/18",
+    shell: "md:from-emerald-50 md:via-slate-50 md:to-cyan-50 dark:md:from-slate-950 dark:md:via-emerald-950/70 dark:md:to-slate-950",
+    accent: "from-emerald-300/14 via-transparent to-cyan-300/12 dark:from-emerald-300/14 dark:via-transparent dark:to-cyan-300/12",
+    glow: "bg-emerald-300/18 dark:bg-emerald-300/18",
   },
 };
 
@@ -42,17 +42,17 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
   const theme = themeClassMap[slide.themeVariant];
 
   return (
-    <article className={`relative overflow-hidden rounded-[2.25rem] border border-white/10 bg-gradient-to-br ${theme.shell} text-white shadow-[0_28px_80px_rgba(2,6,23,0.46)]`}>
-      <div className={`absolute inset-0 bg-gradient-to-br ${theme.accent}`} />
+    <article className={`relative overflow-hidden rounded-[2.25rem] border border-border/70 bg-card md:bg-gradient-to-br ${theme.shell} text-foreground shadow-[0_18px_42px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-slate-950/95 dark:text-white dark:md:shadow-[0_28px_80px_rgba(2,6,23,0.46)]`}>
+      <div className={`absolute inset-0 hidden bg-gradient-to-br md:block ${theme.accent}`} />
       <motion.div
         aria-hidden="true"
-        className={`absolute -left-8 top-12 h-40 w-40 rounded-full blur-3xl ${theme.glow}`}
+        className={`absolute -left-8 top-12 hidden h-40 w-40 rounded-full blur-3xl md:block ${theme.glow}`}
         animate={{ y: [0, -12, 0], opacity: [0.55, 0.75, 0.55] }}
         transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
       />
       <motion.div
         aria-hidden="true"
-        className="absolute bottom-[-4rem] right-[-2rem] h-64 w-64 rounded-full bg-fuchsia-400/12 blur-3xl"
+        className="absolute bottom-[-4rem] right-[-2rem] hidden h-64 w-64 rounded-full bg-primary/10 blur-3xl md:block dark:bg-fuchsia-400/12"
         animate={{ y: [0, 16, 0], x: [0, -10, 0], opacity: [0.3, 0.48, 0.3] }}
         transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
       />
@@ -67,17 +67,17 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
           <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-start">
             {slide.badgeText ? <CampaignBadge themeVariant={slide.themeVariant}>{slide.badgeText}</CampaignBadge> : null}
             {slide.badgeSecondaryText ? (
-              <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-white/70 backdrop-blur-xl">
+              <span className="inline-flex rounded-full border border-border/70 bg-card px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground md:bg-background/75 md:backdrop-blur-xl dark:border-white/10 dark:bg-slate-900 dark:md:bg-white/5 dark:text-white/70">
                 {slide.badgeSecondaryText}
               </span>
             ) : null}
           </div>
 
-          <p className="mt-5 text-sm font-medium uppercase tracking-[0.28em] text-white/60">{slide.subtitle}</p>
+          <p className="mt-5 text-sm font-medium uppercase tracking-[0.28em] text-muted-foreground dark:text-white/60">{slide.subtitle}</p>
           <h2 className="mt-4 max-w-[12ch] font-display text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl xl:text-6xl">
             {slide.title}
           </h2>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-white/72 sm:text-base lg:max-w-xl">
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-muted-foreground dark:text-white/72 sm:text-base lg:max-w-xl">
             {slide.description}
           </p>
 
@@ -96,7 +96,7 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
           <div className="relative flex w-full items-center justify-center">
             <motion.div
               aria-hidden="true"
-              className="absolute inset-x-8 bottom-6 h-10 rounded-full bg-white/10 blur-2xl"
+              className="absolute inset-x-8 bottom-6 hidden h-10 rounded-full bg-foreground/10 blur-2xl md:block dark:bg-white/10"
               animate={{ scaleX: [1, 1.08, 1] }}
               transition={{ duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
             />

@@ -19,7 +19,7 @@ export function HeroCampaignDots({ total, activeIndex, onSelect }: HeroCampaignD
           type="button"
           aria-label={`${index + 1}. kampanyaya git`}
           onClick={() => onSelect(index)}
-          className={`rounded-full transition-all duration-300 ${index === activeIndex ? "h-2.5 w-9 bg-white" : "h-2.5 w-2.5 bg-white/30 hover:bg-white/55"}`}
+          className={`rounded-full transition-all duration-300 ${index === activeIndex ? "h-2.5 w-9 bg-foreground dark:bg-white" : "h-2.5 w-2.5 bg-foreground/25 hover:bg-foreground/45 dark:bg-white/30 dark:hover:bg-white/55"}`}
         />
       ))}
     </div>

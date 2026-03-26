@@ -56,20 +56,20 @@ export function HeroCampaignSlider({ slides, isLoading = false }: HeroCampaignSl
 
   if (isLoading) {
     return (
-      <div className="rounded-[2.4rem] border border-white/10 bg-slate-950/80 p-5 shadow-[0_30px_90px_rgba(2,6,23,0.4)] backdrop-blur-2xl">
+      <div className="rounded-[2.4rem] border border-border/70 bg-background/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/80 dark:shadow-[0_30px_90px_rgba(2,6,23,0.4)]">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.95fr)] lg:items-center">
           <div className="space-y-4">
-            <Skeleton className="h-6 w-24 rounded-full bg-white/10" />
-            <Skeleton className="h-14 w-full max-w-xl rounded-2xl bg-white/10" />
-            <Skeleton className="h-14 w-full max-w-lg rounded-2xl bg-white/10" />
-            <Skeleton className="h-5 w-full max-w-xl rounded-full bg-white/10" />
-            <Skeleton className="h-5 w-full max-w-lg rounded-full bg-white/10" />
+            <Skeleton className="h-6 w-24 rounded-full bg-foreground/8 dark:bg-white/10" />
+            <Skeleton className="h-14 w-full max-w-xl rounded-2xl bg-foreground/8 dark:bg-white/10" />
+            <Skeleton className="h-14 w-full max-w-lg rounded-2xl bg-foreground/8 dark:bg-white/10" />
+            <Skeleton className="h-5 w-full max-w-xl rounded-full bg-foreground/8 dark:bg-white/10" />
+            <Skeleton className="h-5 w-full max-w-lg rounded-full bg-foreground/8 dark:bg-white/10" />
             <div className="flex gap-3">
-              <Skeleton className="h-11 w-40 rounded-full bg-white/10" />
-              <Skeleton className="h-11 w-36 rounded-full bg-white/10" />
+              <Skeleton className="h-11 w-40 rounded-full bg-foreground/8 dark:bg-white/10" />
+              <Skeleton className="h-11 w-36 rounded-full bg-foreground/8 dark:bg-white/10" />
             </div>
           </div>
-          <Skeleton className="h-[18rem] rounded-[2rem] bg-white/10 sm:h-[22rem] lg:h-[30rem]" />
+          <Skeleton className="h-[18rem] rounded-[2rem] bg-foreground/8 dark:bg-white/10 sm:h-[22rem] lg:h-[30rem]" />
         </div>
       </div>
     );
@@ -93,7 +93,7 @@ export function HeroCampaignSlider({ slides, isLoading = false }: HeroCampaignSl
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
-            className="text-xs font-medium uppercase tracking-[0.32em] text-white/55"
+            className="text-xs font-medium uppercase tracking-[0.32em] text-muted-foreground dark:text-white/55"
           >
             Premium Campaigns
           </motion.p>
@@ -102,7 +102,7 @@ export function HeroCampaignSlider({ slides, isLoading = false }: HeroCampaignSl
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             viewport={{ once: true, amount: 0.35 }}
-            className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+            className="font-display text-3xl font-semibold tracking-tight text-foreground dark:text-white sm:text-4xl"
           >
             Teknolojiyi premium vitrin hissiyle kesfet
           </motion.h2>
