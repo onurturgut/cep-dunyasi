@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from '@/lib/router';
 import { Layout } from '@/components/layout/Layout';
 import { CategoriesSection } from '@/components/home/CategoriesSection';
+import { CampaignShowcaseSection } from '@/components/home/CampaignShowcaseSection';
 import { ExploreCategoriesSection } from '@/components/home/ExploreCategoriesSection';
 import { FeaturedProductsSection } from '@/components/home/FeaturedProductsSection';
 import { HeroSection } from '@/components/home/HeroSection';
@@ -91,6 +92,7 @@ export default function Index() {
     <Layout>
       <PromoVideoModal />
       <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} content={siteContent} />
+      <CampaignShowcaseSection />
       <CategoriesSection categories={categories} content={siteContent} />
       <ExploreCategoriesSection categories={categories.length > 0 ? categories : defaultCategories} content={siteContent} />
       <FeaturedProductsSection featuredProducts={featuredProducts} content={siteContent} />

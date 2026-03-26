@@ -367,6 +367,7 @@ const bannerCampaignSchema = new Schema(
     cta_label: { type: String, default: null, trim: true },
     cta_href: { type: String, default: null, trim: true },
     badge_text: { type: String, default: null, trim: true },
+    badge_color: { type: String, default: null, trim: true },
     start_at: { type: Date, default: null, index: true },
     end_at: { type: Date, default: null, index: true },
     is_active: { type: Boolean, default: true, index: true },
@@ -378,6 +379,7 @@ const bannerCampaignSchema = new Schema(
 );
 
 bannerCampaignSchema.index({ placement: 1, is_active: 1, sort_order: 1 });
+bannerCampaignSchema.index({ start_at: 1, end_at: 1 });
 
 const auditLogSchema = new Schema(
   {

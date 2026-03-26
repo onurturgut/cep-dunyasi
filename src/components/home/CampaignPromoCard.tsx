@@ -1,0 +1,73 @@
+"use client";
+
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { CampaignBadge } from "@/components/home/CampaignBadge";
+import { CampaignCTAButton } from "@/components/home/CampaignCTAButton";
+import type { CampaignPromoCardData, CampaignThemeVariant } from "@/lib/home-campaigns";
+
+type CampaignPromoCardProps = {
+  card: CampaignPromoCardData;
+  index: number;
+};
+
+const cardThemeClasses: Record<CampaignThemeVariant, string> = {
+  midnight: "from-slate-900/95 via-slate-900/80 to-slate-950/95",
+  violet: "from-violet-950/90 via-slate-900/85 to-slate-950/95",
+  graphite: "from-zinc-900/95 via-slate-900/80 to-zinc-950/95",
+  emerald: "from-emerald-950/90 via-slate-900/85 to-slate-950/95",
+};
+
+function isOptimizedSource(src: string) {
+  return src.startsWith("/");
+}
+
+export function CampaignPromoCard({ card, index }: CampaignPromoCardProps) {
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, amount: 0.2 }}
+      className={`group relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br ${cardThemeClasses[card.themeVariant]} p-5 text-white shadow-[0_24px_60px_rgba(2,6,23,0.34)] backdrop-blur-2xl`}
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_38%)]" />
+      <div className="absolute -right-10 top-8 h-36 w-36 rounded-full bg-white/8 blur-3xl transition-transform duration-700 group-hover:scale-110" />
+
+      <div className="relative flex h-full flex-col">
+        <div className="flex items-start justify-between gap-4">
+          {card.badgeText ? <CampaignBadge themeVariant={card.themeVariant}>{card.badgeText}</CampaignBadge> : <span />}
+        </div>
+
+        <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-6 backdrop-blur-xl">
+          {isOptimizedSource(card.imageUrl) ? (
+            <Image
+              src={card.imageUrl}
+              alt={card.title}
+              width={640}
+              height={640}
+              sizes="(max-width: 768px) 90vw, 30vw"
+              className="mx-auto h-auto max-h-52 w-auto object-contain transition-transform duration-700 group-hover:scale-[1.05]"
+            />
+          ) : (
+            <img
+              src={card.imageUrl}
+              alt={card.title}
+              loading="lazy"
+              className="mx-auto h-auto max-h-52 w-auto object-contain transition-transform duration-700 group-hover:scale-[1.05]"
+            />
+          )}
+        </div>
+
+        <div className="mt-5 space-y-3">
+          <h3 className="font-display text-2xl font-semibold tracking-tight">{card.title}</h3>
+          <p className="text-sm leading-7 text-white/70">{card.description}</p>
+        </div>
+
+        <div className="mt-6">
+          <CampaignCTAButton to={card.ctaLink} label={card.ctaText} variant="secondary" className="w-full justify-center sm:w-auto" />
+        </div>
+      </div>
+    </motion.article>
+  );
+}

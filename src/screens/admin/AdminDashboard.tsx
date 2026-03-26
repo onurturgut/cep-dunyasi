@@ -31,7 +31,7 @@ const sidebarItems: Array<{ label: string; href: string; icon: typeof LayoutDash
   { label: "Urunler", href: "/admin/products", icon: Package, permission: "manage_products" },
   { label: "Stok", href: "/admin/inventory", icon: Warehouse, permission: "manage_products" },
   { label: "Icerik", href: "/admin/site-content", icon: MonitorSmartphone, permission: "manage_site_content" },
-  { label: "Bannerlar", href: "/admin/banners", icon: ImageIcon, permission: "manage_campaigns" },
+  { label: "Kampanyalar", href: "/admin/banners", icon: ImageIcon, permission: "manage_campaigns" },
   { label: "Import / Export", href: "/admin/import-export", icon: FileSpreadsheet, permission: "manage_import_export" },
   { label: "Kategoriler", href: "/admin/categories", icon: FolderTree, permission: "manage_products" },
   { label: "Kullanicilar", href: "/admin/users", icon: Users, permission: "manage_users" },

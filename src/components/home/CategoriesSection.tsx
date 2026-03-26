@@ -1,12 +1,8 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Link } from '@/lib/router';
 import {
-  categoryIcons,
   sectionReveal,
-  staggerContainer,
-  staggerItem,
   type HomeCategory,
   type HomeSiteContent,
 } from '@/components/home/home-data';
@@ -17,54 +13,16 @@ type CategoriesSectionProps = {
   content: HomeSiteContent;
 };
 
-export function CategoriesSection({ categories, content }: CategoriesSectionProps) {
+export function CategoriesSection({ categories: _categories, content }: CategoriesSectionProps) {
   const showBanner = content.category_banner_enabled ?? false;
-  const { ref, backgroundY, foregroundY, accentY, driftX, scale } = useSectionParallax<HTMLElement>({
+  const { ref, backgroundY, foregroundY, accentY, scale } = useSectionParallax<HTMLElement>({
     distance: 90,
     rotate: 4,
   });
-  const categoryGrid = categories.length > 0 ? (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-      {categories.map((category) => {
-        const Icon = categoryIcons[category.icon || 'Smartphone'] || categoryIcons.Smartphone;
 
-        return (
-          <div key={category.id}>
-            <Link
-              to={`/products?category=${category.slug}`}
-              className="group flex h-full flex-col overflow-hidden rounded-xl border bg-card text-left text-foreground transition-all hover:border-primary/30 hover:shadow-sm"
-            >
-              {category.image_url ? (
-                <div className="relative h-32 w-full overflow-hidden bg-muted sm:h-40">
-                  <motion.img
-                    src={category.image_url}
-                    alt={category.name}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                    style={{ x: driftX }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                  <div className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg bg-background/85 text-primary backdrop-blur-sm">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                </div>
-              ) : (
-                <div className="flex h-28 w-full items-center justify-center bg-primary/10 text-primary">
-                  <Icon className="h-7 w-7" />
-                </div>
-              )}
-              <div className="space-y-1 p-4">
-                <span className="block text-sm font-semibold text-foreground sm:text-[15px]">{category.name}</span>
-                {category.description ? (
-                  <p className="line-clamp-2 text-xs text-muted-foreground sm:text-sm">{category.description}</p>
-                ) : null}
-              </div>
-            </Link>
-          </div>
-        );
-      })}
-    </div>
-  ) : null;
+  if (!showBanner) {
+    return null;
+  }
 
   return (
     <motion.section ref={ref} id="home-categories" data-section="categories" className="relative bg-background pb-10 md:pb-12">
@@ -80,143 +38,88 @@ export function CategoriesSection({ categories, content }: CategoriesSectionProp
       <div className="container -mt-8 md:-mt-10">
         <motion.div
           style={{ y: foregroundY, scale }}
-          className="min-h-0 rounded-3xl border border-border bg-card p-5 text-foreground shadow-lg md:min-h-[2000px] md:border-border/70 md:bg-card/75 md:backdrop-blur-xl md:p-8"
+          className="relative min-h-0 overflow-hidden rounded-[2.5rem] border border-white/10 bg-[linear-gradient(135deg,#050814_0%,#0b1120_42%,#121826_100%)] p-5 text-white shadow-[0_36px_120px_rgba(2,6,23,0.4)] md:p-8"
           variants={sectionReveal}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.15 }}
         >
-          <div className="space-y-2">
-            <h2 className="font-display text-2xl font-bold text-foreground">{content.category_section_title}</h2>
-            {content.category_section_description ? (
-              <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">{content.category_section_description}</p>
-            ) : null}
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-[8%] top-10 h-40 w-40 rounded-full bg-fuchsia-500/15 blur-[110px]" />
+            <div className="absolute right-[10%] top-12 h-48 w-48 rounded-full bg-cyan-400/12 blur-[130px]" />
+            <div className="absolute bottom-[-4rem] left-1/2 h-44 w-44 -translate-x-1/2 rounded-full bg-white/8 blur-[120px]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.09),transparent_40%)]" />
           </div>
-          <div className="mt-6 flex flex-col gap-12">
-            {categoryGrid}
-            {showBanner && (
-              <div className="space-y-4">
-                <motion.div style={{ y: accentY }} className="h-[500px] w-full overflow-hidden rounded-xl border border-border/30 bg-card">
-                  <motion.img
-                    src={content.category_banner_main_image}
-                    alt="Kategori banner"
-                    className="h-full w-full object-cover"
+
+          <div className="relative grid items-start gap-8 text-left lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:gap-12">
+            <motion.div style={{ y: accentY }} className="max-w-[38rem] space-y-5">
+              <span className="inline-flex rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/72 backdrop-blur-xl">
+                Brand Finance 2025
+              </span>
+
+              {(content.hero_logo_dark_url || content.hero_logo_light_url) && (
+                <div className="inline-flex rounded-[1.5rem] border border-white/10 bg-white/6 px-4 py-3 shadow-[0_20px_60px_rgba(2,6,23,0.28)] backdrop-blur-xl">
+                  <img
+                    src={content.hero_logo_dark_url || content.hero_logo_light_url}
+                    alt="Cep Dunyasi"
+                    className="h-auto w-[180px] md:w-[240px]"
                     loading="lazy"
-                    style={{ x: driftX }}
                   />
-                </motion.div>
+                </div>
+              )}
 
-                <div className="space-y-[50px]">
-                  <motion.div
-                    className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
-                    variants={staggerContainer}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, amount: 0.2 }}
-                  >
-                    <motion.div variants={staggerItem}>
-                      <div className="relative h-[500px] w-full overflow-hidden rounded-xl border border-border bg-card md:border-background/30">
-                        <video
-                          className="absolute inset-0 h-full w-full object-contain object-center bg-black md:bg-black/5"
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                          preload="metadata"
-                        >
-                          <source src={content.category_banner_video} type="video/mp4" />
-                        </video>
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-transparent md:from-primary/30" />
-                        {content.category_banner_video_link && (
-                          <Link
-                            to={content.category_banner_video_link}
-                            aria-label="Hemen satin al"
-                            className="absolute bottom-[14px] left-1/2 z-20 h-[40px] w-[132px] -translate-x-1/2 rounded-[12px] bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/80"
-                          >
-                            <span className="sr-only">Hemen Satin Al</span>
-                          </Link>
-                        )}
-                      </div>
-                    </motion.div>
+              <h3 className="max-w-[11ch] font-display text-4xl font-bold leading-[1.02] tracking-tight text-white md:text-[3.8rem]">
+                {content.category_banner_brand_title}
+              </h3>
 
-                    {[0, 1].map((index) => {
-                      const imageUrl = content.category_banner_slots?.[index];
-                      if (!imageUrl) return null;
+              <p className="max-w-xl text-sm leading-7 text-white/62 sm:text-base">
+                Premium teknoloji vitrini, guven veren marka konumlanmasi ve temiz bir sunum diliyle desteklenir.
+              </p>
 
-                      return (
-                        <motion.div key={`category-slot-top-${index}`} variants={staggerItem}>
-                          <div className="h-[500px] w-full overflow-hidden rounded-xl border border-border bg-background md:border-background/30 md:bg-background/5">
-                            <img
-                              src={imageUrl}
-                              alt={`Kategori kisim ${index + 1}`}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </motion.div>
-
-                  <div className="grid gap-8 text-left lg:grid-cols-2 lg:gap-16">
-                    <motion.div style={{ y: accentY }} className="space-y-4">
-                      {content.hero_logo_light_url && (
-                        <img
-                          src={content.hero_logo_light_url}
-                          alt="Cep Dunyasi"
-                          className="h-auto w-[180px] dark:hidden md:w-[240px]"
-                          loading="lazy"
-                        />
-                      )}
-                      {content.hero_logo_dark_url && (
-                        <img
-                          src={content.hero_logo_dark_url}
-                          alt="Cep Dunyasi"
-                          className="hidden h-auto w-[180px] dark:block md:w-[240px]"
-                          loading="lazy"
-                        />
-                      )}
-                      <h3 className="font-display text-4xl font-bold leading-tight text-foreground md:text-6xl">
-                        {content.category_banner_brand_title}
-                      </h3>
-                    </motion.div>
-
-                    <motion.div style={{ y: foregroundY }} className="space-y-6 text-lg leading-relaxed text-muted-foreground">
-                      <p>{content.category_banner_brand_desc_1}</p>
-                      <p className="font-semibold text-foreground">{content.category_banner_brand_desc_2}</p>
-                      <p>{content.category_banner_brand_desc_3}</p>
-                    </motion.div>
-                  </div>
-
-                  <motion.div
-                    className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
-                    variants={staggerContainer}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, amount: 0.2 }}
-                  >
-                    {[2, 3, 4].map((index) => {
-                      const imageUrl = content.category_banner_slots?.[index];
-                      if (!imageUrl) return null;
-
-                      return (
-                        <motion.div key={`category-slot-bottom-${index}`} variants={staggerItem}>
-                          <div className="h-[500px] w-full overflow-hidden rounded-xl border border-border bg-background md:border-background/30 md:bg-background/5">
-                            <img
-                              src={imageUrl}
-                              alt={`Kategori kisim ${index + 1}`}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </motion.div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.05] px-4 py-3.5 backdrop-blur-xl">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-white/45">Odak</p>
+                  <p className="mt-1.5 text-base font-semibold text-white md:text-lg">Premium mobil deneyim</p>
+                </div>
+                <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.05] px-4 py-3.5 backdrop-blur-xl">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-white/45">Konum</p>
+                  <p className="mt-1.5 text-base font-semibold text-white md:text-lg">Guclu marka algisi</p>
                 </div>
               </div>
-            )}
+            </motion.div>
 
+            <motion.div style={{ y: foregroundY }} className="grid auto-rows-max content-start self-start gap-3 lg:pl-2">
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                viewport={{ once: true, amount: 0.35 }}
+                className="rounded-[1.45rem] border border-white/10 bg-white/[0.06] px-5 py-4 shadow-[0_18px_46px_rgba(2,6,23,0.18)] backdrop-blur-2xl"
+              >
+                <p className="text-base leading-7 text-white/74 md:text-[1.03rem]">{content.category_banner_brand_desc_1}</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+                viewport={{ once: true, amount: 0.35 }}
+                className="rounded-[1.55rem] border border-fuchsia-300/18 bg-[linear-gradient(135deg,rgba(255,255,255,0.11),rgba(255,255,255,0.04))] px-5 py-4 shadow-[0_22px_56px_rgba(2,6,23,0.22)] backdrop-blur-2xl"
+              >
+                <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-fuchsia-100/70">One Cikan Vurgu</p>
+                <p className="mt-2.5 text-lg font-semibold leading-8 text-white md:text-[1.38rem]">{content.category_banner_brand_desc_2}</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                viewport={{ once: true, amount: 0.35 }}
+                className="rounded-[1.45rem] border border-white/10 bg-white/[0.05] px-5 py-4 shadow-[0_18px_46px_rgba(2,6,23,0.18)] backdrop-blur-2xl"
+              >
+                <p className="text-base leading-7 text-white/74 md:text-[1.03rem]">{content.category_banner_brand_desc_3}</p>
+              </motion.div>
+            </motion.div>
           </div>
         </motion.div>
       </div>
