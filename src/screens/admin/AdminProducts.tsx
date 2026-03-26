@@ -628,8 +628,8 @@ export default function AdminProducts() {
                 <Label>Aciklama</Label>
                 <Textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
               </div>
-
-              <div className="space-y-3">
+              
+              <div className={"space-y-3 "+(form.type === "phone" ? "" : "hidden")}>
                 <div>
                   <h3 className="text-sm font-semibold">Urun Ozellikleri</h3>
                   <p className="text-xs text-muted-foreground">Kartta gosterilecek teknik ozellikleri buradan girebilirsiniz.</p>
