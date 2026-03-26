@@ -62,8 +62,15 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
                     description={product.description}
                     images={getVariantGallery(variant, product.images)}
                     price={variant?.price || 0}
+                    originalPrice={variant?.compare_at_price || undefined}
                     variantId={variant?.id}
                     variantInfo={variant ? getVariantLabel(variant) : undefined}
+                    createdAt={product.created_at}
+                    salesCount={product.sales_count}
+                    ratingAverage={product.rating_average}
+                    specs={product.specs}
+                    storage={variant?.storage}
+                    ram={variant?.ram}
                     stock={variant?.stock || 0}
                     category={product.categories?.name}
                   />

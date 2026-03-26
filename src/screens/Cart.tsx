@@ -3,6 +3,7 @@
 import { Link, useNavigate } from '@/lib/router';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
+import { CartRecommendationsSection } from '@/components/cart/CartRecommendationsSection';
 import { useCartStore } from '@/lib/cart-store';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -71,6 +72,8 @@ export default function Cart() {
                 </div>
               </Card>
             ))}
+
+            <CartRecommendationsSection cartProductIds={items.map((item) => item.productId)} />
           </div>
 
           <Card className="h-fit p-5 lg:sticky lg:top-24 lg:p-6">

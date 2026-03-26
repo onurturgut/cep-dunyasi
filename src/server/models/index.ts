@@ -25,7 +25,42 @@ const productSchema = new Schema(
     brand: { type: String, default: "" },
     type: { type: String, default: "accessory" },
     images: { type: [String], default: [] },
+    specs: {
+      type: new Schema(
+        {
+          operatingSystem: { type: String, default: null },
+          internalStorage: { type: String, default: null },
+          ram: { type: String, default: null },
+          frontCamera: { type: String, default: null },
+          rearCamera: { type: String, default: null },
+        },
+        { _id: false }
+      ),
+      default: null,
+    },
     starting_price: { type: Number, default: 0 },
+    sales_count: { type: Number, default: 0, index: true },
+    rating_average: { type: Number, default: 0 },
+    rating_count: { type: Number, default: 0 },
+    rating_distribution: {
+      type: new Schema(
+        {
+          "1": { type: Number, default: 0 },
+          "2": { type: Number, default: 0 },
+          "3": { type: Number, default: 0 },
+          "4": { type: Number, default: 0 },
+          "5": { type: Number, default: 0 },
+        },
+        { _id: false }
+      ),
+      default: () => ({
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+      }),
+    },
     is_featured: { type: Boolean, default: false, index: true },
     is_active: { type: Boolean, default: true, index: true },
     created_at: { type: Date, default: Date.now },
@@ -118,6 +153,41 @@ const orderItemSchema = new Schema(
   },
   { versionKey: false }
 );
+
+const productReviewSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    product_id: { type: String, required: true, index: true },
+    user_id: { type: String, required: true, index: true },
+    order_id: { type: String, default: null, index: true },
+    rating: { type: Number, required: true, min: 1, max: 5, index: true },
+    title: { type: String, trim: true, default: null, maxlength: 120 },
+    comment: { type: String, required: true, trim: true, minlength: 5 },
+    images: { type: [String], default: [] },
+    is_verified_purchase: { type: Boolean, default: false, index: true },
+    is_approved: { type: Boolean, default: false, index: true },
+    helpful_count: { type: Number, default: 0 },
+    helpful_user_ids: { type: [String], default: [] },
+    admin_reply: {
+      type: new Schema(
+        {
+          message: { type: String, required: true, trim: true, maxlength: 1500 },
+          created_at: { type: Date, required: true },
+          updated_at: { type: Date, required: true },
+        },
+        { _id: false }
+      ),
+      default: null,
+    },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
+productReviewSchema.index({ product_id: 1, created_at: -1 });
+productReviewSchema.index({ user_id: 1, product_id: 1 }, { unique: true });
+productReviewSchema.index({ rating: 1 });
 
 const shipmentSchema = new Schema(
   {
@@ -224,6 +294,7 @@ const userSchema = new Schema(
     password_hash: { type: String, required: true },
     full_name: { type: String, default: "" },
     roles: { type: [String], default: ["customer"] },
+    wishlist_product_ids: { type: [String], default: [] },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
   },
@@ -236,6 +307,7 @@ export const ProductVariant: any = models.ProductVariant || model("ProductVarian
 export const Coupon: any = models.Coupon || model("Coupon", couponSchema);
 export const Order: any = models.Order || model("Order", orderSchema);
 export const OrderItem: any = models.OrderItem || model("OrderItem", orderItemSchema);
+export const ProductReview: any = models.ProductReview || model("ProductReview", productReviewSchema);
 export const Shipment: any = models.Shipment || model("Shipment", shipmentSchema);
 export const MissionItem: any = models.MissionItem || model("MissionItem", missionItemSchema);
 export const SiteContent: any = models.SiteContent || model("SiteContent", siteContentSchema);

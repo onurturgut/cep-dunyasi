@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
 import { getVariantLabel, normalizeProductVariants, type ProductVariantRecord } from "@/lib/product-variants";
+import type { ProductSpecs } from "@/lib/product-specs";
 
 type ProductType = "phone" | "accessory" | "service";
 
@@ -44,6 +45,7 @@ type ProductForm = {
   is_featured: boolean;
   is_active: boolean;
   images: string[];
+  specs: ProductSpecs;
   variants: ProductVariantForm[];
 };
 
@@ -63,6 +65,7 @@ type AdminProductRecord = {
   is_featured: boolean;
   is_active: boolean;
   images: string[];
+  specs?: ProductSpecs | null;
   product_variants: ProductVariantRecord[];
   categories?: { name?: string } | null;
 };
@@ -92,6 +95,13 @@ const defaultForm: ProductForm = {
   is_featured: false,
   is_active: true,
   images: [],
+  specs: {
+    operatingSystem: "",
+    internalStorage: "",
+    ram: "",
+    frontCamera: "",
+    rearCamera: "",
+  },
   variants: [createEmptyVariant(0)],
 };
 
@@ -126,6 +136,13 @@ function mapProductToForm(product: AdminProductRecord): ProductForm {
     is_featured: Boolean(product.is_featured),
     is_active: Boolean(product.is_active),
     images: Array.isArray(product.images) ? product.images : [],
+    specs: {
+      operatingSystem: product.specs?.operatingSystem || "",
+      internalStorage: product.specs?.internalStorage || "",
+      ram: product.specs?.ram || "",
+      frontCamera: product.specs?.frontCamera || "",
+      rearCamera: product.specs?.rearCamera || "",
+    },
     variants: variants.length > 0 ? variants.map((variant, index) => mapVariantToForm(variant, index)) : [createEmptyVariant(0)],
   };
 }
@@ -331,6 +348,13 @@ export default function AdminProducts() {
       is_featured: form.is_featured,
       is_active: form.is_active,
       images: form.images,
+      specs: {
+        operatingSystem: form.specs.operatingSystem || null,
+        internalStorage: form.specs.internalStorage || null,
+        ram: form.specs.ram || null,
+        frontCamera: form.specs.frontCamera || null,
+        rearCamera: form.specs.rearCamera || null,
+      },
       variants: form.variants.map((variant, index) => ({
         id: variant.id ?? null,
         color_name: variant.color_name,
@@ -591,6 +615,80 @@ export default function AdminProducts() {
               <div className="space-y-2">
                 <Label>Aciklama</Label>
                 <Textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <h3 className="text-sm font-semibold">Urun Ozellikleri</h3>
+                  <p className="text-xs text-muted-foreground">Kartta gosterilecek teknik ozellikleri buradan girebilirsiniz.</p>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Isletim Sistemi</Label>
+                    <Input
+                      value={form.specs.operatingSystem || ""}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          specs: { ...current.specs, operatingSystem: event.target.value },
+                        }))
+                      }
+                      placeholder="iOS 18"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Dahili Hafiza</Label>
+                    <Input
+                      value={form.specs.internalStorage || ""}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          specs: { ...current.specs, internalStorage: event.target.value },
+                        }))
+                      }
+                      placeholder="256 GB"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">RAM Kapasitesi</Label>
+                    <Input
+                      value={form.specs.ram || ""}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          specs: { ...current.specs, ram: event.target.value },
+                        }))
+                      }
+                      placeholder="8 GB"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">On (Selfie) Kamera</Label>
+                    <Input
+                      value={form.specs.frontCamera || ""}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          specs: { ...current.specs, frontCamera: event.target.value },
+                        }))
+                      }
+                      placeholder="12 MP"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Arka Kamera</Label>
+                    <Input
+                      value={form.specs.rearCamera || ""}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          specs: { ...current.specs, rearCamera: event.target.value },
+                        }))
+                      }
+                      placeholder="48 MP + 12 MP"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4">

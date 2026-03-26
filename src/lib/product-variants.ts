@@ -71,6 +71,27 @@ function normalizeColorCode(value: unknown) {
   return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(prefixed) ? prefixed.toUpperCase() : null;
 }
 
+function normalizeAttributeMap(attributes: Record<string, unknown> | null | undefined) {
+  const normalizedAttributes: Record<string, string> = {};
+
+  if (!attributes) {
+    return normalizedAttributes;
+  }
+
+  for (const [key, value] of Object.entries(attributes)) {
+    const normalizedKey = normalizeText(key);
+    const normalizedValue = normalizeText(value);
+
+    if (!normalizedKey || !normalizedValue) {
+      continue;
+    }
+
+    normalizedAttributes[normalizedKey] = normalizedValue;
+  }
+
+  return normalizedAttributes;
+}
+
 function getAttributeValue(attributes: Record<string, unknown> | null | undefined, keys: string[]) {
   if (!attributes) {
     return null;
@@ -126,6 +147,7 @@ export function buildVariantOptionSignature(input: {
 
 export function normalizeProductVariant(raw: VariantLike): ProductVariantRecord {
   const attributes = raw.attributes && typeof raw.attributes === "object" ? raw.attributes : {};
+  const normalizedSourceAttributes = normalizeAttributeMap(attributes);
   const colorName =
     normalizeText(raw.color_name) ||
     getAttributeValue(attributes, ["color", "colorName", "color_name", "renk"]) ||
@@ -167,11 +189,14 @@ export function normalizeProductVariant(raw: VariantLike): ProductVariantRecord 
     barcode: normalizeText(raw.barcode),
     sort_order: normalizeInteger(raw.sort_order),
     option_signature: optionSignature,
-    attributes: buildVariantAttributes({
-      colorName,
-      storage,
-      ram,
-    }),
+    attributes: {
+      ...normalizedSourceAttributes,
+      ...buildVariantAttributes({
+        colorName,
+        storage,
+        ram,
+      }),
+    },
     created_at: raw.created_at,
     updated_at: raw.updated_at,
   };
@@ -253,7 +278,31 @@ export function getVariantLabel(variant: VariantLike) {
     .filter((value, index, values) => values.indexOf(value) === index);
 
   const label = labelParts.join(" / ");
-  return label && label !== "Standart" ? label : normalized.sku;
+  if (label && label !== "Standart") {
+    return label;
+  }
+
+  const attributeFallbackKeys = ["uyumluluk", "guc", "kapasite", "ekran", "durum", "cikis", "power", "capacity", "display", "condition"];
+  const fallbackParts = attributeFallbackKeys
+    .map((key) => normalized.attributes[key])
+    .filter(Boolean)
+    .filter((value, index, values) => values.indexOf(value) === index);
+
+  if (fallbackParts.length > 0) {
+    return fallbackParts.join(" / ");
+  }
+
+  const genericAttributeParts = Object.entries(normalized.attributes)
+    .filter(([key, value]) => Boolean(value) && !["color", "storage", "ram"].includes(key))
+    .map(([, value]) => value)
+    .filter((value, index, values) => values.indexOf(value) === index)
+    .slice(0, 2);
+
+  if (genericAttributeParts.length > 0) {
+    return genericAttributeParts.join(" / ");
+  }
+
+  return normalized.sku;
 }
 
 export function getVariantGallery(variant: VariantLike | null | undefined, productImages: Array<string | null | undefined>) {

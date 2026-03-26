@@ -13,14 +13,20 @@ export function useSectionParallax<T extends HTMLElement>({
   rotate = 6,
 }: SectionParallaxOptions = {}) {
   const ref = useRef<T | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const prefersReducedMotion = useReducedMotion();
-  const motionEnabled = mounted && !prefersReducedMotion;
+  const motionEnabled = isHydrated && !prefersReducedMotion;
   const safeDistance = motionEnabled ? distance : 0;
   const safeRotate = motionEnabled ? rotate : 0;
 
   useEffect(() => {
-    setMounted(true);
+    const frameId = window.requestAnimationFrame(() => {
+      setIsHydrated(true);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
   }, []);
 
   const { scrollYProgress } = useScroll({

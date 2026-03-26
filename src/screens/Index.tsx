@@ -10,6 +10,7 @@ import { ExploreCategoriesSection } from '@/components/home/ExploreCategoriesSec
 import { FeaturedProductsSection } from '@/components/home/FeaturedProductsSection';
 import { HeroSection } from '@/components/home/HeroSection';
 import { PromoVideoModal } from '@/components/home/PromoVideoModal';
+import { RecentlyViewedSection } from '@/components/home/RecentlyViewedSection';
 import { defaultCategories, defaultSiteContent, mergeCategories, type HomeCategory, type HomeSiteContent } from '@/components/home/home-data';
 
 export default function Index() {
@@ -93,6 +94,7 @@ export default function Index() {
       <CategoriesSection categories={categories} content={siteContent} />
       <ExploreCategoriesSection categories={categories.length > 0 ? categories : defaultCategories} content={siteContent} />
       <FeaturedProductsSection featuredProducts={featuredProducts} content={siteContent} />
+      <RecentlyViewedSection />
     </Layout>
   );
 }

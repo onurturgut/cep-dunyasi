@@ -16,6 +16,21 @@ const optionalTrimmedStringSchema = z
   });
 
 const imageArraySchema = z.array(z.string().trim().min(1)).default([]);
+const specsSchema = z
+  .object({
+    operatingSystem: optionalTrimmedStringSchema,
+    internalStorage: optionalTrimmedStringSchema,
+    ram: optionalTrimmedStringSchema,
+    frontCamera: optionalTrimmedStringSchema,
+    rearCamera: optionalTrimmedStringSchema,
+  })
+  .default({
+    operatingSystem: null,
+    internalStorage: null,
+    ram: null,
+    frontCamera: null,
+    rearCamera: null,
+  });
 
 const adminVariantSchema = z
   .object({
@@ -61,6 +76,7 @@ const adminProductSchema = z.object({
   is_featured: z.boolean().default(false),
   is_active: z.boolean().default(true),
   images: imageArraySchema,
+  specs: specsSchema,
   variants: z.array(adminVariantSchema).min(1, "En az bir varyant eklemelisiniz"),
 });
 
@@ -226,6 +242,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
     is_featured: payload.is_featured,
     is_active: payload.is_active,
     images: payload.images,
+    specs: Object.values(payload.specs).some(Boolean) ? payload.specs : null,
     starting_price: startingPrice,
     updated_at: now,
   };

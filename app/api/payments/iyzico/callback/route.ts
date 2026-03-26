@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
-import { Coupon, Order, OrderItem, ProductVariant } from "@/server/models";
+import { Coupon, Order, OrderItem, Product, ProductVariant } from "@/server/models";
 import { createIyzicoClient, retrieveCheckoutForm } from "@/server/services/iyzico";
 
 export const runtime = "nodejs";
@@ -36,11 +36,20 @@ export async function POST(request: Request) {
           : "pending";
 
       if (existingOrder && callbackSucceeded && existingOrder.payment_status !== "paid") {
-        const orderItems = await OrderItem.find({ order_id: orderId }).lean();
+        const orderItems = (await OrderItem.find({ order_id: orderId }).lean()) as Array<{
+          variant_id: string;
+          quantity?: number;
+        }>;
 
         if (orderItems.length > 0) {
+          const variants = await ProductVariant.find(
+            { id: { $in: orderItems.map((item: any) => item.variant_id) } },
+            { id: 1, product_id: 1 }
+          ).lean() as Array<{ id: string; product_id: string }>;
+          const productIdByVariantId = new Map(variants.map((variant) => [variant.id, variant.product_id]));
+
           const stockResults = await Promise.all(
-            orderItems.map((item: any) =>
+            orderItems.map((item) =>
               ProductVariant.updateOne(
                 {
                   id: item.variant_id,
@@ -58,6 +67,29 @@ export async function POST(request: Request) {
 
           if (!stockAdjusted) {
             orderStatus = "cancelled";
+          } else {
+            const salesCountByProductId = new Map<string, number>();
+
+            for (const item of orderItems) {
+              const productId = productIdByVariantId.get(item.variant_id);
+              if (!productId) {
+                continue;
+              }
+
+              salesCountByProductId.set(productId, (salesCountByProductId.get(productId) ?? 0) + Number(item.quantity ?? 0));
+            }
+
+            await Promise.all(
+              Array.from(salesCountByProductId.entries()).map(([productId, quantity]) =>
+                Product.updateOne(
+                  { id: productId },
+                  {
+                    $inc: { sales_count: quantity },
+                    $set: { updated_at: new Date() },
+                  }
+                )
+              )
+            );
           }
         }
 

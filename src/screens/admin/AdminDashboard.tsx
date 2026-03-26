@@ -1,20 +1,21 @@
 "use client";
 
-import { ReactNode, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from '@/lib/router';
-import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Package, ShoppingCart, Tag, ArrowLeft, ImageIcon, LogOut, Wrench, FolderTree, MonitorSmartphone } from 'lucide-react';
+import { ReactNode, useEffect } from "react";
+import { ArrowLeft, FolderTree, ImageIcon, LayoutDashboard, LogOut, MessageSquare, MonitorSmartphone, Package, ShoppingCart, Tag, Wrench } from "lucide-react";
+import { Link, useLocation, useNavigate } from "@/lib/router";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 
 const sidebarItems = [
-  { label: 'Genel Bakis', href: '/admin', icon: LayoutDashboard },
-  { label: 'Ürünler', href: '/admin/products', icon: Package },
-  { label: 'Kategoriler', href: '/admin/categories', icon: FolderTree },
-  { label: 'Site Icerigi', href: '/admin/site-content', icon: MonitorSmartphone },
-  { label: 'Siparişler', href: '/admin/orders', icon: ShoppingCart },
-  { label: 'Kuponlar', href: '/admin/coupons', icon: Tag },
-  { label: 'Misyon', href: '/admin/mission', icon: ImageIcon },
-  { label: 'Teknik Servis', href: '/admin/technical-service', icon: Wrench },
+  { label: "Genel Bakis", href: "/admin", icon: LayoutDashboard },
+  { label: "Urunler", href: "/admin/products", icon: Package },
+  { label: "Kategoriler", href: "/admin/categories", icon: FolderTree },
+  { label: "Site Icerigi", href: "/admin/site-content", icon: MonitorSmartphone },
+  { label: "Siparisler", href: "/admin/orders", icon: ShoppingCart },
+  { label: "Yorumlar", href: "/admin/reviews", icon: MessageSquare },
+  { label: "Kuponlar", href: "/admin/coupons", icon: Tag },
+  { label: "Misyon", href: "/admin/mission", icon: ImageIcon },
+  { label: "Teknik Servis", href: "/admin/technical-service", icon: Wrench },
 ];
 
 export default function AdminDashboard({ children }: { children: ReactNode }) {
@@ -24,14 +25,18 @@ export default function AdminDashboard({ children }: { children: ReactNode }) {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/auth', { replace: true });
+    navigate("/auth", { replace: true });
   };
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) navigate('/');
-  }, [user, isAdmin, loading, navigate]);
+    if (!loading && (!user || !isAdmin)) {
+      navigate("/");
+    }
+  }, [isAdmin, loading, navigate, user]);
 
-  if (loading || !isAdmin) return null;
+  if (loading || !isAdmin) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -43,12 +48,7 @@ export default function AdminDashboard({ children }: { children: ReactNode }) {
         </div>
         <nav className="space-y-1 p-3">
           {sidebarItems.map((item) => (
-            <Button
-              key={item.href}
-              variant={location.pathname === item.href ? 'secondary' : 'ghost'}
-              className="w-full justify-start"
-              asChild
-            >
+            <Button key={item.href} variant={location.pathname === item.href ? "secondary" : "ghost"} className="w-full justify-start" asChild>
               <Link to={item.href}>
                 <item.icon className="mr-2 h-4 w-4" />
                 {item.label}
@@ -67,12 +67,7 @@ export default function AdminDashboard({ children }: { children: ReactNode }) {
       <div className="flex-1">
         <div className="flex items-center gap-2 overflow-x-auto border-b p-2 md:hidden">
           {sidebarItems.map((item) => (
-            <Button
-              key={item.href}
-              variant={location.pathname === item.href ? 'secondary' : 'ghost'}
-              size="sm"
-              asChild
-            >
+            <Button key={item.href} variant={location.pathname === item.href ? "secondary" : "ghost"} size="sm" asChild>
               <Link to={item.href}>
                 <item.icon className="mr-1 h-3.5 w-3.5" />
                 {item.label}

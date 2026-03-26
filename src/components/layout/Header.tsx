@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from '@/lib/router';
-import { ShoppingCart, Menu, User, Search, ChevronRight, Moon, Sun } from 'lucide-react';
+import { ShoppingCart, Menu, User, Search, ChevronRight, Moon, Sun, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { useCartStore } from '@/lib/cart-store';
 import { useAuth } from '@/hooks/use-auth';
+import { useWishlist } from '@/hooks/use-wishlist';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/components/ThemeProvider';
 
@@ -230,6 +231,7 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const totalItems = useCartStore((s) => s.totalItems());
   const { user, isAdmin, signOut } = useAuth();
+  const { productIds: wishlistProductIds } = useWishlist();
   const { resolvedTheme, setTheme } = useTheme();
   const navigate = useNavigate();
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -357,6 +359,22 @@ export function Header() {
                   </Badge>
                 </div>
               )}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative h-9 w-9 sm:h-10 sm:w-10"
+              onClick={() => navigate(user ? '/favorites' : '/auth')}
+            >
+              <Heart className="h-5 w-5" />
+              {mounted && user && wishlistProductIds.length > 0 ? (
+                <div className="absolute -right-1 -top-1">
+                  <Badge className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary p-0 px-1 text-[10px] text-primary-foreground">
+                    {wishlistProductIds.length}
+                  </Badge>
+                </div>
+              ) : null}
             </Button>
 
             {user ? (

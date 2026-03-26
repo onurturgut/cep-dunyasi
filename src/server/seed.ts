@@ -17,6 +17,13 @@ type ProductSample = {
   type: "phone" | "accessory" | "service";
   image: string;
   phoneModelKey?: IphoneModelKey;
+  specs?: {
+    operatingSystem?: string;
+    internalStorage?: string;
+    ram?: string;
+    frontCamera?: string;
+    rearCamera?: string;
+  };
   variant: {
     sku: string;
     attributes: Record<string, string>;
@@ -44,6 +51,7 @@ type GeneratedProductTemplate = {
   type: "phone" | "accessory" | "service";
   image: string;
   phoneModelKey?: IphoneModelKey;
+  specs?: ProductSample["specs"];
   basePrice: number;
   baseStock: number;
 };
@@ -135,6 +143,11 @@ const baseProductSeeds: ProductSample[] = [
     type: "phone",
     image: "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-1.jpg",
     phoneModelKey: "iphone-15-pro",
+    specs: {
+      operatingSystem: "iOS 18",
+      frontCamera: "12 MP",
+      rearCamera: "48 MP + 12 MP + 12 MP",
+    },
     variant: {
       sku: "IPHONE-16-PRO-BLK-128",
       attributes: { renk: "Siyah", hafiza: "128 GB" },
@@ -151,6 +164,11 @@ const baseProductSeeds: ProductSample[] = [
     type: "phone",
     image: "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg",
     phoneModelKey: "iphone-15-pro-max",
+    specs: {
+      operatingSystem: "iOS 17",
+      frontCamera: "12 MP",
+      rearCamera: "48 MP + 12 MP + 12 MP",
+    },
     variant: {
       sku: "IPHONE-15-PROMAX-256-BLK",
       attributes: { renk: "Siyah", hafiza: "256GB" },
@@ -182,6 +200,11 @@ const baseProductSeeds: ProductSample[] = [
     type: "phone",
     image: "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg",
     phoneModelKey: "iphone-15",
+    specs: {
+      operatingSystem: "iOS 17",
+      frontCamera: "12 MP",
+      rearCamera: "48 MP + 12 MP",
+    },
     variant: {
       sku: "IPHONE-15-128-BLK",
       attributes: { renk: "Siyah", hafiza: "128GB" },
@@ -242,6 +265,11 @@ const baseProductSeeds: ProductSample[] = [
     brand: "Apple",
     type: "phone",
     image: "https://images.unsplash.com/photo-1632633173522-47456f85e6af?w=1200&q=80",
+    specs: {
+      operatingSystem: "iOS 17",
+      frontCamera: "12 MP",
+      rearCamera: "12 MP + 12 MP",
+    },
     variant: {
       sku: "REF-IPHONE-13-128-NVY",
       attributes: { durum: "Yenilenmis", hafiza: "128GB" },
@@ -340,6 +368,11 @@ const generatedProductTemplates: GeneratedProductTemplate[] = [
     type: "phone",
     image: "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-plus-1.jpg",
     phoneModelKey: "iphone-15-plus",
+    specs: {
+      operatingSystem: "iOS 17",
+      frontCamera: "12 MP",
+      rearCamera: "48 MP + 12 MP",
+    },
     basePrice: 61999,
     baseStock: 14,
   },
@@ -353,6 +386,11 @@ const generatedProductTemplates: GeneratedProductTemplate[] = [
     type: "phone",
     image: "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-pro-1.jpg",
     phoneModelKey: "iphone-14-pro",
+    specs: {
+      operatingSystem: "iOS 17",
+      frontCamera: "12 MP",
+      rearCamera: "48 MP + 12 MP + 12 MP",
+    },
     basePrice: 54999,
     baseStock: 11,
   },
@@ -365,6 +403,11 @@ const generatedProductTemplates: GeneratedProductTemplate[] = [
     brand: "RenewTech",
     type: "phone",
     image: "https://images.unsplash.com/photo-1592286927505-1def25115558?w=1200&q=80",
+    specs: {
+      operatingSystem: "Android 14",
+      frontCamera: "16 MP",
+      rearCamera: "50 MP + 8 MP",
+    },
     basePrice: 18999,
     baseStock: 8,
   },
@@ -747,6 +790,7 @@ const generatedProductSeeds: ProductSample[] = Array.from({ length: generatedPro
     type: template.type,
     image: template.image,
     phoneModelKey: template.phoneModelKey,
+    specs: template.specs,
     variant: {
       sku: `${template.skuPrefix}-${String(sequence).padStart(3, "0")}`,
       attributes: buildGeneratedAttributes(template, sequence),
@@ -1006,6 +1050,7 @@ export async function ensureSeedData() {
           brand: sample.brand,
           type: sample.type,
           images: seedImagesBySlug.get(sample.slug) ?? [sample.image],
+          specs: sample.specs ?? null,
           starting_price: sample.variant.price,
           is_featured: ["iphone-16-pro", "iphone-15-pro-max", "iphone-15", "hizli-usb-c-sarj-aleti", "iphone-15-dayanikli-kilif"].includes(sample.slug),
           is_active: true,
