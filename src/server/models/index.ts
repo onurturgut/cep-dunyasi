@@ -176,7 +176,7 @@ const productReviewSchema = new Schema(
     product_id: { type: String, required: true, index: true },
     user_id: { type: String, required: true, index: true },
     order_id: { type: String, default: null, index: true },
-    rating: { type: Number, required: true, min: 1, max: 5, index: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
     title: { type: String, trim: true, default: null, maxlength: 120 },
     comment: { type: String, required: true, trim: true, minlength: 5 },
     images: { type: [String], default: [] },

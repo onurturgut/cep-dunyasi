@@ -299,26 +299,9 @@ export function Header() {
               alt="Cep Dünyası"
               className="h-9 w-auto rounded-lg sm:h-10 md:h-11"
             />
-              <span
-                className={cn(
-                  "hidden truncate font-display text-base font-bold tracking-wide transition-colors min-[390px]:inline sm:text-lg md:text-xl",
-                  activeMegaData ? "text-primary" : "text-foreground",
-                )}
-              >
-                cep dunyasi
-            </span>
           </Link>
 
           <nav className="hidden items-center gap-5 lg:flex">
-            <Link
-              to="/"
-              aria-label="Ana Sayfa"
-              title="Ana Sayfa"
-              className="inline-flex items-center justify-center transition-opacity hover:opacity-90"
-            >
-              <img src="/images/home-icon.png" alt="Ana Sayfa" className="h-8 w-8 rounded-sm object-cover" />
-            </Link>
-
             {(Object.keys(megaMenuData) as MegaMenuKey[]).map((key) => (
               <button
                 key={key}

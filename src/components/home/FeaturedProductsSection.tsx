@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/products/ProductCard';
 import { Link } from '@/lib/router';
 import { sectionReveal, type HomeProduct, type HomeSiteContent } from '@/components/home/home-data';
-import { useSectionParallax } from '@/components/home/useSectionParallax';
 import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from '@/lib/product-variants';
 
 type FeaturedProductsSectionProps = {
@@ -15,14 +14,8 @@ type FeaturedProductsSectionProps = {
 };
 
 export function FeaturedProductsSection({ featuredProducts, content }: FeaturedProductsSectionProps) {
-  const { ref, backgroundY, foregroundY } = useSectionParallax<HTMLElement>({
-    distance: 85,
-    rotate: 4,
-  });
-
   return (
     <motion.section
-      ref={ref}
       id="home-featured"
       data-section="featured"
       className="relative py-6 md:py-10"
@@ -31,13 +24,13 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
       whileInView="show"
       viewport={{ once: true, amount: 0.12 }}
     >
-      <motion.div aria-hidden="true" style={{ y: backgroundY }} className="pointer-events-none absolute inset-x-0 top-0 hidden h-72 overflow-hidden md:block">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 hidden h-72 overflow-hidden md:block">
         <div className="absolute left-[12%] top-20 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute right-[10%] top-10 h-44 w-44 rounded-full bg-secondary/15 blur-3xl" />
-      </motion.div>
+      </div>
 
       <div className="container">
-        <motion.div style={{ y: foregroundY }} className="rounded-3xl border border-border/60 bg-card/55 p-4 shadow-sm backdrop-blur-xl sm:p-5 md:p-8">
+        <motion.div className="rounded-3xl border border-border/60 bg-card/55 p-4 shadow-sm backdrop-blur-xl sm:p-5 md:p-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-5xl">{content.featured_section_title}</h2>
             <Button variant="ghost" asChild className="w-full justify-center sm:w-auto">

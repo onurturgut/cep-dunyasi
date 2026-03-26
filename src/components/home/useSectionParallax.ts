@@ -49,6 +49,7 @@ export function useSectionParallax<T extends HTMLElement>({
 
   return {
     ref,
+    parallaxEnabled: motionEnabled,
     backgroundY,
     foregroundY,
     accentY,

@@ -6,7 +6,6 @@ import {
   type HomeCategory,
   type HomeSiteContent,
 } from '@/components/home/home-data';
-import { useSectionParallax } from '@/components/home/useSectionParallax';
 
 type CategoriesSectionProps = {
   categories: HomeCategory[];
@@ -15,29 +14,23 @@ type CategoriesSectionProps = {
 
 export function CategoriesSection({ categories: _categories, content }: CategoriesSectionProps) {
   const showBanner = content.category_banner_enabled ?? false;
-  const { ref, backgroundY, foregroundY, accentY, scale } = useSectionParallax<HTMLElement>({
-    distance: 90,
-    rotate: 4,
-  });
 
   if (!showBanner) {
     return null;
   }
 
   return (
-    <motion.section ref={ref} id="home-categories" data-section="categories" className="relative bg-background pb-10 md:pb-12">
-      <motion.div
+    <motion.section id="home-categories" data-section="categories" className="relative bg-background pb-10 md:pb-12">
+      <div
         aria-hidden="true"
-        style={{ y: backgroundY }}
         className="pointer-events-none absolute inset-x-0 top-20 hidden h-[32rem] overflow-hidden md:block"
       >
         <div className="absolute left-[8%] top-12 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute right-[10%] top-40 h-56 w-56 rounded-full bg-secondary/20 blur-3xl" />
-      </motion.div>
+      </div>
 
       <div className="container -mt-8 md:-mt-10">
         <motion.div
-          style={{ y: foregroundY, scale }}
           className="relative min-h-0 overflow-hidden rounded-[2.5rem] border border-border/70 bg-card p-5 text-foreground shadow-[0_18px_42px_rgba(15,23,42,0.08)] md:bg-[linear-gradient(135deg,rgba(255,255,255,0.88)_0%,rgba(248,249,252,0.92)_42%,rgba(243,245,249,0.98)_100%)] md:shadow-[0_30px_90px_rgba(15,23,42,0.12)] md:backdrop-blur-2xl md:p-8 dark:border-white/10 dark:bg-slate-950/95 dark:md:bg-[linear-gradient(135deg,#060915_0%,#0c1220_42%,#151b29_100%)] dark:text-white dark:md:shadow-[0_36px_120px_rgba(2,6,23,0.34)]"
           variants={sectionReveal}
           initial="hidden"
@@ -52,7 +45,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
           </div>
 
           <div className="relative grid items-start gap-8 text-left lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:gap-12">
-            <motion.div style={{ y: accentY }} className="max-w-[38rem] space-y-5">
+            <motion.div className="max-w-[38rem] space-y-5">
               <span className="inline-flex rounded-full border border-border/70 bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground md:bg-background/75 md:backdrop-blur-xl dark:border-white/12 dark:bg-slate-900 dark:md:bg-white/6 dark:text-white/72">
                 Brand Finance 2025
               </span>
@@ -98,7 +91,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
               </div>
             </motion.div>
 
-            <motion.div style={{ y: foregroundY }} className="grid auto-rows-max content-start self-start gap-3 lg:pl-2">
+            <motion.div className="grid auto-rows-max content-start self-start gap-3 lg:pl-2">
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}

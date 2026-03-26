@@ -5,7 +5,6 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/lib/router';
 import { benefitIcons, type HomeSiteContent } from '@/components/home/home-data';
-import { useSectionParallax } from '@/components/home/useSectionParallax';
 
 type HeroSectionProps = {
   activeSlide: number;
@@ -14,27 +13,23 @@ type HeroSectionProps = {
 };
 
 export function HeroSection({ activeSlide, onSlideChange, content }: HeroSectionProps) {
-  const { ref, backgroundY, foregroundY, accentY, driftX, rotateZ } = useSectionParallax<HTMLElement>({
-    distance: 120,
-    rotate: 5,
-  });
   const heroSlides = content.hero_slides.filter((slide) => slide.image_url);
   const heroBenefits = content.hero_benefits.filter((benefit) => benefit.title || benefit.desc);
 
   return (
-    <motion.section ref={ref} id="home-hero" data-section="hero" className="bg-background pb-8 sm:pb-10 md:pb-12">
+    <motion.section id="home-hero" data-section="hero" className="bg-background pb-8 sm:pb-10 md:pb-12">
       <div className="relative min-h-[calc(100svh-4rem)] w-full overflow-hidden sm:min-h-[calc(100svh-4.5rem)]">
-        <motion.div style={{ y: backgroundY }} className="absolute inset-0">
+        <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/10" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/6 via-transparent to-secondary/10" />
           <div className="absolute -left-16 top-20 h-52 w-52 rounded-full bg-primary/10 blur-3xl" />
           <div className="absolute right-[-4rem] top-12 h-64 w-64 rounded-full bg-secondary/20 blur-3xl" />
-        </motion.div>
+        </div>
 
         <div className="relative">
           <div className="container flex min-h-[calc(100svh-4rem)] items-center py-8 sm:py-10 md:py-14 sm:min-h-[calc(100svh-4.5rem)]">
             <div className="grid w-full items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,540px)] lg:gap-6">
-              <motion.div style={{ y: foregroundY }} className="max-w-2xl">
+              <motion.div className="max-w-2xl">
                 <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] sm:text-5xl md:text-6xl xl:text-7xl">
                   {content.hero_title_prefix}
                   <span className="text-primary"> {content.hero_title_highlight} </span>
@@ -80,7 +75,7 @@ export function HeroSection({ activeSlide, onSlideChange, content }: HeroSection
                 </div>
               </motion.div>
 
-              <motion.div style={{ y: accentY, x: driftX, rotate: rotateZ }} className="mx-auto w-full max-w-[560px] lg:-ml-8">
+              <motion.div className="mx-auto w-full max-w-[560px] lg:-ml-8">
                 <div className="relative h-[320px] w-full sm:h-[420px] md:h-[520px] lg:h-[620px]">
                   <div className="absolute inset-x-10 bottom-10 h-24 rounded-full bg-primary/15 blur-3xl" />
                   {heroSlides.map((slide, index) => (

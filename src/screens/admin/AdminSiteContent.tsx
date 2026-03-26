@@ -56,6 +56,15 @@ type SiteContentForm = {
 
 const benefitIconOptions = ["Truck", "ShieldCheck", "CreditCard", "Smartphone", "BatteryCharging", "Battery", "Watch", "Wrench"];
 
+function isTransparencySafeImage(file: File) {
+  const mimeType = file.type.toLowerCase();
+  return mimeType === "image/png" || mimeType === "image/webp";
+}
+
+function isJpegLikeUrl(value: string) {
+  return /\.jpe?g($|\?)/i.test(value.trim());
+}
+
 function createEmptySlide(index: number): HeroSlide {
   return {
     id: `slide-${index + 1}`,
@@ -129,6 +138,11 @@ export default function AdminSiteContent() {
     event.target.value = "";
 
     if (!file) {
+      return;
+    }
+
+    if (typeof target !== "string" && "slideIndex" in target && !isTransparencySafeImage(file)) {
+      toast.error("Hero slaytlarda seffaf arka plan icin PNG veya WEBP yukleyin. JPG/JPEG beyaz fonu korur.");
       return;
     }
 
@@ -336,6 +350,14 @@ export default function AdminSiteContent() {
                     }
                   />
                   <Input type="file" accept="image/*" onChange={(e) => handleUpload(e, { slideIndex: index })} disabled={uploadingTarget === `slide-${index}`} />
+                  <p className="text-xs text-muted-foreground">
+                    Seffaf arka planli hero gorselleri icin PNG veya WEBP kullanin. JPG/JPEG dosyalarinda beyaz fon kaybolmaz.
+                  </p>
+                  {isJpegLikeUrl(slide.image_url) ? (
+                    <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                      Bu slayt su an JPG/JPEG kullaniyor. Beyaz arka plani kaldirmak icin gorseli PNG/WEBP olarak tekrar yuklemelisin.
+                    </p>
+                  ) : null}
                 </div>
                 <div className="space-y-2">
                   <Label>Alt Metin</Label>
