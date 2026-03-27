@@ -9,6 +9,7 @@ import {
 } from "@/lib/product-variants";
 import { getProductVariantAxes } from "@/lib/product-variant-config";
 import { normalizeSecondHandDetails } from "@/lib/second-hand";
+import { sanitizeSlug } from "@/lib/utils";
 
 const optionalTrimmedStringSchema = z
   .union([z.string(), z.null(), z.undefined()])
@@ -139,6 +140,7 @@ const adminProductSchema = z.object({
   brand: z.string().trim().default(""),
   type: z.enum(["phone", "accessory", "service"]),
   category_id: optionalTrimmedStringSchema,
+  subcategory_id: optionalTrimmedStringSchema,
   is_featured: z.boolean().default(false),
   is_active: z.boolean().default(true),
   images: imageArraySchema,
@@ -155,22 +157,14 @@ type AdminProductSaveResult = {
 };
 
 type CategoryMeta = {
+  id?: string | null;
   slug?: string | null;
   name?: string | null;
+  parent_category_id?: string | null;
 };
 
 const SECOND_HAND_IPHONE_CATEGORY_SLUG = "ikinci-el-telefon";
 const REQUIRED_SECOND_HAND_BRAND = "Apple";
-
-function slugifyProductName(value: string) {
-  return value
-    .toLocaleLowerCase("en-US")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
 
 function getFirstIssueMessage(error: z.ZodError) {
   return error.issues[0]?.message || "Gecersiz urun verisi";
@@ -180,16 +174,12 @@ function normalizeBrandValue(value: string | null | undefined) {
   return `${value ?? ""}`.trim().toLocaleLowerCase("tr-TR");
 }
 
-async function validateSecondHandIphoneRules(payload: AdminProductPayload) {
-  if (!payload.category_id) {
+async function validateSecondHandIphoneRules(payload: AdminProductPayload, categorySlug?: string | null) {
+  if (!payload.category_id || !categorySlug) {
     return;
   }
 
-  const matchedCategory = (await Category.findOne({ id: payload.category_id }).select("slug name").lean()) as
-    | { slug?: string | null; name?: string | null }
-    | null;
-
-  if (matchedCategory?.slug !== SECOND_HAND_IPHONE_CATEGORY_SLUG) {
+  if (categorySlug !== SECOND_HAND_IPHONE_CATEGORY_SLUG) {
     return;
   }
 
@@ -207,7 +197,42 @@ async function getCategoryMeta(categoryId: string | null | undefined): Promise<C
     return null;
   }
 
-  return (await Category.findOne({ id: categoryId }).select("slug name").lean()) as CategoryMeta | null;
+  return (await Category.findOne({ id: categoryId }).select("id slug name parent_category_id").lean()) as CategoryMeta | null;
+}
+
+async function validateProductCategorySelection(payload: AdminProductPayload) {
+  const matchedCategory = await getCategoryMeta(payload.category_id);
+
+  if (payload.category_id && !matchedCategory?.id) {
+    throw new Error("Secilen kategori bulunamadi");
+  }
+
+  if (matchedCategory?.parent_category_id) {
+    throw new Error("Urun icin ana kategori olarak ust seviye bir kategori secmelisiniz");
+  }
+
+  let matchedSubcategory: CategoryMeta | null = null;
+
+  if (payload.subcategory_id) {
+    if (!payload.category_id) {
+      throw new Error("Alt kategori secmeden once ana kategori secmelisiniz");
+    }
+
+    matchedSubcategory = await getCategoryMeta(payload.subcategory_id);
+
+    if (!matchedSubcategory?.id) {
+      throw new Error("Secilen alt kategori bulunamadi");
+    }
+
+    if (matchedSubcategory.parent_category_id !== payload.category_id) {
+      throw new Error("Alt kategori secilen ana kategoriye ait degil");
+    }
+  }
+
+  return {
+    matchedCategory,
+    matchedSubcategory,
+  };
 }
 
 function validateUniqueVariants(variants: AdminProductPayload["variants"], categorySlug?: string | null) {
@@ -346,13 +371,13 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
   }
 
   const payload = parsedPayload.data;
-  const matchedCategory = await getCategoryMeta(payload.category_id);
+  const { matchedCategory, matchedSubcategory } = await validateProductCategorySelection(payload);
   const categorySlug = matchedCategory?.slug ?? null;
   validateCategoryVariantRequirements(payload.variants, categorySlug);
   validateUniqueVariants(payload.variants, categorySlug);
-  await validateSecondHandIphoneRules(payload);
+  await validateSecondHandIphoneRules(payload, categorySlug);
 
-  const slug = payload.slug || slugifyProductName(payload.name);
+  const slug = sanitizeSlug(payload.slug || payload.name);
   if (!slug) {
     throw new Error("Urun icin gecerli bir slug olusturulamadi");
   }
@@ -386,6 +411,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
     brand: payload.brand,
     type: payload.type,
     category_id: payload.category_id,
+    subcategory_id: matchedSubcategory?.id ?? null,
     is_featured: payload.is_featured,
     is_active: payload.is_active,
     images: payload.images,

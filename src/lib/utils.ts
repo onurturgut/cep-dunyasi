@@ -36,3 +36,25 @@ export function toPriceNumber(value: unknown): number {
 export function formatCurrency(value: unknown) {
   return `TL ${toPriceNumber(value).toLocaleString("tr-TR")}`;
 }
+
+const TURKISH_CHAR_MAP: Record<string, string> = {
+  "\u00E7": "c",
+  "\u011F": "g",
+  "\u0131": "i",
+  "\u00F6": "o",
+  "\u015F": "s",
+  "\u00FC": "u",
+};
+
+export function sanitizeSlug(value: string) {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .replace(/[\u00E7\u011F\u0131\u00F6\u015F\u00FC]/g, (character) => TURKISH_CHAR_MAP[character] ?? character)
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}

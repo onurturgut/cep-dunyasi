@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useNavigate, useSearchParams } from "@/lib/router";
 import { Layout } from "@/components/layout/Layout";
@@ -9,26 +9,26 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+} from "@/components/ui/pagination";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/integrations/mongo/client";
+import { type CatalogFacetSectionData } from "@/lib/catalog-facets";
 import {
   createEmptyCatalogFilters,
   getCatalogFilterProfile,
-  getCatalogVariantOptions,
   getDisplayVariantForCatalogProduct,
-  matchesCatalogFilters,
-  sortCatalogProducts,
   type CatalogFilters,
   type CatalogProductRecord,
   type ProductSortOption,
 } from "@/lib/product-catalog";
-import {
-  SECOND_HAND_BATTERY_BUCKETS,
-  SECOND_HAND_CONDITION_OPTIONS,
-  SECOND_HAND_WARRANTY_OPTIONS,
-} from "@/lib/second-hand";
 import { getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
 
 const defaultCategories = [
@@ -49,17 +49,15 @@ const SORT_OPTIONS: Array<{ value: ProductSortOption; label: string }> = [
   { value: "rating_desc", label: "Puana Göre" },
 ];
 
+const PRODUCTS_PER_PAGE = 12;
+
 type FacetOption = {
   value: string;
   label: string;
-  count: number;
 };
 
-type FacetSection = {
-  id: string;
-  title: string;
+type FacetSection = CatalogFacetSectionData & {
   options: FacetOption[];
-  selectedValues: string[];
   onToggle: (value: string) => void;
 };
 
@@ -72,14 +70,22 @@ type FilterPanelCardProps = {
   facetSections: FacetSection[];
   filters: CatalogFilters;
   setFilters: Dispatch<SetStateAction<CatalogFilters>>;
-  hasPendingChanges: boolean;
-  saveFilters: () => void;
   resetFilters: () => void;
 };
 
-function isAppleBrand(value: string | null | undefined) {
-  return `${value ?? ""}`.trim().toLocaleLowerCase("tr-TR") === "apple";
-}
+type ApiResponse<T> = {
+  data: T;
+  error: { message: string } | null;
+};
+
+type CatalogListResponse = {
+  items: CatalogProductRecord[];
+  facetSections: CatalogFacetSectionData[];
+};
+
+type CatalogCountResponse = {
+  totalCount: number;
+};
 
 function mergeCategories(fallbackCategories: Array<Record<string, string>>, dbCategories: Array<Record<string, string>>) {
   const categoriesBySlug = new Map<string, Record<string, string>>();
@@ -95,19 +101,6 @@ function mergeCategories(fallbackCategories: Array<Record<string, string>>, dbCa
   return Array.from(categoriesBySlug.values());
 }
 
-function matchesSearch(product: CatalogProductRecord, normalizedSearch: string) {
-  if (!normalizedSearch) {
-    return true;
-  }
-
-  const searchable = [product.name, product.brand, product.description]
-    .filter(Boolean)
-    .join(" ")
-    .toLocaleLowerCase("tr-TR");
-
-  return searchable.includes(normalizedSearch);
-}
-
 function toggleStringValue(values: string[] | undefined, value: string) {
   const currentValues = values ?? [];
   return currentValues.includes(value) ? currentValues.filter((item) => item !== value) : [...currentValues, value];
@@ -118,8 +111,62 @@ function toggleNumberValue(values: number[] | undefined, value: number) {
   return currentValues.includes(value) ? currentValues.filter((item) => item !== value) : [...currentValues, value];
 }
 
-function areFiltersEqual(left: CatalogFilters, right: CatalogFilters) {
-  return JSON.stringify(left) === JSON.stringify(right);
+function buildPaginationItems(currentPage: number, totalPages: number) {
+  if (totalPages <= 1) {
+    return [1];
+  }
+
+  if (totalPages <= 5) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  const items: Array<number | "ellipsis-left" | "ellipsis-right"> = [1];
+  let startPage = Math.max(2, currentPage - 1);
+  let endPage = Math.min(totalPages - 1, currentPage + 1);
+
+  if (currentPage <= 3) {
+    startPage = 2;
+    endPage = 4;
+  } else if (currentPage >= totalPages - 2) {
+    startPage = totalPages - 3;
+    endPage = totalPages - 1;
+  }
+
+  if (startPage > 2) {
+    items.push("ellipsis-left");
+  }
+
+  for (let page = startPage; page <= endPage; page += 1) {
+    items.push(page);
+  }
+
+  if (endPage < totalPages - 1) {
+    items.push("ellipsis-right");
+  }
+
+  items.push(totalPages);
+
+  return items;
+}
+
+async function requestCatalog<T>(body: Record<string, unknown>, signal?: AbortSignal) {
+  const response = await fetch("/api/products/catalog", {
+    method: "POST",
+    cache: "no-store",
+    signal,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const payload = (await response.json().catch(() => null)) as ApiResponse<T> | null;
+
+  if (!response.ok || payload?.error) {
+    throw new Error(payload?.error?.message || "Katalog verisi alinamadi");
+  }
+
+  return payload?.data as T;
 }
 
 function FilterFacetSection({ section }: { section: FacetSection }) {
@@ -145,10 +192,7 @@ function FilterFacetSection({ section }: { section: FacetSection }) {
               onCheckedChange={() => section.onToggle(option.value)}
               className="mt-0.5 h-5 w-5 rounded-md border-border/80 data-[state=checked]:border-foreground data-[state=checked]:bg-foreground data-[state=checked]:text-background"
             />
-            <span className="flex min-w-0 flex-1 items-center justify-between gap-3">
-              <span className="truncate text-[15px] font-medium text-foreground">{option.label}</span>
-              <span className="shrink-0 text-sm text-muted-foreground">({option.count})</span>
-            </span>
+            <span className="truncate text-[15px] font-medium text-foreground">{option.label}</span>
           </label>
         );
       })}
@@ -178,18 +222,16 @@ function FilterPanelCard({
   facetSections,
   filters,
   setFilters,
-  hasPendingChanges,
-  saveFilters,
   resetFilters,
 }: FilterPanelCardProps) {
   return (
-    <div className="flex max-h-[calc(100vh-8rem)] flex-col overflow-hidden rounded-[28px] border border-border/60 bg-card shadow-[0_20px_70px_-35px_rgba(15,23,42,0.45)]">
+    <div className="flex min-h-0 flex-col overflow-hidden rounded-[28px] border border-border/60 bg-card shadow-[0_20px_70px_-35px_rgba(15,23,42,0.45)] ">
       <div className="border-b border-border/60 bg-muted/35 px-6 py-6">
         <p className="font-display text-[1.95rem] font-semibold tracking-tight text-foreground">{currentCategoryName}</p>
         <p className="mt-1 text-sm text-muted-foreground">Toplam {totalCount} ürün</p>
       </div>
 
-      <div className="space-y-6 overflow-y-auto px-6 py-5 [scrollbar-color:rgba(148,163,184,0.85)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/80">
+      <div className="min-h-0 space-y-6 px-6 py-5 lg:overflow-y-auto [scrollbar-color:rgba(148,163,184,0.85)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/80">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
@@ -247,12 +289,10 @@ function FilterPanelCard({
       </div>
 
       <div className="border-t border-border/60 bg-card/95 px-6 py-4 backdrop-blur">
-        <div className="flex items-center gap-3">
-          <Button className="flex-1 rounded-2xl" onClick={saveFilters} disabled={!hasPendingChanges}>
-            Kaydet
-          </Button>
-          <Button variant="outline" className="rounded-2xl" onClick={resetFilters}>
-            Temizle
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-muted-foreground">Filtre seçimleri sonuçları otomatik olarak günceller.</p>
+          <Button variant="outline" className="rounded-2xl sm:min-w-[120px]" onClick={resetFilters}>
+            Tümünü Temizle
           </Button>
         </div>
       </div>
@@ -264,22 +304,29 @@ export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState<CatalogProductRecord[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [facetSectionData, setFacetSectionData] = useState<CatalogFacetSectionData[]>([]);
   const [categories, setCategories] = useState<Array<Record<string, string>>>(defaultCategories);
   const [loading, setLoading] = useState(true);
+  const [countLoading, setCountLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<ProductSortOption>("newest");
   const [draftFilters, setDraftFilters] = useState<CatalogFilters>(createEmptyCatalogFilters);
-  const [appliedFilters, setAppliedFilters] = useState<CatalogFilters>(createEmptyCatalogFilters);
+  const [currentPage, setCurrentPage] = useState(1);
+  const listingTopRef = useRef<HTMLDivElement | null>(null);
+  const hasMountedRef = useRef(false);
 
   const activeCategory = searchParams.get("category");
   const filterProfile = useMemo(() => getCatalogFilterProfile(activeCategory), [activeCategory]);
   const isSecondHandIphoneCategory = activeCategory === "ikinci-el-telefon";
-  const normalizedSearch = search.trim().toLocaleLowerCase("tr-TR");
+  const deferredSearch = useDeferredValue(search);
 
   useEffect(() => {
     const nextFilters = createEmptyCatalogFilters();
     setDraftFilters(nextFilters);
-    setAppliedFilters(nextFilters);
+    setCurrentPage(1);
+    setFacetSectionData([]);
+    setTotalCount(0);
   }, [activeCategory]);
 
   useEffect(() => {
@@ -293,7 +340,7 @@ export default function Products() {
       .select("*")
       .then(({ data }) => {
         if (data && data.length > 0) {
-          setCategories(mergeCategories(defaultCategories, data));
+          setCategories(mergeCategories(defaultCategories, data.filter((category) => !category.parent_category_id)));
         }
       });
   }, []);
@@ -303,53 +350,92 @@ export default function Products() {
       return;
     }
 
+    const controller = new AbortController();
+
     const fetchProducts = async () => {
       setLoading(true);
-      let query = db.from("products").select("*, product_variants(*), categories(name, slug)").eq("is_active", true);
 
-      if (activeCategory) {
-        const { data: category } = await db.from("categories").select("id").eq("slug", activeCategory).single();
+      try {
+        const data = await requestCatalog<CatalogListResponse>(
+          {
+            mode: "list",
+            activeCategory,
+            search: deferredSearch,
+            sortBy,
+            page: currentPage,
+            limit: PRODUCTS_PER_PAGE,
+            filters: draftFilters,
+          },
+          controller.signal,
+        );
 
-        if (!category) {
-          setProducts([]);
-          setLoading(false);
-          return;
-        }
-
-        query = query.eq("category_id", category.id);
-      }
-
-      const { data } = await query.order("created_at", { ascending: false });
-      const normalizedProducts = Array.isArray(data)
-        ? data.map((product) => ({
-            ...(product as CatalogProductRecord),
+        setProducts(
+          data.items.map((product) => ({
+            ...product,
             images: Array.isArray(product.images) ? product.images : [],
             product_variants: normalizeProductVariants(product.product_variants || []),
-          }))
-        : [];
-
-      setProducts(
-        activeCategory === "ikinci-el-telefon"
-          ? normalizedProducts.filter((product) => isAppleBrand(product.brand))
-          : normalizedProducts
-      );
-      setLoading(false);
+          })),
+        );
+        setFacetSectionData(data.facetSections);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setProducts([]);
+          setFacetSectionData([]);
+          console.error(error);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
     };
 
     fetchProducts();
-  }, [activeCategory]);
 
-  const catalogOptions = useMemo(() => getCatalogVariantOptions(products, filterProfile), [filterProfile, products]);
+    return () => controller.abort();
+  }, [activeCategory, currentPage, deferredSearch, draftFilters, sortBy]);
 
-  const searchFilteredProducts = useMemo(
-    () => products.filter((product) => matchesSearch(product, normalizedSearch)),
-    [normalizedSearch, products],
-  );
+  useEffect(() => {
+    if (activeCategory === "teknik-servis") {
+      return;
+    }
 
-  const filteredProducts = useMemo(() => {
-    const matchedProducts = searchFilteredProducts.filter((product) => matchesCatalogFilters(product, appliedFilters, filterProfile));
-    return sortCatalogProducts(matchedProducts, appliedFilters, sortBy, filterProfile);
-  }, [appliedFilters, filterProfile, searchFilteredProducts, sortBy]);
+    const controller = new AbortController();
+
+    const fetchTotalCount = async () => {
+      setCountLoading(true);
+
+      try {
+        const data = await requestCatalog<CatalogCountResponse>(
+          {
+            mode: "count",
+            activeCategory,
+            search: deferredSearch,
+            sortBy: "newest",
+            page: 1,
+            limit: PRODUCTS_PER_PAGE,
+            filters: draftFilters,
+          },
+          controller.signal,
+        );
+
+        setTotalCount(data.totalCount);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setTotalCount(0);
+          console.error(error);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setCountLoading(false);
+        }
+      }
+    };
+
+    fetchTotalCount();
+
+    return () => controller.abort();
+  }, [activeCategory, deferredSearch, draftFilters]);
 
   const currentCategoryName = useMemo(() => {
     if (!activeCategory) {
@@ -363,6 +449,7 @@ export default function Products() {
     const attributeFilterCount = Object.values(draftFilters.attributeFilters ?? {}).reduce((total, values) => total + (values?.length ?? 0), 0);
 
     return (
+      (draftFilters.subcategory?.length ?? 0) +
       (isSecondHandIphoneCategory ? 0 : draftFilters.brand?.length ?? 0) +
       (draftFilters.color?.length ?? 0) +
       (draftFilters.storage?.length ?? 0) +
@@ -383,223 +470,109 @@ export default function Products() {
   const resetFilters = () => {
     const nextFilters = createEmptyCatalogFilters();
     setDraftFilters(nextFilters);
-    setAppliedFilters(nextFilters);
+    setCurrentPage(1);
     setSortBy("newest");
     setSearch("");
   };
 
-  const saveFilters = () => {
-    setAppliedFilters(draftFilters);
-  };
+  const totalPages = Math.max(1, Math.ceil(totalCount / PRODUCTS_PER_PAGE));
+  const paginationItems = useMemo(() => buildPaginationItems(currentPage, totalPages), [currentPage, totalPages]);
+  const pageStart = totalCount === 0 ? 0 : (currentPage - 1) * PRODUCTS_PER_PAGE + 1;
+  const pageEnd = totalCount === 0 ? 0 : Math.min((currentPage - 1) * PRODUCTS_PER_PAGE + products.length, totalCount);
 
-  const hasPendingFilterChanges = useMemo(
-    () => !areFiltersEqual(draftFilters, appliedFilters),
-    [appliedFilters, draftFilters],
-  );
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [draftFilters, deferredSearch, sortBy]);
 
-  const totalVisibleCount = searchFilteredProducts.length;
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
 
-  const facetSections = useMemo(() => {
-    const countMatchingProducts = (nextFilters: CatalogFilters) =>
-      searchFilteredProducts.filter((product) => matchesCatalogFilters(product, nextFilters, filterProfile)).length;
-
-    const sections: FacetSection[] = [];
-
-    const buildFacetOptions = (options: Array<{ value: string; label: string }>, nextFilters: (value: string) => CatalogFilters, selectedValues: string[]) =>
-      options
-        .map((option) => ({
-          value: option.value,
-          label: option.label,
-          count: countMatchingProducts(nextFilters(option.value)),
-        }))
-        .filter((option) => option.count > 0 || selectedValues.includes(option.value));
-
-    if (!isSecondHandIphoneCategory) {
-      const selectedValues = draftFilters.brand ?? [];
-      const options = buildFacetOptions(
-        catalogOptions.brands.map((brand) => ({ value: brand, label: brand })),
-        (value) => ({ ...draftFilters, brand: [value] }),
-        selectedValues,
-      );
-
-      sections.push({
-        id: "brand",
-        title: "Marka",
-        options,
-        selectedValues,
-        onToggle: (value) => setDraftFilters((current) => ({ ...current, brand: toggleStringValue(current.brand, value) })),
-      });
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
     }
 
-    if (isSecondHandIphoneCategory) {
-      const conditionValues = draftFilters.secondHandCondition ?? [];
-      sections.push({
-        id: "condition",
-        title: "Kondisyon",
-        options: buildFacetOptions(
-          SECOND_HAND_CONDITION_OPTIONS.map((option) => ({ value: option.value, label: option.label })),
-          (value) => ({ ...draftFilters, secondHandCondition: [value] }),
-          conditionValues,
-        ),
-        selectedValues: conditionValues,
-        onToggle: (value) =>
+    listingTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [currentPage]);
+
+  const facetSections = useMemo(() => {
+    const buildToggleHandler = (sectionId: string) => {
+      if (sectionId === "subcategory") {
+        return (value: string) =>
+          setDraftFilters((current) => ({
+            ...current,
+            subcategory: toggleStringValue(current.subcategory, value),
+          }));
+      }
+
+      if (sectionId === "brand") {
+        return (value: string) => setDraftFilters((current) => ({ ...current, brand: toggleStringValue(current.brand, value) }));
+      }
+
+      if (sectionId === "condition") {
+        return (value: string) =>
           setDraftFilters((current) => ({
             ...current,
             secondHandCondition: toggleStringValue(current.secondHandCondition, value),
-          })),
-      });
+          }));
+      }
 
-      const batteryValues = (draftFilters.batteryHealthMin ?? []).map(String);
-      sections.push({
-        id: "battery",
-        title: "Pil Sağlığı",
-        options: SECOND_HAND_BATTERY_BUCKETS.map((option) => ({
-          value: `${option.value}`,
-          label: option.label,
-          count: countMatchingProducts({ ...draftFilters, batteryHealthMin: [option.value] }),
-        })).filter((option) => option.count > 0 || batteryValues.includes(option.value)),
-        selectedValues: batteryValues,
-        onToggle: (value) =>
+      if (sectionId === "battery") {
+        return (value: string) =>
           setDraftFilters((current) => ({
             ...current,
             batteryHealthMin: toggleNumberValue(current.batteryHealthMin, Number(value)),
-          })),
-      });
+          }));
+      }
 
-      const warrantyValues = draftFilters.warrantyType ?? [];
-      sections.push({
-        id: "warranty",
-        title: "Garanti",
-        options: buildFacetOptions(
-          SECOND_HAND_WARRANTY_OPTIONS.map((option) => ({ value: option.value, label: option.label })),
-          (value) => ({ ...draftFilters, warrantyType: [value] }),
-          warrantyValues,
-        ),
-        selectedValues: warrantyValues,
-        onToggle: (value) =>
+      if (sectionId === "warranty") {
+        return (value: string) =>
           setDraftFilters((current) => ({
             ...current,
             warrantyType: toggleStringValue(current.warrantyType, value),
-          })),
-      });
+          }));
+      }
 
-      const featureValues = [
-        draftFilters.includesBoxOnly ? "includesBoxOnly" : null,
-        draftFilters.faceIdWorkingOnly ? "faceIdWorkingOnly" : null,
-        draftFilters.trueToneWorkingOnly ? "trueToneWorkingOnly" : null,
-        draftFilters.inStockOnly ? "inStockOnly" : null,
-      ].filter(Boolean) as string[];
-
-      sections.push({
-        id: "features",
-        title: "Ek Özellikler",
-        options: [
-          { value: "includesBoxOnly", label: "Kutulu", count: countMatchingProducts({ ...draftFilters, includesBoxOnly: true }) },
-          { value: "faceIdWorkingOnly", label: "Face ID OK", count: countMatchingProducts({ ...draftFilters, faceIdWorkingOnly: true }) },
-          { value: "trueToneWorkingOnly", label: "True Tone OK", count: countMatchingProducts({ ...draftFilters, trueToneWorkingOnly: true }) },
-          { value: "inStockOnly", label: "Sadece stokta olanlar", count: countMatchingProducts({ ...draftFilters, inStockOnly: true }) },
-        ].filter((option) => option.count > 0 || featureValues.includes(option.value)),
-        selectedValues: featureValues,
-        onToggle: (value) =>
+      if (sectionId === "features" || sectionId === "stock") {
+        return (value: string) =>
           setDraftFilters((current) => ({
             ...current,
             includesBoxOnly: value === "includesBoxOnly" ? !current.includesBoxOnly : current.includesBoxOnly,
             faceIdWorkingOnly: value === "faceIdWorkingOnly" ? !current.faceIdWorkingOnly : current.faceIdWorkingOnly,
             trueToneWorkingOnly: value === "trueToneWorkingOnly" ? !current.trueToneWorkingOnly : current.trueToneWorkingOnly,
             inStockOnly: value === "inStockOnly" ? !current.inStockOnly : current.inStockOnly,
-          })),
-      });
-    } else if (draftFilters.inStockOnly || countMatchingProducts({ ...draftFilters, inStockOnly: true }) > 0) {
-      sections.push({
-        id: "stock",
-        title: "Stok Durumu",
-        options: [
-          {
-            value: "inStockOnly",
-            label: "Sadece stokta olanlar",
-            count: countMatchingProducts({ ...draftFilters, inStockOnly: true }),
+          }));
+      }
+
+      if (sectionId === "color") {
+        return (value: string) => setDraftFilters((current) => ({ ...current, color: toggleStringValue(current.color, value) }));
+      }
+
+      if (sectionId === "storage") {
+        return (value: string) => setDraftFilters((current) => ({ ...current, storage: toggleStringValue(current.storage, value) }));
+      }
+
+      if (sectionId === "ram") {
+        return (value: string) => setDraftFilters((current) => ({ ...current, ram: toggleStringValue(current.ram, value) }));
+      }
+
+      return (value: string) =>
+        setDraftFilters((current) => ({
+          ...current,
+          attributeFilters: {
+            ...(current.attributeFilters ?? {}),
+            [sectionId]: toggleStringValue(current.attributeFilters?.[sectionId], value),
           },
-        ],
-        selectedValues: draftFilters.inStockOnly ? ["inStockOnly"] : [],
-        onToggle: () => setDraftFilters((current) => ({ ...current, inStockOnly: !current.inStockOnly })),
-      });
-    }
+        }));
+    };
 
-    if (filterProfile.showColor) {
-      const selectedValues = draftFilters.color ?? [];
-      sections.push({
-        id: "color",
-        title: "Renk",
-        options: buildFacetOptions(
-          catalogOptions.colors.map((color) => ({ value: color, label: color })),
-          (value) => ({ ...draftFilters, color: [value] }),
-          selectedValues,
-        ),
-        selectedValues,
-        onToggle: (value) => setDraftFilters((current) => ({ ...current, color: toggleStringValue(current.color, value) })),
-      });
-    }
-
-    if (filterProfile.showStorage) {
-      const selectedValues = draftFilters.storage ?? [];
-      sections.push({
-        id: "storage",
-        title: "Depolama",
-        options: buildFacetOptions(
-          catalogOptions.storages.map((storage) => ({ value: storage, label: storage })),
-          (value) => ({ ...draftFilters, storage: [value] }),
-          selectedValues,
-        ),
-        selectedValues,
-        onToggle: (value) => setDraftFilters((current) => ({ ...current, storage: toggleStringValue(current.storage, value) })),
-      });
-    }
-
-    if (filterProfile.showRam) {
-      const selectedValues = draftFilters.ram ?? [];
-      sections.push({
-        id: "ram",
-        title: "RAM",
-        options: buildFacetOptions(
-          catalogOptions.ramOptions.map((ram) => ({ value: ram, label: ram })),
-          (value) => ({ ...draftFilters, ram: [value] }),
-          selectedValues,
-        ),
-        selectedValues,
-        onToggle: (value) => setDraftFilters((current) => ({ ...current, ram: toggleStringValue(current.ram, value) })),
-      });
-    }
-
-    for (const definition of filterProfile.attributeFilters) {
-      const selectedValues = draftFilters.attributeFilters?.[definition.id] ?? [];
-      sections.push({
-        id: definition.id,
-        title: definition.label,
-        options: buildFacetOptions(
-          (catalogOptions.attributeOptions[definition.id] || []).map((option) => ({ value: option, label: option })),
-          (value) => ({
-            ...draftFilters,
-            attributeFilters: {
-              ...(draftFilters.attributeFilters ?? {}),
-              [definition.id]: [value],
-            },
-          }),
-          selectedValues,
-        ),
-        selectedValues,
-        onToggle: (value) =>
-          setDraftFilters((current) => ({
-            ...current,
-            attributeFilters: {
-              ...(current.attributeFilters ?? {}),
-              [definition.id]: toggleStringValue(current.attributeFilters?.[definition.id], value),
-            },
-          })),
-      });
-    }
-
-    return sections.filter((section) => section.options.length > 0);
-  }, [catalogOptions, draftFilters, filterProfile, isSecondHandIphoneCategory, searchFilteredProducts]);
+    return facetSectionData.map((section) => ({
+      ...section,
+      onToggle: buildToggleHandler(section.id),
+    }));
+  }, [facetSectionData]);
 
   if (activeCategory === "teknik-servis") {
     return null;
@@ -609,7 +582,7 @@ export default function Products() {
     <Layout>
       <div className="container py-6 sm:py-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
-          <aside className="hidden w-full space-y-5 lg:sticky lg:top-24 lg:block lg:w-[340px] lg:shrink-0">
+          <aside className="hidden w-full space-y-5 lg:block lg:w-[340px] lg:shrink-0 lg:self-start">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input placeholder="Ürün ara..." className="pl-9" value={search} onChange={(event) => setSearch(event.target.value)} />
@@ -644,19 +617,19 @@ export default function Products() {
               </div>
             </div>
 
-            <FilterPanelCard
-              currentCategoryName={currentCategoryName}
-              totalCount={totalVisibleCount}
-              activeFilterCount={activeFilterCount}
-              search={search}
-              isSecondHandIphoneCategory={isSecondHandIphoneCategory}
-              facetSections={facetSections}
-              filters={draftFilters}
-              setFilters={setDraftFilters}
-              hasPendingChanges={hasPendingFilterChanges}
-              saveFilters={saveFilters}
-              resetFilters={resetFilters}
-            />
+            <div className="lg:sticky lg:top-24">
+              <FilterPanelCard
+                currentCategoryName={currentCategoryName}
+                totalCount={totalCount}
+                activeFilterCount={activeFilterCount}
+                search={search}
+                isSecondHandIphoneCategory={isSecondHandIphoneCategory}
+                facetSections={facetSections}
+                filters={draftFilters}
+                setFilters={setDraftFilters}
+                resetFilters={resetFilters}
+              />
+            </div>
           </aside>
 
           <div className="flex-1">
@@ -707,15 +680,13 @@ export default function Products() {
                     </SheetHeader>
                     <FilterPanelCard
                       currentCategoryName={currentCategoryName}
-                      totalCount={totalVisibleCount}
+                      totalCount={totalCount}
                       activeFilterCount={activeFilterCount}
                       search={search}
                       isSecondHandIphoneCategory={isSecondHandIphoneCategory}
                       facetSections={facetSections}
                       filters={draftFilters}
                       setFilters={setDraftFilters}
-                      hasPendingChanges={hasPendingFilterChanges}
-                      saveFilters={saveFilters}
                       resetFilters={resetFilters}
                     />
                   </SheetContent>
@@ -736,6 +707,8 @@ export default function Products() {
               </div>
             </div>
 
+            <div ref={listingTopRef} className="scroll-mt-28" />
+
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="font-display text-2xl font-bold sm:text-3xl">{currentCategoryName}</h1>
@@ -748,7 +721,7 @@ export default function Products() {
 
               <div className="hidden items-center gap-3 lg:flex">
                 <Badge variant="secondary" className="w-fit">
-                  {filteredProducts.length} ürün
+                  {totalCount} ürün
                 </Badge>
                 <Select value={sortBy} onValueChange={(value) => setSortBy(value as ProductSortOption)}>
                   <SelectTrigger className="w-[190px]">
@@ -765,7 +738,16 @@ export default function Products() {
               </div>
             </div>
 
-            {loading ? (
+            {!loading && !countLoading && totalCount > 0 ? (
+              <div className="mb-4 flex flex-col gap-2 rounded-3xl border border-border/60 bg-card/50 px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+                <span>
+                  {pageStart}-{pageEnd} arası gösteriliyor
+                </span>
+                <span>Toplam {totalCount} sonuç</span>
+              </div>
+            ) : null}
+
+            {loading || countLoading ? (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <div key={index} className="space-y-3">
@@ -775,43 +757,105 @@ export default function Products() {
                   </div>
                 ))}
               </div>
-            ) : filteredProducts.length === 0 ? (
+            ) : totalCount === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <SlidersHorizontal className="h-12 w-12 text-muted-foreground/30" />
                 <h3 className="mt-4 font-display font-semibold">Ürün bulunamadı</h3>
                 <p className="mt-1 text-sm text-muted-foreground">Filtrelerinizi gevşetip tekrar deneyin.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
-                {filteredProducts.map((product) => {
-                  const variant = getDisplayVariantForCatalogProduct(product, appliedFilters, filterProfile);
+              <>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+                  {products.map((product) => {
+                    const variant = getDisplayVariantForCatalogProduct(product, draftFilters, filterProfile);
 
-                  return (
-                    <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      slug={product.slug}
-                      brand={product.brand}
-                      description={product.description}
-                      images={getVariantGallery(variant, product.images)}
-                      price={variant?.price || 0}
-                      originalPrice={variant?.compare_at_price || undefined}
-                      variantId={variant?.id}
-                      variantInfo={variant ? getVariantLabel(variant) : undefined}
-                      createdAt={product.created_at}
-                      salesCount={product.sales_count}
-                      ratingAverage={product.rating_average}
-                      secondHand={product.second_hand}
-                      specs={product.specs as Record<string, string | null> | null}
-                      storage={variant?.storage}
-                      ram={variant?.ram}
-                      stock={variant?.stock || 0}
-                      category={product.categories?.name}
-                    />
-                  );
-                })}
-              </div>
+                    return (
+                      <ProductCard
+                        key={product.id}
+                        id={product.id}
+                        name={product.name}
+                        slug={product.slug}
+                        brand={product.brand}
+                        description={product.description}
+                        images={getVariantGallery(variant, product.images)}
+                        price={variant?.price || 0}
+                        originalPrice={variant?.compare_at_price || undefined}
+                        variantId={variant?.id}
+                        variantInfo={variant ? getVariantLabel(variant) : undefined}
+                        createdAt={product.created_at}
+                        salesCount={product.sales_count}
+                        ratingAverage={product.rating_average}
+                        secondHand={product.second_hand}
+                        specs={product.specs as Record<string, string | null> | null}
+                        storage={variant?.storage}
+                        ram={variant?.ram}
+                        stock={variant?.stock || 0}
+                        category={product.categories?.name}
+                      />
+                    );
+                  })}
+                </div>
+
+                {totalPages > 1 ? (
+                  <Pagination className="mt-8 justify-center">
+                    <PaginationContent className="flex-wrap justify-center gap-2">
+                      <PaginationItem>
+                        <PaginationLink
+                          href="#"
+                          size="default"
+                          className="rounded-2xl px-4"
+                          aria-label="Önceki sayfa"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            if (currentPage > 1) {
+                              setCurrentPage(currentPage - 1);
+                            }
+                          }}
+                        >
+                          Önceki
+                        </PaginationLink>
+                      </PaginationItem>
+
+                      {paginationItems.map((item) => (
+                        <PaginationItem key={item}>
+                          {typeof item === "number" ? (
+                            <PaginationLink
+                              href="#"
+                              isActive={item === currentPage}
+                              className="rounded-2xl"
+                              onClick={(event) => {
+                                event.preventDefault();
+                                setCurrentPage(item);
+                              }}
+                            >
+                              {item}
+                            </PaginationLink>
+                          ) : (
+                            <PaginationEllipsis />
+                          )}
+                        </PaginationItem>
+                      ))}
+
+                      <PaginationItem>
+                        <PaginationLink
+                          href="#"
+                          size="default"
+                          className="rounded-2xl px-4"
+                          aria-label="Sonraki sayfa"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            if (currentPage < totalPages) {
+                              setCurrentPage(currentPage + 1);
+                            }
+                          }}
+                        >
+                          Sonraki
+                        </PaginationLink>
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                ) : null}
+              </>
             )}
           </div>
         </div>

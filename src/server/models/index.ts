@@ -6,6 +6,7 @@ const categorySchema = new Schema(
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true, index: true },
+    parent_category_id: { type: String, default: null, index: true },
     icon: { type: String, default: null },
     description: { type: String, default: "" },
     image_url: { type: String, default: "" },
@@ -22,6 +23,7 @@ const productSchema = new Schema(
     slug: { type: String, required: true, unique: true, index: true },
     description: { type: String, default: "" },
     category_id: { type: String, default: null, index: true },
+    subcategory_id: { type: String, default: null, index: true },
     brand: { type: String, default: "" },
     type: { type: String, default: "accessory" },
     images: { type: [String], default: [] },
@@ -508,8 +510,24 @@ returnRequestSchema.index({ user_id: 1, created_at: -1 });
 returnRequestSchema.index({ user_id: 1, order_id: 1 });
 returnRequestSchema.index({ user_id: 1, order_item_id: 1 }, { unique: true });
 
-export const Category: any = models.Category || model("Category", categorySchema);
-export const Product: any = models.Product || model("Product", productSchema);
+function ensureModelSchema(modelName: string, schema: Schema, requiredPaths: string[] = []) {
+  const existingModel = models[modelName];
+
+  if (existingModel) {
+    const hasAllPaths = requiredPaths.every((path) => Boolean(existingModel.schema.path(path)));
+
+    if (hasAllPaths) {
+      return existingModel;
+    }
+
+    delete models[modelName];
+  }
+
+  return model(modelName, schema);
+}
+
+export const Category: any = ensureModelSchema("Category", categorySchema, ["parent_category_id"]);
+export const Product: any = ensureModelSchema("Product", productSchema, ["subcategory_id"]);
 export const ProductVariant: any = models.ProductVariant || model("ProductVariant", productVariantSchema);
 export const Coupon: any = models.Coupon || model("Coupon", couponSchema);
 export const Order: any = models.Order || model("Order", orderSchema);

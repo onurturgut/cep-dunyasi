@@ -16,14 +16,22 @@ export type CatalogProductRecord = {
   rating_count?: number;
   type?: string | null;
   second_hand?: SecondHandDetails | null;
-  categories?: { name?: string; slug?: string } | null;
+  categories?: { id?: string; name?: string; slug?: string } | null;
+  subcategory?: { id?: string; name?: string; slug?: string; parent_category_id?: string | null } | null;
   product_variants?: ProductVariantRecord[];
   specs?: Record<string, string | null> | null;
+};
+
+export type CatalogSubcategoryOption = {
+  id: string;
+  name: string;
+  slug: string;
 };
 
 export type ProductSortOption = "newest" | "best_selling" | "price_asc" | "price_desc" | "rating_desc";
 
 export type CatalogFilters = {
+  subcategory?: string[];
   brand?: string[];
   color?: string[];
   storage?: string[];
@@ -123,6 +131,7 @@ function getVariantAttributeValue(variant: ProductVariantRecord, keys: string[])
 
 export function createEmptyCatalogFilters(): CatalogFilters {
   return {
+    subcategory: [],
     brand: [],
     color: [],
     storage: [],
@@ -261,6 +270,11 @@ export function matchesCatalogFilters(
   const secondHand = normalizeSecondHandDetails(product.second_hand);
 
   if (hasSelections(filters.brand) && (!brand || !filters.brand?.includes(brand))) {
+    return false;
+  }
+
+  const subcategorySlug = normalizeText(product.subcategory?.slug);
+  if (hasSelections(filters.subcategory) && (!subcategorySlug || !filters.subcategory?.includes(subcategorySlug))) {
     return false;
   }
 

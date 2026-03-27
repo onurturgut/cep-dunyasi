@@ -47,7 +47,7 @@ export default function Index() {
       ]);
 
       if (catRes.data && catRes.data.length > 0) {
-        setCategories(mergeCategories(defaultCategories, catRes.data));
+        setCategories(mergeCategories(defaultCategories, catRes.data.filter((category) => !category.parent_category_id)));
       }
 
       if (siteContentRes.data) {

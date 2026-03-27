@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
+import { sanitizeSlug } from "@/lib/utils";
 import { getProductVariantAxes, type VariantAxisDefinition } from "@/lib/product-variant-config";
 import { getVariantLabel, normalizeProductVariants, type ProductVariantRecord } from "@/lib/product-variants";
 import type { ProductSpecs } from "@/lib/product-specs";
@@ -57,6 +58,7 @@ type ProductForm = {
   brand: string;
   type: ProductType;
   category_id: string;
+  subcategory_id: string;
   is_featured: boolean;
   is_active: boolean;
   images: string[];
@@ -86,6 +88,7 @@ type AdminCategory = {
   id: string;
   name: string;
   slug?: string;
+  parent_category_id?: string | null;
 };
 
 type AdminProductRecord = {
@@ -96,6 +99,7 @@ type AdminProductRecord = {
   brand: string;
   type: ProductType;
   category_id: string | null;
+  subcategory_id?: string | null;
   is_featured: boolean;
   is_active: boolean;
   images: string[];
@@ -171,6 +175,7 @@ const defaultForm: ProductForm = {
   brand: "",
   type: "accessory",
   category_id: "",
+  subcategory_id: "",
   is_featured: false,
   is_active: true,
   images: [],
@@ -211,11 +216,12 @@ function mapProductToForm(product: AdminProductRecord): ProductForm {
 
   return {
     name: product.name,
-    slug: product.slug,
+    slug: sanitizeSlug(product.slug || product.name),
     description: product.description || "",
     brand: product.brand || "",
     type: product.type,
     category_id: product.category_id || "",
+    subcategory_id: product.subcategory_id || "",
     is_featured: Boolean(product.is_featured),
     is_active: Boolean(product.is_active),
     images: Array.isArray(product.images) ? product.images : [],
@@ -246,6 +252,10 @@ function getFormMediaUrls(form: ProductForm) {
   return [...form.images, ...form.variants.flatMap((variant) => variant.images)];
 }
 
+function hasCustomSlug(name: string, slug: string) {
+  return Boolean(slug) && slug !== sanitizeSlug(name);
+}
+
 export default function AdminProducts() {
   const [products, setProducts] = useState<AdminProductRecord[]>([]);
   const [categories, setCategories] = useState<AdminCategory[]>([]);
@@ -254,10 +264,20 @@ export default function AdminProducts() {
   const [editing, setEditing] = useState<AdminProductRecord | null>(null);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [form, setForm] = useState<ProductForm>(defaultForm);
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const bulkActions = useBulkProductActions();
+  const categoryById = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories]);
+  const topLevelCategories = useMemo(
+    () => categories.filter((category) => !category.parent_category_id),
+    [categories]
+  );
   const selectedCategory = useMemo(
-    () => categories.find((category) => category.id === form.category_id) ?? null,
+    () => topLevelCategories.find((category) => category.id === form.category_id) ?? null,
+    [form.category_id, topLevelCategories]
+  );
+  const subcategories = useMemo(
+    () => categories.filter((category) => category.parent_category_id === form.category_id),
     [categories, form.category_id]
   );
   const isSecondHandIphoneCategory = selectedCategory?.slug === "ikinci-el-telefon";
@@ -303,8 +323,48 @@ export default function AdminProducts() {
     });
   }, [isSecondHandIphoneCategory]);
 
+  useEffect(() => {
+    if (!form.subcategory_id) {
+      return;
+    }
+
+    const belongsToSelectedCategory = subcategories.some((category) => category.id === form.subcategory_id);
+
+    if (!belongsToSelectedCategory) {
+      setForm((current) => ({
+        ...current,
+        subcategory_id: "",
+      }));
+    }
+  }, [form.subcategory_id, subcategories]);
+
   const resetForm = () => {
     setForm(defaultForm);
+    setIsSlugManuallyEdited(false);
+  };
+
+  const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextName = event.target.value;
+
+    setForm((current) => {
+      const shouldSyncSlug = !isSlugManuallyEdited || !current.slug || !hasCustomSlug(current.name, current.slug);
+
+      return {
+        ...current,
+        name: nextName,
+        slug: shouldSyncSlug ? sanitizeSlug(nextName) : current.slug,
+      };
+    });
+  };
+
+  const handleSlugChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextSlug = sanitizeSlug(event.currentTarget.value);
+    event.currentTarget.value = nextSlug;
+    setIsSlugManuallyEdited(hasCustomSlug(form.name, nextSlug));
+    setForm((current) => ({
+      ...current,
+      slug: nextSlug,
+    }));
   };
 
   const uploadImage = async (file: File) => {
@@ -472,11 +532,12 @@ export default function AdminProducts() {
     const payload = {
       productId: editing?.id ?? null,
       name: form.name,
-      slug: form.slug,
+      slug: sanitizeSlug(form.slug || form.name),
       description: form.description,
       brand: form.brand,
       type: form.type,
       category_id: form.category_id || null,
+      subcategory_id: form.subcategory_id || null,
       is_featured: form.is_featured,
       is_active: form.is_active,
       images: form.images,
@@ -561,9 +622,18 @@ export default function AdminProducts() {
   };
 
   const handleEdit = (product: AdminProductRecord) => {
+    const nextForm = mapProductToForm(product);
     setEditing(product);
-    setForm(mapProductToForm(product));
+    setForm(nextForm);
+    setIsSlugManuallyEdited(hasCustomSlug(nextForm.name, nextForm.slug));
     setDialogOpen(true);
+  };
+
+  const getProductCategoryLabel = (product: AdminProductRecord) => {
+    const mainCategoryName = product.categories?.name || categoryById.get(product.category_id || "")?.name || "Kategorisiz";
+    const subcategoryName = product.subcategory_id ? categoryById.get(product.subcategory_id)?.name : null;
+
+    return subcategoryName ? `${mainCategoryName} / ${subcategoryName}` : mainCategoryName;
   };
 
   const handleDelete = async (id: string) => {
@@ -587,7 +657,7 @@ export default function AdminProducts() {
     fetchProducts();
   };
 
-  const categoryIdSet = useMemo(() => new Set(categories.map((category) => category.id)), [categories]);
+  const categoryIdSet = useMemo(() => new Set(topLevelCategories.map((category) => category.id)), [topLevelCategories]);
 
   const categoryFilters = useMemo(() => {
     const counts = new Map<string, number>();
@@ -603,7 +673,7 @@ export default function AdminProducts() {
       counts.set(categoryId, (counts.get(categoryId) || 0) + 1);
     });
 
-    const filters = categories.map((category) => ({
+    const filters = topLevelCategories.map((category) => ({
       id: category.id,
       name: category.name,
       count: counts.get(category.id) || 0,
@@ -614,7 +684,7 @@ export default function AdminProducts() {
     }
 
     return filters;
-  }, [products, categories, categoryIdSet]);
+  }, [products, topLevelCategories, categoryIdSet]);
 
   const filteredProducts = useMemo(() => {
     if (activeCategoryId === "all") {
@@ -675,19 +745,24 @@ export default function AdminProducts() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Urun Adi</Label>
-                  <Input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
+                  <Input value={form.name} onChange={handleNameChange} />
                 </div>
                 <div className="space-y-2">
                   <Label>Slug</Label>
                   <Input
                     value={form.slug}
-                    onChange={(event) => setForm((current) => ({ ...current, slug: event.target.value }))}
-                    placeholder="Bos birakilirsa isimden uretilir"
+                    onChange={handleSlugChange}
+                    placeholder="urun-slug-alani"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    inputMode="url"
                   />
+                  <p className="text-xs text-muted-foreground">Bosluk ve Turkce karakterler otomatik olarak duzeltilir.</p>
                 </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <div className="space-y-2">
                   <Label>Marka</Label>
                   <Input
@@ -720,20 +795,51 @@ export default function AdminProducts() {
                   <Label>Kategori</Label>
                   <Select
                     value={form.category_id || "none"}
-                    onValueChange={(value) => setForm((current) => ({ ...current, category_id: value === "none" ? "" : value }))}
+                    onValueChange={(value) =>
+                      setForm((current) => ({
+                        ...current,
+                        category_id: value === "none" ? "" : value,
+                        subcategory_id: "",
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Secin" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">Kategorisiz</SelectItem>
-                      {categories.map((category) => (
+                      {topLevelCategories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Alt Kategori</Label>
+                  <Select
+                    value={form.subcategory_id || "none"}
+                    onValueChange={(value) => setForm((current) => ({ ...current, subcategory_id: value === "none" ? "" : value }))}
+                    disabled={!form.category_id || subcategories.length === 0}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={form.category_id ? "Secin" : "Once ana kategori secin"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Alt kategori yok</SelectItem>
+                      {subcategories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {subcategories.length > 0
+                      ? "Secilen ana kategoriye bagli ikinci kategori secimi yapabilirsiniz."
+                      : "Bu ana kategori icin tanimli alt kategori bulunmuyor."}
+                  </p>
                 </div>
               </div>
 
@@ -1348,7 +1454,7 @@ export default function AdminProducts() {
               <div className="flex flex-wrap gap-2">
                 <Badge variant={product.is_active ? "default" : "secondary"}>{product.is_active ? "Aktif" : "Pasif"}</Badge>
                 <Badge variant={product.is_featured ? "default" : "secondary"}>{product.is_featured ? "One Cikan" : "Standart"}</Badge>
-                <Badge variant="outline">{product.categories?.name || "Kategorisiz"}</Badge>
+                <Badge variant="outline">{getProductCategoryLabel(product)}</Badge>
               </div>
 
               <div className="space-y-2">
@@ -1427,7 +1533,7 @@ export default function AdminProducts() {
                     <p className="text-xs text-muted-foreground">{product.brand}</p>
                   </div>
                 </TableCell>
-                <TableCell>{product.categories?.name || "-"}</TableCell>
+                <TableCell>{getProductCategoryLabel(product)}</TableCell>
                 <TableCell>
                   <Badge variant="secondary">{product.type}</Badge>
                 </TableCell>
