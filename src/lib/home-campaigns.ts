@@ -129,7 +129,7 @@ export function buildHeroCampaignSlides(campaigns: CampaignRecord[]) {
 }
 
 export function buildCampaignPromoCards(campaigns: CampaignRecord[]) {
-  if (campaigns.length >= 3) {
+  if (campaigns.length > 0) {
     return campaigns.slice(0, 3).map((campaign, index) => ({
       id: `promo-${campaign.id}`,
       title: campaign.title,

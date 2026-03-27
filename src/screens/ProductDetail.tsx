@@ -123,11 +123,11 @@ export default function ProductDetail() {
           .single();
 
         if (requestError) {
-          throw new Error(requestError.message || "\u00dcr\u00fcn bilgileri y\u00fcklenemedi");
+          throw new Error(requestError.message || "Ürün bilgileri yüklenemedi");
         }
 
         if (!data) {
-          throw new Error("\u00dcr\u00fcn bulunamad\u0131");
+          throw new Error("Ürün bulunamadı");
         }
 
         const nextProduct: ProductRecord = {
@@ -153,7 +153,7 @@ export default function ProductDetail() {
           return;
         }
 
-        setError(fetchError instanceof Error ? fetchError.message : "\u00dcr\u00fcn bilgileri y\u00fcklenemedi");
+        setError(fetchError instanceof Error ? fetchError.message : "Ürün bilgileri yüklenemedi");
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -256,7 +256,7 @@ export default function ProductDetail() {
 
       return buildBreadcrumbStructuredData([
         { name: "Ana Sayfa", item: `${current.origin}/` },
-        { name: "\u00dcr\u00fcnler", item: `${current.origin}/products` },
+        { name: "Ürünler", item: `${current.origin}/products` },
         ...(product.categories?.name
           ? [{ name: product.categories.name, item: `${current.origin}${categoryPath}` }]
           : []),
@@ -281,12 +281,12 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!product || !selectedVariant) {
-      toast.error("L\u00fctfen ge\u00e7erli bir model se\u00e7in");
+      toast.error("Lütfen geçerli bir model seçin");
       return;
     }
 
     if (selectedVariant.stock <= 0) {
-      toast.error("Se\u00e7ilen model \u015fu an stokta yok");
+      toast.error("Seçilen model şu an stokta yok");
       return;
     }
 
@@ -335,10 +335,10 @@ export default function ProductDetail() {
         <div className="container py-16">
           <Card className="mx-auto max-w-2xl border-border/70 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.45)]">
             <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
-              <p className="font-display text-2xl font-semibold text-foreground">\u00dcr\u00fcn detay\u0131 y\u00fcklenemedi</p>
-              <p className="max-w-md text-sm leading-6 text-muted-foreground">{error || "Arad\u0131\u011f\u0131n\u0131z \u00fcr\u00fcn bulunamad\u0131 ya da ge\u00e7ici olarak eri\u015filemiyor."}</p>
+              <p className="font-display text-2xl font-semibold text-foreground">Ürün detayı yüklenemedi</p>
+              <p className="max-w-md text-sm leading-6 text-muted-foreground">{error || "Aradığınız ürün bulunamadı ya da geçici olarak erişilemiyor."}</p>
               <Button asChild>
-                <Link to="/products">\u00dcr\u00fcnlere d\u00f6n</Link>
+                <Link to="/products">Ürünlere dön</Link>
               </Button>
             </CardContent>
           </Card>
@@ -350,10 +350,10 @@ export default function ProductDetail() {
   const canAddToCart = Boolean(selectedVariant && selectedStock > 0);
   const lowStockMessage =
     selectedStock <= 0
-      ? "Bu model ge\u00e7ici olarak stokta bulunmuyor."
+      ? "Bu model geçici olarak stokta bulunmuyor."
       : selectedStock <= 5
-        ? `Se\u00e7ili modelde son ${selectedStock} adet kald\u0131.`
-        : `${selectedStock} adet stokla sipari\u015fe haz\u0131r.`;
+        ? `Seçili modelde son ${selectedStock} adet kaldı.`
+        : `${selectedStock} adet stokla siparişe hazır.`;
 
   return (
     <Layout>
@@ -374,7 +374,7 @@ export default function ProductDetail() {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/products">\u00dcr\u00fcnler</Link>
+                <Link to="/products">Ürünler</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             {product.categories?.name ? (
@@ -462,13 +462,13 @@ export default function ProductDetail() {
                     </div>
 
                     <p className="text-sm text-muted-foreground">
-                      Se\u00e7ili model: <span className="font-medium text-foreground">{selectedVariantSummary || "Standart se\u00e7im"}</span>
+                      Seçili model: <span className="font-medium text-foreground">{selectedVariantSummary || "Standart seçim"}</span>
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-border/70 bg-card/70 px-4 py-3 text-sm shadow-sm">
                     <div className="font-medium text-foreground">{lowStockMessage}</div>
-                    <div className="mt-1 text-muted-foreground">G\u00fcvenli \u00f6deme ve h\u0131zl\u0131 kargo ile g\u00f6nderilir.</div>
+                    <div className="mt-1 text-muted-foreground">Güvenli ödeme ve hızlı kargo ile gönderilir.</div>
                   </div>
                 </div>
 
@@ -484,21 +484,21 @@ export default function ProductDetail() {
                 <div className="grid gap-3 rounded-3xl border border-border/70 bg-muted/10 p-4 sm:grid-cols-3">
                   <div className="rounded-2xl bg-card px-4 py-3">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Teslimat</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">H\u0131zl\u0131 kargo uygun</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">Hızlı kargo uygun</div>
                   </div>
                   <div className="rounded-2xl bg-card px-4 py-3">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Garanti</div>
                     <div className="mt-2 text-sm font-medium text-foreground">
                       {secondHandDetails
                         ? secondHandDetails.warranty_type === "none"
-                          ? "Garanti durumu belirtilmi\u015f"
-                          : "Cihaza \u00f6zel garanti bilgisi mevcut"
-                        : "2 y\u0131l destek"}
+                          ? "Garanti durumu belirtilmiş"
+                          : "Cihaza özel garanti bilgisi mevcut"
+                        : "2 yıl destek"}
                     </div>
                   </div>
                   <div className="rounded-2xl bg-card px-4 py-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">\u0130ade</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">14 g\u00fcn ko\u015fulsuz</div>
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">İade</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">14 gün koşulsuz</div>
                   </div>
                 </div>
 
@@ -551,16 +551,16 @@ export default function ProductDetail() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <Truck className="h-4 w-4" />
                 </div>
-                <p className="mt-4 text-sm font-semibold text-foreground">\u00dccretsiz kargo se\u00e7ene\u011fi</p>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">Uygun kampanyal\u0131 tutarlarda ek teslimat bedeli yans\u0131maz.</p>
+                <p className="mt-4 text-sm font-semibold text-foreground">Ücretsiz kargo seçeneği</p>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">Uygun kampanyalı tutarlarda ek teslimat bedeli yansımaz.</p>
               </div>
 
               <div className="rounded-2xl border border-border/70 bg-card p-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <ShieldCheck className="h-4 w-4" />
                 </div>
-                <p className="mt-4 text-sm font-semibold text-foreground">G\u00fcvenli \u00f6deme</p>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">T\u00fcm \u00f6demeler \u015fifrelenmi\u015f altyap\u0131 ve g\u00fcvenli ba\u011flant\u0131 ile i\u015flenir.</p>
+                <p className="mt-4 text-sm font-semibold text-foreground">Güvenli ödeme</p>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">Tüm ödemeler şifrelenmiş altyapı ve güvenli bağlantı ile işlenir.</p>
               </div>
 
               <div className="rounded-2xl border border-border/70 bg-card p-4">
@@ -568,7 +568,7 @@ export default function ProductDetail() {
                   <RefreshCcw className="h-4 w-4" />
                 </div>
                 <p className="mt-4 text-sm font-semibold text-foreground">Kolay iade</p>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">Sipari\u015finiz size ula\u015ft\u0131ktan sonra iade s\u00fcrecini online olarak ba\u015flatabilirsiniz.</p>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">Siparişiniz size ulaştıktan sonra iade sürecini online olarak başlatabilirsiniz.</p>
               </div>
             </div>
           </div>
@@ -577,9 +577,9 @@ export default function ProductDetail() {
         <div className="space-y-10 lg:space-y-12">
           <section className="space-y-4">
             <div className="space-y-2">
-              <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">\u00dcr\u00fcne Genel Bak\u0131\u015f</h2>
+              <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Ürüne Genel Bakış</h2>
               <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
-                {product.description || "Bu \u00fcr\u00fcn i\u00e7in hen\u00fcz detayl\u0131 bir tan\u0131t\u0131m metni eklenmemi\u015f. Se\u00e7ili modele ait t\u00fcm detaylar\u0131 yukar\u0131daki alandan inceleyebilirsiniz."}
+                {product.description || "Bu ürün için henüz detaylı bir tanıtım metni eklenmemiş. Seçili modele ait tüm detayları yukarıdaki alandan inceleyebilirsiniz."}
               </p>
             </div>
           </section>

@@ -88,8 +88,8 @@ function mapCategorySlug(context?: ProductSpecsTableContext) {
   }
 
   if (categoryName.includes("telefon")) return "telefon";
-  if (categoryName.includes("k\u0131l\u0131f") || categoryName.includes("kilif")) return "kilif";
-  if (categoryName.includes("\u015farj") || categoryName.includes("sarj")) return "sarj-aleti";
+  if (categoryName.includes("kılıf") || categoryName.includes("kilif")) return "kilif";
+  if (categoryName.includes("şarj") || categoryName.includes("sarj")) return "sarj-aleti";
   if (categoryName.includes("power bank")) return "power-bank";
   if (categoryName.includes("saat")) return "akilli-saatler";
 
@@ -129,10 +129,10 @@ export function getProductSpecsEntries(raw: unknown, variant?: ProductVariantRec
   const internalStorage = specs.internalStorage || `${variant?.storage ?? ""}`.trim() || null;
   const ram = specs.ram || `${variant?.ram ?? ""}`.trim() || null;
   const entries: ProductSpecsEntry[] = [
-    { key: "operatingSystem", label: "\u0130\u015fletim Sistemi", value: specs.operatingSystem || "" },
-    { key: "internalStorage", label: "D\u00e2hili Haf\u0131za", value: internalStorage || "" },
+    { key: "operatingSystem", label: "İşletim Sistemi", value: specs.operatingSystem || "" },
+    { key: "internalStorage", label: "Dâhili Hafıza", value: internalStorage || "" },
     { key: "ram", label: "RAM Kapasitesi", value: ram || "" },
-    { key: "frontCamera", label: "\u00d6n Kamera", value: specs.frontCamera || "" },
+    { key: "frontCamera", label: "Ön Kamera", value: specs.frontCamera || "" },
     { key: "rearCamera", label: "Arka Kamera", value: specs.rearCamera || "" },
   ];
 
@@ -154,14 +154,14 @@ function buildPhoneSections(raw: ProductSpecsLike, variant: ProductVariantRecord
         createSpecsTableItem("Model", context?.variantSummary),
         createSpecsTableItem("SKU", context?.sku || variant?.sku),
         createSpecsTableItem("Renk", context?.color || variant?.color_name),
-        createSpecsTableItem("\u0130\u015fletim Sistemi", specs.operatingSystem),
+        createSpecsTableItem("İşletim Sistemi", specs.operatingSystem),
       ].filter(Boolean) as ProductSpecsTableItem[],
     },
     {
       id: "performans",
       title: "Performans",
       items: [
-        createSpecsTableItem("D\u00e2hili Haf\u0131za", storageValue),
+        createSpecsTableItem("Dâhili Hafıza", storageValue),
         createSpecsTableItem("RAM Kapasitesi", ramValue),
       ].filter(Boolean) as ProductSpecsTableItem[],
     },
@@ -169,7 +169,7 @@ function buildPhoneSections(raw: ProductSpecsLike, variant: ProductVariantRecord
       id: "kamera",
       title: "Kamera",
       items: [
-        createSpecsTableItem("\u00d6n Kamera", specs.frontCamera),
+        createSpecsTableItem("Ön Kamera", specs.frontCamera),
         createSpecsTableItem("Arka Kamera", specs.rearCamera),
       ].filter(Boolean) as ProductSpecsTableItem[],
     },
@@ -191,7 +191,7 @@ function buildCaseSections(raw: ProductSpecsLike, variant: ProductVariantRecord 
     },
     {
       id: "tasarim",
-      title: "Tasar\u0131m",
+      title: "Tasarım",
       items: [
         createSpecsTableItem("Malzeme", getSpecValue(raw, ["material", "materyal"])),
         createSpecsTableItem("Tip", getSpecValue(raw, ["type", "tip"])),
@@ -215,11 +215,11 @@ function buildChargerSections(raw: ProductSpecsLike, variant: ProductVariantReco
     },
     {
       id: "guc",
-      title: "G\u00fc\u00e7 ve Ba\u011flant\u0131",
+      title: "Güç ve Bağlantı",
       items: [
-        createSpecsTableItem("G\u00fc\u00e7", getSpecValue(raw, ["guc", "power"]) || variant?.attributes.power || variant?.attributes.guc),
-        createSpecsTableItem("\u00c7\u0131k\u0131\u015f", getSpecValue(raw, ["cikis", "output"]) || variant?.attributes.output || variant?.attributes.cikis),
-        createSpecsTableItem("Giri\u015f", getSpecValue(raw, ["giris", "input"])),
+        createSpecsTableItem("Güç", getSpecValue(raw, ["guc", "power"]) || variant?.attributes.power || variant?.attributes.guc),
+        createSpecsTableItem("Çıkış", getSpecValue(raw, ["cikis", "output"]) || variant?.attributes.output || variant?.attributes.cikis),
+        createSpecsTableItem("Giriş", getSpecValue(raw, ["giris", "input"])),
         createSpecsTableItem("Port Tipi", getSpecValue(raw, ["port_type", "port"])),
       ].filter(Boolean) as ProductSpecsTableItem[],
     },
@@ -240,11 +240,11 @@ function buildPowerBankSections(raw: ProductSpecsLike, variant: ProductVariantRe
     },
     {
       id: "kapasite",
-      title: "Kapasite ve \u00c7\u0131k\u0131\u015f",
+      title: "Kapasite ve Çıkış",
       items: [
         createSpecsTableItem("Kapasite", getSpecValue(raw, ["kapasite", "capacity"]) || variant?.attributes.capacity || variant?.attributes.kapasite),
-        createSpecsTableItem("\u00c7\u0131k\u0131\u015f", getSpecValue(raw, ["cikis", "output"]) || variant?.attributes.output || variant?.attributes.cikis),
-        createSpecsTableItem("Giri\u015f", getSpecValue(raw, ["giris", "input"])),
+        createSpecsTableItem("Çıkış", getSpecValue(raw, ["cikis", "output"]) || variant?.attributes.output || variant?.attributes.cikis),
+        createSpecsTableItem("Giriş", getSpecValue(raw, ["giris", "input"])),
       ].filter(Boolean) as ProductSpecsTableItem[],
     },
   ];
@@ -264,7 +264,7 @@ function buildWatchSections(raw: ProductSpecsLike, variant: ProductVariantRecord
     },
     {
       id: "tasarim",
-      title: "Ekran ve Tasar\u0131m",
+      title: "Ekran ve Tasarım",
       items: [
         createSpecsTableItem("Ekran", getSpecValue(raw, ["ekran", "display"]) || variant?.attributes.display || variant?.attributes.ekran),
         createSpecsTableItem("Kasa Boyutu", getSpecValue(raw, ["kasa_boyutu", "case_size", "boyut"]) || variant?.attributes.case_size || variant?.attributes.kasa_boyutu),
@@ -272,9 +272,9 @@ function buildWatchSections(raw: ProductSpecsLike, variant: ProductVariantRecord
     },
     {
       id: "baglanti",
-      title: "Ba\u011flant\u0131",
+      title: "Bağlantı",
       items: [
-        createSpecsTableItem("Ba\u011flant\u0131", getSpecValue(raw, ["baglanti", "connectivity"]) || variant?.attributes.connectivity || variant?.attributes.baglanti),
+        createSpecsTableItem("Bağlantı", getSpecValue(raw, ["baglanti", "connectivity"]) || variant?.attributes.connectivity || variant?.attributes.baglanti),
       ].filter(Boolean) as ProductSpecsTableItem[],
     },
   ];

@@ -186,7 +186,7 @@ export function ReviewsSection({
     try {
       await helpfulMutation.mutateAsync({ reviewId, productId });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Faydal\u0131 oyu kaydedilemedi");
+      toast.error(error instanceof Error ? error.message : "Faydalı oyu kaydedilemedi");
     }
   };
 
@@ -219,7 +219,7 @@ export function ReviewsSection({
         ) : (
           <Card className="border-border/70">
             <CardContent className="p-5 text-sm text-muted-foreground">
-              Yorum b\u0131rakmak i\u00e7in hesab\u0131n\u0131za giri\u015f yapman\u0131z gerekiyor.
+              Yorum bırakmak için hesabınıza giriş yapmanız gerekiyor.
             </CardContent>
           </Card>
         )}
@@ -250,7 +250,7 @@ export function ReviewsSection({
             </p>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={(data?.page ?? 1) <= 1}>
-                \u00d6nceki
+                Önceki
               </Button>
               <Button
                 variant="outline"

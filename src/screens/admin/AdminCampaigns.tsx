@@ -168,7 +168,7 @@ export default function AdminCampaigns() {
           <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">Campaign Slider Yonetimi</h1>
           <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
             Ana sayfanin en ustunde cikan premium hero slider kampanyalarini buradan yonetin. Surukle-birak ile sira degistirin,
-            tarih planlayin ve mobil gorsel atayin.
+            tarih planlayin ve mobil gorsel atayin. Ilk 3 aktif kampanya ayni zamanda ana sayfadaki kampanya kartlarini da besler.
           </p>
         </div>
 

@@ -40,10 +40,12 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
           <div className="space-y-2">
             <Label htmlFor="campaign-title">Baslik</Label>
             <Input id="campaign-title" value={value.title} onChange={(event) => updateField("title", event.target.value)} />
+            <p className="text-xs text-muted-foreground">Bu alan hem hero sliderda hem de ana sayfa kampanya kartinda kullanilir.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="campaign-subtitle">Alt Baslik</Label>
             <Input id="campaign-subtitle" value={value.subtitle} onChange={(event) => updateField("subtitle", event.target.value)} />
+            <p className="text-xs text-muted-foreground">Alt baslik daha cok hero slider tarafinda gorunur.</p>
           </div>
         </div>
 
@@ -55,6 +57,7 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
             onChange={(event) => updateField("description", event.target.value)}
             className="min-h-[120px]"
           />
+          <p className="text-xs text-muted-foreground">Aciklama metni hem slider iceriginde hem de kampanya karti aciklamasinda kullanilir.</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -71,6 +74,9 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
                 </div>
               )}
             </div>
+            <p className="text-xs leading-5 text-muted-foreground">
+              Onerilen masaustu olcusu: 1920x1080 px. Guvenli alternatif: 1600x900 px. Yatay oran en iyi sonucu verir.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -85,6 +91,9 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
                 </div>
               )}
             </div>
+            <p className="text-xs leading-5 text-muted-foreground">
+              Onerilen mobil olcu: 1080x1350 px veya 1080x1440 px. Mobil gorsel bos birakilirsa ana gorsel kullanilir.
+            </p>
           </div>
         </div>
 
@@ -92,10 +101,12 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
           <div className="space-y-2">
             <Label htmlFor="campaign-cta-text">CTA Metni</Label>
             <Input id="campaign-cta-text" value={value.ctaText} onChange={(event) => updateField("ctaText", event.target.value)} />
+            <p className="text-xs text-muted-foreground">Buton metni kart ve slider butonuna ayni anda yansir.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="campaign-cta-link">CTA Linki</Label>
             <Input id="campaign-cta-link" value={value.ctaLink} onChange={(event) => updateField("ctaLink", event.target.value)} placeholder="/products?campaign=bahar" />
+            <p className="text-xs text-muted-foreground">Ilk 3 aktif kampanyada bu link ana sayfa kartlarinda da kullanilir.</p>
           </div>
         </div>
 
@@ -103,6 +114,7 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
           <div className="space-y-2">
             <Label htmlFor="campaign-badge-text">Rozet Metni</Label>
             <Input id="campaign-badge-text" value={value.badgeText} onChange={(event) => updateField("badgeText", event.target.value)} placeholder="4 Taksit" />
+            <p className="text-xs text-muted-foreground">Rozet metni kampanya karti ustunde de gorunur.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="campaign-badge-color">Rozet Rengi</Label>
@@ -149,6 +161,9 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
         </div>
         <div className="rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm text-muted-foreground">
           Ilk slide daha hizli yukecegi icin en guclu kampanyayi en ust siraya koymaniz onerilir.
+        </div>
+        <div className="rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm text-muted-foreground">
+          Gorsel gecersiz hatasi pikselden degil, gorsel adresinden gelir. Dosya yuklediginizde sistem otomatik gecerli URL olusturur.
         </div>
         <Button type="button" className="w-full rounded-full" onClick={() => void onSubmit()} disabled={submitting || uploading}>
           {value.id ? "Kampanyayi Guncelle" : "Kampanyayi Yayinla"}

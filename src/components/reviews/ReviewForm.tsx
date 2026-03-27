@@ -36,18 +36,18 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
     }
 
     if (images.length + selectedFiles.length > REVIEW_IMAGE_LIMIT) {
-      toast.error(`En fazla ${REVIEW_IMAGE_LIMIT} g\u00f6rsel y\u00fckleyebilirsiniz`);
+      toast.error(`En fazla ${REVIEW_IMAGE_LIMIT} görsel yükleyebilirsiniz`);
       return;
     }
 
     for (const file of selectedFiles) {
       if (!file.type.startsWith("image/")) {
-        toast.error("Sadece g\u00f6rsel dosyas\u0131 y\u00fckleyebilirsiniz");
+        toast.error("Sadece görsel dosyası yükleyebilirsiniz");
         return;
       }
 
       if (file.size > MAX_REVIEW_IMAGE_SIZE_BYTES) {
-        toast.error("Her g\u00f6rsel en fazla 6MB olabilir");
+        toast.error("Her görsel en fazla 6MB olabilir");
         return;
       }
     }
@@ -68,7 +68,7 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
 
           const payload = await response.json().catch(() => null);
           if (!response.ok || payload?.error) {
-            throw new Error(payload?.error?.message || "G\u00f6rsel y\u00fcklenemedi");
+            throw new Error(payload?.error?.message || "Görsel yüklenemedi");
           }
 
           return `${payload?.data?.url ?? ""}`.trim();
@@ -77,7 +77,7 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
 
       setImages((current) => Array.from(new Set([...current, ...uploadedUrls.filter(Boolean)])));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "G\u00f6rsel y\u00fckleme hatas\u0131");
+      toast.error(error instanceof Error ? error.message : "Görsel yükleme hatası");
     } finally {
       setUploading(false);
     }
@@ -99,7 +99,7 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
       setImages([]);
       toast.success(result.moderationMessage);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Yorum g\u00f6nderilemedi");
+      toast.error(error instanceof Error ? error.message : "Yorum gönderilemedi");
     }
   };
 
@@ -107,7 +107,7 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
     return (
       <Card className="border-border/70">
         <CardContent className="p-5 text-sm text-muted-foreground">
-          Bu \u00fcr\u00fcn i\u00e7in daha \u00f6nce yorum b\u0131rakt\u0131n\u0131z. G\u00fcncelleme gerekiyorsa destek ekibimizle ileti\u015fime ge\u00e7ebilirsiniz.
+          Bu ürün için daha önce yorum bıraktınız. Güncelleme gerekiyorsa destek ekibimizle iletişime geçebilirsiniz.
         </CardContent>
       </Card>
     );
@@ -117,7 +117,7 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
     return (
       <Card className="border-border/70">
         <CardContent className="p-5 text-sm text-muted-foreground">
-          Bu \u00fcr\u00fcn i\u00e7in yorumunuz inceleme bekliyor. Onayland\u0131\u011f\u0131nda bu alanda yay\u0131na al\u0131nacakt\u0131r.
+          Bu ürün için yorumunuz inceleme bekliyor. Onaylandığında bu alanda yayına alınacaktır.
         </CardContent>
       </Card>
     );
@@ -128,8 +128,8 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
       <Card className="border-border/70">
         <CardContent className="p-5 text-sm text-muted-foreground">
           {reviewReason === "not_delivered"
-            ? "Yorum b\u0131rakmak i\u00e7in sipari\u015finizin teslim edilmesini beklemelisiniz."
-            : "Yorum b\u0131rakmak i\u00e7in \u00f6nce bu \u00fcr\u00fcn\u00fc sat\u0131n al\u0131p teslim alman\u0131z gerekiyor."}
+            ? "Yorum bırakmak için siparişinizin teslim edilmesini beklemelisiniz."
+            : "Yorum bırakmak için önce bu ürünü satın alıp teslim almanız gerekiyor."}
         </CardContent>
       </Card>
     );
@@ -138,17 +138,17 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
   return (
     <Card className="border-border/70">
       <CardHeader>
-        <CardTitle className="text-lg">Yorum B\u0131rak</CardTitle>
+        <CardTitle className="text-lg">Yorum Bırak</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label className="mb-2 block text-sm">Puan\u0131n\u0131z</Label>
+          <Label className="mb-2 block text-sm">Puanınız</Label>
           <div className="flex items-center gap-2">
             {[1, 2, 3, 4, 5].map((value) => (
               <button
                 key={value}
                 type="button"
-                aria-label={`${value} y\u0131ld\u0131z`}
+                aria-label={`${value} yıldız`}
                 onClick={() => setRating(value)}
                 className="rounded-full p-1 transition-transform hover:scale-105"
               >
@@ -160,11 +160,11 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="review-title">Ba\u015fl\u0131k</Label>
-            <Input id="review-title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="K\u0131sa bir ba\u015fl\u0131k ekleyin" maxLength={120} />
+            <Label htmlFor="review-title">Başlık</Label>
+            <Input id="review-title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Kısa bir başlık ekleyin" maxLength={120} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="review-images">Yorum G\u00f6rselleri</Label>
+            <Label htmlFor="review-images">Yorum Görselleri</Label>
             <Input id="review-images" type="file" accept="image/*" multiple onChange={(event) => handleUpload(event.target.files)} disabled={uploading} />
           </div>
         </div>
@@ -175,7 +175,7 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
             id="review-comment"
             value={comment}
             onChange={(event) => setComment(event.target.value)}
-            placeholder="\u00dcr\u00fcn hakk\u0131ndaki deneyiminizi yaz\u0131n"
+            placeholder="Ürün hakkındaki deneyiminizi yazın"
             minLength={5}
             maxLength={2000}
           />
@@ -185,7 +185,7 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {images.map((imageUrl) => (
               <div key={imageUrl} className="relative overflow-hidden rounded-xl border border-border/70">
-                <img src={imageUrl} alt="Y\u00fcklenen yorum g\u00f6rseli" className="h-24 w-full object-cover" />
+                <img src={imageUrl} alt="Yüklenen yorum görseli" className="h-24 w-full object-cover" />
                 <Button
                   type="button"
                   size="icon"
@@ -202,7 +202,7 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
           <div className="rounded-xl border border-dashed border-border/70 bg-muted/20 p-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <ImagePlus className="h-4 w-4" />
-              En fazla {REVIEW_IMAGE_LIMIT} g\u00f6rsel ekleyebilirsiniz.
+              En fazla {REVIEW_IMAGE_LIMIT} görsel ekleyebilirsiniz.
             </div>
           </div>
         )}
@@ -216,10 +216,10 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
           {createReview.isPending || uploading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              G\u00f6nderiliyor
+              Gönderiliyor
             </>
           ) : (
-            "Yorumu G\u00f6nder"
+            "Yorumu Gönder"
           )}
         </Button>
       </CardContent>

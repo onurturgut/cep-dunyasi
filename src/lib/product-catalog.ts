@@ -24,17 +24,17 @@ export type CatalogProductRecord = {
 export type ProductSortOption = "newest" | "best_selling" | "price_asc" | "price_desc" | "rating_desc";
 
 export type CatalogFilters = {
-  brand?: string | null;
-  color?: string | null;
-  storage?: string | null;
-  ram?: string | null;
+  brand?: string[];
+  color?: string[];
+  storage?: string[];
+  ram?: string[];
   inStockOnly?: boolean;
   minPrice?: number | null;
   maxPrice?: number | null;
-  attributeFilters?: Record<string, string | null>;
-  secondHandCondition?: string | null;
-  batteryHealthMin?: number | null;
-  warrantyType?: string | null;
+  attributeFilters?: Record<string, string[]>;
+  secondHandCondition?: string[];
+  batteryHealthMin?: number[];
+  warrantyType?: string[];
   includesBoxOnly?: boolean;
   faceIdWorkingOnly?: boolean;
   trueToneWorkingOnly?: boolean;
@@ -101,6 +101,10 @@ function normalizeAttributeKey(value: string) {
   return value.trim().toLocaleLowerCase("tr-TR");
 }
 
+function hasSelections(values?: Array<string | number> | null) {
+  return Array.isArray(values) && values.length > 0;
+}
+
 function getVariantAttributeValue(variant: ProductVariantRecord, keys: string[]) {
   const attributeEntries = Object.entries(variant.attributes ?? {});
 
@@ -119,17 +123,17 @@ function getVariantAttributeValue(variant: ProductVariantRecord, keys: string[])
 
 export function createEmptyCatalogFilters(): CatalogFilters {
   return {
-    brand: null,
-    color: null,
-    storage: null,
-    ram: null,
+    brand: [],
+    color: [],
+    storage: [],
+    ram: [],
     inStockOnly: false,
     minPrice: null,
     maxPrice: null,
     attributeFilters: {},
-    secondHandCondition: null,
-    batteryHealthMin: null,
-    warrantyType: null,
+    secondHandCondition: [],
+    batteryHealthMin: [],
+    warrantyType: [],
     includesBoxOnly: false,
     faceIdWorkingOnly: false,
     trueToneWorkingOnly: false,
@@ -205,26 +209,26 @@ export function getDisplayVariantForCatalogProduct(
         return false;
       }
 
-      if (profile.showColor && filters.color && variant.color_name !== filters.color) {
+      if (profile.showColor && hasSelections(filters.color) && !filters.color?.includes(variant.color_name)) {
         return false;
       }
 
-      if (profile.showStorage && filters.storage && variant.storage !== filters.storage) {
+      if (profile.showStorage && hasSelections(filters.storage) && !filters.storage?.includes(variant.storage)) {
         return false;
       }
 
-      if (profile.showRam && filters.ram && variant.ram !== filters.ram) {
+      if (profile.showRam && hasSelections(filters.ram) && !filters.ram?.includes(variant.ram || "")) {
         return false;
       }
 
       for (const definition of profile.attributeFilters) {
-        const expectedValue = filters.attributeFilters?.[definition.id];
-        if (!expectedValue) {
+        const expectedValues = filters.attributeFilters?.[definition.id];
+        if (!hasSelections(expectedValues)) {
           continue;
         }
 
         const actualValue = getVariantAttributeValue(variant, definition.attributeKeys);
-        if (actualValue !== expectedValue) {
+        if (!actualValue || !expectedValues?.includes(actualValue)) {
           return false;
         }
       }
@@ -256,19 +260,19 @@ export function matchesCatalogFilters(
   const brand = normalizeText(product.brand);
   const secondHand = normalizeSecondHandDetails(product.second_hand);
 
-  if (filters.brand && brand !== filters.brand) {
+  if (hasSelections(filters.brand) && (!brand || !filters.brand?.includes(brand))) {
     return false;
   }
 
-  if (filters.secondHandCondition && secondHand?.condition !== filters.secondHandCondition) {
+  if (hasSelections(filters.secondHandCondition) && (!secondHand?.condition || !filters.secondHandCondition?.includes(secondHand.condition))) {
     return false;
   }
 
-  if (filters.batteryHealthMin != null && (secondHand?.battery_health ?? 0) < filters.batteryHealthMin) {
+  if (hasSelections(filters.batteryHealthMin) && !filters.batteryHealthMin?.some((threshold) => (secondHand?.battery_health ?? 0) >= threshold)) {
     return false;
   }
 
-  if (filters.warrantyType && secondHand?.warranty_type !== filters.warrantyType) {
+  if (hasSelections(filters.warrantyType) && (!secondHand?.warranty_type || !filters.warrantyType?.includes(secondHand.warranty_type))) {
     return false;
   }
 

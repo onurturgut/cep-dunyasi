@@ -70,11 +70,11 @@ export function buildDeliveryEstimate({ stock, now = new Date() }: DeliveryEstim
     const dispatchEnd = addBusinessDays(now, 5);
 
     return {
-      badge: "\u00d6n Sipari\u015f",
-      primary: "Bu model \u015fu an stokta de\u011fil, tedarik s\u00fcreciyle g\u00f6nderilir.",
-      secondary: "Stok yenilendi\u011finde s\u0131raya al\u0131n\u0131p en k\u0131sa s\u00fcrede kargolan\u0131r.",
+      badge: "Ön Sipariş",
+      primary: "Bu model şu an stokta değil, tedarik süreciyle gönderilir.",
+      secondary: "Stok yenilendiğinde sıraya alınıp en kısa sürede kargolanır.",
       shippingWindow: `${formatShortDate(dispatchStart)} - ${formatShortDate(dispatchEnd)}`,
-      deliveryWindow: "Tahmini teslimat: 4-7 i\u015f g\u00fcn\u00fc",
+      deliveryWindow: "Tahmini teslimat: 4-7 iş günü",
       isPreorder: true,
     };
   }
@@ -84,13 +84,13 @@ export function buildDeliveryEstimate({ stock, now = new Date() }: DeliveryEstim
   const deliveryEnd = addBusinessDays(shippingDate, 3);
 
   return {
-    badge: stock <= 5 ? `Son ${stock} Adet` : "H\u0131zl\u0131 Teslimat",
-    primary: beforeCutoff ? "Bug\u00fcn sipari\u015f verirseniz yar\u0131n kargoda." : "Sipari\u015finiz ilk i\u015f g\u00fcn\u00fcnde kargoya teslim edilir.",
+    badge: stock <= 5 ? `Son ${stock} Adet` : "Hızlı Teslimat",
+    primary: beforeCutoff ? "Bugün sipariş verirseniz yarın kargoda." : "Siparişiniz ilk iş gününde kargoya teslim edilir.",
     secondary:
       stock <= 5
-        ? "Se\u00e7ili model s\u0131n\u0131rl\u0131 stokta, sipari\u015finizi geciktirmeden tamamlay\u0131n."
-        : "Sigortal\u0131 paketleme ve g\u00fcvenli teslimat ile g\u00f6nderilir.",
-    shippingWindow: `Kargoya verili\u015f: ${formatShortDate(shippingDate)}`,
+        ? "Seçili model sınırlı stokta, siparişinizi geciktirmeden tamamlayın."
+        : "Sigortalı paketleme ve güvenli teslimat ile gönderilir.",
+    shippingWindow: `Kargoya veriliş: ${formatShortDate(shippingDate)}`,
     deliveryWindow: `Tahmini teslimat: ${formatShortDate(deliveryStart)} - ${formatShortDate(deliveryEnd)}`,
     isPreorder: false,
   };
@@ -122,16 +122,16 @@ export function buildInstallmentOptions(price: number, commissionOverrides?: Par
 export function buildPolicyHighlights(brand?: string | null): PolicyHighlight[] {
   return [
     {
-      title: "2 Y\u0131l Garanti",
-      description: brand ? `${brand} \u00fcr\u00fcnlerinde resmi veya ithalat\u00e7\u0131 garantisiyle korunur.` : "T\u00fcm cihazlarda resmi veya ithalat\u00e7\u0131 garanti deste\u011fi sunulur.",
+      title: "2 Yıl Garanti",
+      description: brand ? `${brand} ürünlerinde resmi veya ithalatçı garantisiyle korunur.` : "Tüm cihazlarda resmi veya ithalatçı garanti desteği sunulur.",
     },
     {
-      title: "14 G\u00fcn \u0130ade",
-      description: "Teslimattan sonra 14 g\u00fcn i\u00e7inde cayma hakk\u0131 kapsam\u0131nda iade talebi olu\u015fturabilirsiniz.",
+      title: "14 Gün İade",
+      description: "Teslimattan sonra 14 gün içinde cayma hakkı kapsamında iade talebi oluşturabilirsiniz.",
     },
     {
-      title: "Teknik Servis Deste\u011fi",
-      description: "Kurulum, ar\u0131za ve servis s\u00fcre\u00e7lerinde uzman teknik servis ekibimiz destek verir.",
+      title: "Teknik Servis Desteği",
+      description: "Kurulum, arıza ve servis süreçlerinde uzman teknik servis ekibimiz destek verir.",
     },
   ];
 }
@@ -142,30 +142,30 @@ export function buildProductFaqItems(input: {
   categoryName?: string | null;
   stock: number;
 }): ProductFaqItem[] {
-  const categoryLabel = input.categoryName || "\u00fcr\u00fcn";
-  const guaranteeLabel = input.brand ? `${input.brand} i\u00e7in resmi veya ithalat\u00e7\u0131 garanti kapsam\u0131nda` : "garanti kapsam\u0131nda";
+  const categoryLabel = input.categoryName || "ürün";
+  const guaranteeLabel = input.brand ? `${input.brand} için resmi veya ithalatçı garanti kapsamında` : "garanti kapsamında";
 
   return [
     {
-      question: `${input.productName} ne kadar s\u00fcrede teslim edilir?`,
+      question: `${input.productName} ne kadar sürede teslim edilir?`,
       answer:
         input.stock > 0
-          ? "Stokta olan modeller genellikle ayn\u0131 g\u00fcn veya sonraki ilk i\u015f g\u00fcn\u00fcnde kargoya teslim edilir. Teslimat b\u00f6lgenize g\u00f6re 1-3 i\u015f g\u00fcn\u00fc s\u00fcrer."
-          : "Stokta olmayan modeller tedarik s\u00fcrecine al\u0131n\u0131r. G\u00fcncel teslimat tahmini \u00fcr\u00fcn detay\u0131nda ve sipari\u015f \u00f6ncesi a\u015famada g\u00f6sterilir.",
+          ? "Stokta olan modeller genellikle aynı gün veya sonraki ilk iş gününde kargoya teslim edilir. Teslimat bölgenize göre 1-3 iş günü sürer."
+          : "Stokta olmayan modeller tedarik sürecine alınır. Güncel teslimat tahmini ürün detayında ve sipariş öncesi aşamada gösterilir.",
     },
     {
       question: `${categoryLabel} garantili mi?`,
-      answer: `${input.productName} ${guaranteeLabel} sat\u0131\u015fa sunulur. Garanti detaylar\u0131 kutu i\u00e7eri\u011fi ve fatura ile birlikte payla\u015f\u0131l\u0131r.`,
+      answer: `${input.productName} ${guaranteeLabel} satışa sunulur. Garanti detayları kutu içeriği ve fatura ile birlikte paylaşılır.`,
     },
     {
-      question: "\u0130ade ve de\u011fi\u015fim \u015fartlar\u0131 nelerdir?",
+      question: "İade ve değişim şartları nelerdir?",
       answer:
-        "Teslimattan sonraki 14 g\u00fcn i\u00e7inde, kullan\u0131c\u0131 hatas\u0131 veya fiziksel zarar bulunmayan \u00fcr\u00fcnlerde iade veya de\u011fi\u015fim talebi olu\u015fturabilirsiniz. Hijyen ve aktivasyon ko\u015fullar\u0131 uygulanan \u00fcr\u00fcnlerde ilgili mevzuat ge\u00e7erlidir.",
+        "Teslimattan sonraki 14 gün içinde, kullanıcı hatası veya fiziksel zarar bulunmayan ürünlerde iade veya değişim talebi oluşturabilirsiniz. Hijyen ve aktivasyon koşulları uygulanan ürünlerde ilgili mevzuat geçerlidir.",
     },
     {
-      question: "Teknik servis deste\u011fi sunuluyor mu?",
+      question: "Teknik servis desteği sunuluyor mu?",
       answer:
-        "Evet. Teknik servis talep formu \u00fczerinden cihaz bilgilerinizi payla\u015fabilir, servis s\u00fcreci boyunca ekibimizden destek alabilirsiniz.",
+        "Evet. Teknik servis talep formu üzerinden cihaz bilgilerinizi paylaşabilir, servis süreci boyunca ekibimizden destek alabilirsiniz.",
     },
   ];
 }

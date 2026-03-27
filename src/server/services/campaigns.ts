@@ -30,8 +30,17 @@ const campaignSchema = z.object({
   title: z.string().trim().min(1, "Kampanya basligi zorunludur").max(120, "Baslik en fazla 120 karakter olabilir"),
   subtitle: z.string().trim().max(180, "Alt baslik en fazla 180 karakter olabilir").optional().nullable().or(z.literal("")),
   description: z.string().trim().max(420, "Aciklama en fazla 420 karakter olabilir").optional().nullable().or(z.literal("")),
-  imageUrl: z.string().trim().url("Kampanya gorseli gecersiz"),
-  mobileImageUrl: z.string().trim().url("Mobil gorsel gecersiz").optional().nullable().or(z.literal("")),
+  imageUrl: z
+    .string()
+    .trim()
+    .url("Kampanya gorseli gecersiz. Gorsel yukleyin veya https:// ile baslayan gecerli bir URL kullanin"),
+  mobileImageUrl: z
+    .string()
+    .trim()
+    .url("Mobil gorsel gecersiz. https:// ile baslayan gecerli bir URL kullanin")
+    .optional()
+    .nullable()
+    .or(z.literal("")),
   ctaText: z.string().trim().max(40, "CTA metni en fazla 40 karakter olabilir").optional().nullable().or(z.literal("")),
   ctaLink: z
     .string()

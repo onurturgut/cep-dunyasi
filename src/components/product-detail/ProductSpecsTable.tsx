@@ -23,9 +23,9 @@ export function ProductSpecsTable({ specs, variant, context }: ProductSpecsTable
   return (
     <section className="space-y-4" id="specs">
       <div className="space-y-2">
-        <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Teknik \u00d6zellikler</h2>
+        <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Teknik Özellikler</h2>
         <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-          Se\u00e7ili modele ve \u00fcr\u00fcn kategorisine ait teknik bilgiler, sade ve okunabilir bir formatta sunulur.
+          Seçili modele ve ürün kategorisine ait teknik bilgiler, sade ve okunabilir bir formatta sunulur.
         </p>
       </div>
 

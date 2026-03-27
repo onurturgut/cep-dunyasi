@@ -22,28 +22,28 @@ export type SecondHandDetails = {
 };
 
 export const SECOND_HAND_CONDITION_OPTIONS: Array<{ value: SecondHandCondition; label: string }> = [
-  { value: "mukemmel", label: "M\u00fckemmel" },
-  { value: "cok_iyi", label: "\u00c7ok \u0130yi" },
-  { value: "iyi", label: "\u0130yi" },
+  { value: "mukemmel", label: "Mükemmel" },
+  { value: "cok_iyi", label: "Çok İyi" },
+  { value: "iyi", label: "İyi" },
 ];
 
 export const SECOND_HAND_WARRANTY_OPTIONS: Array<{ value: SecondHandWarrantyType; label: string }> = [
-  { value: "magaza", label: "Ma\u011faza Garantili" },
-  { value: "distributor", label: "Distrib\u00fct\u00f6r Garantili" },
+  { value: "magaza", label: "Mağaza Garantili" },
+  { value: "distributor", label: "Distribütör Garantili" },
   { value: "none", label: "Garantisiz" },
 ];
 
 export const SECOND_HAND_CHECK_OPTIONS: Array<{ value: SecondHandCheckStatus; label: string }> = [
-  { value: "working", label: "\u00c7al\u0131\u015f\u0131yor" },
-  { value: "not_working", label: "\u00c7al\u0131\u015fm\u0131yor" },
+  { value: "working", label: "Çalışıyor" },
+  { value: "not_working", label: "Çalışmıyor" },
   { value: "not_applicable", label: "Uygulanamaz" },
 ];
 
 export const SECOND_HAND_BATTERY_BUCKETS: Array<{ value: number; label: string }> = [
-  { value: 95, label: "%95 ve \u00fczeri" },
-  { value: 90, label: "%90 ve \u00fczeri" },
-  { value: 85, label: "%85 ve \u00fczeri" },
-  { value: 80, label: "%80 ve \u00fczeri" },
+  { value: 95, label: "%95 ve üzeri" },
+  { value: 90, label: "%90 ve üzeri" },
+  { value: 85, label: "%85 ve üzeri" },
+  { value: 80, label: "%80 ve üzeri" },
 ];
 
 type RawSecondHandDetails = Partial<{
@@ -212,7 +212,7 @@ export function getSecondHandWarrantyLabel(
   }
 
   if (warrantyType !== "none" && remainingMonths && remainingMonths > 0) {
-    return `${baseLabel} \u00b7 ${remainingMonths} ay`;
+    return `${baseLabel} · ${remainingMonths} ay`;
   }
 
   return baseLabel;
