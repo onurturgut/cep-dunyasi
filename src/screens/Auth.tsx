@@ -28,9 +28,9 @@ export default function Auth() {
     setLoading(false);
 
     if (error) {
-      toast.error('Giris basarisiz', { description: error.message });
+      toast.error('Giriş başarısız', { description: error.message });
     } else {
-      toast.success('Giris basarili!');
+      toast.success('Giriş başarılı!');
       navigate('/');
     }
   };
@@ -42,9 +42,9 @@ export default function Auth() {
     setLoading(false);
 
     if (error) {
-      toast.error('Kayit basarisiz', { description: error.message });
+      toast.error('Kayıt başarısız', { description: error.message });
     } else {
-      toast.success('Kayit basarili!', { description: 'E-posta adresinizi dogrulayin.' });
+      toast.success('Kayıt başarılı!', { description: 'E-posta adresinizi doğrulayın.' });
     }
   };
 
@@ -55,8 +55,8 @@ export default function Auth() {
           <Tabs defaultValue="login">
             <CardHeader>
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Giris Yap</TabsTrigger>
-                <TabsTrigger value="signup">Kayit Ol</TabsTrigger>
+                <TabsTrigger value="login">Giriş Yap</TabsTrigger>
+                <TabsTrigger value="signup">Kayıt Ol</TabsTrigger>
               </TabsList>
             </CardHeader>
             <CardContent>
@@ -67,11 +67,11 @@ export default function Auth() {
                     <Input id="login-email" type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-pass">Sifre</Label>
+                    <Label htmlFor="login-pass">Şifre</Label>
                     <Input id="login-pass" type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Giris yapiliyor...' : 'Giris Yap'}
+                    {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                   </Button>
                 </form>
               </TabsContent>
@@ -86,11 +86,11 @@ export default function Auth() {
                     <Input id="signup-email" type="email" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-pass">Sifre</Label>
+                    <Label htmlFor="signup-pass">Şifre</Label>
                     <Input id="signup-pass" type="password" required minLength={6} value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Kayit yapiliyor...' : 'Kayit Ol'}
+                    {loading ? 'Kayıt yapılıyor...' : 'Kayıt Ol'}
                   </Button>
                 </form>
               </TabsContent>

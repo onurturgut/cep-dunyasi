@@ -17,9 +17,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
+import { getProductVariantAxes, type VariantAxisDefinition } from "@/lib/product-variant-config";
 import { getVariantLabel, normalizeProductVariants, type ProductVariantRecord } from "@/lib/product-variants";
 import type { ProductSpecs } from "@/lib/product-specs";
 import { useBulkProductActions } from "@/hooks/use-admin";
+import {
+  SECOND_HAND_CHECK_OPTIONS,
+  SECOND_HAND_CONDITION_OPTIONS,
+  SECOND_HAND_WARRANTY_OPTIONS,
+  type SecondHandCheckStatus,
+  type SecondHandCondition,
+  type SecondHandDetails,
+  type SecondHandWarrantyType,
+} from "@/lib/second-hand";
 
 type ProductType = "phone" | "accessory" | "service";
 
@@ -29,6 +39,7 @@ type ProductVariantForm = {
   color_code: string;
   storage: string;
   ram: string;
+  attributes: Record<string, string>;
   sku: string;
   price: string;
   compare_at_price: string;
@@ -50,12 +61,31 @@ type ProductForm = {
   is_active: boolean;
   images: string[];
   specs: ProductSpecs;
+  second_hand: {
+    condition: SecondHandCondition | null;
+    battery_health: string;
+    warranty_type: SecondHandWarrantyType | null;
+    warranty_remaining_months: string;
+    includes_box: boolean;
+    includes_invoice: boolean;
+    included_accessories: string;
+    face_id_status: SecondHandCheckStatus | null;
+    true_tone_status: SecondHandCheckStatus | null;
+    battery_changed: boolean | null;
+    changed_parts: string;
+    cosmetic_notes: string;
+    inspection_summary: string;
+    inspection_date: string;
+    imei: string;
+    serial_number: string;
+  };
   variants: ProductVariantForm[];
 };
 
 type AdminCategory = {
   id: string;
   name: string;
+  slug?: string;
 };
 
 type AdminProductRecord = {
@@ -70,15 +100,60 @@ type AdminProductRecord = {
   is_active: boolean;
   images: string[];
   specs?: ProductSpecs | null;
+  second_hand?: SecondHandDetails | null;
   product_variants: ProductVariantRecord[];
   categories?: { name?: string } | null;
 };
+
+function mapSecondHandToForm(details?: SecondHandDetails | null): ProductForm["second_hand"] {
+  const normalizedInspectionDate = details?.inspection_date ? new Date(details.inspection_date) : null;
+  const inspectionDateValue =
+    normalizedInspectionDate && !Number.isNaN(normalizedInspectionDate.getTime())
+      ? normalizedInspectionDate.toISOString().slice(0, 10)
+      : "";
+
+  return {
+    condition: details?.condition ?? null,
+    battery_health: details?.battery_health != null ? `${details.battery_health}` : "",
+    warranty_type: details?.warranty_type ?? null,
+    warranty_remaining_months: details?.warranty_remaining_months != null ? `${details.warranty_remaining_months}` : "",
+    includes_box: Boolean(details?.includes_box),
+    includes_invoice: Boolean(details?.includes_invoice),
+    included_accessories: details?.included_accessories?.join(", ") || "",
+    face_id_status: details?.face_id_status ?? null,
+    true_tone_status: details?.true_tone_status ?? null,
+    battery_changed: details?.battery_changed ?? null,
+    changed_parts: details?.changed_parts?.join(", ") || "",
+    cosmetic_notes: details?.cosmetic_notes || "",
+    inspection_summary: details?.inspection_summary || "",
+    inspection_date: inspectionDateValue,
+    imei: details?.imei || "",
+    serial_number: details?.serial_number || "",
+  };
+}
+
+function getVariantAxisFormValue(variant: ProductVariantForm, axis: VariantAxisDefinition) {
+  if (axis.fieldKey === "color_name") {
+    return variant.color_name;
+  }
+
+  if (axis.fieldKey === "storage") {
+    return variant.storage;
+  }
+
+  if (axis.fieldKey === "ram") {
+    return variant.ram;
+  }
+
+  return variant.attributes[axis.attributeKeys[0]] || "";
+}
 
 const createEmptyVariant = (sortOrder = 0): ProductVariantForm => ({
   color_name: "",
   color_code: "",
   storage: "",
   ram: "",
+  attributes: {},
   sku: "",
   price: "",
   compare_at_price: "",
@@ -106,6 +181,7 @@ const defaultForm: ProductForm = {
     frontCamera: "",
     rearCamera: "",
   },
+  second_hand: mapSecondHandToForm(),
   variants: [createEmptyVariant(0)],
 };
 
@@ -116,6 +192,9 @@ function mapVariantToForm(variant: ProductVariantRecord, index: number): Product
     color_code: variant.color_code ?? "",
     storage: variant.storage,
     ram: variant.ram ?? "",
+    attributes: Object.fromEntries(
+      Object.entries(variant.attributes || {}).filter(([, value]) => typeof value === "string" && value.trim()),
+    ),
     sku: variant.sku,
     price: variant.price ? `${variant.price}` : "",
     compare_at_price: variant.compare_at_price ? `${variant.compare_at_price}` : "",
@@ -147,6 +226,7 @@ function mapProductToForm(product: AdminProductRecord): ProductForm {
       frontCamera: product.specs?.frontCamera || "",
       rearCamera: product.specs?.rearCamera || "",
     },
+    second_hand: mapSecondHandToForm(product.second_hand),
     variants: variants.length > 0 ? variants.map((variant, index) => mapVariantToForm(variant, index)) : [createEmptyVariant(0)],
   };
 }
@@ -176,6 +256,12 @@ export default function AdminProducts() {
   const [form, setForm] = useState<ProductForm>(defaultForm);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const bulkActions = useBulkProductActions();
+  const selectedCategory = useMemo(
+    () => categories.find((category) => category.id === form.category_id) ?? null,
+    [categories, form.category_id]
+  );
+  const isSecondHandIphoneCategory = selectedCategory?.slug === "ikinci-el-telefon";
+  const variantAxes = useMemo(() => getProductVariantAxes(selectedCategory?.slug), [selectedCategory?.slug]);
 
   const fetchProducts = async () => {
     const { data, error } = await db.from("products").select("*, product_variants(*), categories(name)").order("created_at", { ascending: false });
@@ -198,6 +284,24 @@ export default function AdminProducts() {
       .select("*")
       .then(({ data }) => setCategories((data || []) as AdminCategory[]));
   }, []);
+
+  useEffect(() => {
+    if (!isSecondHandIphoneCategory) {
+      return;
+    }
+
+    setForm((current) => {
+      if (current.brand === "Apple" && current.type === "phone") {
+        return current;
+      }
+
+      return {
+        ...current,
+        brand: "Apple",
+        type: "phone",
+      };
+    });
+  }, [isSecondHandIphoneCategory]);
 
   const resetForm = () => {
     setForm(defaultForm);
@@ -316,6 +420,28 @@ export default function AdminProducts() {
     }));
   };
 
+  const handleVariantAxisValueChange = (variantIndex: number, axis: VariantAxisDefinition, value: string) => {
+    if (axis.fieldKey === "color_name" || axis.fieldKey === "storage" || axis.fieldKey === "ram") {
+      handleVariantChange(variantIndex, axis.fieldKey, value);
+      return;
+    }
+
+    setForm((current) => ({
+      ...current,
+      variants: current.variants.map((variant, index) =>
+        index === variantIndex
+          ? {
+              ...variant,
+              attributes: {
+                ...variant.attributes,
+                [axis.attributeKeys[0]]: value,
+              },
+            }
+          : variant,
+      ),
+    }));
+  };
+
   const addVariant = () => {
     setForm((current) => ({
       ...current,
@@ -361,12 +487,35 @@ export default function AdminProducts() {
         frontCamera: form.specs.frontCamera || null,
         rearCamera: form.specs.rearCamera || null,
       },
+      second_hand: isSecondHandIphoneCategory
+        ? {
+            condition: form.second_hand.condition || null,
+            battery_health: form.second_hand.battery_health || null,
+            warranty_type: form.second_hand.warranty_type || null,
+            warranty_remaining_months: form.second_hand.warranty_remaining_months || null,
+            includes_box: form.second_hand.includes_box,
+            includes_invoice: form.second_hand.includes_invoice,
+            included_accessories: form.second_hand.included_accessories,
+            face_id_status: form.second_hand.face_id_status || null,
+            true_tone_status: form.second_hand.true_tone_status || null,
+            battery_changed: form.second_hand.battery_changed,
+            changed_parts: form.second_hand.changed_parts,
+            cosmetic_notes: form.second_hand.cosmetic_notes || null,
+            inspection_summary: form.second_hand.inspection_summary || null,
+            inspection_date: form.second_hand.inspection_date || null,
+            imei: form.second_hand.imei || null,
+            serial_number: form.second_hand.serial_number || null,
+          }
+        : null,
       variants: form.variants.map((variant, index) => ({
         id: variant.id ?? null,
         color_name: variant.color_name,
         color_code: variant.color_code || null,
         storage: variant.storage,
         ram: variant.ram || null,
+        attributes: Object.fromEntries(
+          Object.entries(variant.attributes).filter(([, value]) => value.trim()),
+        ),
         sku: variant.sku,
         price: variant.price,
         compare_at_price: variant.compare_at_price || null,
@@ -541,11 +690,22 @@ export default function AdminProducts() {
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label>Marka</Label>
-                  <Input value={form.brand} onChange={(event) => setForm((current) => ({ ...current, brand: event.target.value }))} />
+                  <Input
+                    value={form.brand}
+                    disabled={isSecondHandIphoneCategory}
+                    onChange={(event) => setForm((current) => ({ ...current, brand: event.target.value }))}
+                  />
+                  {isSecondHandIphoneCategory ? (
+                    <p className="text-xs text-muted-foreground">2. El Telefonlar kategorisinde marka sabit olarak Apple kullanilir.</p>
+                  ) : null}
                 </div>
                 <div className="space-y-2">
                   <Label>Tur</Label>
-                  <Select value={form.type} onValueChange={(value) => setForm((current) => ({ ...current, type: value as ProductType }))}>
+                  <Select
+                    value={form.type}
+                    onValueChange={(value) => setForm((current) => ({ ...current, type: value as ProductType }))}
+                    disabled={isSecondHandIphoneCategory}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -703,14 +863,300 @@ export default function AdminProducts() {
                 </div>
               </div>
 
+              {isSecondHandIphoneCategory ? (
+                <div className="space-y-4 rounded-2xl border border-border/70 bg-muted/20 p-4">
+                  <div>
+                    <h3 className="text-sm font-semibold">2. El Cihaz Bilgileri</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Kondisyon, pil sagligi, garanti ve ekspertiz bilgileri listeleme ve urun detayinda gosterilir.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="space-y-2">
+                      <Label>Kondisyon</Label>
+                      <Select
+                        value={form.second_hand.condition || "none"}
+                        onValueChange={(value) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, condition: value === "none" ? null : (value as SecondHandCondition) },
+                          }))
+                        }
+                      >
+                        <SelectTrigger><SelectValue placeholder="Secin" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Secin</SelectItem>
+                          {SECOND_HAND_CONDITION_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Pil Sagligi (%)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={form.second_hand.battery_health}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, battery_health: event.target.value },
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Garanti Tipi</Label>
+                      <Select
+                        value={form.second_hand.warranty_type || "none-selected"}
+                        onValueChange={(value) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: {
+                              ...current.second_hand,
+                              warranty_type: value === "none-selected" ? null : (value as SecondHandWarrantyType),
+                            },
+                          }))
+                        }
+                      >
+                        <SelectTrigger><SelectValue placeholder="Secin" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none-selected">Secin</SelectItem>
+                          {SECOND_HAND_WARRANTY_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Kalan Garanti (Ay)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={form.second_hand.warranty_remaining_months}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, warranty_remaining_months: event.target.value },
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label>Face ID</Label>
+                      <Select
+                        value={form.second_hand.face_id_status || "none"}
+                        onValueChange={(value) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, face_id_status: value === "none" ? null : (value as SecondHandCheckStatus) },
+                          }))
+                        }
+                      >
+                        <SelectTrigger><SelectValue placeholder="Secin" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Secin</SelectItem>
+                          {SECOND_HAND_CHECK_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>True Tone</Label>
+                      <Select
+                        value={form.second_hand.true_tone_status || "none"}
+                        onValueChange={(value) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, true_tone_status: value === "none" ? null : (value as SecondHandCheckStatus) },
+                          }))
+                        }
+                      >
+                        <SelectTrigger><SelectValue placeholder="Secin" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Secin</SelectItem>
+                          {SECOND_HAND_CHECK_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Batarya Degisimi</Label>
+                      <Select
+                        value={
+                          form.second_hand.battery_changed == null ? "unknown" : form.second_hand.battery_changed ? "yes" : "no"
+                        }
+                        onValueChange={(value) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: {
+                              ...current.second_hand,
+                              battery_changed: value === "unknown" ? null : value === "yes",
+                            },
+                          }))
+                        }
+                      >
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="unknown">Belirtilmedi</SelectItem>
+                          <SelectItem value="yes">Degismis</SelectItem>
+                          <SelectItem value="no">Orijinal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Dahil Aksesuarlar</Label>
+                      <Input
+                        placeholder="Kutusu, Sarj Kablosu, Adapter"
+                        value={form.second_hand.included_accessories}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, included_accessories: event.target.value },
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Degisen Parcalar</Label>
+                      <Input
+                        placeholder="Batarya, ekran, kamera"
+                        value={form.second_hand.changed_parts}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, changed_parts: event.target.value },
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>IMEI / Seri Takibi</Label>
+                      <Input
+                        placeholder="IMEI veya takip kodu"
+                        value={form.second_hand.imei}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, imei: event.target.value },
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Seri Numarasi</Label>
+                      <Input
+                        placeholder="Seri numarasi"
+                        value={form.second_hand.serial_number}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, serial_number: event.target.value },
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <label className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/70 px-3 py-3 text-sm">
+                      <Checkbox
+                        checked={form.second_hand.includes_box}
+                        onCheckedChange={(checked) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, includes_box: checked === true },
+                          }))
+                        }
+                      />
+                      Kutusu Var
+                    </label>
+                    <label className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/70 px-3 py-3 text-sm">
+                      <Checkbox
+                        checked={form.second_hand.includes_invoice}
+                        onCheckedChange={(checked) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, includes_invoice: checked === true },
+                          }))
+                        }
+                      />
+                      Faturasi Var
+                    </label>
+                    <div className="space-y-2">
+                      <Label>Son Kontrol Tarihi</Label>
+                      <Input
+                        type="date"
+                        value={form.second_hand.inspection_date}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            second_hand: { ...current.second_hand, inspection_date: event.target.value },
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Kozmetik Durum Notu</Label>
+                    <Textarea
+                      value={form.second_hand.cosmetic_notes}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          second_hand: { ...current.second_hand, cosmetic_notes: event.target.value },
+                        }))
+                      }
+                      placeholder="Ekran, kasa, cerceve ve kamera cevresi hakkinda kisa durum notu"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Ekspertiz Ozeti</Label>
+                    <Textarea
+                      value={form.second_hand.inspection_summary}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          second_hand: { ...current.second_hand, inspection_summary: event.target.value },
+                        }))
+                      }
+                      placeholder="Cihaz kontrol sonucu, onemli avantajlar ve guven notlari"
+                    />
+                  </div>
+                </div>
+              ) : null}
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold">Varyantlar</h3>
-                    <p className="text-xs text-muted-foreground">Renk, depolama, RAM, fiyat, stok ve gorselleri varyant bazli yonetin.</p>
+                    <h3 className="text-sm font-semibold">Modeller</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {variantAxes.map((axis) => axis.label).join(", ") || "Temel model bilgileri"} bazli secenekleri fiyat, stok ve gorsellerle birlikte yonetin.
+                    </p>
                   </div>
                   <Button type="button" variant="outline" size="sm" onClick={addVariant}>
-                    <Plus className="mr-1 h-4 w-4" /> Varyant Ekle
+                    <Plus className="mr-1 h-4 w-4" /> Model Ekle
                   </Button>
                 </div>
 
@@ -719,8 +1165,16 @@ export default function AdminProducts() {
                     <Card key={variant.id || `new-variant-${variantIndex}`} className="p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <p className="font-medium">{variant.color_name || "Yeni varyant"}</p>
-                          <p className="text-xs text-muted-foreground">{variant.sku || `Varyant #${variantIndex + 1}`}</p>
+                          <p className="font-medium">
+                            {getVariantLabel({
+                              color_name: variant.color_name,
+                              storage: variant.storage,
+                              ram: variant.ram,
+                              attributes: variant.attributes,
+                              sku: variant.sku,
+                            }) || "Yeni model"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{variant.sku || `Model #${variantIndex + 1}`}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant={variant.is_active ? "default" : "secondary"}>{variant.is_active ? "Aktif" : "Pasif"}</Badge>
@@ -731,18 +1185,19 @@ export default function AdminProducts() {
                       </div>
 
                       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Renk Adi</Label>
-                          <Input value={variant.color_name} onChange={(event) => handleVariantChange(variantIndex, "color_name", event.target.value)} />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Depolama</Label>
-                          <Input value={variant.storage} onChange={(event) => handleVariantChange(variantIndex, "storage", event.target.value)} placeholder="128 GB" />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">RAM</Label>
-                          <Input value={variant.ram} onChange={(event) => handleVariantChange(variantIndex, "ram", event.target.value)} placeholder="8 GB" />
-                        </div>
+                        {variantAxes.map((axis) => (
+                          <div key={`${variantIndex}-${axis.id}`} className="space-y-1">
+                            <Label className="text-xs">
+                              {axis.label}
+                              {axis.required ? " *" : ""}
+                            </Label>
+                            <Input
+                              value={getVariantAxisFormValue(variant, axis)}
+                              onChange={(event) => handleVariantAxisValueChange(variantIndex, axis, event.target.value)}
+                              placeholder={axis.placeholder}
+                            />
+                          </div>
+                        ))}
                         <div className="space-y-1">
                           <Label className="text-xs">SKU</Label>
                           <Input value={variant.sku} onChange={(event) => handleVariantChange(variantIndex, "sku", event.target.value)} />
@@ -786,16 +1241,18 @@ export default function AdminProducts() {
                         </div>
                       </div>
 
-                      <div className="mt-3 grid gap-3 md:grid-cols-[120px_minmax(0,1fr)]">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Renk Kodu</Label>
-                          <div className="flex gap-2">
-                            <Input type="color" value={variant.color_code || "#000000"} onChange={(event) => handleVariantChange(variantIndex, "color_code", event.target.value)} className="h-10 w-14 p-1" />
-                            <Input value={variant.color_code} onChange={(event) => handleVariantChange(variantIndex, "color_code", event.target.value)} placeholder="#000000" />
+                      <div className={`mt-3 grid gap-3 ${variantAxes.some((axis) => axis.id === "color_name") ? "md:grid-cols-[120px_minmax(0,1fr)]" : "md:grid-cols-1"}`}>
+                        {variantAxes.some((axis) => axis.id === "color_name") ? (
+                          <div className="space-y-1">
+                            <Label className="text-xs">Renk Kodu</Label>
+                            <div className="flex gap-2">
+                              <Input type="color" value={variant.color_code || "#000000"} onChange={(event) => handleVariantChange(variantIndex, "color_code", event.target.value)} className="h-10 w-14 p-1" />
+                              <Input value={variant.color_code} onChange={(event) => handleVariantChange(variantIndex, "color_code", event.target.value)} placeholder="#000000" />
+                            </div>
                           </div>
-                        </div>
+                        ) : null}
                         <div className="space-y-2">
-                          <Label className="text-xs">Varyant Gorselleri</Label>
+                          <Label className="text-xs">Model Gorselleri</Label>
                           <Input type="file" accept="image/*" multiple onChange={(event) => handleVariantImageFilesChange(variantIndex, event)} disabled={uploadingImages} />
                           {variant.images.length > 0 && (
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">

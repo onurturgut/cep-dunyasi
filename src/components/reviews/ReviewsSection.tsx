@@ -186,7 +186,7 @@ export function ReviewsSection({
     try {
       await helpfulMutation.mutateAsync({ reviewId, productId });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Faydali oyu kaydedilemedi");
+      toast.error(error instanceof Error ? error.message : "Faydal\u0131 oyu kaydedilemedi");
     }
   };
 
@@ -210,11 +210,16 @@ export function ReviewsSection({
         />
 
         {user ? (
-          <ReviewForm productId={productId} viewerReviewStatus={data?.viewerReviewStatus ?? null} />
+          <ReviewForm
+            productId={productId}
+            viewerReviewStatus={data?.viewerReviewStatus ?? null}
+            canReview={data?.viewerCanReview ?? false}
+            reviewReason={data?.viewerReviewReason ?? "not_purchased"}
+          />
         ) : (
           <Card className="border-border/70">
             <CardContent className="p-5 text-sm text-muted-foreground">
-              Yorum birakmak icin hesabiniza giris yapmaniz gerekiyor.
+              Yorum b\u0131rakmak i\u00e7in hesab\u0131n\u0131za giri\u015f yapman\u0131z gerekiyor.
             </CardContent>
           </Card>
         )}
@@ -245,7 +250,7 @@ export function ReviewsSection({
             </p>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={(data?.page ?? 1) <= 1}>
-                Onceki
+                \u00d6nceki
               </Button>
               <Button
                 variant="outline"

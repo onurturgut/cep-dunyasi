@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { SessionUser } from "@/server/auth-session";
 import { Product, ProductVariant, User } from "@/server/models";
 import { normalizeProductVariants, sortProductVariants } from "@/lib/product-variants";
+import type { SecondHandDetails } from "@/lib/second-hand";
 
 const wishlistToggleSchema = z.object({
   productId: z.string().trim().min(1, "Urun secimi zorunlu"),
@@ -19,6 +20,7 @@ type WishlistProductRecord = {
   specs?: Record<string, string | null> | null;
   rating_average?: number;
   rating_count?: number;
+  second_hand?: SecondHandDetails | null;
   categories?: { name?: string; slug?: string } | null;
   product_variants: ReturnType<typeof normalizeProductVariants>;
 };

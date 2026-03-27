@@ -51,6 +51,7 @@ export type FavoriteProductSummary = {
   sales_count?: number;
   rating_average?: number;
   rating_count?: number;
+  second_hand?: import("@/lib/second-hand").SecondHandDetails | null;
   specs?: {
     operatingSystem?: string | null;
     internalStorage?: string | null;

@@ -12,11 +12,11 @@ export default function AccountTechnicalServiceHistoryScreen() {
 
   return (
     <AccountLayout
-      title="Teknik Servis Gecmisim"
-      description="Basvurularinizin durumlarini, servis notlarini ve onceki kayitlarinizi buradan takip edin."
+      title="Teknik Servis Geçmişim"
+      description="Başvurularınızın durumlarını, servis notlarını ve önceki kayıtlarınızı buradan takip edin."
       actions={
         <Button type="button" onClick={() => navigate("/technical-service")}>
-          Yeni Basvuru
+          Yeni Başvuru
         </Button>
       }
     >

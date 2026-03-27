@@ -34,9 +34,9 @@ export function WarrantyReturnInfo({ productName, brand }: WarrantyReturnInfoPro
   return (
     <section className="space-y-4" id="warranty">
       <div className="space-y-2">
-        <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Garanti ve Iade</h2>
+        <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Garanti ve İade</h2>
         <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-          {productName} icin satin alma sonrasi surecler, acik ve guven veren bir ozet ile sunulur.
+          {productName} için satın alma sonrası süreçler, açık ve güven veren bir özet ile sunulur.
         </p>
       </div>
 
@@ -46,36 +46,36 @@ export function WarrantyReturnInfo({ productName, brand }: WarrantyReturnInfoPro
         <CardContent className="p-5">
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="guarantee" className="border-border/60">
-              <AccordionTrigger className="py-4 text-base font-semibold hover:no-underline">Garanti kapsami</AccordionTrigger>
+              <AccordionTrigger className="py-4 text-base font-semibold hover:no-underline">Garanti kapsamı</AccordionTrigger>
               <AccordionContent className="space-y-3 text-sm leading-6 text-muted-foreground">
                 <p>
-                  {brand ? `${brand} markali bu urun, resmi veya ithalatci firma garantisiyle birlikte sevk edilir.` : "Urun, resmi veya ithalatci firma garantisiyle birlikte sevk edilir."}
+                  {brand ? `${brand} markalı bu ürün, resmi veya ithalatçı firma garantisiyle birlikte sevk edilir.` : "Ürün, resmi veya ithalatçı firma garantisiyle birlikte sevk edilir."}
                 </p>
-                <p>Garanti belgesi, fatura ve servis surecinde gerekli dokumanlar siparisle birlikte paylasilir.</p>
+                <p>Garanti belgesi, fatura ve servis sürecinde gerekli dokümanlar siparişle birlikte paylaşılır.</p>
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="return" className="border-border/60">
-              <AccordionTrigger className="py-4 text-base font-semibold hover:no-underline">Iade ve degisim kosullari</AccordionTrigger>
+              <AccordionTrigger className="py-4 text-base font-semibold hover:no-underline">İade ve değişim koşulları</AccordionTrigger>
               <AccordionContent className="space-y-3 text-sm leading-6 text-muted-foreground">
                 <p>
-                  Kullanilmamis, aktivasyon gerektiren alanlari etkilenmemis ve fiziksel olarak hasarsiz urunlerde 14 gun icinde iade veya degisim talebi
-                  olusturabilirsiniz.
+                  Kullanılmamış, aktivasyon gerektiren alanları etkilenmemiş ve fiziksel olarak hasarsız ürünlerde 14 gün içinde iade veya değişim talebi
+                  oluşturabilirsiniz.
                 </p>
                 <p>
-                  Acilmis kutu, aktivasyon, hijyen veya kullanima ozel kosullar gerektiren urunlerde ilgili mevzuat ve urun sinifina ait sartlar gecerlidir.
+                  Açılmış kutu, aktivasyon, hijyen veya kullanıma özel koşullar gerektiren ürünlerde ilgili mevzuat ve ürün sınıfına ait şartlar geçerlidir.
                 </p>
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="service" className="border-border/60">
-              <AccordionTrigger className="py-4 text-base font-semibold hover:no-underline">Teknik servis sureci</AccordionTrigger>
+              <AccordionTrigger className="py-4 text-base font-semibold hover:no-underline">Teknik servis süreci</AccordionTrigger>
               <AccordionContent className="space-y-3 text-sm leading-6 text-muted-foreground">
                 <p>
-                  Teknik servis ihtiyaciniz oldugunda site uzerindeki teknik servis formu ile cihaz modeli ve ariza detaylarini iletebilir, sureci uzman ekibimizle
+                  Teknik servis ihtiyacınız olduğunda site üzerindeki teknik servis formu ile cihaz modeli ve arıza detaylarını iletebilir, süreci uzman ekibimizle
                   takip edebilirsiniz.
                 </p>
-                <p>Servis ve destek sureclerinde urunun seri numarasi, fatura ve garanti bilgileri esas alinir.</p>
+                <p>Servis ve destek süreçlerinde ürünün seri numarası, fatura ve garanti bilgileri esas alınır.</p>
               </AccordionContent>
             </AccordionItem>
           </Accordion>

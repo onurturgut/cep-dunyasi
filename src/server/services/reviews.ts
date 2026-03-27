@@ -10,6 +10,7 @@ import {
   type AdminReviewStatus,
   type ProductReviewListItem,
   type ProductReviewListResponse,
+  type ReviewEligibilityReason,
   type ReviewDistribution,
   type ReviewSort,
   type ReviewViewerStatus,
@@ -148,33 +149,43 @@ function buildSummary(product: RawProductRecord | null, verifiedPurchaseCount: n
   };
 }
 
-async function resolveVerifiedPurchase(userId: string, productId: string) {
+async function resolveReviewEligibility(userId: string, productId: string) {
   const variants = (await ProductVariant.find({ product_id: productId }, { id: 1, product_id: 1 }).lean()) as RawProductVariantRecord[];
 
   if (variants.length === 0) {
-    return { isVerifiedPurchase: false, orderId: null as string | null };
+    return {
+      isVerifiedPurchase: false,
+      canReview: false,
+      orderId: null as string | null,
+      reason: "not_purchased" as ReviewEligibilityReason,
+    };
   }
 
   const variantIds = variants.map((variant) => variant.id);
-  const orders = (await Order.find(
+  const paidOrders = (await Order.find(
     {
       user_id: userId,
       payment_status: "paid",
       order_status: { $ne: "cancelled" },
     },
-    { id: 1 }
+    { id: 1, order_status: 1 }
   )
     .sort({ created_at: -1 })
-    .lean()) as Array<{ id: string }>;
+    .lean()) as Array<{ id: string; order_status?: string | null }>;
 
-  if (orders.length === 0) {
-    return { isVerifiedPurchase: false, orderId: null as string | null };
+  if (paidOrders.length === 0) {
+    return {
+      isVerifiedPurchase: false,
+      canReview: false,
+      orderId: null as string | null,
+      reason: "not_purchased" as ReviewEligibilityReason,
+    };
   }
 
-  const orderIds = orders.map((order) => order.id);
-  const matchingOrderItem = (await OrderItem.findOne(
+  const paidOrderIds = paidOrders.map((order) => order.id);
+  const matchingPaidOrderItem = (await OrderItem.findOne(
     {
-      order_id: { $in: orderIds },
+      order_id: { $in: paidOrderIds },
       variant_id: { $in: variantIds },
     },
     { order_id: 1 }
@@ -182,9 +193,34 @@ async function resolveVerifiedPurchase(userId: string, productId: string) {
     .sort({ created_at: -1 })
     .lean()) as { order_id?: string | null } | null;
 
+  if (!matchingPaidOrderItem?.order_id) {
+    return {
+      isVerifiedPurchase: false,
+      canReview: false,
+      orderId: null as string | null,
+      reason: "not_purchased" as ReviewEligibilityReason,
+    };
+  }
+
+  const deliveredOrders = paidOrders.filter((order) => ["delivered", "completed"].includes(`${order.order_status ?? ""}`));
+  const deliveredOrderIds = deliveredOrders.map((order) => order.id);
+  const matchingDeliveredOrderItem = deliveredOrderIds.length
+    ? ((await OrderItem.findOne(
+        {
+          order_id: { $in: deliveredOrderIds },
+          variant_id: { $in: variantIds },
+        },
+        { order_id: 1 }
+      )
+        .sort({ created_at: -1 })
+        .lean()) as { order_id?: string | null } | null)
+    : null;
+
   return {
-    isVerifiedPurchase: Boolean(matchingOrderItem?.order_id),
-    orderId: matchingOrderItem?.order_id ?? null,
+    isVerifiedPurchase: true,
+    canReview: Boolean(matchingDeliveredOrderItem?.order_id),
+    orderId: matchingDeliveredOrderItem?.order_id ?? matchingPaidOrderItem.order_id ?? null,
+    reason: matchingDeliveredOrderItem?.order_id ? ("eligible" as ReviewEligibilityReason) : ("not_delivered" as ReviewEligibilityReason),
   };
 }
 
@@ -332,19 +368,26 @@ export async function createReview(input: CreateReviewInput, sessionUser: Sessio
     throw new Error("Bu urun icin zaten yorum biraktiniz");
   }
 
-  const verifiedPurchase = await resolveVerifiedPurchase(sessionUser.id, payload.productId);
+  const reviewEligibility = await resolveReviewEligibility(sessionUser.id, payload.productId);
+  if (!reviewEligibility.canReview) {
+    if (reviewEligibility.reason === "not_delivered") {
+      throw new Error("Yorum birakmak icin siparisinizin teslim edilmis olmasi gerekiyor");
+    }
+
+    throw new Error("Yorum birakmak icin once bu urunu satin alip teslim almaniz gerekiyor");
+  }
   const now = new Date();
 
   try {
     const review = (await ProductReview.create({
       product_id: payload.productId,
       user_id: sessionUser.id,
-      order_id: verifiedPurchase.orderId,
+      order_id: reviewEligibility.orderId,
       rating: clampReviewRating(payload.rating),
       title: payload.title,
       comment: payload.comment,
       images: payload.images,
-      is_verified_purchase: verifiedPurchase.isVerifiedPurchase,
+      is_verified_purchase: reviewEligibility.isVerifiedPurchase,
       is_approved: false,
       helpful_count: 0,
       helpful_user_ids: [],
@@ -454,6 +497,9 @@ export async function listReviews(input: ListReviewsInput, sessionUser?: Session
       })
     : 0;
 
+  const viewerEligibility =
+    params.productId && sessionUser?.id ? await resolveReviewEligibility(sessionUser.id, params.productId) : null;
+
   return {
     items,
     page,
@@ -462,6 +508,8 @@ export async function listReviews(input: ListReviewsInput, sessionUser?: Session
     totalPages,
     summary: buildSummary(product, verifiedPurchaseCount),
     viewerReviewStatus: params.productId ? await getViewerReviewStatus(params.productId, sessionUser?.id) : null,
+    viewerCanReview: viewerEligibility?.canReview ?? false,
+    viewerReviewReason: viewerEligibility?.reason ?? "not_purchased",
   };
 }
 
@@ -611,4 +659,3 @@ export async function replyToReview(input: ReplyToReviewInput) {
 }
 
 export type { AdminReviewStatus, ReviewSort };
-

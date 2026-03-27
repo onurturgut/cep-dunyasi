@@ -32,14 +32,14 @@ export default function AccountOrderDetailScreen({ orderId }: AccountOrderDetail
   const canRequestReturn = order ? canCreateReturnRequest(order.order_status, order.shipment?.status) : false;
 
   return (
-    <AccountLayout title="Siparis Detayi" description="Siparisinizin urunlerini, odeme ozetini ve kargo takibini ayrintili olarak inceleyin.">
+    <AccountLayout title="Sipariş Detayı" description="Siparişinizin ürünlerini, ödeme özetini ve kargo takibini ayrıntılı olarak inceleyin.">
       {orderQuery.isLoading ? (
         <AccountSectionSkeleton cards={2} rows={4} />
       ) : orderQuery.error ? (
         <AccountEmptyState
           icon={AlertCircle}
-          title="Siparis detayina ulasilamadi"
-          description={orderQuery.error instanceof Error ? orderQuery.error.message : "Siparis detayi getirilemiyor."}
+          title="Sipariş detayına ulaşılamadı"
+          description={orderQuery.error instanceof Error ? orderQuery.error.message : "Sipariş detayı getirilemiyor."}
         />
       ) : order ? (
         <>
@@ -51,8 +51,8 @@ export default function AccountOrderDetailScreen({ orderId }: AccountOrderDetail
           <Dialog open={Boolean(selectedItemId)} onOpenChange={(open) => (!open ? setSelectedItemId(null) : null)}>
             <DialogContent className="max-w-2xl rounded-[1.75rem]">
               <DialogHeader>
-                <DialogTitle>Iade / Degisim Talebi</DialogTitle>
-                <DialogDescription>Talebiniz once incelemeye alinacak, sonuc hesabiniz uzerinden sizinle paylasilacaktir.</DialogDescription>
+                <DialogTitle>İade / Değişim Talebi</DialogTitle>
+                <DialogDescription>Talebiniz önce incelemeye alınacak, sonuç hesabınız üzerinden sizinle paylaşılacaktır.</DialogDescription>
               </DialogHeader>
               <ReturnRequestForm
                 orderId={order.id}

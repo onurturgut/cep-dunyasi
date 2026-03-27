@@ -30,7 +30,7 @@ const megaMenuData = {
     href: '/products?category=telefon',
     columns: [
       {
-        title: 'Markalar',
+        title: 'Apple Modelleri',
         items: [
           { label: 'Apple', href: '/products?category=telefon' },
           { label: 'Samsung', href: '/products?category=telefon' },
@@ -66,9 +66,9 @@ const megaMenuData = {
         title: 'Markalar',
         items: [
           { label: 'Apple', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Samsung', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Xiaomi', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Huawei', href: '/products?category=ikinci-el-telefon' },
+          { label: 'iPhone 15 Serisi', href: '/products?category=ikinci-el-telefon' },
+          { label: 'iPhone 14 Serisi', href: '/products?category=ikinci-el-telefon' },
+          { label: 'iPhone 13 Serisi', href: '/products?category=ikinci-el-telefon' },
         ],
       },
       {
@@ -76,17 +76,17 @@ const megaMenuData = {
         items: [
           { label: 'iPhone 15', href: '/products?category=ikinci-el-telefon' },
           { label: 'iPhone 14', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Galaxy S24', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Redmi Note 13', href: '/products?category=ikinci-el-telefon' },
+          { label: 'iPhone 13', href: '/products?category=ikinci-el-telefon' },
+          { label: 'iPhone 12', href: '/products?category=ikinci-el-telefon' },
         ],
       },
       {
-        title: 'Seriler',
+        title: 'Durum',
         items: [
-          { label: 'Pro Serisi', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Max Serisi', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Ultra Serisi', href: '/products?category=ikinci-el-telefon' },
-          { label: 'A Serisi', href: '/products?category=ikinci-el-telefon' },
+          { label: 'Cok Iyi', href: '/products?category=ikinci-el-telefon' },
+          { label: 'Iyi', href: '/products?category=ikinci-el-telefon' },
+          { label: 'Pil Sagligi Yuksek', href: '/products?category=ikinci-el-telefon' },
+          { label: 'Garantili Secimler', href: '/products?category=ikinci-el-telefon' },
         ],
       },
     ],
@@ -225,6 +225,14 @@ const desktopStandaloneLinks = [
   { label: 'Teknik Servis', href: '/technical-service' },
 ];
 
+const megaMenuPromoContent: Partial<Record<MegaMenuKey, { title: string; description: string; cta: string }>> = {
+  ikinciElTelefonlar: {
+    title: "Kontrollu ikinci el iPhone secimleri",
+    description: "Yalnizca Apple / iPhone modellerine odaklanan seckide pil sagligi, kondisyon ve guvenli alisveris avantajlarini hizlica inceleyin.",
+    cta: "iPhone'lari Gor",
+  },
+};
+
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<MegaMenuKey | null>(null);
@@ -283,16 +291,20 @@ export function Header() {
   }, []);
 
   const activeMegaData = activeMegaMenu ? megaMenuData[activeMegaMenu] : null;
+  const primaryMegaColumns = activeMegaData ? activeMegaData.columns.slice(0, 2) : [];
+  const promoMegaColumn = activeMegaData?.columns[2] ?? null;
+  const activePromoContent = activeMegaMenu ? megaMenuPromoContent[activeMegaMenu] : null;
   const megaMenuTransitionStyle = { transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' } as const;
   const isDarkMode = mounted && resolvedTheme === 'dark';
 
   return (
     <>
       <header
-        className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/95 text-foreground backdrop-blur-2xl"
+        className="sticky top-0 z-50 isolate w-full border-b border-border/70 bg-background/92 bg-[linear-gradient(90deg,rgba(255,255,255,0.96)_0%,rgba(248,249,252,0.94)_34%,rgba(236,240,248,0.92)_68%,rgba(225,232,244,0.94)_100%)] text-foreground backdrop-blur-2xl dark:bg-[linear-gradient(90deg,rgba(8,12,22,0.96)_0%,rgba(12,18,32,0.95)_34%,rgba(22,28,45,0.94)_68%,rgba(30,37,56,0.95)_100%)]"
         onMouseLeave={scheduleCloseMegaMenu}
       >
-        <div className="container flex h-16 items-center justify-between gap-3 sm:h-[4.5rem]">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+        <div className="container relative z-10 flex h-16 items-center justify-between gap-3 sm:h-[4.5rem]">
           <Link to="/" className="flex min-w-0 items-center gap-2">
             <img
               src={isDarkMode ? "/images/cep-dunyasi-logo-dark-v3-tight.png" : "/images/image.png"}
@@ -502,8 +514,8 @@ export function Header() {
                       Tümünü Gör
                     </Link>
                   </div>
-                  <div className="grid gap-6 md:grid-cols-3">
-                    {activeMegaData.columns.map((column) => (
+                  <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_300px]">
+                    {primaryMegaColumns.map((column) => (
                       <div key={column.title} className="rounded-2xl border border-border/65 bg-background/75 p-4">
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{column.title}</p>
                         <ul className="mt-4 space-y-2">
@@ -522,6 +534,37 @@ export function Header() {
                         </ul>
                       </div>
                     ))}
+                    {promoMegaColumn ? (
+                      <div className="rounded-[1.75rem] border border-border/65 bg-gradient-to-br from-background via-background to-secondary/20 p-5 shadow-[0_24px_44px_rgba(0,0,0,0.12)]">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">{promoMegaColumn.title}</p>
+                        <h4 className="mt-3 font-display text-2xl font-semibold tracking-tight text-foreground">
+                          {activePromoContent?.title || `${activeMegaData.label} icin ozel secimler`}
+                        </h4>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                          {activePromoContent?.description || "En cok ilgi goren baglantilara hizli gecis yapin ve ilgili koleksiyonu tek adimda inceleyin."}
+                        </p>
+                        <div className="mt-5 flex flex-wrap gap-2.5">
+                          {promoMegaColumn.items.map((item) => (
+                            <Link
+                              key={item.label}
+                              to={item.href}
+                              onClick={closeMegaMenu}
+                              className="rounded-full border border-border/75 bg-background/85 px-3.5 py-2 text-sm font-medium text-foreground/85 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                        <Link
+                          to={activeMegaData.href}
+                          onClick={closeMegaMenu}
+                          className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
+                        >
+                          {activePromoContent?.cta || "Tumunu Gor"}
+                          <ChevronRight className="h-4 w-4" />
+                        </Link>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               )}

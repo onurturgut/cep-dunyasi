@@ -7,6 +7,7 @@ export type AdminReviewStatus = (typeof ADMIN_REVIEW_STATUS_OPTIONS)[number];
 export type ReviewRatingValue = 1 | 2 | 3 | 4 | 5;
 export type ReviewRatingKey = "1" | "2" | "3" | "4" | "5";
 export type ReviewViewerStatus = "pending" | "approved" | null;
+export type ReviewEligibilityReason = "not_purchased" | "not_delivered" | "eligible";
 
 export type ReviewDistribution = Record<ReviewRatingKey, number>;
 
@@ -53,6 +54,8 @@ export type ProductReviewListResponse = {
   totalPages: number;
   summary: ProductReviewSummary;
   viewerReviewStatus: ReviewViewerStatus;
+  viewerCanReview: boolean;
+  viewerReviewReason: ReviewEligibilityReason;
 };
 
 export function createEmptyReviewDistribution(): ReviewDistribution {
@@ -118,4 +121,3 @@ export function clampReviewRating(value: number): ReviewRatingValue {
   if (value >= 5) return 5;
   return Math.round(value) as ReviewRatingValue;
 }
-

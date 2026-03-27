@@ -21,7 +21,7 @@ export function ReviewFilters({ value, onChange }: ReviewFiltersProps) {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap gap-2">
           <Button variant={value.rating === undefined ? "default" : "outline"} size="sm" onClick={() => onChange({ ...value, rating: undefined })}>
-            Tum Yorumlar
+            Tüm Yorumlar
           </Button>
           {[5, 4, 3, 2, 1].map((rating) => (
             <Button
@@ -30,7 +30,7 @@ export function ReviewFilters({ value, onChange }: ReviewFiltersProps) {
               size="sm"
               onClick={() => onChange({ ...value, rating })}
             >
-              {rating} Yildiz
+              {rating} Yıldız
             </Button>
           ))}
         </div>
@@ -43,7 +43,7 @@ export function ReviewFilters({ value, onChange }: ReviewFiltersProps) {
               onCheckedChange={(checked) => onChange({ ...value, verified: checked === true ? true : undefined })}
             />
             <Label htmlFor="verified-only" className="text-sm text-muted-foreground">
-              Sadece dogrulanmis satin alma
+              Sadece doğrulanmış satın alma
             </Label>
           </div>
 
@@ -53,9 +53,9 @@ export function ReviewFilters({ value, onChange }: ReviewFiltersProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="newest">En Yeni</SelectItem>
-              <SelectItem value="highest">En Yuksek Puan</SelectItem>
-              <SelectItem value="lowest">En Dusuk Puan</SelectItem>
-              <SelectItem value="most_helpful">En Faydali</SelectItem>
+              <SelectItem value="highest">En Yüksek Puan</SelectItem>
+              <SelectItem value="lowest">En Düşük Puan</SelectItem>
+              <SelectItem value="most_helpful">En Faydalı</SelectItem>
             </SelectContent>
           </Select>
         </div>

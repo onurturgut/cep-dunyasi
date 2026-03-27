@@ -44,13 +44,13 @@ export function RecentlyViewedSection() {
               <History className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h2 className="font-display text-3xl font-bold sm:text-4xl">Son Goruntulenen Urunler</h2>
-              <p className="mt-1 text-sm text-muted-foreground">En son baktigin urunlere hizlica geri don.</p>
+              <h2 className="font-display text-3xl font-bold sm:text-4xl">Son Görüntülenen Ürünler</h2>
+              <p className="mt-1 text-sm text-muted-foreground">En son baktığın ürünlere hızlıca geri dön.</p>
             </div>
           </div>
           {products.length === 0 ? (
             <div className="mt-6 rounded-2xl border border-dashed border-border/70 bg-muted/20 px-4 py-10 text-center text-sm text-muted-foreground">
-              Henuz son goruntulenen urun yok. Bir urun detayina girdiginizde burada listelenecek.
+              Henüz son görüntülenen ürün yok. Bir ürün detayına girdiğinizde burada listelenecek.
             </div>
           ) : (
             <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -74,6 +74,7 @@ export function RecentlyViewedSection() {
                     createdAt={product.created_at}
                     salesCount={product.sales_count}
                     ratingAverage={product.rating_average}
+                    secondHand={product.second_hand}
                     specs={product.specs}
                     storage={variant?.storage}
                     ram={variant?.ram}

@@ -20,13 +20,13 @@ export function FavoritesSection({ title = "Favorilerim", className }: Favorites
       </h2>
 
       {wishlistLoading || wishlistFetching ? (
-        <div className="mt-4 text-sm text-muted-foreground">Favoriler yukleniyor...</div>
+        <div className="mt-4 text-sm text-muted-foreground">Favoriler yükleniyor...</div>
       ) : wishlistError ? (
-        <div className="mt-4 text-sm text-destructive">Favoriler su anda yuklenemedi: {wishlistError.message}</div>
+        <div className="mt-4 text-sm text-destructive">Favoriler şu anda yüklenemedi: {wishlistError.message}</div>
       ) : wishlistProducts.length === 0 ? (
         <div className="mt-4 flex flex-col items-center py-12 text-center">
           <Heart className="h-12 w-12 text-muted-foreground/30" />
-          <p className="mt-2 text-muted-foreground">Henuz favori urun eklemediniz.</p>
+          <p className="mt-2 text-muted-foreground">Henüz favori ürün eklemediniz.</p>
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
@@ -50,6 +50,7 @@ export function FavoritesSection({ title = "Favorilerim", className }: Favorites
                 createdAt={product.created_at}
                 salesCount={product.sales_count}
                 ratingAverage={product.rating_average}
+                secondHand={product.second_hand}
                 specs={product.specs}
                 storage={variant?.storage}
                 ram={variant?.ram}

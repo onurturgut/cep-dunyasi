@@ -1,8 +1,11 @@
+import { getProductVariantAxes, type VariantAxisDefinition } from "@/lib/product-variant-config";
+
 export type VariantSelection = {
   variantId?: string | null;
   colorName?: string | null;
   storage?: string | null;
   ram?: string | null;
+  attributes?: Record<string, string | null | undefined>;
 };
 
 export type ProductVariantRecord = {
@@ -107,27 +110,49 @@ function getAttributeValue(attributes: Record<string, unknown> | null | undefine
   return null;
 }
 
+function getVariantAxisRawValue(
+  axis: VariantAxisDefinition,
+  input: {
+    colorName?: string | null;
+    storage?: string | null;
+    ram?: string | null;
+    attributes?: Record<string, unknown> | null | undefined;
+  },
+) {
+  if (axis.source === "field") {
+    if (axis.fieldKey === "color_name") {
+      return normalizeText(input.colorName);
+    }
+
+    if (axis.fieldKey === "storage") {
+      return normalizeText(input.storage);
+    }
+
+    if (axis.fieldKey === "ram") {
+      return normalizeText(input.ram);
+    }
+  }
+
+  return getAttributeValue(input.attributes, axis.attributeKeys);
+}
+
 export function buildVariantAttributes(input: {
   colorName?: string | null;
   storage?: string | null;
   ram?: string | null;
+  attributes?: Record<string, unknown> | null;
+  categorySlug?: string | null;
 }) {
-  const attributes: Record<string, string> = {};
+  const normalizedAttributes = normalizeAttributeMap(input.attributes);
+  const attributes: Record<string, string> = { ...normalizedAttributes };
 
-  const colorName = normalizeText(input.colorName);
-  const storage = normalizeText(input.storage);
-  const ram = normalizeText(input.ram);
+  for (const axis of getProductVariantAxes(input.categorySlug)) {
+    const value = getVariantAxisRawValue(axis, input);
+    if (!value) {
+      continue;
+    }
 
-  if (colorName) {
-    attributes.color = colorName;
-  }
-
-  if (storage) {
-    attributes.storage = storage;
-  }
-
-  if (ram) {
-    attributes.ram = ram;
+    attributes[axis.attributeKeys[0]] = value;
   }
 
   return attributes;
@@ -137,12 +162,12 @@ export function buildVariantOptionSignature(input: {
   colorName?: string | null;
   storage?: string | null;
   ram?: string | null;
+  attributes?: Record<string, unknown> | null;
+  categorySlug?: string | null;
 }) {
-  const colorName = normalizeText(input.colorName)?.toLocaleLowerCase("tr-TR") || "-";
-  const storage = normalizeText(input.storage)?.toLocaleLowerCase("tr-TR") || "-";
-  const ram = normalizeText(input.ram)?.toLocaleLowerCase("tr-TR") || "-";
-
-  return [colorName, storage, ram].join("__");
+  return getProductVariantAxes(input.categorySlug)
+    .map((axis) => getVariantAxisRawValue(axis, input)?.toLocaleLowerCase("tr-TR") || "-")
+    .join("__");
 }
 
 export function normalizeProductVariant(raw: VariantLike): ProductVariantRecord {
@@ -171,6 +196,7 @@ export function normalizeProductVariant(raw: VariantLike): ProductVariantRecord 
       colorName,
       storage,
       ram,
+      attributes: normalizedSourceAttributes,
     });
 
   return {
@@ -195,6 +221,7 @@ export function normalizeProductVariant(raw: VariantLike): ProductVariantRecord 
         colorName,
         storage,
         ram,
+        attributes: normalizedSourceAttributes,
       }),
     },
     created_at: raw.created_at,
@@ -240,8 +267,10 @@ export function getDefaultProductVariant<T extends VariantLike>(variants: T[], p
 }
 
 export function findProductVariantBySelection<T extends VariantLike>(variants: T[], selection: VariantSelection) {
+  const activeVariants = getActiveProductVariants(variants);
+
   if (selection.variantId) {
-    const byId = variants.find((variant) => normalizeProductVariant(variant).id === selection.variantId);
+    const byId = activeVariants.find((variant) => normalizeProductVariant(variant).id === selection.variantId);
     if (byId) {
       return byId;
     }
@@ -250,8 +279,9 @@ export function findProductVariantBySelection<T extends VariantLike>(variants: T
   const requestedColor = normalizeText(selection.colorName);
   const requestedStorage = normalizeText(selection.storage);
   const requestedRam = normalizeText(selection.ram);
+  const requestedAttributes = normalizeAttributeMap(selection.attributes);
 
-  return variants.find((variant) => {
+  return activeVariants.find((variant) => {
     const normalizedVariant = normalizeProductVariant(variant);
 
     if (requestedColor && normalizedVariant.color_name !== requestedColor) {
@@ -264,6 +294,12 @@ export function findProductVariantBySelection<T extends VariantLike>(variants: T
 
     if (requestedRam && normalizedVariant.ram !== requestedRam) {
       return false;
+    }
+
+    for (const [key, expectedValue] of Object.entries(requestedAttributes)) {
+      if (normalizeText(normalizedVariant.attributes[key]) !== expectedValue) {
+        return false;
+      }
     }
 
     return true;
@@ -282,7 +318,24 @@ export function getVariantLabel(variant: VariantLike) {
     return label;
   }
 
-  const attributeFallbackKeys = ["uyumluluk", "guc", "kapasite", "ekran", "durum", "cikis", "power", "capacity", "display", "condition"];
+  const attributeFallbackKeys = [
+    "uyumluluk",
+    "compatibility",
+    "guc",
+    "power",
+    "kapasite",
+    "capacity",
+    "ekran",
+    "display",
+    "durum",
+    "condition",
+    "cikis",
+    "output",
+    "kasa_boyutu",
+    "case_size",
+    "baglanti",
+    "connectivity",
+  ];
   const fallbackParts = attributeFallbackKeys
     .map((key) => normalized.attributes[key])
     .filter(Boolean)

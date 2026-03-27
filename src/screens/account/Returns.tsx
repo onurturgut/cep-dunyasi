@@ -11,20 +11,20 @@ export default function AccountReturnsScreen() {
   const returnsQuery = useMyReturnRequests();
 
   return (
-    <AccountLayout title="Iade / Degisim Taleplerim" description="Olusturdugunuz iade ve degisim taleplerinin durumunu bu alandan takip edebilirsiniz.">
+    <AccountLayout title="İade / Değişim Taleplerim" description="Oluşturduğunuz iade ve değişim taleplerinin durumunu bu alandan takip edebilirsiniz.">
       {returnsQuery.isLoading ? (
         <AccountSectionSkeleton cards={2} rows={3} />
       ) : returnsQuery.error ? (
         <AccountEmptyState
           icon={RotateCcw}
-          title="Talepler yuklenemedi"
-          description={returnsQuery.error instanceof Error ? returnsQuery.error.message : "Talepler su anda getirilemiyor."}
+          title="Talepler yüklenemedi"
+          description={returnsQuery.error instanceof Error ? returnsQuery.error.message : "Talepler şu anda getirilemiyor."}
         />
       ) : (returnsQuery.data?.length ?? 0) === 0 ? (
         <AccountEmptyState
           icon={RotateCcw}
-          title="Henuz iade veya degisim talebiniz yok"
-          description="Teslim edilmis siparislerinizde uygun urunler icin siparis detay ekranindan talep olusturabilirsiniz."
+          title="Henüz iade veya değişim talebiniz yok"
+          description="Teslim edilmiş siparişlerinizde uygun ürünler için sipariş detay ekranından talep oluşturabilirsiniz."
         />
       ) : (
         <div className="space-y-5">

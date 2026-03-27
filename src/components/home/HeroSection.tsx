@@ -1,10 +1,10 @@
 "use client";
 
-import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Link } from '@/lib/router';
-import { benefitIcons, type HomeSiteContent } from '@/components/home/home-data';
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "@/lib/router";
+import { benefitIcons, type HomeSiteContent } from "@/components/home/home-data";
 
 type HeroSectionProps = {
   activeSlide: number;
@@ -34,13 +34,13 @@ export function HeroSection({ activeSlide, onSlideChange, content }: HeroSection
                   {content.hero_title_prefix}
                   <span className="text-primary"> {content.hero_title_highlight} </span>
                   <img
-                    src={content.hero_logo_light_url || encodeURI('/images/cep-dunyasi-logo-black-v3-tight.png')}
-                    alt="Cep Dünyası logosu"
+                    src={content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-black-v3-tight.png")}
+                    alt="Cep Dunyasi logosu"
                     className="mx-1 inline-block h-auto w-[160px] align-middle dark:hidden sm:w-[200px] md:w-[240px] xl:w-[300px]"
                   />
                   <img
-                    src={content.hero_logo_dark_url || content.hero_logo_light_url || encodeURI('/images/cep-dunyasi-logo-dark-v3-tight.png')}
-                    alt="Cep Dünyası logosu"
+                    src={content.hero_logo_dark_url || content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-dark-v3-tight.png")}
+                    alt="Cep Dunyasi logosu"
                     className="mx-1 hidden h-auto w-[160px] align-middle dark:inline-block sm:w-[200px] md:w-[240px] xl:w-[300px]"
                   />
                   {content.hero_title_suffix}
@@ -50,7 +50,7 @@ export function HeroSection({ activeSlide, onSlideChange, content }: HeroSection
                 </p>
                 <div className="mt-7">
                   <Button size="lg" asChild className="w-full shadow-[0_12px_28px_rgba(0,0,0,0.24)] sm:w-auto">
-                    <Link to={content.hero_cta_href || '/products'}>
+                    <Link to={content.hero_cta_href || "/products"}>
                       {content.hero_cta_label} <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
@@ -61,15 +61,15 @@ export function HeroSection({ activeSlide, onSlideChange, content }: HeroSection
                     const Icon = benefitIcons[benefit.icon] || benefitIcons.Truck;
 
                     return (
-                    <div key={benefit.title} className="rounded-xl border border-border/60 bg-card/70 p-3 shadow-[0_24px_52px_rgba(0,0,0,0.24)] sm:px-4 sm:py-3.5">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                          <Icon className="h-3.5 w-3.5" />
+                      <div key={benefit.title} className="rounded-xl border border-border/60 bg-card/70 p-3 shadow-[0_24px_52px_rgba(0,0,0,0.24)] sm:px-4 sm:py-3.5">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <Icon className="h-3.5 w-3.5" />
+                          </div>
+                          <p className="text-sm font-semibold text-foreground drop-shadow-[0_6px_16px_rgba(0,0,0,0.2)] sm:text-base">{benefit.title}</p>
                         </div>
-                        <p className="text-sm font-semibold text-foreground drop-shadow-[0_6px_16px_rgba(0,0,0,0.2)] sm:text-base">{benefit.title}</p>
+                        <p className="mt-1 text-xs text-muted-foreground drop-shadow-[0_4px_12px_rgba(0,0,0,0.18)] sm:text-[13px]">{benefit.desc}</p>
                       </div>
-                      <p className="mt-1 text-xs text-muted-foreground drop-shadow-[0_4px_12px_rgba(0,0,0,0.18)] sm:text-[13px]">{benefit.desc}</p>
-                    </div>
                     );
                   })}
                 </div>
@@ -84,7 +84,7 @@ export function HeroSection({ activeSlide, onSlideChange, content }: HeroSection
                       src={slide.image_url}
                       alt={slide.alt}
                       className={`absolute inset-0 mx-auto h-full w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.65)] transition-all duration-700 ease-out ${
-                        index === activeSlide ? 'translate-x-0 scale-100 opacity-100' : 'translate-x-8 scale-95 opacity-0'
+                        index === activeSlide ? "translate-x-0 scale-100 opacity-100" : "translate-x-8 scale-95 opacity-0"
                       }`}
                     />
                   ))}
@@ -95,9 +95,9 @@ export function HeroSection({ activeSlide, onSlideChange, content }: HeroSection
                         key={`${slide.id}-dot`}
                         type="button"
                         onClick={() => onSlideChange(index)}
-                        aria-label={`${slide.alt} görseline git`}
+                        aria-label={`${slide.alt} gorseline git`}
                         className={`h-2.5 w-2.5 rounded-full transition-all ${
-                          index === activeSlide ? 'bg-background' : 'bg-background/45 hover:bg-background/70'
+                          index === activeSlide ? "bg-background" : "bg-background/45 hover:bg-background/70"
                         }`}
                       />
                     ))}

@@ -30,11 +30,11 @@ export default function Favorites() {
           </div>
           <div>
             <h1 className="font-display text-2xl font-bold">Favorilerim</h1>
-            <p className="text-sm text-muted-foreground">Begendiginiz urunleri buradan takip edebilirsiniz.</p>
+            <p className="text-sm text-muted-foreground">Beğendiğiniz ürünleri buradan takip edebilirsiniz.</p>
           </div>
         </div>
 
-        <FavoritesSection className="mt-8" title="Kaydettigin Urunler" />
+        <FavoritesSection className="mt-8" title="Kaydettiğin Ürünler" />
       </div>
     </Layout>
   );

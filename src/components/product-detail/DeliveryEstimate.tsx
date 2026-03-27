@@ -49,7 +49,7 @@ export function DeliveryEstimate({ stock }: DeliveryEstimateProps) {
               {estimate.isPreorder ? <Clock3 className="h-4 w-4 text-primary" /> : <PackageCheck className="h-4 w-4 text-primary" />}
               {estimate.deliveryWindow}
             </div>
-            <p className="mt-2 text-xs leading-5 text-muted-foreground">Ucretsiz ve guvenli kargo secenekleri sepet adiminda netlestirilir.</p>
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">Ücretsiz ve güvenli kargo seçenekleri sepet adımında netleştirilir.</p>
           </div>
         </div>
       </CardContent>

@@ -54,8 +54,8 @@ export function ProductImageZoomModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="grid h-[100dvh] max-w-none gap-0 border-none bg-black/95 p-0 text-white shadow-none sm:h-[92vh] sm:max-w-6xl sm:rounded-3xl">
         <div className="sr-only">
-          <DialogTitle>{productName} gorsel galerisi</DialogTitle>
-          <DialogDescription>Urun gorsellerini buyuk onizleme modunda inceleyin.</DialogDescription>
+          <DialogTitle>{productName} görsel galerisi</DialogTitle>
+          <DialogDescription>Ürün görsellerini büyük önizleme modunda inceleyin.</DialogDescription>
         </div>
 
         <div className="absolute right-4 top-4 z-20 flex items-center gap-2">
@@ -67,10 +67,11 @@ export function ProductImageZoomModal({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-10 w-10 rounded-full border border-white/15 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+            className="h-10 w-10 rounded-full border border-white/15 bg-black/45 p-0 text-white shadow-[0_10px_24px_rgba(0,0,0,0.32)] hover:bg-black/65 hover:text-white"
             onClick={() => onOpenChange(false)}
+            aria-label="Galeriyi kapat"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4 stroke-[2.25]" />
           </Button>
         </div>
 
@@ -114,7 +115,7 @@ export function ProductImageZoomModal({
               <img src={currentImage} alt={productName} className="max-h-full max-w-full rounded-2xl object-contain" />
             ) : (
               <div className="flex h-[320px] w-full items-center justify-center rounded-3xl border border-dashed border-white/15 bg-white/5 text-sm text-white/60">
-                Gorsel bulunamadi
+                Görsel bulunamadı
               </div>
             )}
           </div>

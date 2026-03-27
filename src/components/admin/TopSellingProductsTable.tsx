@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatCurrency } from "@/lib/utils";
 import type { TopSellingProductRow } from "@/lib/admin";
 
-export function TopSellingProductsTable({ items, title = "En Cok Satan Urunler" }: { items: TopSellingProductRow[]; title?: string }) {
+export function TopSellingProductsTable({ items, title = "En Çok Satan Ürünler" }: { items: TopSellingProductRow[]; title?: string }) {
   return (
     <Card>
       <CardHeader>
@@ -15,7 +15,7 @@ export function TopSellingProductsTable({ items, title = "En Cok Satan Urunler" 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Urun</TableHead>
+              <TableHead>Ürün</TableHead>
               <TableHead>SKU</TableHead>
               <TableHead>Adet</TableHead>
               <TableHead>Stok</TableHead>
@@ -35,7 +35,7 @@ export function TopSellingProductsTable({ items, title = "En Cok Satan Urunler" 
             {items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
-                  Satis verisi bulunamadi.
+                  Satış verisi bulunamadı.
                 </TableCell>
               </TableRow>
             ) : null}

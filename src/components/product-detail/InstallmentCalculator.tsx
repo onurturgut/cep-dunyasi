@@ -42,13 +42,13 @@ export function InstallmentCalculator({ price }: InstallmentCalculatorProps) {
             <CreditCard className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-foreground">Ornek taksit secenekleri</div>
+            <div className="text-sm font-semibold text-foreground">Örnek taksit seçenekleri</div>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Gercek banka kampanyalari odeme ekraninda gosterilir. Buradaki tutarlar bilgilendirme amaclidir.
+              Gerçek banka kampanyaları ödeme ekranında gösterilir. Buradaki tutarlar bilgilendirme amaçlıdır.
             </p>
             {highlightedPlan ? (
               <p className="mt-2 text-sm font-medium text-foreground">
-                En dengeli secenek: {highlightedPlan.months} x {formatCurrency(highlightedPlan.monthlyAmount)}
+                En dengeli seçenek: {highlightedPlan.months} x {formatCurrency(highlightedPlan.monthlyAmount)}
               </p>
             ) : null}
           </div>
@@ -56,7 +56,7 @@ export function InstallmentCalculator({ price }: InstallmentCalculatorProps) {
 
         <Accordion type="single" collapsible className="mt-4">
           <AccordionItem value="installments" className="border-border/60">
-            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">Tum taksit planlarini gor</AccordionTrigger>
+            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">Tüm taksit planlarını gör</AccordionTrigger>
             <AccordionContent className="pb-0">
               <div className="overflow-hidden rounded-2xl border border-border/70 bg-muted/10">
                 <InstallmentTable price={price} />

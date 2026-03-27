@@ -9,16 +9,16 @@ export function LowStockTable({ items }: { items: LowStockProductRow[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Dusuk Stok Uyarilari</CardTitle>
+        <CardTitle className="text-base">Düşük Stok Uyarıları</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Urun</TableHead>
+              <TableHead>Ürün</TableHead>
               <TableHead>Varyant</TableHead>
               <TableHead>SKU</TableHead>
-              <TableHead>Esik</TableHead>
+              <TableHead>Eşik</TableHead>
               <TableHead>Stok</TableHead>
               <TableHead>Durum</TableHead>
             </TableRow>
@@ -33,7 +33,7 @@ export function LowStockTable({ items }: { items: LowStockProductRow[] }) {
                 <TableCell className="font-semibold">{item.stock}</TableCell>
                 <TableCell>
                   <Badge variant={item.status === "out_of_stock" ? "destructive" : "secondary"}>
-                    {item.status === "out_of_stock" ? "Tukendi" : "Kritik"}
+                    {item.status === "out_of_stock" ? "Tükendi" : "Kritik"}
                   </Badge>
                 </TableCell>
               </TableRow>
@@ -41,7 +41,7 @@ export function LowStockTable({ items }: { items: LowStockProductRow[] }) {
             {items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
-                  Dusuk stoklu varyant bulunmuyor.
+                  Düşük stoklu varyant bulunmuyor.
                 </TableCell>
               </TableRow>
             ) : null}

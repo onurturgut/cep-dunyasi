@@ -1,12 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { Product, ProductVariant } from "@/server/models";
+import { Category, Product, ProductVariant } from "@/server/models";
 import {
   buildVariantAttributes,
   buildVariantOptionSignature,
   getProductStartingPrice,
   normalizeProductVariant,
 } from "@/lib/product-variants";
+import { getProductVariantAxes } from "@/lib/product-variant-config";
+import { normalizeSecondHandDetails } from "@/lib/second-hand";
 
 const optionalTrimmedStringSchema = z
   .union([z.string(), z.null(), z.undefined()])
@@ -32,13 +34,77 @@ const specsSchema = z
     rearCamera: null,
   });
 
+const booleanOrNullSchema = z
+  .union([z.boolean(), z.null(), z.undefined(), z.literal(""), z.literal("true"), z.literal("false")])
+  .transform((value) => {
+    if (value === "" || value == null) {
+      return null;
+    }
+
+    if (typeof value === "boolean") {
+      return value;
+    }
+
+    return value === "true";
+  });
+
+const stringArrayOrNullSchema = z
+  .union([z.array(z.string()), z.string(), z.null(), z.undefined()])
+  .transform((value) => {
+    if (Array.isArray(value)) {
+      return value.map((item) => item.trim()).filter(Boolean);
+    }
+
+    if (typeof value === "string") {
+      return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  });
+
+const variantAttributesSchema = z
+  .record(z.string(), optionalTrimmedStringSchema)
+  .default({})
+  .transform((value) =>
+    Object.fromEntries(
+      Object.entries(value).filter(([key, item]) => key.trim() && typeof item === "string" && item.trim()),
+    ),
+  );
+
+const secondHandSchema = z.object({
+  condition: z.enum(["mukemmel", "cok_iyi", "iyi"]).nullable().optional().default(null),
+  battery_health: z
+    .union([z.coerce.number().int().min(0).max(100), z.null(), z.undefined(), z.literal("")])
+    .transform((value) => (value === "" || value == null ? null : Number(value))),
+  warranty_type: z.enum(["magaza", "distributor", "none"]).nullable().optional().default(null),
+  warranty_remaining_months: z
+    .union([z.coerce.number().int().min(0), z.null(), z.undefined(), z.literal("")])
+    .transform((value) => (value === "" || value == null ? null : Number(value))),
+  includes_box: z.boolean().default(false),
+  includes_invoice: z.boolean().default(false),
+  included_accessories: stringArrayOrNullSchema,
+  face_id_status: z.enum(["working", "not_working", "not_applicable"]).nullable().optional().default(null),
+  true_tone_status: z.enum(["working", "not_working", "not_applicable"]).nullable().optional().default(null),
+  battery_changed: booleanOrNullSchema,
+  changed_parts: stringArrayOrNullSchema,
+  cosmetic_notes: optionalTrimmedStringSchema,
+  inspection_summary: optionalTrimmedStringSchema,
+  inspection_date: optionalTrimmedStringSchema,
+  imei: optionalTrimmedStringSchema,
+  serial_number: optionalTrimmedStringSchema,
+});
+
 const adminVariantSchema = z
   .object({
     id: optionalTrimmedStringSchema,
-    color_name: z.string().trim().min(1, "Varyant renk adi zorunlu"),
+    color_name: optionalTrimmedStringSchema,
     color_code: optionalTrimmedStringSchema,
-    storage: z.string().trim().min(1, "Varyant depolama alani zorunlu"),
+    storage: optionalTrimmedStringSchema,
     ram: optionalTrimmedStringSchema,
+    attributes: variantAttributesSchema,
     sku: z.string().trim().min(1, "Varyant SKU zorunlu"),
     price: z.coerce.number().finite().positive("Varyant fiyati 0'dan buyuk olmali"),
     compare_at_price: z
@@ -77,6 +143,7 @@ const adminProductSchema = z.object({
   is_active: z.boolean().default(true),
   images: imageArraySchema,
   specs: specsSchema,
+  second_hand: secondHandSchema.nullable().optional().default(null),
   variants: z.array(adminVariantSchema).min(1, "En az bir varyant eklemelisiniz"),
 });
 
@@ -86,6 +153,14 @@ type AdminProductSaveResult = {
   productId: string;
   removedMediaUrls: string[];
 };
+
+type CategoryMeta = {
+  slug?: string | null;
+  name?: string | null;
+};
+
+const SECOND_HAND_IPHONE_CATEGORY_SLUG = "ikinci-el-telefon";
+const REQUIRED_SECOND_HAND_BRAND = "Apple";
 
 function slugifyProductName(value: string) {
   return value
@@ -101,7 +176,41 @@ function getFirstIssueMessage(error: z.ZodError) {
   return error.issues[0]?.message || "Gecersiz urun verisi";
 }
 
-function validateUniqueVariants(variants: AdminProductPayload["variants"]) {
+function normalizeBrandValue(value: string | null | undefined) {
+  return `${value ?? ""}`.trim().toLocaleLowerCase("tr-TR");
+}
+
+async function validateSecondHandIphoneRules(payload: AdminProductPayload) {
+  if (!payload.category_id) {
+    return;
+  }
+
+  const matchedCategory = (await Category.findOne({ id: payload.category_id }).select("slug name").lean()) as
+    | { slug?: string | null; name?: string | null }
+    | null;
+
+  if (matchedCategory?.slug !== SECOND_HAND_IPHONE_CATEGORY_SLUG) {
+    return;
+  }
+
+  if (payload.type !== "phone") {
+    throw new Error("2. El Telefonlar kategorisinde sadece telefon turundeki urunler kaydedilebilir");
+  }
+
+  if (normalizeBrandValue(payload.brand) !== normalizeBrandValue(REQUIRED_SECOND_HAND_BRAND)) {
+    throw new Error("2. El Telefonlar kategorisinde sadece Apple / iPhone urunleri yer alabilir");
+  }
+}
+
+async function getCategoryMeta(categoryId: string | null | undefined): Promise<CategoryMeta | null> {
+  if (!categoryId) {
+    return null;
+  }
+
+  return (await Category.findOne({ id: categoryId }).select("slug name").lean()) as CategoryMeta | null;
+}
+
+function validateUniqueVariants(variants: AdminProductPayload["variants"], categorySlug?: string | null) {
   const skuSet = new Set<string>();
   const signatureSet = new Set<string>();
 
@@ -111,6 +220,8 @@ function validateUniqueVariants(variants: AdminProductPayload["variants"]) {
       colorName: variant.color_name,
       storage: variant.storage,
       ram: variant.ram,
+      attributes: variant.attributes,
+      categorySlug,
     });
 
     if (skuSet.has(normalizedSku)) {
@@ -126,7 +237,35 @@ function validateUniqueVariants(variants: AdminProductPayload["variants"]) {
   }
 }
 
-function buildVariantDocument(productId: string, variant: AdminProductPayload["variants"][number], index: number) {
+function validateCategoryVariantRequirements(variants: AdminProductPayload["variants"], categorySlug?: string | null) {
+  const requiredAxes = getProductVariantAxes(categorySlug).filter((axis) => axis.required);
+
+  for (const variant of variants) {
+    for (const axis of requiredAxes) {
+      const value =
+        axis.fieldKey === "color_name"
+          ? variant.color_name
+          : axis.fieldKey === "storage"
+            ? variant.storage
+            : axis.fieldKey === "ram"
+              ? variant.ram
+              : variant.attributes[axis.attributeKeys[0]];
+
+      if (`${value ?? ""}`.trim()) {
+        continue;
+      }
+
+      throw new Error(`${axis.label} alani secili kategori icin zorunludur`);
+    }
+  }
+}
+
+function buildVariantDocument(
+  productId: string,
+  variant: AdminProductPayload["variants"][number],
+  index: number,
+  categorySlug?: string | null,
+) {
   const normalized = normalizeProductVariant({
     id: variant.id,
     product_id: productId,
@@ -146,11 +285,15 @@ function buildVariantDocument(productId: string, variant: AdminProductPayload["v
       colorName: variant.color_name,
       storage: variant.storage,
       ram: variant.ram,
+      attributes: variant.attributes,
+      categorySlug,
     }),
     attributes: buildVariantAttributes({
       colorName: variant.color_name,
       storage: variant.storage,
       ram: variant.ram,
+      attributes: variant.attributes,
+      categorySlug,
     }),
   });
 
@@ -203,7 +346,11 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
   }
 
   const payload = parsedPayload.data;
-  validateUniqueVariants(payload.variants);
+  const matchedCategory = await getCategoryMeta(payload.category_id);
+  const categorySlug = matchedCategory?.slug ?? null;
+  validateCategoryVariantRequirements(payload.variants, categorySlug);
+  validateUniqueVariants(payload.variants, categorySlug);
+  await validateSecondHandIphoneRules(payload);
 
   const slug = payload.slug || slugifyProductName(payload.name);
   if (!slug) {
@@ -228,7 +375,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
   }
 
   const provisionalProductId = productId || randomUUID();
-  const preparedVariants = payload.variants.map((variant, index) => buildVariantDocument(provisionalProductId, variant, index));
+  const preparedVariants = payload.variants.map((variant, index) => buildVariantDocument(provisionalProductId, variant, index, categorySlug));
   const startingPrice = getProductStartingPrice(preparedVariants) || preparedVariants[0]?.price || 0;
   const now = new Date();
 
@@ -243,6 +390,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
     is_active: payload.is_active,
     images: payload.images,
     specs: Object.values(payload.specs).some(Boolean) ? payload.specs : null,
+    second_hand: normalizeSecondHandDetails(payload.second_hand),
     starting_price: startingPrice,
     updated_at: now,
   };
@@ -265,7 +413,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
     }
 
     const preparedVariantsForSave = payload.variants.map((variant, index) =>
-      buildVariantDocument(resolvedProductId, variant, index)
+      buildVariantDocument(resolvedProductId, variant, index, categorySlug)
     );
 
     const removedVariants = existingVariants.filter(

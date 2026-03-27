@@ -10,7 +10,7 @@ export default function AccountOrdersScreen() {
   const ordersQuery = useMyOrders(page, 10);
 
   return (
-    <AccountLayout title="Siparislerim" description="Verdiginiz tum siparisleri, odeme durumlarini ve kargo sureclerini buradan takip edebilirsiniz.">
+    <AccountLayout title="Siparişlerim" description="Verdiğiniz tüm siparişleri, ödeme durumlarını ve kargo süreçlerini buradan takip edebilirsiniz.">
       <OrdersList
         orders={ordersQuery.data?.items ?? []}
         page={ordersQuery.data?.page ?? page}

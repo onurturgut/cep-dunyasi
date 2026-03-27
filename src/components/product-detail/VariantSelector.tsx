@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { getProductVariantAxes, type VariantAxisDefinition } from "@/lib/product-variant-config";
 import {
   getActiveProductVariants,
   normalizeProductVariant,
@@ -9,9 +10,12 @@ import { VariantOptionGroup, type VariantOption } from "@/components/product-det
 type VariantSelectorProps = {
   variants: ProductVariantRecord[];
   selectedVariant: ProductVariantRecord | null;
-  onColorSelect: (value: string) => void;
-  onStorageSelect: (value: string) => void;
-  onRamSelect: (value: string) => void;
+  categorySlug?: string | null;
+  onVariantSelect: (variant: ProductVariantRecord | null) => void;
+};
+
+type ResolvedVariantOption = VariantOption & {
+  preferredVariantId: string | null;
 };
 
 function createUniqueValues(values: Array<string | null | undefined>) {
@@ -24,113 +28,120 @@ function createUniqueValues(values: Array<string | null | undefined>) {
   );
 }
 
+function getSelectedAxisValue(variant: ProductVariantRecord | null, axis: VariantAxisDefinition) {
+  if (!variant) {
+    return null;
+  }
+
+  if (axis.fieldKey === "color_name") {
+    return variant.color_name;
+  }
+
+  if (axis.fieldKey === "storage") {
+    return variant.storage;
+  }
+
+  if (axis.fieldKey === "ram") {
+    return variant.ram || "Standart";
+  }
+
+  return axis.attributeKeys.map((key) => variant.attributes[key]).find(Boolean) || null;
+}
+
 export function VariantSelector({
   variants,
   selectedVariant,
-  onColorSelect,
-  onStorageSelect,
-  onRamSelect,
+  categorySlug,
+  onVariantSelect,
 }: VariantSelectorProps) {
   const activeVariants = useMemo(
     () => getActiveProductVariants(variants).map((variant) => normalizeProductVariant(variant)),
     [variants],
   );
 
-  const selectedColor = selectedVariant?.color_name || null;
-  const selectedStorage = selectedVariant?.storage || null;
-  const selectedRam = selectedVariant?.ram || null;
+  const axisDefinitions = useMemo(() => getProductVariantAxes(categorySlug), [categorySlug]);
 
-  const colorOptions = useMemo<VariantOption[]>(() => {
-    return createUniqueValues(activeVariants.map((variant) => variant.color_name)).map((colorName) => {
-      const matchingVariants = activeVariants.filter((variant) => variant.color_name === colorName);
-      const referenceVariant = matchingVariants[0];
+  const optionGroups = useMemo(() => {
+    const selectedValues = Object.fromEntries(
+      axisDefinitions.map((axis) => [axis.id, getSelectedAxisValue(selectedVariant, axis)]),
+    );
 
-      return {
-        label: colorName,
-        value: colorName,
-        colorCode: referenceVariant?.color_code || null,
-        inStock: matchingVariants.some((variant) => variant.stock > 0),
-      };
-    });
-  }, [activeVariants]);
+    return axisDefinitions
+      .map((axis) => {
+        const optionValues = createUniqueValues(activeVariants.map((variant) => getSelectedAxisValue(variant, axis)));
 
-  const storageOptions = useMemo<VariantOption[]>(() => {
-    return createUniqueValues(activeVariants.map((variant) => variant.storage)).map((storage) => {
-      const compatibleVariants = activeVariants.filter((variant) => {
-        if (selectedColor && variant.color_name !== selectedColor) {
-          return false;
-        }
+        const options = optionValues.map<ResolvedVariantOption>((value) => {
+          const candidates = activeVariants
+            .filter((variant) => getSelectedAxisValue(variant, axis) === value)
+            .map((variant) => {
+              const score = axisDefinitions.reduce((total, candidateAxis) => {
+                if (candidateAxis.id === axis.id) {
+                  return total;
+                }
 
-        if (selectedRam && (variant.ram || null) !== selectedRam) {
-          return false;
-        }
+                const currentValue = selectedValues[candidateAxis.id];
+                if (!currentValue) {
+                  return total;
+                }
 
-        return variant.storage === storage;
-      });
+                return getSelectedAxisValue(variant, candidateAxis) === currentValue ? total + 1 : total;
+              }, 0);
 
-      return {
-        label: storage,
-        value: storage,
-        disabled: compatibleVariants.length === 0,
-        inStock: compatibleVariants.some((variant) => variant.stock > 0),
-      };
-    });
-  }, [activeVariants, selectedColor, selectedRam]);
+              return { variant, score };
+            })
+            .sort((left, right) => {
+              if ((right.variant.stock > 0 ? 1 : 0) !== (left.variant.stock > 0 ? 1 : 0)) {
+                return (right.variant.stock > 0 ? 1 : 0) - (left.variant.stock > 0 ? 1 : 0);
+              }
 
-  const ramValues = useMemo(
-    () => createUniqueValues(activeVariants.map((variant) => variant.ram || "Standart")),
-    [activeVariants],
-  );
+              if (right.score !== left.score) {
+                return right.score - left.score;
+              }
 
-  const ramOptions = useMemo<VariantOption[]>(() => {
-    return ramValues.map((ramValue) => {
-      const normalizedRam = ramValue === "Standart" ? null : ramValue;
-      const compatibleVariants = activeVariants.filter((variant) => {
-        if (selectedColor && variant.color_name !== selectedColor) {
-          return false;
-        }
+              return left.variant.sort_order - right.variant.sort_order;
+            });
 
-        if (selectedStorage && variant.storage !== selectedStorage) {
-          return false;
-        }
+          const preferredVariant = candidates[0]?.variant ?? null;
 
-        return (variant.ram || null) === normalizedRam;
-      });
+          return {
+            label: value,
+            value,
+            colorCode: axis.id === "color_name" ? preferredVariant?.color_code || null : null,
+            disabled: candidates.length === 0,
+            inStock: candidates.some((candidate) => candidate.variant.stock > 0),
+            preferredVariantId: preferredVariant?.id || null,
+          };
+        });
 
-      return {
-        label: ramValue,
-        value: ramValue,
-        disabled: compatibleVariants.length === 0,
-        inStock: compatibleVariants.some((variant) => variant.stock > 0),
-      };
-    });
-  }, [activeVariants, ramValues, selectedColor, selectedStorage]);
+        return {
+          axis,
+          selectedValue: selectedValues[axis.id],
+          options,
+        };
+      })
+      .filter((group) => group.options.length > 1);
+  }, [activeVariants, axisDefinitions, selectedVariant]);
+
+  if (optionGroups.length === 0) {
+    return null;
+  }
 
   return (
     <div className="space-y-6">
-      <VariantOptionGroup
-        title="Renk"
-        options={colorOptions}
-        selectedValue={selectedColor}
-        onSelect={onColorSelect}
-        style="swatch"
-      />
-
-      <VariantOptionGroup
-        title="Depolama"
-        options={storageOptions}
-        selectedValue={selectedStorage}
-        onSelect={onStorageSelect}
-      />
-
-      {ramOptions.length > 1 ? (
+      {optionGroups.map((group) => (
         <VariantOptionGroup
-          title="RAM"
-          options={ramOptions}
-          selectedValue={selectedRam || "Standart"}
-          onSelect={onRamSelect}
+          key={group.axis.id}
+          title={group.axis.label}
+          options={group.options}
+          selectedValue={group.selectedValue}
+          onSelect={(value) => {
+            const nextOption = group.options.find((option) => option.value === value);
+            const nextVariant = activeVariants.find((variant) => variant.id === nextOption?.preferredVariantId) || null;
+            onVariantSelect(nextVariant);
+          }}
+          style={group.axis.style === "swatch" ? "swatch" : "pill"}
         />
-      ) : null}
+      ))}
     </div>
   );
 }

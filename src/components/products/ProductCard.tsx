@@ -10,6 +10,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { isBestSeller, isLowStock, isNewProduct } from "@/lib/product-catalog";
 import { normalizeProductSpecs, type ProductSpecs } from "@/lib/product-specs";
+import {
+  getBatteryHealthBucketLabel,
+  getSecondHandConditionLabel,
+  getSecondHandWarrantyLabel,
+  normalizeSecondHandDetails,
+  type SecondHandDetails,
+} from "@/lib/second-hand";
 import { formatCurrency, toPriceNumber } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -30,6 +37,7 @@ interface ProductCardProps {
   salesCount?: number;
   ratingAverage?: number;
   category?: string;
+  secondHand?: SecondHandDetails | null;
   specs?: ProductSpecs | null;
   storage?: string;
   ram?: string | null;
@@ -51,6 +59,7 @@ export function ProductCard({
   createdAt,
   salesCount,
   ratingAverage,
+  secondHand,
   specs,
   storage,
   ram,
@@ -64,6 +73,7 @@ export function ProductCard({
   const galleryImages = Array.from(new Set([...(images || []), image].filter(Boolean) as string[]));
   const primaryImage = galleryImages[0];
   const favorite = isFavorite(id);
+  const normalizedSecondHand = normalizeSecondHandDetails(secondHand);
   const normalizedSpecs = normalizeProductSpecs({
     ...specs,
     internalStorage: specs?.internalStorage || storage || null,
@@ -71,10 +81,10 @@ export function ProductCard({
   });
 
   const specEntries = [
-    { key: "operatingSystem", label: "Isletim Sistemi", value: normalizedSpecs.operatingSystem || "Belirtilmedi" },
-    { key: "internalStorage", label: "Dahili Hafiza", value: normalizedSpecs.internalStorage || "Belirtilmedi" },
+    { key: "operatingSystem", label: "İşletim Sistemi", value: normalizedSpecs.operatingSystem || "Belirtilmedi" },
+    { key: "internalStorage", label: "Dâhili Hafıza", value: normalizedSpecs.internalStorage || "Belirtilmedi" },
     { key: "ram", label: "RAM Kapasitesi", value: normalizedSpecs.ram || "Belirtilmedi" },
-    { key: "frontCamera", label: "On (Selfie) Kamera", value: normalizedSpecs.frontCamera || "Belirtilmedi" },
+    { key: "frontCamera", label: "Ön (Selfie) Kamera", value: normalizedSpecs.frontCamera || "Belirtilmedi" },
     { key: "rearCamera", label: "Arka Kamera", value: normalizedSpecs.rearCamera || "Belirtilmedi" },
   ] as const;
 
@@ -82,6 +92,12 @@ export function ProductCard({
   const showNewBadge = isNewProduct(createdAt);
   const showBestSellerBadge = isBestSeller(salesCount);
   const showLowStockBadge = isLowStock(stock);
+  const secondHandConditionLabel = getSecondHandConditionLabel(normalizedSecondHand?.condition);
+  const secondHandBatteryLabel = getBatteryHealthBucketLabel(normalizedSecondHand?.battery_health);
+  const secondHandWarrantyLabel = getSecondHandWarrantyLabel(
+    normalizedSecondHand?.warranty_type,
+    normalizedSecondHand?.warranty_remaining_months,
+  );
 
   const handleAddToCart = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -109,15 +125,15 @@ export function ProductCard({
     event.stopPropagation();
 
     if (!user) {
-      toast.error("Favorilere eklemek icin giris yapmaniz gerekiyor");
+      toast.error("Favorilere eklemek için giriş yapmanız gerekiyor");
       return;
     }
 
     try {
       const result = await toggleWishlist(id);
-      toast.success(result.isFavorite ? "Favorilere eklendi" : "Favorilerden cikarildi", { description: name });
+      toast.success(result.isFavorite ? "Favorilere eklendi" : "Favorilerden çıkarıldı", { description: name });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Favori islemi tamamlanamadi");
+      toast.error(error instanceof Error ? error.message : "Favori işlemi tamamlanamadı");
     }
   };
 
@@ -133,7 +149,7 @@ export function ProductCard({
               className="absolute right-1.5 top-1.5 z-20 h-8 w-8 rounded-full bg-background/90 backdrop-blur sm:right-2 sm:top-2"
               onClick={handleToggleWishlist}
               disabled={togglingProductId === id}
-              aria-label={favorite ? "Favorilerden cikar" : "Favorilere ekle"}
+              aria-label={favorite ? "Favorilerden çıkar" : "Favorilere ekle"}
             >
               <Heart className={`h-4 w-4 ${favorite ? "fill-primary text-primary" : "text-foreground"}`} />
             </Button>
@@ -141,7 +157,7 @@ export function ProductCard({
             <div className="absolute left-1.5 top-1.5 z-20 flex max-w-[70%] flex-wrap gap-1 sm:left-2 sm:top-2">
               {normalizedOriginalPrice > normalizedPrice ? (
                 <Badge className="bg-accent px-2 py-0.5 text-[10px] text-accent-foreground sm:text-xs">
-                  %{Math.round(((normalizedOriginalPrice - normalizedPrice) / normalizedOriginalPrice) * 100)} Indirim
+                  %{Math.round(((normalizedOriginalPrice - normalizedPrice) / normalizedOriginalPrice) * 100)} İndirim
                 </Badge>
               ) : null}
               {showNewBadge ? (
@@ -151,12 +167,12 @@ export function ProductCard({
               ) : null}
               {showBestSellerBadge ? (
                 <Badge className="bg-primary/90 px-2 py-0.5 text-[10px] text-primary-foreground sm:text-xs">
-                  Cok Satan
+                  Çok Satan
                 </Badge>
               ) : null}
               {showLowStockBadge ? (
                 <Badge variant="secondary" className="px-2 py-0.5 text-[10px] sm:text-xs">
-                  Tukeniyor
+                  Tükeniyor
                 </Badge>
               ) : null}
             </div>
@@ -194,7 +210,7 @@ export function ProductCard({
 
             {stock <= 0 ? (
               <div className="absolute inset-0 flex items-center justify-center bg-background/60">
-                <Badge variant="secondary">Tukendi</Badge>
+                <Badge variant="secondary">Tükendi</Badge>
               </div>
             ) : null}
           </div>
@@ -205,6 +221,30 @@ export function ProductCard({
             {description ? <p className="mt-1.5 line-clamp-1 text-[11px] text-muted-foreground sm:mt-2 sm:line-clamp-2 sm:text-xs">{description}</p> : null}
             {ratingAverage && ratingAverage > 0 ? (
               <p className="mt-1 text-[11px] font-medium text-muted-foreground sm:text-xs">Puan {ratingAverage.toFixed(1)}</p>
+            ) : null}
+            {normalizedSecondHand ? (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {secondHandConditionLabel ? (
+                  <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/5 px-2 py-0.5 text-[10px] text-primary sm:text-[11px]">
+                    {secondHandConditionLabel}
+                  </Badge>
+                ) : null}
+                {secondHandBatteryLabel ? (
+                  <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px]">
+                    Pil {secondHandBatteryLabel}
+                  </Badge>
+                ) : null}
+                {secondHandWarrantyLabel ? (
+                  <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px]">
+                    {secondHandWarrantyLabel}
+                  </Badge>
+                ) : null}
+                {normalizedSecondHand.includes_box ? (
+                  <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px]">
+                    Kutulu
+                  </Badge>
+                ) : null}
+              </div>
             ) : null}
 
             <div className="mt-2.5 flex items-end justify-between gap-2 sm:mt-3 sm:gap-3">
@@ -258,7 +298,7 @@ export function ProductCard({
                         }}
                         className="flex w-full items-center justify-between rounded-xl border border-border/70 bg-muted/25 px-3 py-2 text-left transition-colors hover:bg-muted/40"
                       >
-                        <span className="text-[11px] font-semibold text-foreground">Urun Ozellikleri</span>
+                        <span className="text-[11px] font-semibold text-foreground">Ürün Özellikleri</span>
                         <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isSpecsOpen ? "rotate-180" : ""}`} />
                       </button>
                     </CollapsibleTrigger>

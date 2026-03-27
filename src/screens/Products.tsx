@@ -22,25 +22,39 @@ import {
   type CatalogFilters,
   type ProductSortOption,
 } from "@/lib/product-catalog";
+import {
+  SECOND_HAND_BATTERY_BUCKETS,
+  SECOND_HAND_CONDITION_OPTIONS,
+  SECOND_HAND_WARRANTY_OPTIONS,
+  type SecondHandDetails,
+} from "@/lib/second-hand";
 import { getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
 
 const defaultCategories = [
   { id: "default-telefon", name: "Telefon", slug: "telefon", icon: "Smartphone" },
   { id: "default-ikinci-el-telefon", name: "2. El Telefonlar", slug: "ikinci-el-telefon", icon: "Smartphone" },
-  { id: "default-akilli-saat", name: "Akilli Saatler", slug: "akilli-saatler", icon: "Watch" },
-  { id: "default-kilif", name: "Kilif", slug: "kilif", icon: "ShieldCheck" },
-  { id: "default-sarj", name: "Sarj Aleti", slug: "sarj-aleti", icon: "BatteryCharging" },
+  { id: "default-akilli-saat", name: "Ak\u0131ll\u0131 Saatler", slug: "akilli-saatler", icon: "Watch" },
+  { id: "default-kilif", name: "K\u0131l\u0131f", slug: "kilif", icon: "ShieldCheck" },
+  { id: "default-sarj", name: "\u015earj Aleti", slug: "sarj-aleti", icon: "BatteryCharging" },
   { id: "default-power", name: "Power Bank", slug: "power-bank", icon: "Battery" },
   { id: "default-servis", name: "Teknik Servis", slug: "teknik-servis", icon: "Wrench" },
 ];
 
 const SORT_OPTIONS: Array<{ value: ProductSortOption; label: string }> = [
   { value: "newest", label: "En Yeniler" },
-  { value: "best_selling", label: "En Cok Satanlar" },
+  { value: "best_selling", label: "En \u00c7ok Satanlar" },
   { value: "price_asc", label: "Fiyat Artan" },
   { value: "price_desc", label: "Fiyat Azalan" },
-  { value: "rating_desc", label: "Puana Gore" },
+  { value: "rating_desc", label: "Puana G\u00f6re" },
 ];
+
+function isAppleBrand(value: string | null | undefined) {
+  return `${value ?? ""}`.trim().toLocaleLowerCase("tr-TR") === "apple";
+}
+
+function isSecondHandWarrantyValue(value: string): value is NonNullable<SecondHandDetails["warranty_type"]> {
+  return value === "magaza" || value === "distributor" || value === "none";
+}
 
 function mergeCategories(fallbackCategories: Array<Record<string, string>>, dbCategories: Array<Record<string, string>>) {
   const categoriesBySlug = new Map<string, Record<string, string>>();
@@ -68,6 +82,7 @@ export default function Products() {
 
   const activeCategory = searchParams.get("category");
   const filterProfile = useMemo(() => getCatalogFilterProfile(activeCategory), [activeCategory]);
+  const isSecondHandIphoneCategory = activeCategory === "ikinci-el-telefon";
 
   useEffect(() => {
     setFilters(createEmptyCatalogFilters());
@@ -119,7 +134,11 @@ export default function Products() {
           }))
         : [];
 
-      setProducts(normalizedProducts);
+      setProducts(
+        activeCategory === "ikinci-el-telefon"
+          ? normalizedProducts.filter((product) => isAppleBrand(product.brand))
+          : normalizedProducts
+      );
       setLoading(false);
     };
 
@@ -146,16 +165,22 @@ export default function Products() {
 
   const activeFilterCount = useMemo(() => {
     return [
-      filters.brand,
+      isSecondHandIphoneCategory ? null : filters.brand,
       filters.color,
       filters.storage,
       filters.ram,
       ...Object.values(filters.attributeFilters ?? {}),
+      filters.secondHandCondition,
+      filters.batteryHealthMin != null ? "battery" : null,
+      filters.warrantyType,
+      filters.includesBoxOnly ? "box" : null,
+      filters.faceIdWorkingOnly ? "faceId" : null,
+      filters.trueToneWorkingOnly ? "trueTone" : null,
       filters.inStockOnly ? "stock" : null,
       filters.minPrice != null ? "min" : null,
       filters.maxPrice != null ? "max" : null,
     ].filter(Boolean).length;
-  }, [filters]);
+  }, [filters, isSecondHandIphoneCategory]);
 
   const resetFilters = () => {
     setFilters(createEmptyCatalogFilters());
@@ -174,7 +199,7 @@ export default function Products() {
           <aside className="w-full space-y-5 rounded-3xl border border-border/60 bg-card/55 p-4 backdrop-blur-xl sm:p-5 lg:sticky lg:top-24 lg:w-80 lg:shrink-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Urun ara..." className="pl-9" value={search} onChange={(event) => setSearch(event.target.value)} />
+              <Input placeholder="\u00dcr\u00fcn ara..." className="pl-9" value={search} onChange={(event) => setSearch(event.target.value)} />
             </div>
 
             <div className="space-y-2">
@@ -183,7 +208,7 @@ export default function Products() {
               </div>
               <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
                 <Button variant={!activeCategory ? "default" : "ghost"} size="sm" className="shrink-0 justify-start" onClick={() => setSearchParams({})}>
-                  Tumu
+                  T\u00fcm\u00fc
                 </Button>
                 {categories.map((category) => (
                   <Button
@@ -221,27 +246,132 @@ export default function Products() {
               </div>
 
               <div className="grid gap-3">
-                <Select value={filters.brand || "all"} onValueChange={(value) => setFilters((current) => ({ ...current, brand: value === "all" ? null : value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Marka secin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tum Markalar</SelectItem>
-                    {catalogOptions.brands.map((brand) => (
-                      <SelectItem key={brand} value={brand}>
-                        {brand}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {!isSecondHandIphoneCategory ? (
+                  <Select value={filters.brand || "all"} onValueChange={(value) => setFilters((current) => ({ ...current, brand: value === "all" ? null : value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Marka se\u00e7in" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">T\u00fcm Markalar</SelectItem>
+                      {catalogOptions.brands.map((brand) => (
+                        <SelectItem key={brand} value={brand}>
+                          {brand}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="rounded-xl border border-border/60 bg-muted/40 px-3 py-2.5 text-sm text-foreground/85">
+                    Marka: <span className="font-semibold">Apple / iPhone</span>
+                  </div>
+                )}
+
+                {isSecondHandIphoneCategory ? (
+                  <>
+                    <Select
+                      value={filters.secondHandCondition || "all"}
+                      onValueChange={(value) =>
+                        setFilters((current) => ({
+                          ...current,
+                          secondHandCondition: value === "all" ? null : value,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Kondisyon se\u00e7in" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">T\u00fcm Kondisyonlar</SelectItem>
+                        {SECOND_HAND_CONDITION_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Select
+                        value={filters.batteryHealthMin != null ? `${filters.batteryHealthMin}` : "all"}
+                        onValueChange={(value) =>
+                          setFilters((current) => ({
+                            ...current,
+                            batteryHealthMin: value === "all" ? null : Number(value),
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pil sa\u011fl\u0131\u011f\u0131" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">T\u00fcm Pil Sa\u011fl\u0131klar\u0131</SelectItem>
+                          {SECOND_HAND_BATTERY_BUCKETS.map((option) => (
+                            <SelectItem key={option.value} value={`${option.value}`}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <Select
+                        value={filters.warrantyType || "all"}
+                        onValueChange={(value) =>
+                          setFilters((current) => ({
+                            ...current,
+                            warrantyType: value === "all" || !isSecondHandWarrantyValue(value) ? null : value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Garanti se\u00e7in" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">T\u00fcm Garantiler</SelectItem>
+                          {SECOND_HAND_WARRANTY_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                      <Button
+                        variant={filters.includesBoxOnly ? "default" : "outline"}
+                        size="sm"
+                        className="h-auto min-h-9 justify-start whitespace-normal break-words px-3 py-2 text-left leading-tight"
+                        onClick={() => setFilters((current) => ({ ...current, includesBoxOnly: !current.includesBoxOnly }))}
+                      >
+                        Kutulu
+                      </Button>
+                      <Button
+                        variant={filters.faceIdWorkingOnly ? "default" : "outline"}
+                        size="sm"
+                        className="h-auto min-h-9 justify-start whitespace-normal break-words px-3 py-2 text-left leading-tight"
+                        onClick={() => setFilters((current) => ({ ...current, faceIdWorkingOnly: !current.faceIdWorkingOnly }))}
+                      >
+                        Face ID OK
+                      </Button>
+                      <Button
+                        variant={filters.trueToneWorkingOnly ? "default" : "outline"}
+                        size="sm"
+                        className="h-auto min-h-9 justify-start whitespace-normal break-words px-3 py-2 text-left leading-tight"
+                        onClick={() => setFilters((current) => ({ ...current, trueToneWorkingOnly: !current.trueToneWorkingOnly }))}
+                      >
+                        True Tone OK
+                      </Button>
+                    </div>
+                  </>
+                ) : null}
 
                 {filterProfile.showColor ? (
                   <Select value={filters.color || "all"} onValueChange={(value) => setFilters((current) => ({ ...current, color: value === "all" ? null : value }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Renk secin" />
+                      <SelectValue placeholder="Renk se\u00e7in" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Tum Renkler</SelectItem>
+                      <SelectItem value="all">T\u00fcm Renkler</SelectItem>
                       {catalogOptions.colors.map((color) => (
                         <SelectItem key={color} value={color}>
                           {color}
@@ -259,7 +389,7 @@ export default function Products() {
                           <SelectValue placeholder="Depolama" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">Tum Depolama</SelectItem>
+                          <SelectItem value="all">T\u00fcm Depolama</SelectItem>
                           {catalogOptions.storages.map((storage) => (
                             <SelectItem key={storage} value={storage}>
                               {storage}
@@ -275,7 +405,7 @@ export default function Products() {
                           <SelectValue placeholder="RAM" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">Tum RAM</SelectItem>
+                          <SelectItem value="all">T\u00fcm RAM</SelectItem>
                           {catalogOptions.ramOptions.map((ram) => (
                             <SelectItem key={ram} value={ram}>
                               {ram}
@@ -305,7 +435,7 @@ export default function Products() {
                       <SelectValue placeholder={definition.placeholder} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Tum {definition.label}</SelectItem>
+                      <SelectItem value="all">T\u00fcm {definition.label}</SelectItem>
                       {(catalogOptions.attributeOptions[definition.id] || []).map((option) => (
                         <SelectItem key={option} value={option}>
                           {option}
@@ -358,16 +488,18 @@ export default function Products() {
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="font-display text-2xl font-bold sm:text-3xl">
-                  {activeCategory ? categories.find((category) => category.slug === activeCategory)?.name || "Urunler" : "Tum Urunler"}
+                  {activeCategory ? categories.find((category) => category.slug === activeCategory)?.name || "\u00dcr\u00fcnler" : "T\u00fcm \u00dcr\u00fcnler"}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {filterProfile.helperText}
+                  {activeCategory === "ikinci-el-telefon"
+                    ? "Bu kategoride yaln\u0131zca Apple / iPhone ikinci el \u00fcr\u00fcnleri listelenir."
+                    : filterProfile.helperText}
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <Badge variant="secondary" className="w-fit">
-                  {filteredProducts.length} urun
+                  {filteredProducts.length} \u00fcr\u00fcn
                 </Badge>
                 <Select value={sortBy} onValueChange={(value) => setSortBy(value as ProductSortOption)}>
                   <SelectTrigger className="w-[190px]">
@@ -397,8 +529,8 @@ export default function Products() {
             ) : filteredProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <SlidersHorizontal className="h-12 w-12 text-muted-foreground/30" />
-                <h3 className="mt-4 font-display font-semibold">Urun bulunamadi</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Filtrelerinizi gevsetip tekrar deneyin.</p>
+                <h3 className="mt-4 font-display font-semibold">\u00dcr\u00fcn bulunamad\u0131</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Filtrelerinizi gev\u015fetip tekrar deneyin.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
@@ -421,6 +553,7 @@ export default function Products() {
                       createdAt={product.created_at}
                       salesCount={product.sales_count}
                       ratingAverage={product.rating_average}
+                      secondHand={product.second_hand}
                       specs={product.specs as Record<string, string | null> | null}
                       storage={variant?.storage}
                       ram={variant?.ram}

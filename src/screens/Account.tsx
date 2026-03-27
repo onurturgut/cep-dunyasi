@@ -14,16 +14,16 @@ export default function Account() {
 
   return (
     <AccountLayout
-      title="Hesabim"
-      description="Siparislerinizi, favorilerinizi, teknik servis sureclerinizi ve hesap bilgilerinizi tek bir merkezden yonetin."
+      title="Hesabım"
+      description="Siparişlerinizi, favorilerinizi, teknik servis süreçlerinizi ve hesap bilgilerinizi tek bir merkezden yönetin."
     >
       {profileQuery.isLoading ? (
         <AccountSectionSkeleton cards={2} rows={4} />
       ) : profileQuery.error ? (
         <AccountEmptyState
           icon={AlertCircle}
-          title="Hesap bilgileri yuklenemedi"
-          description={profileQuery.error instanceof Error ? profileQuery.error.message : "Hesap bilgileri su anda getirilemiyor."}
+          title="Hesap bilgileri yüklenemedi"
+          description={profileQuery.error instanceof Error ? profileQuery.error.message : "Hesap bilgileri şu anda getirilemiyor."}
         />
       ) : profileQuery.data ? (
         <AccountOverview

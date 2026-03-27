@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import type { SecondHandDetails } from "@/lib/second-hand";
 
 type WishlistProduct = {
   id: string;
@@ -16,6 +17,7 @@ type WishlistProduct = {
   specs?: Record<string, string | null> | null;
   rating_average?: number;
   rating_count?: number;
+  second_hand?: SecondHandDetails | null;
   categories?: { name?: string; slug?: string } | null;
   product_variants: Array<Record<string, unknown>>;
 };

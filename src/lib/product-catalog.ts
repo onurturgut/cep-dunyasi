@@ -1,4 +1,6 @@
 import { getDefaultProductVariant, normalizeProductVariants, type ProductVariantRecord } from "@/lib/product-variants";
+import { getProductVariantCategoryConfig, getProductVariantFilterAxes } from "@/lib/product-variant-config";
+import { type SecondHandDetails, normalizeSecondHandDetails } from "@/lib/second-hand";
 import { toPriceNumber } from "@/lib/utils";
 
 export type CatalogProductRecord = {
@@ -13,6 +15,7 @@ export type CatalogProductRecord = {
   rating_average?: number;
   rating_count?: number;
   type?: string | null;
+  second_hand?: SecondHandDetails | null;
   categories?: { name?: string; slug?: string } | null;
   product_variants?: ProductVariantRecord[];
   specs?: Record<string, string | null> | null;
@@ -29,6 +32,12 @@ export type CatalogFilters = {
   minPrice?: number | null;
   maxPrice?: number | null;
   attributeFilters?: Record<string, string | null>;
+  secondHandCondition?: string | null;
+  batteryHealthMin?: number | null;
+  warrantyType?: string | null;
+  includesBoxOnly?: boolean;
+  faceIdWorkingOnly?: boolean;
+  trueToneWorkingOnly?: boolean;
 };
 
 export type CatalogAttributeFilterDefinition = {
@@ -54,99 +63,25 @@ type CatalogVariantOptions = {
   attributeOptions: Record<string, string[]>;
 };
 
-const defaultFilterProfile: CatalogFilterProfile = {
-  showColor: true,
-  showStorage: true,
-  showRam: true,
-  attributeFilters: [],
-  helperText: "Marka, fiyat, renk, RAM, depolama ve stok durumuna gore filtreleyebilirsiniz.",
-};
+function buildFilterProfile(activeCategory?: string | null): CatalogFilterProfile {
+  const categoryConfig = getProductVariantCategoryConfig(activeCategory);
+  const filterAxes = getProductVariantFilterAxes(activeCategory);
 
-const categoryFilterProfiles: Record<string, CatalogFilterProfile> = {
-  telefon: {
-    showColor: true,
-    showStorage: true,
-    showRam: true,
-    attributeFilters: [],
-    helperText: "Telefonlari marka, renk, depolama, RAM ve fiyata gore filtreleyebilirsiniz.",
-  },
-  "ikinci-el-telefon": {
-    showColor: true,
-    showStorage: true,
-    showRam: true,
-    attributeFilters: [
-      {
-        id: "condition",
-        label: "Durum",
-        placeholder: "Durum secin",
-        attributeKeys: ["durum", "condition"],
-      },
-    ],
-    helperText: "2. el cihazlari durum, renk, depolama ve fiyat bazinda filtreleyebilirsiniz.",
-  },
-  kilif: {
-    showColor: true,
-    showStorage: false,
-    showRam: false,
-    attributeFilters: [
-      {
-        id: "compatibility",
-        label: "Uyumluluk",
-        placeholder: "Model secin",
-        attributeKeys: ["uyumluluk", "compatibility"],
-      },
-    ],
-    helperText: "Kiliflari uyumluluk, renk, marka ve fiyat bazinda filtreleyebilirsiniz.",
-  },
-  "sarj-aleti": {
-    showColor: false,
-    showStorage: false,
-    showRam: false,
-    attributeFilters: [
-      {
-        id: "power",
-        label: "Guc",
-        placeholder: "Guc secin",
-        attributeKeys: ["guc", "power"],
-      },
-    ],
-    helperText: "Sarj aletlerini guc, marka, fiyat ve stok durumuna gore filtreleyebilirsiniz.",
-  },
-  "power-bank": {
-    showColor: false,
-    showStorage: false,
-    showRam: false,
-    attributeFilters: [
-      {
-        id: "capacity",
-        label: "Kapasite",
-        placeholder: "Kapasite secin",
-        attributeKeys: ["kapasite", "capacity"],
-      },
-      {
-        id: "output",
-        label: "Cikis",
-        placeholder: "Cikis secin",
-        attributeKeys: ["cikis", "output"],
-      },
-    ],
-    helperText: "Power bank urunlerini kapasite, cikis gucu, marka ve fiyata gore filtreleyebilirsiniz.",
-  },
-  "akilli-saatler": {
-    showColor: true,
-    showStorage: false,
-    showRam: false,
-    attributeFilters: [
-      {
-        id: "display",
-        label: "Ekran",
-        placeholder: "Ekran secin",
-        attributeKeys: ["ekran", "display"],
-      },
-    ],
-    helperText: "Akilli saatleri ekran, renk, marka ve fiyat bazinda filtreleyebilirsiniz.",
-  },
-};
+  return {
+    showColor: filterAxes.some((axis) => axis.id === "color_name"),
+    showStorage: filterAxes.some((axis) => axis.id === "storage"),
+    showRam: filterAxes.some((axis) => axis.id === "ram"),
+    attributeFilters: filterAxes
+      .filter((axis) => !["color_name", "storage", "ram"].includes(axis.id))
+      .map((axis) => ({
+        id: axis.id,
+        label: axis.label,
+        placeholder: axis.filterPlaceholder || axis.placeholder,
+        attributeKeys: axis.attributeKeys,
+      })),
+    helperText: categoryConfig.helperText,
+  };
+}
 
 function normalizeText(value: unknown) {
   const normalized = `${value ?? ""}`.trim();
@@ -192,15 +127,17 @@ export function createEmptyCatalogFilters(): CatalogFilters {
     minPrice: null,
     maxPrice: null,
     attributeFilters: {},
+    secondHandCondition: null,
+    batteryHealthMin: null,
+    warrantyType: null,
+    includesBoxOnly: false,
+    faceIdWorkingOnly: false,
+    trueToneWorkingOnly: false,
   };
 }
 
 export function getCatalogFilterProfile(activeCategory: string | null | undefined): CatalogFilterProfile {
-  if (!activeCategory) {
-    return defaultFilterProfile;
-  }
-
-  return categoryFilterProfiles[activeCategory] ?? defaultFilterProfile;
+  return buildFilterProfile(activeCategory);
 }
 
 export function getCatalogVariantOptions(products: CatalogProductRecord[], profile: CatalogFilterProfile): CatalogVariantOptions {
@@ -258,7 +195,7 @@ export function getCatalogVariantOptions(products: CatalogProductRecord[], profi
 export function getDisplayVariantForCatalogProduct(
   product: CatalogProductRecord,
   filters: CatalogFilters,
-  profile: CatalogFilterProfile = defaultFilterProfile
+  profile: CatalogFilterProfile = buildFilterProfile()
 ) {
   const variants = normalizeProductVariants(product.product_variants || []);
 
@@ -314,11 +251,36 @@ export function getDisplayVariantForCatalogProduct(
 export function matchesCatalogFilters(
   product: CatalogProductRecord,
   filters: CatalogFilters,
-  profile: CatalogFilterProfile = defaultFilterProfile
+  profile: CatalogFilterProfile = buildFilterProfile()
 ) {
   const brand = normalizeText(product.brand);
+  const secondHand = normalizeSecondHandDetails(product.second_hand);
 
   if (filters.brand && brand !== filters.brand) {
+    return false;
+  }
+
+  if (filters.secondHandCondition && secondHand?.condition !== filters.secondHandCondition) {
+    return false;
+  }
+
+  if (filters.batteryHealthMin != null && (secondHand?.battery_health ?? 0) < filters.batteryHealthMin) {
+    return false;
+  }
+
+  if (filters.warrantyType && secondHand?.warranty_type !== filters.warrantyType) {
+    return false;
+  }
+
+  if (filters.includesBoxOnly && !secondHand?.includes_box) {
+    return false;
+  }
+
+  if (filters.faceIdWorkingOnly && secondHand?.face_id_status !== "working") {
+    return false;
+  }
+
+  if (filters.trueToneWorkingOnly && secondHand?.true_tone_status !== "working") {
     return false;
   }
 
@@ -329,7 +291,7 @@ export function sortCatalogProducts(
   products: CatalogProductRecord[],
   filters: CatalogFilters,
   sort: ProductSortOption,
-  profile: CatalogFilterProfile = defaultFilterProfile
+  profile: CatalogFilterProfile = buildFilterProfile()
 ) {
   return [...products].sort((left, right) => {
     const leftVariant = getDisplayVariantForCatalogProduct(left, filters, profile);

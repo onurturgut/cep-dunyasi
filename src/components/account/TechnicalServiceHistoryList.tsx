@@ -18,15 +18,15 @@ export function TechnicalServiceHistoryList({ requests, isLoading, error }: Tech
   }
 
   if (error) {
-    return <AccountEmptyState icon={Wrench} title="Servis gecmisi yuklenemedi" description={error} />;
+    return <AccountEmptyState icon={Wrench} title="Servis geçmişi yüklenemedi" description={error} />;
   }
 
   if (requests.length === 0) {
     return (
       <AccountEmptyState
         icon={Wrench}
-        title="Henuz teknik servis kaydiniz yok"
-        description="Olusturdugunuz teknik servis basvurulari ve durum guncellemeleri burada listelenecek."
+        title="Henüz teknik servis kaydınız yok"
+        description="Oluşturduğunuz teknik servis başvuruları ve durum güncellemeleri burada listelenecek."
       />
     );
   }

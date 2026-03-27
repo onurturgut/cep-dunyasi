@@ -14,9 +14,9 @@ export function ProductFaqSection({ items }: ProductFaqSectionProps) {
   return (
     <section className="space-y-4" id="faq">
       <div className="space-y-2">
-        <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Sik Sorulan Sorular</h2>
+        <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Sık Sorulan Sorular</h2>
         <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-          Siparis, teslimat, garanti ve teknik destek sureclerine dair en cok merak edilen konulari burada bulabilirsiniz.
+          Sipariş, teslimat, garanti ve teknik destek süreçlerine dair en çok merak edilen konuları burada bulabilirsiniz.
         </p>
       </div>
 

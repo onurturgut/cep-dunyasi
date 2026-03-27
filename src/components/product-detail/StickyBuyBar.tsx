@@ -34,7 +34,7 @@ export function StickyBuyBar({
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-foreground">{productName}</p>
-            <p className="truncate text-xs text-muted-foreground">{variantSummary || "Varyant secimi gerekli"}</p>
+            <p className="truncate text-xs text-muted-foreground">{variantSummary || "Model seçimi gerekli"}</p>
             <div className="mt-1 flex items-center gap-2">
               <span className="text-base font-semibold text-foreground">{formatCurrency(price)}</span>
               <span className={cn("text-xs", stock > 0 ? "text-emerald-700" : "text-destructive")}>

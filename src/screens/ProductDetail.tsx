@@ -26,6 +26,7 @@ import { DeliveryEstimate } from "@/components/product-detail/DeliveryEstimate";
 import { InstallmentCalculator } from "@/components/product-detail/InstallmentCalculator";
 import { ProductFaqSection } from "@/components/product-detail/ProductFaqSection";
 import { StickyBuyBar } from "@/components/product-detail/StickyBuyBar";
+import { SecondHandInfo } from "@/components/product-detail/SecondHandInfo";
 import { WarrantyReturnInfo } from "@/components/product-detail/WarrantyReturnInfo";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { ReviewStars } from "@/components/reviews/ReviewStars";
@@ -40,6 +41,7 @@ import {
   type ProductFaqItem,
 } from "@/lib/product-detail";
 import { type ProductSpecs } from "@/lib/product-specs";
+import { getBatteryHealthBucketLabel, getSecondHandConditionLabel, normalizeSecondHandDetails, type SecondHandDetails } from "@/lib/second-hand";
 import { cn, formatCurrency, toPriceNumber } from "@/lib/utils";
 import {
   findProductVariantBySelection,
@@ -65,6 +67,7 @@ type ProductRecord = {
   rating_count?: number;
   rating_distribution?: Record<string, number> | null;
   specs?: ProductSpecs | null;
+  second_hand?: SecondHandDetails | null;
   categories?: { name?: string; slug?: string } | null;
   product_variants: ProductVariantRecord[];
 };
@@ -120,11 +123,11 @@ export default function ProductDetail() {
           .single();
 
         if (requestError) {
-          throw new Error(requestError.message || "Urun bilgileri yuklenemedi");
+          throw new Error(requestError.message || "\u00dcr\u00fcn bilgileri y\u00fcklenemedi");
         }
 
         if (!data) {
-          throw new Error("Urun bulunamadi");
+          throw new Error("\u00dcr\u00fcn bulunamad\u0131");
         }
 
         const nextProduct: ProductRecord = {
@@ -150,7 +153,7 @@ export default function ProductDetail() {
           return;
         }
 
-        setError(fetchError instanceof Error ? fetchError.message : "Urun bilgileri yuklenemedi");
+        setError(fetchError instanceof Error ? fetchError.message : "\u00dcr\u00fcn bilgileri y\u00fcklenemedi");
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -201,6 +204,7 @@ export default function ProductDetail() {
       created_at: product.created_at,
       sales_count: product.sales_count,
       rating_average: product.rating_average,
+      second_hand: product.second_hand,
       specs: product.specs,
       categories: product.categories,
       product_variants: variants,
@@ -225,6 +229,9 @@ export default function ProductDetail() {
   const discountRate = buildDiscountRate(selectedComparePrice, selectedPrice);
   const selectedStock = selectedVariant?.stock ?? 0;
   const selectedVariantSummary = selectedVariant ? getVariantLabel(selectedVariant) : "";
+  const secondHandDetails = normalizeSecondHandDetails(product?.second_hand);
+  const secondHandConditionLabel = getSecondHandConditionLabel(secondHandDetails?.condition);
+  const secondHandBatteryLabel = getBatteryHealthBucketLabel(secondHandDetails?.battery_health);
   const productFaqItems = useMemo<ProductFaqItem[]>(
     () =>
       product
@@ -249,7 +256,7 @@ export default function ProductDetail() {
 
       return buildBreadcrumbStructuredData([
         { name: "Ana Sayfa", item: `${current.origin}/` },
-        { name: "Urunler", item: `${current.origin}/products` },
+        { name: "\u00dcr\u00fcnler", item: `${current.origin}/products` },
         ...(product.categories?.name
           ? [{ name: product.categories.name, item: `${current.origin}${categoryPath}` }]
           : []),
@@ -272,63 +279,14 @@ export default function ProductDetail() {
     setQuantity(1);
   };
 
-  const handleColorSelect = (colorName: string) => {
-    const nextVariant =
-      findProductVariantBySelection(variants, {
-        colorName,
-        storage: selectedVariant?.storage,
-        ram: selectedVariant?.ram,
-      }) ||
-      findProductVariantBySelection(variants, {
-        colorName,
-        storage: selectedVariant?.storage,
-      }) ||
-      findProductVariantBySelection(variants, { colorName });
-
-    handleSelectVariant(nextVariant);
-  };
-
-  const handleStorageSelect = (storage: string) => {
-    const nextVariant =
-      findProductVariantBySelection(variants, {
-        colorName: selectedVariant?.color_name,
-        storage,
-        ram: selectedVariant?.ram,
-      }) ||
-      findProductVariantBySelection(variants, {
-        colorName: selectedVariant?.color_name,
-        storage,
-      }) ||
-      findProductVariantBySelection(variants, { storage });
-
-    handleSelectVariant(nextVariant);
-  };
-
-  const handleRamSelect = (ram: string) => {
-    const normalizedRam = ram === "Standart" ? null : ram;
-    const nextVariant =
-      findProductVariantBySelection(variants, {
-        colorName: selectedVariant?.color_name,
-        storage: selectedVariant?.storage,
-        ram: normalizedRam,
-      }) ||
-      findProductVariantBySelection(variants, {
-        storage: selectedVariant?.storage,
-        ram: normalizedRam,
-      }) ||
-      findProductVariantBySelection(variants, { ram: normalizedRam });
-
-    handleSelectVariant(nextVariant);
-  };
-
   const handleAddToCart = () => {
     if (!product || !selectedVariant) {
-      toast.error("Lutfen gecerli bir varyant secin");
+      toast.error("L\u00fctfen ge\u00e7erli bir model se\u00e7in");
       return;
     }
 
     if (selectedVariant.stock <= 0) {
-      toast.error("Secilen varyant su an stokta yok");
+      toast.error("Se\u00e7ilen model \u015fu an stokta yok");
       return;
     }
 
@@ -377,10 +335,10 @@ export default function ProductDetail() {
         <div className="container py-16">
           <Card className="mx-auto max-w-2xl border-border/70 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.45)]">
             <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
-              <p className="font-display text-2xl font-semibold text-foreground">Urun detayi yuklenemedi</p>
-              <p className="max-w-md text-sm leading-6 text-muted-foreground">{error || "Aradiginiz urun bulunamadi ya da gecici olarak erisilemiyor."}</p>
+              <p className="font-display text-2xl font-semibold text-foreground">\u00dcr\u00fcn detay\u0131 y\u00fcklenemedi</p>
+              <p className="max-w-md text-sm leading-6 text-muted-foreground">{error || "Arad\u0131\u011f\u0131n\u0131z \u00fcr\u00fcn bulunamad\u0131 ya da ge\u00e7ici olarak eri\u015filemiyor."}</p>
               <Button asChild>
-                <Link to="/products">Urunlere don</Link>
+                <Link to="/products">\u00dcr\u00fcnlere d\u00f6n</Link>
               </Button>
             </CardContent>
           </Card>
@@ -392,10 +350,10 @@ export default function ProductDetail() {
   const canAddToCart = Boolean(selectedVariant && selectedStock > 0);
   const lowStockMessage =
     selectedStock <= 0
-      ? "Bu varyant gecici olarak stokta bulunmuyor."
+      ? "Bu model ge\u00e7ici olarak stokta bulunmuyor."
       : selectedStock <= 5
-        ? `Secili varyantta son ${selectedStock} adet kaldi.`
-        : `${selectedStock} adet stokla siparise hazir.`;
+        ? `Se\u00e7ili modelde son ${selectedStock} adet kald\u0131.`
+        : `${selectedStock} adet stokla sipari\u015fe haz\u0131r.`;
 
   return (
     <Layout>
@@ -416,7 +374,7 @@ export default function ProductDetail() {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/products">Urunler</Link>
+                <Link to="/products">\u00dcr\u00fcnler</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             {product.categories?.name ? (
@@ -476,13 +434,23 @@ export default function ProductDetail() {
             >
               <CardContent className="space-y-6 p-6 sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <StockStatusBadge stock={selectedStock} />
-                      {discountRate ? (
-                        <Badge variant="secondary" className="rounded-full bg-primary/10 px-3 py-1 text-primary">
-                          %{discountRate} indirim
-                        </Badge>
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <StockStatusBadge stock={selectedStock} />
+                        {secondHandConditionLabel ? (
+                          <Badge variant="secondary" className="rounded-full bg-primary/10 px-3 py-1 text-primary">
+                            {secondHandConditionLabel}
+                          </Badge>
+                        ) : null}
+                        {secondHandBatteryLabel ? (
+                          <Badge variant="outline" className="rounded-full px-3 py-1">
+                            Pil {secondHandBatteryLabel}
+                          </Badge>
+                        ) : null}
+                        {discountRate ? (
+                          <Badge variant="secondary" className="rounded-full bg-primary/10 px-3 py-1 text-primary">
+                            %{discountRate} indirim
+                          </Badge>
                       ) : null}
                     </div>
 
@@ -494,13 +462,13 @@ export default function ProductDetail() {
                     </div>
 
                     <p className="text-sm text-muted-foreground">
-                      Secili varyant: <span className="font-medium text-foreground">{selectedVariantSummary || "Standart secim"}</span>
+                      Se\u00e7ili model: <span className="font-medium text-foreground">{selectedVariantSummary || "Standart se\u00e7im"}</span>
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-border/70 bg-card/70 px-4 py-3 text-sm shadow-sm">
                     <div className="font-medium text-foreground">{lowStockMessage}</div>
-                    <div className="mt-1 text-muted-foreground">Guvenli odeme ve hizli kargo ile gonderilir.</div>
+                    <div className="mt-1 text-muted-foreground">G\u00fcvenli \u00f6deme ve h\u0131zl\u0131 kargo ile g\u00f6nderilir.</div>
                   </div>
                 </div>
 
@@ -509,23 +477,28 @@ export default function ProductDetail() {
                 <VariantSelector
                   variants={variants}
                   selectedVariant={selectedVariant}
-                  onColorSelect={handleColorSelect}
-                  onStorageSelect={handleStorageSelect}
-                  onRamSelect={handleRamSelect}
+                  categorySlug={product.categories?.slug}
+                  onVariantSelect={handleSelectVariant}
                 />
 
                 <div className="grid gap-3 rounded-3xl border border-border/70 bg-muted/10 p-4 sm:grid-cols-3">
                   <div className="rounded-2xl bg-card px-4 py-3">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Teslimat</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">Hizli kargo uygun</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">H\u0131zl\u0131 kargo uygun</div>
                   </div>
                   <div className="rounded-2xl bg-card px-4 py-3">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Garanti</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">2 yil destek</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">
+                      {secondHandDetails
+                        ? secondHandDetails.warranty_type === "none"
+                          ? "Garanti durumu belirtilmi\u015f"
+                          : "Cihaza \u00f6zel garanti bilgisi mevcut"
+                        : "2 y\u0131l destek"}
+                    </div>
                   </div>
                   <div className="rounded-2xl bg-card px-4 py-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Iade</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">14 gun kosulsuz</div>
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">\u0130ade</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">14 g\u00fcn ko\u015fulsuz</div>
                   </div>
                 </div>
 
@@ -578,16 +551,16 @@ export default function ProductDetail() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <Truck className="h-4 w-4" />
                 </div>
-                <p className="mt-4 text-sm font-semibold text-foreground">Ucretsiz kargo secenegi</p>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">Uygun kampanyali tutarlarda ek teslimat bedeli yansimaz.</p>
+                <p className="mt-4 text-sm font-semibold text-foreground">\u00dccretsiz kargo se\u00e7ene\u011fi</p>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">Uygun kampanyal\u0131 tutarlarda ek teslimat bedeli yans\u0131maz.</p>
               </div>
 
               <div className="rounded-2xl border border-border/70 bg-card p-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <ShieldCheck className="h-4 w-4" />
                 </div>
-                <p className="mt-4 text-sm font-semibold text-foreground">Guvenli odeme</p>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">Tum odemeler sifrelenmis altyapi ve guvenli baglanti ile islenir.</p>
+                <p className="mt-4 text-sm font-semibold text-foreground">G\u00fcvenli \u00f6deme</p>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">T\u00fcm \u00f6demeler \u015fifrelenmi\u015f altyap\u0131 ve g\u00fcvenli ba\u011flant\u0131 ile i\u015flenir.</p>
               </div>
 
               <div className="rounded-2xl border border-border/70 bg-card p-4">
@@ -595,7 +568,7 @@ export default function ProductDetail() {
                   <RefreshCcw className="h-4 w-4" />
                 </div>
                 <p className="mt-4 text-sm font-semibold text-foreground">Kolay iade</p>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">Siparisiniz size ulastiktan sonra iade surecini online olarak baslatabilirsiniz.</p>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">Sipari\u015finiz size ula\u015ft\u0131ktan sonra iade s\u00fcrecini online olarak ba\u015flatabilirsiniz.</p>
               </div>
             </div>
           </div>
@@ -604,9 +577,9 @@ export default function ProductDetail() {
         <div className="space-y-10 lg:space-y-12">
           <section className="space-y-4">
             <div className="space-y-2">
-              <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Urune Genel Bakis</h2>
+              <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">\u00dcr\u00fcne Genel Bak\u0131\u015f</h2>
               <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
-                {product.description || "Bu urun icin henuz detayli bir tanitim metni eklenmemis. Secili varyanta ait tum detaylari yukaridaki alandan inceleyebilirsiniz."}
+                {product.description || "Bu \u00fcr\u00fcn i\u00e7in hen\u00fcz detayl\u0131 bir tan\u0131t\u0131m metni eklenmemi\u015f. Se\u00e7ili modele ait t\u00fcm detaylar\u0131 yukar\u0131daki alandan inceleyebilirsiniz."}
               </p>
             </div>
           </section>
@@ -617,10 +590,14 @@ export default function ProductDetail() {
             context={{
               brand: product.brand,
               categoryName: product.categories?.name,
+              categorySlug: product.categories?.slug,
               sku: selectedVariant?.sku,
               color: selectedVariant?.color_name,
+              variantSummary: selectedVariantSummary,
             }}
           />
+
+          <SecondHandInfo details={secondHandDetails} />
 
           <WarrantyReturnInfo productName={product.name} brand={product.brand} />
 

@@ -11,14 +11,14 @@ export function RecentOrdersTable({ orders }: { orders: RecentOrderSummary[] }) 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Son Siparisler</CardTitle>
+        <CardTitle className="text-base">Son Siparişler</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Siparis</TableHead>
-              <TableHead>Musteri</TableHead>
+              <TableHead>Sipariş</TableHead>
+              <TableHead>Müşteri</TableHead>
               <TableHead>Tarih</TableHead>
               <TableHead>Durum</TableHead>
               <TableHead className="text-right">Tutar</TableHead>
@@ -39,7 +39,7 @@ export function RecentOrdersTable({ orders }: { orders: RecentOrderSummary[] }) 
             {orders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
-                  Henuz siparis yok.
+                  Henüz sipariş yok.
                 </TableCell>
               </TableRow>
             ) : null}

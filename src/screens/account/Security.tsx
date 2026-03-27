@@ -6,8 +6,8 @@ import { SecuritySettingsForm } from "@/components/account/SecuritySettingsForm"
 export default function AccountSecurityScreen() {
   return (
     <AccountLayout
-      title="Guvenlik Ayarlari"
-      description="Sifrenizi guvenli sekilde yenileyin ve hesabinizin koruma ayarlarini kontrol edin."
+      title="Güvenlik Ayarları"
+      description="Şifrenizi güvenli şekilde yenileyin ve hesabınızın koruma ayarlarını kontrol edin."
     >
       <SecuritySettingsForm />
     </AccountLayout>
