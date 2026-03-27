@@ -15,6 +15,7 @@ const cached: MongooseCache = globalThis.mongooseCache ?? { conn: null, promise:
 globalThis.mongooseCache = cached;
 
 let dnsConfigured = false;
+let usingPublicDnsFallback = false;
 
 function configureMongoDns(mongoUri: string) {
   if (dnsConfigured || !mongoUri.startsWith("mongodb+srv://")) {
@@ -26,13 +27,36 @@ function configureMongoDns(mongoUri: string) {
     .map((value) => value.trim())
     .filter(Boolean);
 
-  const servers = configuredServers?.length ? configuredServers : ["1.1.1.1", "8.8.8.8"];
+  if (!configuredServers?.length) {
+    dnsConfigured = true;
+    return;
+  }
 
   try {
-    dns.setServers(servers);
+    dns.setServers(configuredServers);
     dnsConfigured = true;
   } catch {
     dnsConfigured = false;
+  }
+}
+
+function isSrvDnsFailure(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+  return message.includes("querysrv") || message.includes("econnrefused");
+}
+
+function applyPublicDnsFallback() {
+  try {
+    dns.setServers(["1.1.1.1", "8.8.8.8"]);
+    dnsConfigured = true;
+    usingPublicDnsFallback = true;
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -71,6 +95,16 @@ export async function connectToDatabase() {
         lastError = error;
         cached.promise = null;
         cached.conn = null;
+
+        if (
+          mongoUri.startsWith("mongodb+srv://") &&
+          !process.env.MONGODB_DNS_SERVERS &&
+          !usingPublicDnsFallback &&
+          isSrvDnsFailure(error) &&
+          applyPublicDnsFallback()
+        ) {
+          continue;
+        }
 
         if (attempt >= attempts) {
           throw error;

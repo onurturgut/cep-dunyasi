@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { sectionReveal } from "@/components/home/home-data";
 import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
 import { RECENTLY_VIEWED_UPDATED_EVENT, getRecentlyViewedProducts, type RecentlyViewedProductRecord } from "@/lib/recently-viewed";
+import { ProductRailCarousel } from "@/components/home/ProductRailCarousel";
 
 export function RecentlyViewedSection() {
   const [products, setProducts] = useState<RecentlyViewedProductRecord[]>([]);
@@ -48,41 +49,44 @@ export function RecentlyViewedSection() {
               <p className="mt-1 text-sm text-muted-foreground">En son baktığın ürünlere hızlıca geri dön.</p>
             </div>
           </div>
+
           {products.length === 0 ? (
             <div className="mt-6 rounded-2xl border border-dashed border-border/70 bg-muted/20 px-4 py-10 text-center text-sm text-muted-foreground">
               Henüz son görüntülenen ürün yok. Bir ürün detayına girdiğinizde burada listelenecek.
             </div>
           ) : (
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-              {products.map((product) => {
-                const variants = normalizeProductVariants(product.product_variants || []);
-                const variant = getDefaultProductVariant(variants, product.selected_variant_id);
+            <div className="mt-6">
+              <ProductRailCarousel
+                items={products.map((product) => {
+                  const variants = normalizeProductVariants(product.product_variants || []);
+                  const variant = getDefaultProductVariant(variants, product.selected_variant_id);
 
-                return (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    slug={product.slug}
-                    brand={product.brand}
-                    description={product.description}
-                    images={getVariantGallery(variant, product.images)}
-                    price={variant?.price || 0}
-                    originalPrice={variant?.compare_at_price || undefined}
-                    variantId={variant?.id}
-                    variantInfo={variant ? getVariantLabel(variant) : undefined}
-                    createdAt={product.created_at}
-                    salesCount={product.sales_count}
-                    ratingAverage={product.rating_average}
-                    secondHand={product.second_hand}
-                    specs={product.specs}
-                    storage={variant?.storage}
-                    ram={variant?.ram}
-                    stock={variant?.stock || 0}
-                    category={product.categories?.name}
-                  />
-                );
-              })}
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      slug={product.slug}
+                      brand={product.brand}
+                      description={product.description}
+                      images={getVariantGallery(variant, product.images)}
+                      price={variant?.price || 0}
+                      originalPrice={variant?.compare_at_price || undefined}
+                      variantId={variant?.id}
+                      variantInfo={variant ? getVariantLabel(variant) : undefined}
+                      createdAt={product.created_at}
+                      salesCount={product.sales_count}
+                      ratingAverage={product.rating_average}
+                      secondHand={product.second_hand}
+                      specs={product.specs}
+                      storage={variant?.storage}
+                      ram={variant?.ram}
+                      stock={variant?.stock || 0}
+                      category={product.categories?.name}
+                    />
+                  );
+                })}
+              />
             </div>
           )}
         </div>
@@ -90,3 +94,4 @@ export function RecentlyViewedSection() {
     </motion.section>
   );
 }
+

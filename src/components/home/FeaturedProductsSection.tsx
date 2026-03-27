@@ -1,12 +1,13 @@
 "use client";
 
-import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ProductCard } from '@/components/products/ProductCard';
-import { Link } from '@/lib/router';
-import { sectionReveal, type HomeProduct, type HomeSiteContent } from '@/components/home/home-data';
-import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from '@/lib/product-variants';
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ProductCard } from "@/components/products/ProductCard";
+import { Link } from "@/lib/router";
+import { sectionReveal, type HomeProduct, type HomeSiteContent } from "@/components/home/home-data";
+import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
+import { ProductRailCarousel } from "@/components/home/ProductRailCarousel";
 
 type FeaturedProductsSectionProps = {
   featuredProducts: HomeProduct[];
@@ -34,49 +35,50 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-5xl">{content.featured_section_title}</h2>
             <Button variant="ghost" asChild className="w-full justify-center sm:w-auto">
-              <Link to={content.featured_section_cta_href || '/products'}>
+              <Link to={content.featured_section_cta_href || "/products"}>
                 {content.featured_section_cta_label} <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
           </div>
 
           {featuredProducts.length > 0 ? (
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-              {featuredProducts.map((product) => {
-                const variant = getDefaultProductVariant(normalizeProductVariants(product.product_variants || []));
+            <div className="mt-6">
+              <ProductRailCarousel
+                items={featuredProducts.map((product) => {
+                  const variant = getDefaultProductVariant(normalizeProductVariants(product.product_variants || []));
 
-                return (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    slug={product.slug}
-                    brand={product.brand}
-                    description={product.description}
-                    images={getVariantGallery(variant, product.images)}
-                    price={variant?.price || 0}
-                    originalPrice={variant?.compare_at_price || undefined}
-                    variantId={variant?.id}
-                    variantInfo={variant ? getVariantLabel(variant) : undefined}
-                    createdAt={product.created_at}
-                    salesCount={product.sales_count}
-                    ratingAverage={product.rating_average}
-                    specs={product.specs}
-                    storage={variant?.storage}
-                    ram={variant?.ram}
-                    stock={variant?.stock || 0}
-                    category={product.categories?.name}
-                  />
-                );
-              })}
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      slug={product.slug}
+                      brand={product.brand}
+                      description={product.description}
+                      images={getVariantGallery(variant, product.images)}
+                      price={variant?.price || 0}
+                      originalPrice={variant?.compare_at_price || undefined}
+                      variantId={variant?.id}
+                      variantInfo={variant ? getVariantLabel(variant) : undefined}
+                      createdAt={product.created_at}
+                      salesCount={product.sales_count}
+                      ratingAverage={product.rating_average}
+                      specs={product.specs}
+                      storage={variant?.storage}
+                      ram={variant?.ram}
+                      stock={variant?.stock || 0}
+                      category={product.categories?.name}
+                    />
+                  );
+                })}
+              />
             </div>
           ) : (
-            <div className="mt-6 p-6 text-sm text-muted-foreground">
-              Henüz öne çıkan ürün eklenmedi.
-            </div>
+            <div className="mt-6 p-6 text-sm text-muted-foreground">Henüz öne çıkan ürün eklenmedi.</div>
           )}
         </motion.div>
       </div>
     </motion.section>
   );
 }
+

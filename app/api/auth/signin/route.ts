@@ -79,7 +79,10 @@ export async function POST(request: Request) {
     setSessionCookie(response, sanitizeUser(user));
     return response;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Giris basarisiz";
+    const rawMessage = error instanceof Error ? error.message : "Giris basarisiz";
+    const message = rawMessage.toLowerCase().includes("querysrv") || rawMessage.toLowerCase().includes("econnrefused")
+      ? "Veritabani baglantisi su anda kurulamiyor. Lutfen ag ayarlarinizi veya sunucu erisimini kontrol edip tekrar deneyin."
+      : rawMessage;
     return NextResponse.json({ error: { message } }, { status: 500 });
   }
 }

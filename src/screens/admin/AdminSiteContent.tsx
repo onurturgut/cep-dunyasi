@@ -13,6 +13,7 @@ import { defaultSiteContent } from "@/components/home/home-data";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
+import { CorporatePagesManager } from "@/components/admin/corporate/CorporatePagesManager";
 
 type HeroSlide = {
   id: string;
@@ -41,7 +42,14 @@ type SiteContentForm = {
   category_banner_main_image: string;
   category_banner_video: string;
   category_banner_video_link: string;
+  category_banner_badge_text: string;
+  category_banner_intro_text: string;
   category_banner_brand_title: string;
+  category_banner_stat_1_label: string;
+  category_banner_stat_1_value: string;
+  category_banner_stat_2_label: string;
+  category_banner_stat_2_value: string;
+  category_banner_highlight_label: string;
   category_banner_brand_desc_1: string;
   category_banner_brand_desc_2: string;
   category_banner_brand_desc_3: string;
@@ -509,9 +517,41 @@ export default function AdminSiteContent() {
 
             <div className="space-y-4">
               <h3 className="font-semibold">Marka Metinleri</h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Üst Rozet Metni</Label>
+                  <Input value={form.category_banner_badge_text} onChange={(e) => setForm((c) => ({ ...c, category_banner_badge_text: e.target.value }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Vurgu Etiketi</Label>
+                  <Input value={form.category_banner_highlight_label} onChange={(e) => setForm((c) => ({ ...c, category_banner_highlight_label: e.target.value }))} />
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label>Başlık (Türkiye'nin En Değerli...)</Label>
                 <Input value={form.category_banner_brand_title} onChange={(e) => setForm((c) => ({ ...c, category_banner_brand_title: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Sol Açıklama Metni</Label>
+                <Textarea value={form.category_banner_intro_text} onChange={(e) => setForm((c) => ({ ...c, category_banner_intro_text: e.target.value }))} />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>İstatistik Kartı 1 Başlık</Label>
+                  <Input value={form.category_banner_stat_1_label} onChange={(e) => setForm((c) => ({ ...c, category_banner_stat_1_label: e.target.value }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label>İstatistik Kartı 1 Metin</Label>
+                  <Input value={form.category_banner_stat_1_value} onChange={(e) => setForm((c) => ({ ...c, category_banner_stat_1_value: e.target.value }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label>İstatistik Kartı 2 Başlık</Label>
+                  <Input value={form.category_banner_stat_2_label} onChange={(e) => setForm((c) => ({ ...c, category_banner_stat_2_label: e.target.value }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label>İstatistik Kartı 2 Metin</Label>
+                  <Input value={form.category_banner_stat_2_value} onChange={(e) => setForm((c) => ({ ...c, category_banner_stat_2_value: e.target.value }))} />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>Açıklama 1 (Uluslararası marka...)</Label>
@@ -606,6 +646,8 @@ export default function AdminSiteContent() {
       <Button onClick={handleSave} disabled={saving || Boolean(uploadingTarget)}>
         {saving ? "Kaydediliyor..." : "Tüm İçeriği Kaydet"}
       </Button>
+
+      <CorporatePagesManager />
     </div>
   );
 }

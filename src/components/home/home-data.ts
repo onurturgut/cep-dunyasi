@@ -38,7 +38,14 @@ export type HomeSiteContent = {
   category_banner_main_image: string;
   category_banner_video: string;
   category_banner_video_link: string;
+  category_banner_badge_text: string;
+  category_banner_intro_text: string;
   category_banner_brand_title: string;
+  category_banner_stat_1_label: string;
+  category_banner_stat_1_value: string;
+  category_banner_stat_2_label: string;
+  category_banner_stat_2_value: string;
+  category_banner_highlight_label: string;
   category_banner_brand_desc_1: string;
   category_banner_brand_desc_2: string;
   category_banner_brand_desc_3: string;
@@ -127,7 +134,14 @@ export const defaultSiteContent: HomeSiteContent = {
   category_banner_main_image: 'https://pub-61300b39f2f74b558f60e467b6c2d588.r2.dev/banner/image-copy.png',
   category_banner_video: 'https://pub-61300b39f2f74b558f60e467b6c2d588.r2.dev/banner/afis1.mp4',
   category_banner_video_link: '/products?category=telefon',
+  category_banner_badge_text: 'Brand Finance 2025',
+  category_banner_intro_text: 'Premium teknoloji vitrini, güven veren marka konumlanması ve temiz bir sunum diliyle desteklenir.',
   category_banner_brand_title: 'Türkiye\'nin En Değerli Markaları Arasında!',
+  category_banner_stat_1_label: 'Odak',
+  category_banner_stat_1_value: 'Premium mobil deneyim',
+  category_banner_stat_2_label: 'Konum',
+  category_banner_stat_2_value: 'Güçlü marka algısı',
+  category_banner_highlight_label: 'Öne Çıkan Vurgu',
   category_banner_brand_desc_1: 'Uluslararası marka değerlendirme kuruluşu Brand Finance\'in "Türkiye 2025" raporunda Reeder, ülkemizin en değerli ve en güçlü markaları arasında yerini aldı.',
   category_banner_brand_desc_2: 'Brand Finance "Türkiye 2025" listesinde',
   category_banner_brand_desc_3: 'Reeder, Türkiye\'nin en değerli 3. cihaz üreticisi konumunda.',

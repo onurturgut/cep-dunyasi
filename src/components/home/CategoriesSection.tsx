@@ -47,7 +47,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
           <div className="relative grid items-start gap-8 text-left lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:gap-12">
             <motion.div className="max-w-[38rem] space-y-5">
               <span className="inline-flex rounded-full border border-border/70 bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground md:bg-background/75 md:backdrop-blur-xl dark:border-white/12 dark:bg-slate-900 dark:md:bg-white/6 dark:text-white/72">
-                Brand Finance 2025
+                {content.category_banner_badge_text || "Brand Finance 2025"}
               </span>
 
               {(content.hero_logo_dark_url || content.hero_logo_light_url) && (
@@ -76,17 +76,25 @@ export function CategoriesSection({ categories: _categories, content }: Categori
               </h3>
 
               <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base dark:text-white/62">
-                Premium teknoloji vitrini, guven veren marka konumlanmasi ve temiz bir sunum diliyle desteklenir.
+                {content.category_banner_intro_text || "Premium teknoloji vitrini, güven veren marka konumlanması ve temiz bir sunum diliyle desteklenir."}
               </p>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-[1.3rem] border border-border/70 bg-card px-4 py-3.5 md:bg-background/80 md:backdrop-blur-xl dark:border-white/10 dark:bg-slate-900 dark:md:bg-white/[0.05]">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/80 dark:text-white/45">Odak</p>
-                  <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">Premium mobil deneyim</p>
+                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/80 dark:text-white/45">
+                    {content.category_banner_stat_1_label || "Odak"}
+                  </p>
+                  <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">
+                    {content.category_banner_stat_1_value || "Premium mobil deneyim"}
+                  </p>
                 </div>
                 <div className="rounded-[1.3rem] border border-border/70 bg-card px-4 py-3.5 md:bg-background/80 md:backdrop-blur-xl dark:border-white/10 dark:bg-slate-900 dark:md:bg-white/[0.05]">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/80 dark:text-white/45">Konum</p>
-                  <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">Guclu marka algisi</p>
+                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/80 dark:text-white/45">
+                    {content.category_banner_stat_2_label || "Konum"}
+                  </p>
+                  <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">
+                    {content.category_banner_stat_2_value || "Güçlü marka algısı"}
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -109,7 +117,9 @@ export function CategoriesSection({ categories: _categories, content }: Categori
                 viewport={{ once: true, amount: 0.35 }}
                 className="rounded-[1.55rem] border border-primary/20 bg-card px-5 py-4 shadow-[0_16px_36px_rgba(15,23,42,0.10)] md:bg-[linear-gradient(135deg,rgba(255,255,255,0.88),rgba(255,255,255,0.68))] md:backdrop-blur-2xl dark:border-fuchsia-300/18 dark:bg-slate-900 dark:md:bg-[linear-gradient(135deg,rgba(255,255,255,0.11),rgba(255,255,255,0.04))] dark:md:shadow-[0_22px_56px_rgba(2,6,23,0.22)]"
               >
-                <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-primary/80 dark:text-fuchsia-100/70">One Cikan Vurgu</p>
+                <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-primary/80 dark:text-fuchsia-100/70">
+                  {content.category_banner_highlight_label || "Öne Çıkan Vurgu"}
+                </p>
                 <p className="mt-2.5 text-lg font-semibold leading-8 text-foreground md:text-[1.38rem] dark:text-white">{content.category_banner_brand_desc_2}</p>
               </motion.div>
 
