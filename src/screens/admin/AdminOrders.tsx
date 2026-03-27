@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Eye, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -31,8 +31,15 @@ export default function AdminOrders() {
 
   const currentDetail = detailQuery.data;
   const currentOrderStatus = currentDetail?.orderStatus ?? "pending";
+  const orderItems = ordersQuery.data?.items ?? [];
 
   const paymentStatuses = useMemo(() => ["all", "pending", "paid", "failed", "refunded"], []);
+
+  useEffect(() => {
+    if (currentDetail) {
+      setAdminNote(currentDetail.adminNote ?? "");
+    }
+  }, [currentDetail]);
 
   return (
     <div className="space-y-6">
@@ -73,9 +80,71 @@ export default function AdminOrders() {
         </CardContent>
       </Card>
 
-      <Card>
+      <div className="space-y-3 md:hidden">
+        {orderItems.map((order) => (
+          <Card key={order.id}>
+            <CardContent className="space-y-4 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-mono text-xs text-muted-foreground">#{order.id.slice(0, 8)}</p>
+                  <p className="truncate font-semibold">{order.customerName}</p>
+                  <p className="truncate text-xs text-muted-foreground">{order.customerEmail ?? "-"}</p>
+                </div>
+                <Badge variant={order.paymentStatus === "paid" ? "default" : "secondary"}>
+                  {PAYMENT_STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-xs text-muted-foreground">Tarih</p>
+                  <p>{formatDateTime(order.createdAt)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Tutar</p>
+                  <p className="font-medium">{formatCurrency(order.finalPrice)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Durum</p>
+                  <Badge variant={order.orderStatus === "cancelled" ? "destructive" : "secondary"} className="mt-1">
+                    {
+                      ORDER_STATUS_LABELS[
+                        (ORDER_STATUS_OPTIONS.includes(order.orderStatus as (typeof ORDER_STATUS_OPTIONS)[number]) ? order.orderStatus : "pending") as (typeof ORDER_STATUS_OPTIONS)[number]
+                      ]
+                    }
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Kargo</p>
+                  <p className="text-xs leading-5 text-muted-foreground">
+                    {order.shipmentCompany ? `${order.shipmentCompany} / ${order.shipmentTrackingNumber ?? "-"}` : "-"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setSelectedOrderId(order.id)}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Detay
+                </Button>
+                <Button variant="outline" className="flex-1" onClick={() => setShipmentOrderId(order.id)}>
+                  <Truck className="mr-2 h-4 w-4" />
+                  Kargo
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {orderItems.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-sm text-muted-foreground">Siparis kaydi bulunamadi.</CardContent>
+          </Card>
+        ) : null}
+      </div>
+
+      <Card className="hidden md:block">
         <CardContent className="p-0">
-          <Table>
+          <Table className="min-w-[840px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Siparis</TableHead>
@@ -89,7 +158,7 @@ export default function AdminOrders() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(ordersQuery.data?.items ?? []).map((order) => (
+              {orderItems.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-mono text-xs">#{order.id.slice(0, 8)}</TableCell>
                   <TableCell>
@@ -125,7 +194,7 @@ export default function AdminOrders() {
                   </TableCell>
                 </TableRow>
               ))}
-              {(ordersQuery.data?.items ?? []).length === 0 ? (
+              {orderItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">
                     Siparis kaydi bulunamadi.
@@ -138,7 +207,7 @@ export default function AdminOrders() {
       </Card>
 
       <Dialog open={Boolean(selectedOrderId)} onOpenChange={(open) => !open && setSelectedOrderId(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
+        <DialogContent className="max-h-[90vh] w-[calc(100vw-1rem)] max-w-4xl overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>Siparis Detayi</DialogTitle>
           </DialogHeader>
@@ -172,7 +241,7 @@ export default function AdminOrders() {
                       await updateOrderStatus.mutateAsync({
                         orderId: selectedOrderId,
                         status: value,
-                        note: adminNote || null,
+                        note: adminNote.trim() ? adminNote : null,
                       });
                       toast.success("Siparis durumu guncellendi");
                     }}
@@ -191,7 +260,7 @@ export default function AdminOrders() {
                 </div>
                 <div className="space-y-2">
                   <Label>Admin Notu</Label>
-                  <Input value={adminNote || currentDetail.adminNote || ""} onChange={(event) => setAdminNote(event.target.value)} placeholder="Siparis notu ekleyin" />
+                  <Input value={adminNote} onChange={(event) => setAdminNote(event.target.value)} placeholder="Siparis notu ekleyin" />
                 </div>
               </div>
 
@@ -199,13 +268,13 @@ export default function AdminOrders() {
                 <CardContent className="space-y-4 p-4">
                   <p className="font-semibold">Siparis Kalemleri</p>
                   {currentDetail.items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-4 rounded-xl border border-border/70 p-3">
+                    <div key={item.id} className="flex flex-col gap-4 rounded-xl border border-border/70 p-3 sm:flex-row sm:items-center">
                       {item.variantImage ? <img src={item.variantImage} alt={item.productName} className="h-16 w-16 rounded-lg object-cover" /> : null}
                       <div className="min-w-0 flex-1">
                         <p className="font-medium">{item.productName}</p>
                         <p className="text-sm text-muted-foreground">{item.variantInfo ?? item.variantSku ?? "-"}</p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left sm:text-right">
                         <p className="text-sm text-muted-foreground">{item.quantity} adet</p>
                         <p className="font-semibold">{formatCurrency(item.lineTotal)}</p>
                       </div>
@@ -219,7 +288,7 @@ export default function AdminOrders() {
                   <p className="font-semibold">Durum Gecmisi</p>
                   {(currentDetail.statusHistory ?? []).map((entry) => (
                     <div key={`${entry.createdAt}-${entry.status}`} className="rounded-xl border border-border/70 p-3">
-                      <div className="flex items-center justify-between gap-4">
+                      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                         <p className="font-medium">{ORDER_STATUS_LABELS[entry.status]}</p>
                         <p className="text-xs text-muted-foreground">{formatDateTime(entry.createdAt)}</p>
                       </div>

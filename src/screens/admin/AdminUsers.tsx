@@ -35,6 +35,7 @@ export default function AdminUsers() {
 
   const availableRoles = useMemo(() => rolesQuery.data?.roles ?? [], [rolesQuery.data]);
   const availablePermissions = useMemo(() => permissionsQuery.data ?? [], [permissionsQuery.data]);
+  const users = usersQuery.data?.items ?? [];
 
   return (
     <div className="space-y-6">
@@ -46,7 +47,7 @@ export default function AdminUsers() {
       <Card>
         <CardContent className="grid gap-4 p-4 md:grid-cols-[1fr_180px]">
           <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Email, ad soyad veya telefon ile ara" />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant={status === "all" ? "default" : "outline"} onClick={() => setStatus("all")}>
               Tumu
             </Button>
@@ -60,9 +61,68 @@ export default function AdminUsers() {
         </CardContent>
       </Card>
 
-      <Card>
+      <div className="space-y-3 md:hidden">
+        {users.map((user) => (
+          <Card key={user.id}>
+            <CardContent className="space-y-4 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">{user.fullName}</p>
+                  <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                </div>
+                <Badge variant={user.isActive ? "default" : "secondary"}>{user.isActive ? "Aktif" : "Pasif"}</Badge>
+              </div>
+
+              <div className="flex flex-wrap gap-1">
+                {user.roles.map((role) => (
+                  <Badge key={role}>{role}</Badge>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-xs text-muted-foreground">Siparis</p>
+                  <p>{user.orderCount.toLocaleString("tr-TR")}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Harcama</p>
+                  <p>{formatCurrency(user.totalSpend)}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-xs text-muted-foreground">Son Giris</p>
+                  <p>{user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "-"}</p>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() =>
+                  setEditingUser({
+                    id: user.id,
+                    fullName: user.fullName,
+                    email: user.email,
+                    roles: user.roles,
+                    permissions: user.permissions,
+                    isActive: user.isActive,
+                  })
+                }
+              >
+                Duzenle
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+        {users.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-sm text-muted-foreground">Kullanici bulunamadi.</CardContent>
+          </Card>
+        ) : null}
+      </div>
+
+      <Card className="hidden md:block">
         <CardContent className="p-0">
-          <Table>
+          <Table className="min-w-[860px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Kullanici</TableHead>
@@ -75,7 +135,7 @@ export default function AdminUsers() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(usersQuery.data?.items ?? []).map((user) => (
+              {users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <div>
@@ -116,13 +176,20 @@ export default function AdminUsers() {
                   </TableCell>
                 </TableRow>
               ))}
+              {users.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                    Kullanici bulunamadi.
+                  </TableCell>
+                </TableRow>
+              ) : null}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
 
       <Dialog open={Boolean(editingUser)} onOpenChange={(open) => !open && setEditingUser(null)}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-3xl p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>Kullanici Erisim Ayarlari</DialogTitle>
           </DialogHeader>
@@ -187,7 +254,7 @@ export default function AdminUsers() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-border/70 px-4 py-3">
+              <div className="flex flex-col gap-4 rounded-xl border border-border/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-medium">Hesap Durumu</p>
                   <p className="text-sm text-muted-foreground">Pasif hesaplar giris yapamaz ve admin alanina erisemez.</p>

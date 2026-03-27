@@ -20,7 +20,7 @@ export function ShipmentForm({ open, onOpenChange, onSubmit }: ShipmentFormProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-[calc(100vw-1rem)] max-w-lg p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>Kargo Bilgisi</DialogTitle>
         </DialogHeader>

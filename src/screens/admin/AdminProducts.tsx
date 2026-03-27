@@ -4,7 +4,7 @@ import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { db } from "@/integrations/mongo/client";
 import { Link } from "@/lib/router";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -646,10 +646,10 @@ export default function AdminProducts() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="font-display text-2xl font-bold">Urunler</h1>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <Button variant="outline" className="w-full sm:w-auto" asChild>
             <Link to="/admin/import-export">Import / Export</Link>
           </Button>
           <Dialog
@@ -663,15 +663,15 @@ export default function AdminProducts() {
             }}
           >
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <Plus className="mr-1 h-4 w-4" /> Urun Ekle
               </Button>
             </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>{editing ? "Urun Duzenle" : "Yeni Urun"}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-6">
+            <DialogContent className="max-h-[90vh] w-[calc(100vw-1rem)] max-w-4xl overflow-y-auto p-4 sm:p-6">
+              <DialogHeader>
+                <DialogTitle>{editing ? "Urun Duzenle" : "Yeni Urun"}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Urun Adi</Label>
@@ -1148,14 +1148,14 @@ export default function AdminProducts() {
               ) : null}
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h3 className="text-sm font-semibold">Modeller</h3>
                     <p className="text-xs text-muted-foreground">
                       {variantAxes.map((axis) => axis.label).join(", ") || "Temel model bilgileri"} bazli secenekleri fiyat, stok ve gorsellerle birlikte yonetin.
                     </p>
                   </div>
-                  <Button type="button" variant="outline" size="sm" onClick={addVariant}>
+                  <Button type="button" variant="outline" size="sm" className="w-full sm:w-auto" onClick={addVariant}>
                     <Plus className="mr-1 h-4 w-4" /> Model Ekle
                   </Button>
                 </div>
@@ -1163,7 +1163,7 @@ export default function AdminProducts() {
                 <div className="space-y-4">
                   {form.variants.map((variant, variantIndex) => (
                     <Card key={variant.id || `new-variant-${variantIndex}`} className="p-4">
-                      <div className="flex items-center justify-between gap-3">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <p className="font-medium">
                             {getVariantLabel({
@@ -1282,8 +1282,8 @@ export default function AdminProducts() {
               <Button className="w-full" onClick={handleSave}>
                 {editing ? "Guncelle" : "Kaydet"}
               </Button>
-            </div>
-          </DialogContent>
+              </div>
+            </DialogContent>
           </Dialog>
         </div>
       </div>
@@ -1323,8 +1323,68 @@ export default function AdminProducts() {
         }}
       />
 
-      <Card className="mt-6 overflow-hidden">
-        <Table>
+      <div className="mt-6 space-y-3 md:hidden">
+        {filteredProducts.map((product) => (
+          <Card key={product.id}>
+            <CardContent className="space-y-4 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <label className="flex items-start gap-3">
+                  <Checkbox
+                    checked={selectedProductIds.includes(product.id)}
+                    onCheckedChange={(checked) =>
+                      setSelectedProductIds((current) =>
+                        checked ? Array.from(new Set([...current, product.id])) : current.filter((id) => id !== product.id),
+                      )
+                    }
+                  />
+                  <div className="min-w-0">
+                    <p className="font-semibold">{product.name}</p>
+                    <p className="text-xs text-muted-foreground">{product.brand}</p>
+                  </div>
+                </label>
+                <Badge variant="secondary">{product.type}</Badge>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Badge variant={product.is_active ? "default" : "secondary"}>{product.is_active ? "Aktif" : "Pasif"}</Badge>
+                <Badge variant={product.is_featured ? "default" : "secondary"}>{product.is_featured ? "One Cikan" : "Standart"}</Badge>
+                <Badge variant="outline">{product.categories?.name || "Kategorisiz"}</Badge>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">Varyantlar</p>
+                <div className="flex flex-wrap gap-1">
+                  {product.product_variants.slice(0, 3).map((variant) => (
+                    <Badge key={variant.id || variant.sku} variant="outline" className="max-w-full truncate">
+                      {getVariantLabel(variant)}
+                    </Badge>
+                  ))}
+                  {product.product_variants.length > 3 ? <Badge variant="outline">+{product.product_variants.length - 3}</Badge> : null}
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => handleEdit(product)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Duzenle
+                </Button>
+                <Button variant="outline" className="flex-1 text-destructive" onClick={() => handleDelete(product.id)}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Sil
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {filteredProducts.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-sm text-muted-foreground">Bu kategoride urun yok.</CardContent>
+          </Card>
+        ) : null}
+      </div>
+
+      <Card className="mt-6 hidden overflow-hidden md:block">
+        <Table className="min-w-[980px]">
           <TableHeader>
             <TableRow>
               <TableHead className="w-12">

@@ -116,12 +116,12 @@ export default function AdminOverview() {
           </CardHeader>
           <CardContent className="space-y-3">
             {(data?.recentUsers ?? []).map((user) => (
-              <div key={user.id} className="flex items-center justify-between rounded-xl border border-border/70 px-4 py-3">
+              <div key={user.id} className="flex flex-col gap-2 rounded-xl border border-border/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-medium">{user.fullName}</p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="text-sm font-medium">{user.orderCount.toLocaleString("tr-TR")} siparis</p>
                 </div>
               </div>
