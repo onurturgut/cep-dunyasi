@@ -1,38 +1,14 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
-import { AccountLayout } from "@/components/account/AccountLayout";
-import { AccountOverview } from "@/components/account/AccountOverview";
-import { AccountEmptyState } from "@/components/account/AccountEmptyState";
-import { AccountSectionSkeleton } from "@/components/account/AccountSectionSkeleton";
-import { useAccountProfile, useMyOrders, useMyTechnicalServiceRequests } from "@/hooks/use-account";
+import { useEffect } from "react";
+import { useNavigate } from "@/lib/router";
 
 export default function Account() {
-  const profileQuery = useAccountProfile();
-  const ordersQuery = useMyOrders(1, 5);
-  const technicalServiceQuery = useMyTechnicalServiceRequests();
+  const navigate = useNavigate();
 
-  return (
-    <AccountLayout
-      title="Hesabım"
-      description="Siparişlerinizi, favorilerinizi, teknik servis süreçlerinizi ve hesap bilgilerinizi tek bir merkezden yönetin."
-    >
-      {profileQuery.isLoading ? (
-        <AccountSectionSkeleton cards={2} rows={4} />
-      ) : profileQuery.error ? (
-        <AccountEmptyState
-          icon={AlertCircle}
-          title="Hesap bilgileri yüklenemedi"
-          description={profileQuery.error instanceof Error ? profileQuery.error.message : "Hesap bilgileri şu anda getirilemiyor."}
-        />
-      ) : profileQuery.data ? (
-        <AccountOverview
-          profile={profileQuery.data.profile}
-          stats={profileQuery.data.stats}
-          latestOrder={ordersQuery.data?.items?.[0] ?? null}
-          latestTechnicalService={technicalServiceQuery.data?.[0] ?? null}
-        />
-      ) : null}
-    </AccountLayout>
-  );
+  useEffect(() => {
+    navigate("/account/profile", { replace: true });
+  }, [navigate]);
+
+  return null;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Camera, Loader2, Mail, UserRound } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
 import type { AccountProfile } from "@/lib/account";
 import { sanitizePhone } from "@/lib/account";
@@ -13,8 +13,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useUpdateAccountProfile } from "@/hooks/use-account";
 
-const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024;
-
 type AccountProfileFormProps = {
   profile: AccountProfile;
 };
@@ -24,16 +22,13 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
   const [firstName, setFirstName] = useState(profile.first_name);
   const [lastName, setLastName] = useState(profile.last_name);
   const [phone, setPhone] = useState(profile.phone);
-  const [profileImageUrl, setProfileImageUrl] = useState(profile.profile_image_url || "");
   const [prefersEmail, setPrefersEmail] = useState(profile.communication_preferences.email);
   const [prefersSms, setPrefersSms] = useState(profile.communication_preferences.sms);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     setFirstName(profile.first_name);
     setLastName(profile.last_name);
     setPhone(profile.phone);
-    setProfileImageUrl(profile.profile_image_url || "");
     setPrefersEmail(profile.communication_preferences.email);
     setPrefersSms(profile.communication_preferences.sms);
   }, [profile]);
@@ -43,54 +38,10 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
       firstName !== profile.first_name ||
       lastName !== profile.last_name ||
       phone !== profile.phone ||
-      profileImageUrl !== (profile.profile_image_url || "") ||
       prefersEmail !== profile.communication_preferences.email ||
       prefersSms !== profile.communication_preferences.sms,
-    [firstName, lastName, phone, profileImageUrl, prefersEmail, prefersSms, profile],
+    [firstName, lastName, phone, prefersEmail, prefersSms, profile],
   );
-
-  const handleAvatarUpload = async (fileList: FileList | null) => {
-    const file = fileList?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Sadece gorsel dosyasi yukleyebilirsiniz.");
-      return;
-    }
-
-    if (file.size > MAX_AVATAR_SIZE_BYTES) {
-      toast.error("Profil gorseli en fazla 5MB olabilir.");
-      return;
-    }
-
-    try {
-      setUploading(true);
-      const body = new FormData();
-      body.append("file", file);
-      body.append("kind", "image");
-      body.append("scope", "avatars");
-
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body,
-      });
-
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.error) {
-        throw new Error(payload?.error?.message || "Profil gorseli yuklenemedi");
-      }
-
-      setProfileImageUrl(`${payload?.data?.url ?? ""}`.trim());
-      toast.success("Profil gorseli hazir.");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Profil gorseli yuklenemedi");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -100,7 +51,6 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
         firstName,
         lastName,
         phone: sanitizePhone(phone),
-        profileImageUrl: profileImageUrl || null,
         communicationPreferences: {
           email: prefersEmail,
           sms: prefersSms,
@@ -144,29 +94,7 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
               </div>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-              <div className="rounded-[1.5rem] border border-border/70 bg-muted/15 p-4">
-                <p className="text-sm font-medium text-foreground">Profil Gorseli</p>
-                <div className="mt-4 overflow-hidden rounded-[1.5rem] border border-border/70 bg-background/80">
-                  {profileImageUrl ? (
-                    <img src={profileImageUrl} alt={profile.full_name || "Profil gorseli"} className="aspect-square w-full object-cover" />
-                  ) : (
-                    <div className="flex aspect-square items-center justify-center bg-muted/30 text-muted-foreground">
-                      <UserRound className="h-10 w-10" />
-                    </div>
-                  )}
-                </div>
-                <div className="mt-4 space-y-2">
-                  <Input id="account-avatar" type="file" accept="image/*" onChange={(event) => void handleAvatarUpload(event.target.files)} disabled={uploading} />
-                  {profileImageUrl ? (
-                    <Button type="button" variant="ghost" size="sm" className="w-full" onClick={() => setProfileImageUrl("")}>
-                      Gorseli Kaldir
-                    </Button>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="space-y-4 rounded-[1.5rem] border border-border/70 bg-muted/10 p-4">
+            <div className="space-y-4 rounded-[1.5rem] border border-border/70 bg-muted/10 p-4">
                 <div>
                   <p className="text-sm font-medium text-foreground">Iletisim Tercihleri</p>
                   <p className="mt-1 text-xs text-muted-foreground">Siparis ve kampanya bildirimlerinizi hangi kanallardan almak istediginizi secin.</p>
@@ -191,7 +119,6 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
                 <div className="rounded-2xl border border-dashed border-border/70 bg-background/70 px-4 py-3 text-sm text-muted-foreground">
                   Hesabiniz {formatDate(profile.created_at)} tarihinden beri aktif.
                 </div>
-              </div>
             </div>
 
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -202,16 +129,15 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
                   setFirstName(profile.first_name);
                   setLastName(profile.last_name);
                   setPhone(profile.phone);
-                  setProfileImageUrl(profile.profile_image_url || "");
                   setPrefersEmail(profile.communication_preferences.email);
                   setPrefersSms(profile.communication_preferences.sms);
                 }}
-                disabled={!hasChanges || updateProfile.isPending || uploading}
+                disabled={!hasChanges || updateProfile.isPending}
               >
                 Degisiklikleri Geri Al
               </Button>
-              <Button type="submit" disabled={!hasChanges || updateProfile.isPending || uploading}>
-                {updateProfile.isPending || uploading ? (
+              <Button type="submit" disabled={!hasChanges || updateProfile.isPending}>
+                {updateProfile.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Kaydediliyor

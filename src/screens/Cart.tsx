@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from '@/lib/router';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -8,26 +9,53 @@ import { useCartStore } from '@/lib/cart-store';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { db } from '@/integrations/mongo/client';
+import { calculateShippingPrice, DEFAULT_SHIPPING_FEE, FREE_SHIPPING_THRESHOLD, resolveShippingFee } from '@/lib/shipping';
 import { formatCurrency, toPriceNumber } from '@/lib/utils';
 
 export default function Cart() {
   const { items, updateQuantity, removeItem, totalPrice } = useCartStore();
   const navigate = useNavigate();
+  const [shippingFee, setShippingFee] = useState(DEFAULT_SHIPPING_FEE);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchShippingFee = async () => {
+      const { data } = await db.from('site_contents').select('shipping_fee').eq('key', 'home').single();
+
+      if (cancelled) {
+        return;
+      }
+
+      setShippingFee(resolveShippingFee(data?.shipping_fee));
+    };
+
+    void fetchShippingFee();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (items.length === 0) {
     return (
       <Layout>
         <div className="container flex flex-col items-center justify-center py-20 text-center">
           <ShoppingBag className="h-16 w-16 text-muted-foreground/30" />
-          <h2 className="mt-4 font-display text-xl font-bold">Sepetiniz boş</h2>
-          <p className="mt-2 text-muted-foreground">Hemen ürünlere goz atin ve sepetinizi doldürün.</p>
+          <h2 className="mt-4 font-display text-xl font-bold">Sepetiniz bos</h2>
+          <p className="mt-2 text-muted-foreground">Hemen urunlere goz atin ve sepetinizi doldurun.</p>
           <Button className="mt-6" asChild>
-            <Link to="/products">Alışverişe Başla</Link>
+            <Link to="/products">Alisverise Basla</Link>
           </Button>
         </div>
       </Layout>
     );
   }
+
+  const subtotal = totalPrice();
+  const shippingPrice = calculateShippingPrice(subtotal, shippingFee);
+  const finalPrice = subtotal + shippingPrice;
 
   return (
     <Layout>
@@ -77,25 +105,30 @@ export default function Cart() {
           </div>
 
           <Card className="h-fit p-5 lg:sticky lg:top-24 lg:p-6">
-            <h3 className="font-display text-lg font-bold">Sipariş Özeti</h3>
+            <h3 className="font-display text-lg font-bold">Siparis Ozeti</h3>
             <Separator className="my-4" />
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Ara Toplam</span>
-                <span>{formatCurrency(totalPrice())}</span>
+                <span>{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Kargo</span>
-                <span className="text-success">Ücretsiz</span>
+                <span className={shippingPrice > 0 ? '' : 'text-success'}>
+                  {shippingPrice > 0 ? formatCurrency(shippingPrice) : 'Ucretsiz'}
+                </span>
               </div>
             </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {FREE_SHIPPING_THRESHOLD} TL ve uzeri siparislerde kargo ucretsizdir.
+            </p>
             <Separator className="my-4" />
             <div className="flex justify-between text-lg font-bold">
               <span>Toplam</span>
-              <span className="text-primary">{formatCurrency(totalPrice())}</span>
+              <span className="text-primary">{formatCurrency(finalPrice)}</span>
             </div>
             <Button className="mt-4 w-full" size="lg" onClick={() => navigate('/checkout')}>
-              Siparişi Tamamla <ArrowRight className="ml-2 h-4 w-4" />
+              Siparisi Tamamla <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Card>
         </div>

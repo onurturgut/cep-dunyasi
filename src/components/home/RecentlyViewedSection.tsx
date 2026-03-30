@@ -94,4 +94,3 @@ export function RecentlyViewedSection() {
     </motion.section>
   );
 }
-

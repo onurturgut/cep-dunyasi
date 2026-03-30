@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { db } from "@/integrations/mongo/client";
 import { useCartStore } from "@/lib/cart-store";
 import type { AccountAddress } from "@/lib/account";
+import { calculateOrderTotals, DEFAULT_SHIPPING_FEE, FREE_SHIPPING_THRESHOLD, resolveShippingFee } from "@/lib/shipping";
 import { formatCurrency, toPriceNumber } from "@/lib/utils";
 
 type CheckoutFormState = {
@@ -64,6 +65,7 @@ export default function Checkout() {
   const [discount, setDiscount] = useState(0);
   const [shippingMode, setShippingMode] = useState<ShippingMode>(user ? "saved" : "manual");
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const [shippingFee, setShippingFee] = useState(DEFAULT_SHIPPING_FEE);
   const [form, setForm] = useState<CheckoutFormState>({
     fullName: "",
     email: user?.email || "",
@@ -131,6 +133,26 @@ export default function Checkout() {
       city: normalized.city,
     }));
   }, [selectedAddress, shippingMode, user?.email]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchShippingFee = async () => {
+      const { data } = await db.from("site_contents").select("shipping_fee").eq("key", "home").single();
+
+      if (cancelled) {
+        return;
+      }
+
+      setShippingFee(resolveShippingFee(data?.shipping_fee));
+    };
+
+    void fetchShippingFee();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleChange = (field: keyof CheckoutFormState, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -223,7 +245,8 @@ export default function Checkout() {
     return null;
   }
 
-  const finalPrice = totalPrice() - discount;
+  const subtotal = totalPrice();
+  const { shippingPrice, finalPrice } = calculateOrderTotals(subtotal, discount, shippingFee);
 
   return (
     <Layout>
@@ -388,6 +411,15 @@ export default function Checkout() {
                 <span>-{formatCurrency(discount)}</span>
               </div>
             ) : null}
+            <div className="mt-2 flex justify-between text-sm">
+              <span className="text-muted-foreground">Kargo</span>
+              <span className={shippingPrice > 0 ? "text-foreground" : "text-success"}>
+                {shippingPrice > 0 ? formatCurrency(shippingPrice) : "Ucretsiz"}
+              </span>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {FREE_SHIPPING_THRESHOLD} TL ve uzeri siparislerde kargo ucretsizdir.
+            </p>
             <Separator className="my-4" />
             <div className="flex justify-between text-lg font-bold">
               <span>Toplam</span>

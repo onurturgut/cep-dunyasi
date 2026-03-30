@@ -30,6 +30,7 @@ export type HomeSiteContent = {
   hero_logo_dark_url: string;
   hero_cta_label: string;
   hero_cta_href: string;
+  shipping_fee: number;
   hero_slides: Array<{ id: string; image_url: string; alt: string }>;
   hero_benefits: Array<{ icon: string; title: string; desc: string }>;
   category_section_title: string;
@@ -117,6 +118,7 @@ export const defaultSiteContent: HomeSiteContent = {
   hero_logo_dark_url: '/images/cep-dunyasi-logo-dark-v3-tight.png',
   hero_cta_label: 'Ürünleri İncele',
   hero_cta_href: '/products',
+  shipping_fee: 89,
   hero_slides: [
     { id: 'slide-iphone', image_url: '/images/iphone15.png', alt: 'iPhone 15' },
     { id: 'slide-s24', image_url: '/images/samsung s24.png', alt: 'Samsung S24' },

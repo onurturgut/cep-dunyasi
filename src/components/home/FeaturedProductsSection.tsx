@@ -81,4 +81,3 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
     </motion.section>
   );
 }
-

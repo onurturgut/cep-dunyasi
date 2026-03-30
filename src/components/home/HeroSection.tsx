@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/lib/router";
 import { benefitIcons, type HomeSiteContent } from "@/components/home/home-data";
 
@@ -10,9 +11,74 @@ type HeroSectionProps = {
   activeSlide: number;
   onSlideChange: (index: number) => void;
   content: HomeSiteContent;
+  isLoading?: boolean;
 };
 
-export function HeroSection({ activeSlide, onSlideChange, content }: HeroSectionProps) {
+function HeroSectionSkeleton() {
+  return (
+    <section id="home-hero" data-section="hero" className="bg-background pb-8 sm:pb-10 md:pb-12" aria-busy="true" aria-live="polite">
+      <div className="relative min-h-[calc(100svh-4rem)] w-full overflow-hidden sm:min-h-[calc(100svh-4.5rem)]">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/6 via-transparent to-secondary/10" />
+          <div className="absolute -left-16 top-20 h-52 w-52 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute right-[-4rem] top-12 h-64 w-64 rounded-full bg-secondary/20 blur-3xl" />
+        </div>
+
+        <div className="relative">
+          <div className="container flex min-h-[calc(100svh-4rem)] items-center py-8 sm:py-10 md:py-14 sm:min-h-[calc(100svh-4.5rem)]">
+            <div className="grid w-full items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,540px)] lg:gap-6">
+              <div className="max-w-2xl">
+                <Skeleton className="h-6 w-48 rounded-full bg-muted/70 sm:h-7" />
+                <div className="mt-5 space-y-3">
+                  <Skeleton className="h-12 w-full max-w-[28rem] bg-muted/70 sm:h-16" />
+                  <Skeleton className="h-12 w-[88%] max-w-[26rem] bg-muted/70 sm:h-16" />
+                  <Skeleton className="h-12 w-[76%] max-w-[22rem] bg-muted/70 sm:h-16" />
+                </div>
+                <div className="mt-5 space-y-2">
+                  <Skeleton className="h-4 w-full max-w-xl bg-muted/60" />
+                  <Skeleton className="h-4 w-[82%] max-w-lg bg-muted/60" />
+                </div>
+                <Skeleton className="mt-7 h-12 w-full rounded-xl bg-primary/20 sm:w-52" />
+
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  {[0, 1, 2].map((item) => (
+                    <div key={item} className="rounded-xl border border-border/60 bg-card/70 p-3 shadow-[0_24px_52px_rgba(0,0,0,0.24)] sm:px-4 sm:py-3.5">
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-7 w-7 rounded-lg bg-primary/20" />
+                        <Skeleton className="h-4 w-28 bg-muted/70" />
+                      </div>
+                      <Skeleton className="mt-2 h-3 w-full bg-muted/60" />
+                      <Skeleton className="mt-1 h-3 w-[70%] bg-muted/60" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mx-auto w-full max-w-[560px] lg:-ml-8">
+                <div className="relative h-[320px] w-full sm:h-[420px] md:h-[520px] lg:h-[620px]">
+                  <div className="absolute inset-x-10 bottom-10 h-24 rounded-full bg-primary/15 blur-3xl" />
+                  <Skeleton className="absolute inset-0 rounded-[2rem] bg-muted/60" />
+                  <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border/60 bg-card/80 px-3 py-1.5 backdrop-blur-sm">
+                    {[0, 1, 2, 3].map((item) => (
+                      <Skeleton key={item} className="h-2.5 w-2.5 rounded-full bg-muted/70" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function HeroSection({ activeSlide, onSlideChange, content, isLoading = false }: HeroSectionProps) {
+  if (isLoading) {
+    return <HeroSectionSkeleton />;
+  }
+
   const heroSlides = content.hero_slides.filter((slide) => slide.image_url);
   const heroBenefits = content.hero_benefits.filter((benefit) => benefit.title || benefit.desc);
 

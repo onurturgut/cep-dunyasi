@@ -5,9 +5,13 @@ import { ACCOUNT_NAV_ITEMS } from "@/lib/account";
 import { useLocation, useNavigate } from "@/lib/router";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+function isActivePath(pathname: string, href: string) {
+  return href === "/account" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+}
+
 function getActiveValue(pathname: string) {
-  const activeItem = ACCOUNT_NAV_ITEMS.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
-  return activeItem?.href || "/account";
+  const activeItem = ACCOUNT_NAV_ITEMS.find((item) => isActivePath(pathname, item.href));
+  return activeItem?.href || "/account/profile";
 }
 
 export function AccountMobileNav() {

@@ -36,6 +36,7 @@ type SiteContentForm = {
   hero_logo_dark_url: string;
   hero_cta_label: string;
   hero_cta_href: string;
+  shipping_fee: number;
   category_section_title: string;
   category_section_description: string;
   category_banner_enabled: boolean;
@@ -284,6 +285,30 @@ export default function AdminSiteContent() {
           <div className="space-y-2">
             <Label>CTA Linki</Label>
             <Input value={form.hero_cta_href} onChange={(e) => setForm((current) => ({ ...current, hero_cta_href: e.target.value }))} />
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Kargo Ucreti</Label>
+            <Input
+              type="number"
+              min="0"
+              step="1"
+              value={form.shipping_fee}
+              onChange={(e) =>
+                setForm((current) => ({
+                  ...current,
+                  shipping_fee: Math.max(0, Number(e.target.value) || 0),
+                }))
+              }
+            />
+            <p className="text-xs text-muted-foreground">750 TL altindaki siparislerde uygulanacak kargo ucretidir.</p>
+          </div>
+          <div className="space-y-2">
+            <Label>Ucretsiz Kargo Esigi</Label>
+            <Input value="750 TL" readOnly disabled />
+            <p className="text-xs text-muted-foreground">750 TL ve uzeri siparislerde kargo ucreti uygulanmaz.</p>
           </div>
         </div>
 

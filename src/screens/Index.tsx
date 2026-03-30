@@ -19,6 +19,7 @@ export default function Index() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<HomeCategory[]>(defaultCategories);
   const [siteContent, setSiteContent] = useState<HomeSiteContent>(defaultSiteContent);
+  const [isSiteContentLoading, setIsSiteContentLoading] = useState(true);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -30,42 +31,48 @@ export default function Index() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [catRes, siteContentRes, featuredRes, activeRes] = await Promise.all([
-        db.from('categories').select('*'),
-        db.from('site_contents').select('*').eq('key', 'home').single(),
-        db
-          .from('products')
-          .select('*, product_variants(*), categories(name, slug)')
-          .eq('is_featured', true)
-          .eq('is_active', true)
-          .limit(8),
-        db
-          .from('products')
-          .select('*, product_variants(*), categories(name, slug)')
-          .eq('is_active', true)
-          .limit(16),
-      ]);
+      try {
+        const [catRes, siteContentRes, featuredRes, activeRes] = await Promise.all([
+          db.from('categories').select('*'),
+          db.from('site_contents').select('*').eq('key', 'home').single(),
+          db
+            .from('products')
+            .select('*, product_variants(*), categories(name, slug)')
+            .eq('is_featured', true)
+            .eq('is_active', true)
+            .limit(8),
+          db
+            .from('products')
+            .select('*, product_variants(*), categories(name, slug)')
+            .eq('is_active', true)
+            .limit(16),
+        ]);
 
-      if (catRes.data && catRes.data.length > 0) {
-        setCategories(mergeCategories(defaultCategories, catRes.data.filter((category) => !category.parent_category_id)));
-      }
+        if (catRes.data && catRes.data.length > 0) {
+          setCategories(mergeCategories(defaultCategories, catRes.data.filter((category) => !category.parent_category_id)));
+        }
 
-      if (siteContentRes.data) {
-        setSiteContent({ ...defaultSiteContent, ...siteContentRes.data });
-      }
+        if (siteContentRes.data) {
+          setSiteContent({ ...defaultSiteContent, ...siteContentRes.data });
+        }
 
-      const featuredRows = Array.isArray(featuredRes.data) ? featuredRes.data : [];
-      const activeRows = Array.isArray(activeRes.data) ? activeRes.data : [];
+        const featuredRows = Array.isArray(featuredRes.data) ? featuredRes.data : [];
+        const activeRows = Array.isArray(activeRes.data) ? activeRes.data : [];
 
-      const featuredWithImages = featuredRows.filter((product) => Array.isArray(product.images) && product.images.some(Boolean));
-      const activeWithImages = activeRows.filter((product) => Array.isArray(product.images) && product.images.some(Boolean));
+        const featuredWithImages = featuredRows.filter((product) => Array.isArray(product.images) && product.images.some(Boolean));
+        const activeWithImages = activeRows.filter((product) => Array.isArray(product.images) && product.images.some(Boolean));
 
-      if (featuredWithImages.length > 0) {
-        setFeaturedProducts(featuredWithImages);
-      } else if (activeWithImages.length > 0) {
-        setFeaturedProducts(activeWithImages.slice(0, 8));
-      } else {
-        setFeaturedProducts(featuredRows.length > 0 ? featuredRows : activeRows.slice(0, 8));
+        if (featuredWithImages.length > 0) {
+          setFeaturedProducts(featuredWithImages);
+        } else if (activeWithImages.length > 0) {
+          setFeaturedProducts(activeWithImages.slice(0, 8));
+        } else {
+          setFeaturedProducts(featuredRows.length > 0 ? featuredRows : activeRows.slice(0, 8));
+        }
+      } catch (error) {
+        console.error('Ana sayfa verileri yuklenemedi:', error);
+      } finally {
+        setIsSiteContentLoading(false);
       }
     };
 
@@ -73,7 +80,7 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (siteContent.hero_slides.length < 2) {
+    if (isSiteContentLoading || siteContent.hero_slides.length < 2) {
       return;
     }
 
@@ -82,7 +89,7 @@ export default function Index() {
     }, 3500);
 
     return () => window.clearInterval(intervalId);
-  }, [siteContent.hero_slides.length]);
+  }, [isSiteContentLoading, siteContent.hero_slides.length]);
 
   if (!loading && user && isAdmin) {
     return null;
@@ -91,7 +98,7 @@ export default function Index() {
   return (
     <Layout>
       <PromoVideoModal />
-      <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} content={siteContent} />
+      <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} content={siteContent} isLoading={isSiteContentLoading} />
       <CampaignShowcaseSection />
       <CategoriesSection categories={categories} content={siteContent} />
       <ExploreCategoriesSection categories={categories.length > 0 ? categories : defaultCategories} content={siteContent} />

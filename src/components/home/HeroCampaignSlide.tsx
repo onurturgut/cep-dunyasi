@@ -42,8 +42,7 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
   const theme = themeClassMap[slide.themeVariant];
 
   return (
-    <article className={`relative overflow-hidden rounded-[2.25rem] border border-border/70 bg-card md:bg-gradient-to-br ${theme.shell} text-foreground shadow-[0_18px_42px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-slate-950/95 dark:text-white dark:md:shadow-[0_28px_80px_rgba(2,6,23,0.46)]`}>
-      <div className={`absolute inset-0 hidden bg-gradient-to-br md:block ${theme.accent}`} />
+    <article className="relative overflow-hidden rounded-[2.25rem] text-foreground shadow-[0_18px_42px_rgba(15,23,42,0.08)] dark:text-white dark:md:shadow-[0_28px_80px_rgba(2,6,23,0.46)]">
       <motion.div
         aria-hidden="true"
         className={`absolute -left-8 top-12 hidden h-40 w-40 rounded-full blur-3xl md:block ${theme.glow}`}

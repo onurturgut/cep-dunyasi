@@ -56,7 +56,7 @@ export function HeroCampaignSlider({ slides, isLoading = false }: HeroCampaignSl
 
   if (isLoading) {
     return (
-      <div className="rounded-[2.4rem] border border-border/70 bg-background/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/80 dark:shadow-[0_30px_90px_rgba(2,6,23,0.4)]">
+      <div className="rounded-[2.4rem] p-5">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.95fr)] lg:items-center">
           <div className="space-y-4">
             <Skeleton className="h-6 w-24 rounded-full bg-foreground/8 dark:bg-white/10" />

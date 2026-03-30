@@ -78,42 +78,45 @@ export function CartRecommendationsSection({ cartProductIds }: CartRecommendatio
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        {loading
-          ? Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="space-y-3">
-                <Skeleton className="aspect-[5/4] w-full rounded-xl sm:aspect-square" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-            ))
-          : recommendations.map((product) => {
-              const variant = getDefaultProductVariant(normalizeProductVariants(product.product_variants || []));
+      <div className="-mx-4 mt-6 overflow-x-auto px-4 pb-2 [scrollbar-color:rgba(148,163,184,0.75)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/80">
+        <div className="flex gap-3 sm:gap-4">
+          {loading
+            ? Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="w-[44vw] min-w-[170px] max-w-[220px] shrink-0 space-y-3 sm:w-[220px] sm:min-w-[220px]">
+                  <Skeleton className="aspect-[5/4] w-full rounded-xl sm:aspect-square" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))
+            : recommendations.map((product) => {
+                const variant = getDefaultProductVariant(normalizeProductVariants(product.product_variants || []));
 
-              return (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  slug={product.slug}
-                  brand={product.brand}
-                  description={product.description}
-                  images={getVariantGallery(variant, product.images)}
-                  price={variant?.price || 0}
-                  originalPrice={variant?.compare_at_price || undefined}
-                  variantId={variant?.id}
-                  variantInfo={variant ? getVariantLabel(variant) : undefined}
-                  createdAt={product.created_at}
-                  salesCount={product.sales_count}
-                  ratingAverage={product.rating_average}
-                  specs={product.specs as Record<string, string | null> | null}
-                  storage={variant?.storage}
-                  ram={variant?.ram}
-                  stock={variant?.stock || 0}
-                  category={product.categories?.name}
-                />
-              );
-            })}
+                return (
+                  <div key={product.id} className="w-[44vw] min-w-[170px] max-w-[220px] shrink-0 sm:w-[220px] sm:min-w-[220px]">
+                    <ProductCard
+                      id={product.id}
+                      name={product.name}
+                      slug={product.slug}
+                      brand={product.brand}
+                      description={product.description}
+                      images={getVariantGallery(variant, product.images)}
+                      price={variant?.price || 0}
+                      originalPrice={variant?.compare_at_price || undefined}
+                      variantId={variant?.id}
+                      variantInfo={variant ? getVariantLabel(variant) : undefined}
+                      createdAt={product.created_at}
+                      salesCount={product.sales_count}
+                      ratingAverage={product.rating_average}
+                      specs={product.specs as Record<string, string | null> | null}
+                      storage={variant?.storage}
+                      ram={variant?.ram}
+                      stock={variant?.stock || 0}
+                      category={product.categories?.name}
+                    />
+                  </div>
+                );
+              })}
+        </div>
       </div>
     </section>
   );

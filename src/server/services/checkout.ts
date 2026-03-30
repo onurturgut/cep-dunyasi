@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { Coupon, Order, OrderItem, Product, ProductVariant } from "@/server/models";
+import { Coupon, Order, OrderItem, Product, ProductVariant, SiteContent } from "@/server/models";
 import { createIyzicoClient, initializeCheckoutForm } from "@/server/services/iyzico";
 import type { SessionUser } from "@/server/auth-session";
 import { getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
+import { calculateOrderTotals, resolveShippingFee } from "@/lib/shipping";
 
 type CheckoutRequestItem = {
   variantId: string;
@@ -210,7 +211,9 @@ export async function createCheckoutSession(
     throw new Error(couponError);
   }
 
-  const finalPrice = Math.max(totalPrice - discount, 0);
+  const siteContent = await SiteContent.findOne({ key: "home" }).select("shipping_fee").lean();
+  const shippingFee = resolveShippingFee(siteContent?.shipping_fee);
+  const { shippingPrice, finalPrice } = calculateOrderTotals(totalPrice, discount, shippingFee);
 
   if (finalPrice <= 0) {
     throw new Error("Ödeme tutarı sıfırdan büyük olmalı");
@@ -222,7 +225,7 @@ export async function createCheckoutSession(
     guest_token: sessionUser?.id ? null : randomUUID(),
     total_price: totalPrice,
     discount,
-    shipping_price: 0,
+    shipping_price: shippingPrice,
     final_price: finalPrice,
     shipping_address: {
       fullName: body.shippingAddress.fullName.trim(),

@@ -37,7 +37,7 @@ export function CampaignShowcaseSection() {
       </div>
 
       <div className="container relative">
-        <div className="rounded-[2.5rem] border border-border/70 bg-card p-4 shadow-[0_20px_54px_rgba(15,23,42,0.08)] md:bg-[linear-gradient(135deg,rgba(255,255,255,0.88)_0%,rgba(248,249,252,0.92)_42%,rgba(243,245,249,0.98)_100%)] md:shadow-[0_30px_100px_rgba(15,23,42,0.12)] md:backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/95 dark:md:bg-[linear-gradient(135deg,rgba(9,12,22,0.9),rgba(12,16,30,0.94),rgba(18,24,38,0.98))] dark:md:shadow-[0_40px_140px_rgba(2,6,23,0.45)] sm:p-6 lg:p-8">
+        <div className="rounded-[2.5rem] p-4 sm:p-6 lg:p-8">
           <div className="space-y-8">
             <HeroCampaignSlider slides={heroSlides} isLoading={campaignsQuery.isLoading} />
             <CampaignCardsGrid cards={promoCards} />

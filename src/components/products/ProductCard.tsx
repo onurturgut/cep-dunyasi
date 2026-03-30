@@ -1,15 +1,13 @@
-import { useState } from "react";
-import { ChevronDown, Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import { Link } from "@/lib/router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useCartStore } from "@/lib/cart-store";
 import { useAuth } from "@/hooks/use-auth";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { isBestSeller, isLowStock, isNewProduct } from "@/lib/product-catalog";
-import { normalizeProductSpecs, type ProductSpecs } from "@/lib/product-specs";
+import type { ProductSpecs } from "@/lib/product-specs";
 import {
   getBatteryHealthBucketLabel,
   getSecondHandConditionLabel,
@@ -59,12 +57,12 @@ export function ProductCard({
   createdAt,
   salesCount,
   ratingAverage,
+  category,
   secondHand,
   specs,
   storage,
   ram,
 }: ProductCardProps) {
-  const [isSpecsOpen, setIsSpecsOpen] = useState(false);
   const { user } = useAuth();
   const { isFavorite, toggleWishlist, togglingProductId } = useWishlist();
   const addItem = useCartStore((state) => state.addItem);
@@ -74,21 +72,6 @@ export function ProductCard({
   const primaryImage = galleryImages[0];
   const favorite = isFavorite(id);
   const normalizedSecondHand = normalizeSecondHandDetails(secondHand);
-  const normalizedSpecs = normalizeProductSpecs({
-    ...specs,
-    internalStorage: specs?.internalStorage || storage || null,
-    ram: specs?.ram || ram || null,
-  });
-
-  const specEntries = [
-    { key: "operatingSystem", label: "İşletim Sistemi", value: normalizedSpecs.operatingSystem || "Belirtilmedi" },
-    { key: "internalStorage", label: "Dâhili Hafıza", value: normalizedSpecs.internalStorage || "Belirtilmedi" },
-    { key: "ram", label: "RAM Kapasitesi", value: normalizedSpecs.ram || "Belirtilmedi" },
-    { key: "frontCamera", label: "Ön (Selfie) Kamera", value: normalizedSpecs.frontCamera || "Belirtilmedi" },
-    { key: "rearCamera", label: "Arka Kamera", value: normalizedSpecs.rearCamera || "Belirtilmedi" },
-  ] as const;
-
-  const hasAnySpecs = specEntries.some((entry) => entry.value !== "Belirtilmedi");
   const showNewBadge = isNewProduct(createdAt);
   const showBestSellerBadge = isBestSeller(salesCount);
   const showLowStockBadge = isLowStock(stock);
@@ -266,62 +249,6 @@ export function ProductCard({
                 </Button>
               ) : null}
             </div>
-
-            {hasAnySpecs ? (
-              <>
-                <div className="relative mt-3 hidden md:block">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-card via-card/85 to-transparent" />
-                  <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-card via-card/85 to-transparent" />
-                  <div
-                    className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 pr-4 [&::-webkit-scrollbar]:hidden"
-                    style={{ scrollbarWidth: "none" }}
-                  >
-                    {specEntries.map((entry) => (
-                      <div key={entry.key} className="min-w-[148px] shrink-0 snap-start rounded-xl border border-border/70 bg-muted/35 px-3 py-2">
-                        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{entry.label}</p>
-                        <p className="mt-1 text-xs font-semibold text-foreground">{entry.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-3 md:hidden">
-                  <Collapsible open={isSpecsOpen} onOpenChange={setIsSpecsOpen}>
-                    <CollapsibleTrigger asChild>
-                      <button
-                        type="button"
-                        aria-expanded={isSpecsOpen}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          setIsSpecsOpen((current) => !current);
-                        }}
-                        className="flex w-full items-center justify-between rounded-xl border border-border/70 bg-muted/25 px-3 py-2 text-left transition-colors hover:bg-muted/40"
-                      >
-                        <span className="text-[11px] font-semibold text-foreground">Ürün Özellikleri</span>
-                        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isSpecsOpen ? "rotate-180" : ""}`} />
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent
-                      className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                      }}
-                    >
-                      <div className="mt-2 space-y-2 rounded-xl border border-border/70 bg-muted/20 p-3">
-                        {specEntries.map((entry) => (
-                          <div key={entry.key} className="flex items-start justify-between gap-3 text-[11px]">
-                            <span className="text-muted-foreground">{entry.label}</span>
-                            <span className="text-right font-medium text-foreground">{entry.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </div>
-              </>
-            ) : null}
           </CardContent>
         </Card>
       </Link>

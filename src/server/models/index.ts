@@ -274,6 +274,7 @@ const siteContentSchema = new Schema(
     hero_logo_dark_url: { type: String, default: "" },
     hero_cta_label: { type: String, default: "Ürünleri İncele" },
     hero_cta_href: { type: String, default: "/products" },
+    shipping_fee: { type: Number, default: 89 },
     hero_slides: {
       type: [
         new Schema(

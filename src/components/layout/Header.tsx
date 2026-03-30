@@ -384,7 +384,7 @@ export function Header() {
                     Admin
                   </Button>
                 )}
-                <Button variant="ghost" size="sm" onClick={() => navigate('/account')}>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/account/profile')}>
                   <User className="mr-1 h-4 w-4" />
                   Hesap
                 </Button>
@@ -404,75 +404,77 @@ export function Header() {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[92vw] max-w-xs px-5 sm:max-w-sm">
+              <SheetContent side="right" className="flex h-full w-[92vw] max-w-xs flex-col overflow-hidden px-5 sm:max-w-sm">
                 <SheetTitle className="font-display">Menu</SheetTitle>
-                <div className="mt-6 flex items-center justify-between rounded-2xl border border-border/70 bg-muted/40 px-4 py-3 sm:hidden">
-                  <span className="text-sm font-medium text-foreground">Tema</span>
-                  <Switch
-                    aria-label={isDarkMode ? 'Gunduz moduna gec' : 'Gece moduna gec'}
-                    checked={isDarkMode}
-                    disabled={!mounted}
-                    className="h-7 w-14 border border-border/70 bg-muted data-[state=checked]:bg-primary/90 data-[state=unchecked]:bg-muted [&>span]:h-6 [&>span]:w-6 [&>span[data-state=checked]]:translate-x-7 [&>span[data-state=unchecked]]:translate-x-0"
-                    thumbChildren={
-                      isDarkMode
-                        ? <Moon className="h-3.5 w-3.5 text-primary" />
-                        : <Sun className="h-3.5 w-3.5 text-amber-500" />
-                    }
-                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                  />
-                </div>
-                <nav className="mt-6 flex flex-col gap-3">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      to={link.href}
-                      className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                  {user ? (
-                    <div className="mt-2 flex flex-col gap-3 border-t border-border/70 pt-4">
-                      {isAdmin && (
-                        <Link
-                          to="/admin"
-                          className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
-                          onClick={() => setMobileOpen(false)}
-                        >
-                          Admin Panel
-                        </Link>
-                      )}
+                <div className="mt-6 flex min-h-0 flex-1 flex-col">
+                  <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/40 px-4 py-3 sm:hidden">
+                    <span className="text-sm font-medium text-foreground">Tema</span>
+                    <Switch
+                      aria-label={isDarkMode ? 'Gunduz moduna gec' : 'Gece moduna gec'}
+                      checked={isDarkMode}
+                      disabled={!mounted}
+                      className="h-7 w-14 border border-border/70 bg-muted data-[state=checked]:bg-primary/90 data-[state=unchecked]:bg-muted [&>span]:h-6 [&>span]:w-6 [&>span[data-state=checked]]:translate-x-7 [&>span[data-state=unchecked]]:translate-x-0"
+                      thumbChildren={
+                        isDarkMode
+                          ? <Moon className="h-3.5 w-3.5 text-primary" />
+                          : <Sun className="h-3.5 w-3.5 text-amber-500" />
+                      }
+                      onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                    />
+                  </div>
+                  <nav className="mt-6 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-6 pr-1">
+                    {navLinks.map((link) => (
                       <Link
-                        to="/account"
+                        key={link.href}
+                        to={link.href}
                         className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
                         onClick={() => setMobileOpen(false)}
                       >
-                        Hesabim
+                        {link.label}
                       </Link>
+                    ))}
+                    {user ? (
+                      <div className="mt-2 flex flex-col gap-3 border-t border-border/70 pt-4">
+                        {isAdmin && (
+                          <Link
+                            to="/admin"
+                            className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            Admin Panel
+                          </Link>
+                        )}
+                        <Link
+                          to="/account/profile"
+                          className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          Hesabim
+                        </Link>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            signOut();
+                            setMobileOpen(false);
+                          }}
+                        >
+                          Cikis Yap
+                        </Button>
+                      </div>
+                    ) : (
                       <Button
-                        variant="outline"
-                        className="w-full"
+                        className="mt-2 w-full"
                         onClick={() => {
-                          signOut();
+                          navigate('/auth');
                           setMobileOpen(false);
                         }}
                       >
-                        Cikis Yap
+                        Giris Yap
                       </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      className="mt-2 w-full"
-                      onClick={() => {
-                        navigate('/auth');
-                        setMobileOpen(false);
-                      }}
-                    >
-                      Giris Yap
-                    </Button>
-                  )}
-                </nav>
+                    )}
+                  </nav>
+                </div>
               </SheetContent>
             </Sheet>
 
@@ -501,11 +503,11 @@ export function Header() {
           )}
         >
           <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
-            <div className="rounded-b-3xl border-x border-b border-border/70 bg-background/92 shadow-[0_28px_55px_rgba(0,0,0,0.2)] backdrop-blur-xl">
+            <div className="max-h-[70vh] overflow-y-auto rounded-b-3xl border-x border-b border-border/70 bg-background/92 shadow-[0_28px_55px_rgba(0,0,0,0.2)] backdrop-blur-xl">
               {activeMegaData && (
-                <div className="mx-auto max-w-7xl p-6 md:p-8">
-                  <div className="mb-6 flex items-center justify-between border-b border-border/50 pb-4">
-                    <h3 className="font-display text-xl font-semibold text-primary">{activeMegaData.label}</h3>
+                <div className="mx-auto max-w-5xl p-3.5 md:p-4">
+                  <div className="mb-3 flex items-center justify-between border-b border-border/50 pb-2.5">
+                    <h3 className="font-display text-lg font-semibold text-primary">{activeMegaData.label}</h3>
                     <Link
                       to={activeMegaData.href}
                       className="text-sm font-semibold text-primary/90 transition-colors hover:text-primary"
@@ -514,17 +516,17 @@ export function Header() {
                       Tümünü Gör
                     </Link>
                   </div>
-                  <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_300px]">
+                  <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
                     {primaryMegaColumns.map((column) => (
-                      <div key={column.title} className="rounded-2xl border border-border/65 bg-background/75 p-4">
+                      <div key={column.title} className="self-start rounded-2xl border border-border/65 bg-background/75 p-3">
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{column.title}</p>
-                        <ul className="mt-4 space-y-2">
+                        <ul className="mt-3 space-y-1">
                           {column.items.map((item) => (
                             <li key={item.label}>
                               <Link
                                 to={item.href}
                                 onClick={closeMegaMenu}
-                                className="group flex items-center justify-between rounded-lg px-2 py-2 text-sm font-medium text-foreground/90 transition-colors hover:bg-muted hover:text-foreground"
+                                className="group flex items-center justify-between rounded-lg px-2 py-1.5 text-sm font-medium text-foreground/90 transition-colors hover:bg-muted hover:text-foreground"
                               >
                                 <span>{item.label}</span>
                                 <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1" />
@@ -535,21 +537,21 @@ export function Header() {
                       </div>
                     ))}
                     {promoMegaColumn ? (
-                      <div className="rounded-[1.75rem] border border-border/65 bg-gradient-to-br from-background via-background to-secondary/20 p-5 shadow-[0_24px_44px_rgba(0,0,0,0.12)]">
+                      <div className="self-start rounded-[1.45rem] border border-border/65 bg-gradient-to-br from-background via-background to-secondary/20 p-3.5 shadow-[0_24px_44px_rgba(0,0,0,0.12)]">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">{promoMegaColumn.title}</p>
-                        <h4 className="mt-3 font-display text-2xl font-semibold tracking-tight text-foreground">
+                        <h4 className="mt-2.5 font-display text-xl font-semibold tracking-tight text-foreground">
                           {activePromoContent?.title || `${activeMegaData.label} icin ozel secimler`}
                         </h4>
                         <p className="mt-2 text-sm leading-6 text-muted-foreground">
                           {activePromoContent?.description || "En cok ilgi goren baglantilara hizli gecis yapin ve ilgili koleksiyonu tek adimda inceleyin."}
                         </p>
-                        <div className="mt-5 flex flex-wrap gap-2.5">
+                        <div className="mt-3.5 grid grid-cols-2 gap-2">
                           {promoMegaColumn.items.map((item) => (
                             <Link
                               key={item.label}
                               to={item.href}
                               onClick={closeMegaMenu}
-                              className="rounded-full border border-border/75 bg-background/85 px-3.5 py-2 text-sm font-medium text-foreground/85 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary"
+                              className="flex min-h-[2.5rem] items-center justify-center rounded-full border border-border/75 bg-background/85 px-3 py-1.5 text-center text-[13px] font-medium text-foreground/85 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary"
                             >
                               {item.label}
                             </Link>
@@ -558,7 +560,7 @@ export function Header() {
                         <Link
                           to={activeMegaData.href}
                           onClick={closeMegaMenu}
-                          className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
+                          className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
                         >
                           {activePromoContent?.cta || "Tumunu Gor"}
                           <ChevronRight className="h-4 w-4" />

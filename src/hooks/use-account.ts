@@ -111,7 +111,6 @@ export function useUpdateAccountProfile() {
       firstName: string;
       lastName: string;
       phone: string;
-      profileImageUrl?: string | null;
       communicationPreferences: { email: boolean; sms: boolean };
     }) =>
       requestJson<AccountProfileResponse>("/api/account/profile", {

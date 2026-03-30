@@ -9,8 +9,7 @@ export function Footer() {
       <div className="container py-10 sm:py-12">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <div className="max-w-sm">
-            <Link to="/" className="flex items-center gap-3 font-display text-lg font-bold">
-              <img src="/images/_preview-white-v4.png" alt="Cep Dünyası" className="h-10 w-auto rounded-lg bg-primary-foreground/5 p-1" />
+            <Link to="/" className="font-display text-lg font-bold">
               Cep Dünyası
             </Link>
             <p className="mt-3 text-sm text-primary-foreground/85">

@@ -180,7 +180,6 @@ export type TechnicalServiceHistoryItem = {
 };
 
 export const ACCOUNT_NAV_ITEMS = [
-  { label: "Genel Bakis", href: "/account" },
   { label: "Profil Bilgileri", href: "/account/profile" },
   { label: "Adreslerim", href: "/account/addresses" },
   { label: "Siparislerim", href: "/account/orders" },

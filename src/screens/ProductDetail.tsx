@@ -430,7 +430,7 @@ export default function ProductDetail() {
 
             <Card
               ref={purchasePanelRef}
-              className="overflow-hidden border-border/70 bg-gradient-to-br from-white via-white to-muted/15 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.48)]"
+              className="overflow-hidden border-border/70 bg-gradient-to-br from-white via-white to-slate-100/80 text-slate-950 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.48)]"
             >
               <CardContent className="space-y-6 p-6 sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -457,18 +457,18 @@ export default function ProductDetail() {
                     <div className="flex flex-wrap items-end gap-3">
                       <span className="text-3xl font-semibold tracking-tight text-primary sm:text-4xl">{formatCurrency(selectedPrice)}</span>
                       {selectedComparePrice ? (
-                        <span className="pb-1 text-sm text-muted-foreground line-through">{formatCurrency(selectedComparePrice)}</span>
+                        <span className="pb-1 text-sm text-slate-500 line-through">{formatCurrency(selectedComparePrice)}</span>
                       ) : null}
                     </div>
 
-                    <p className="text-sm text-muted-foreground">
-                      Seçili model: <span className="font-medium text-foreground">{selectedVariantSummary || "Standart seçim"}</span>
+                    <p className="text-sm text-slate-500">
+                      Seçili model: <span className="font-medium text-slate-950">{selectedVariantSummary || "Standart seçim"}</span>
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-border/70 bg-card/70 px-4 py-3 text-sm shadow-sm">
-                    <div className="font-medium text-foreground">{lowStockMessage}</div>
-                    <div className="mt-1 text-muted-foreground">Güvenli ödeme ve hızlı kargo ile gönderilir.</div>
+                    <div className="font-medium text-slate-50">{lowStockMessage}</div>
+                    <div className="mt-1 text-slate-300">Güvenli ödeme ve hızlı kargo ile gönderilir.</div>
                   </div>
                 </div>
 
@@ -483,12 +483,12 @@ export default function ProductDetail() {
 
                 <div className="grid gap-3 rounded-3xl border border-border/70 bg-muted/10 p-4 sm:grid-cols-3">
                   <div className="rounded-2xl bg-card px-4 py-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Teslimat</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">Hızlı kargo uygun</div>
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Teslimat</div>
+                    <div className="mt-2 text-sm font-medium text-white">Hızlı kargo uygun</div>
                   </div>
                   <div className="rounded-2xl bg-card px-4 py-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Garanti</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Garanti</div>
+                    <div className="mt-2 text-sm font-medium text-white">
                       {secondHandDetails
                         ? secondHandDetails.warranty_type === "none"
                           ? "Garanti durumu belirtilmiş"
@@ -497,8 +497,8 @@ export default function ProductDetail() {
                     </div>
                   </div>
                   <div className="rounded-2xl bg-card px-4 py-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">İade</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">14 gün koşulsuz</div>
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">İade</div>
+                    <div className="mt-2 text-sm font-medium text-white">14 gün koşulsuz</div>
                   </div>
                 </div>
 
