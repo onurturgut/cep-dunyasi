@@ -1,5 +1,8 @@
+"use client";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReviewCard } from "@/components/reviews/ReviewCard";
+import { useI18n } from "@/i18n/provider";
 import type { ProductReviewListItem } from "@/lib/reviews";
 
 type ReviewListProps = {
@@ -12,15 +15,10 @@ type ReviewListProps = {
   emptyMessage?: string;
 };
 
-export function ReviewList({
-  items,
-  loading,
-  onHelpful,
-  helpfulReviewId,
-  canMarkHelpful = false,
-  currentUserId,
-  emptyMessage = "Bu urun icin henuz yorum bulunmuyor.",
-}: ReviewListProps) {
+export function ReviewList({ items, loading, onHelpful, helpfulReviewId, canMarkHelpful = false, currentUserId, emptyMessage }: ReviewListProps) {
+  const { locale } = useI18n();
+  const resolvedEmptyMessage = emptyMessage || (locale === "en" ? "There are no reviews for this product yet." : "Bu urun icin henuz yorum bulunmuyor.");
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -38,7 +36,7 @@ export function ReviewList({
   }
 
   if (items.length === 0) {
-    return <div className="rounded-2xl border border-dashed border-border/70 bg-muted/15 p-6 text-sm text-muted-foreground">{emptyMessage}</div>;
+    return <div className="rounded-2xl border border-dashed border-border/70 bg-muted/15 p-6 text-sm text-muted-foreground">{resolvedEmptyMessage}</div>;
   }
 
   return (

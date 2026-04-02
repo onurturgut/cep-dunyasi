@@ -2,6 +2,7 @@
 
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/provider";
 import { cn, formatCurrency } from "@/lib/utils";
 
 type StickyBuyBarProps = {
@@ -14,15 +15,23 @@ type StickyBuyBarProps = {
   disabled?: boolean;
 };
 
-export function StickyBuyBar({
-  visible,
-  productName,
-  variantSummary,
-  price,
-  stock,
-  onAddToCart,
-  disabled = false,
-}: StickyBuyBarProps) {
+export function StickyBuyBar({ visible, productName, variantSummary, price, stock, onAddToCart, disabled = false }: StickyBuyBarProps) {
+  const { locale } = useI18n();
+  const copy =
+    locale === "en"
+      ? {
+          modelSelectionRequired: "Model selection required",
+          unitsInStock: `${stock} in stock`,
+          outOfStock: "Out of stock",
+          addToCart: "Add to Cart",
+        }
+      : {
+          modelSelectionRequired: "Model secimi gerekli",
+          unitsInStock: `${stock} adet stokta`,
+          outOfStock: "Stokta yok",
+          addToCart: "Sepete Ekle",
+        };
+
   return (
     <div
       className={cn(
@@ -34,18 +43,16 @@ export function StickyBuyBar({
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-foreground">{productName}</p>
-            <p className="truncate text-xs text-muted-foreground">{variantSummary || "Model seçimi gerekli"}</p>
+            <p className="truncate text-xs text-muted-foreground">{variantSummary || copy.modelSelectionRequired}</p>
             <div className="mt-1 flex items-center gap-2">
               <span className="text-base font-semibold text-foreground">{formatCurrency(price)}</span>
-              <span className={cn("text-xs", stock > 0 ? "text-emerald-700" : "text-destructive")}>
-                {stock > 0 ? `${stock} adet stokta` : "Stokta yok"}
-              </span>
+              <span className={cn("text-xs", stock > 0 ? "text-emerald-700" : "text-destructive")}>{stock > 0 ? copy.unitsInStock : copy.outOfStock}</span>
             </div>
           </div>
 
           <Button type="button" size="sm" className="h-11 rounded-2xl px-4" onClick={onAddToCart} disabled={disabled || stock <= 0}>
             <ShoppingCart className="mr-2 h-4 w-4" />
-            Sepete Ekle
+            {copy.addToCart}
           </Button>
         </div>
       </div>

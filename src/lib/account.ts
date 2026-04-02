@@ -180,13 +180,13 @@ export type TechnicalServiceHistoryItem = {
 };
 
 export const ACCOUNT_NAV_ITEMS = [
-  { label: "Profil Bilgileri", href: "/account/profile" },
-  { label: "Adreslerim", href: "/account/addresses" },
-  { label: "Siparislerim", href: "/account/orders" },
-  { label: "Favorilerim", href: "/account/favorites" },
-  { label: "Iade / Degisim", href: "/account/returns" },
-  { label: "Teknik Servis", href: "/account/technical-service" },
-  { label: "Guvenlik", href: "/account/security" },
+  { key: "profile", href: "/account/profile" },
+  { key: "addresses", href: "/account/addresses" },
+  { key: "orders", href: "/account/orders" },
+  { key: "favorites", href: "/account/favorites" },
+  { key: "returns", href: "/account/returns" },
+  { key: "technicalService", href: "/account/technical-service" },
+  { key: "security", href: "/account/security" },
 ] as const;
 
 export const ORDER_STATUS_LABELS: Record<string, string> = {
@@ -248,7 +248,7 @@ export function canCreateReturnRequest(orderStatus: string, shipmentStatus?: str
   return orderStatus === "delivered" || shipmentStatus === "delivered";
 }
 
-export function getPasswordStrength(password: string) {
+export function getPasswordStrength(password: string, locale: AppLocale = "tr") {
   let score = 0;
 
   if (password.length >= 8) score += 1;
@@ -259,16 +259,17 @@ export function getPasswordStrength(password: string) {
   if (/[^A-Za-z0-9]/.test(password)) score += 1;
 
   if (score <= 2) {
-    return { score, label: "Zayif", value: 30 };
+    return { score, label: locale === "en" ? "Weak" : "Zayif", value: 30 };
   }
 
   if (score <= 4) {
-    return { score, label: "Orta", value: 65 };
+    return { score, label: locale === "en" ? "Medium" : "Orta", value: 65 };
   }
 
-  return { score, label: "Guclu", value: 100 };
+  return { score, label: locale === "en" ? "Strong" : "Guclu", value: 100 };
 }
 
 export function sanitizePhone(value: string) {
   return value.replace(/[^\d+]/g, "").slice(0, 16);
 }
+import type { AppLocale } from "@/i18n/config";

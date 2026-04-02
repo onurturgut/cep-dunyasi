@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { getIntlLocale, getRuntimeLocale } from "@/i18n/config";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -33,8 +34,11 @@ export function toPriceNumber(value: unknown): number {
   return 0;
 }
 
-export function formatCurrency(value: unknown) {
-  return `TL ${toPriceNumber(value).toLocaleString("tr-TR")}`;
+export function formatCurrency(value: unknown, locale?: string) {
+  const resolvedLocale = getRuntimeLocale(locale);
+  const formattedAmount = toPriceNumber(value).toLocaleString(getIntlLocale(resolvedLocale));
+
+  return resolvedLocale === "en" ? `TRY ${formattedAmount}` : `TL ${formattedAmount}`;
 }
 
 const TURKISH_CHAR_MAP: Record<string, string> = {

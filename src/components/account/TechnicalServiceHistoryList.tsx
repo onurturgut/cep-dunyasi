@@ -5,6 +5,7 @@ import type { TechnicalServiceHistoryItem } from "@/lib/account";
 import { AccountEmptyState } from "@/components/account/AccountEmptyState";
 import { AccountSectionSkeleton } from "@/components/account/AccountSectionSkeleton";
 import { TechnicalServiceRequestCard } from "@/components/account/TechnicalServiceRequestCard";
+import { useI18n } from "@/i18n/provider";
 
 type TechnicalServiceHistoryListProps = {
   requests: TechnicalServiceHistoryItem[];
@@ -13,26 +14,29 @@ type TechnicalServiceHistoryListProps = {
 };
 
 export function TechnicalServiceHistoryList({ requests, isLoading, error }: TechnicalServiceHistoryListProps) {
+  const { messages } = useI18n();
+  const technicalServiceMessages = messages.account.technicalService;
+
   if (isLoading) {
-    return <AccountSectionSkeleton cards={2} rows={3} />;
+    return <AccountSectionSkeleton cards={3} rows={2} />;
   }
 
   if (error) {
-    return <AccountEmptyState icon={Wrench} title="Servis geçmişi yüklenemedi" description={error} />;
+    return <AccountEmptyState icon={Wrench} title={technicalServiceMessages.loadError} description={error} />;
   }
 
   if (requests.length === 0) {
     return (
       <AccountEmptyState
         icon={Wrench}
-        title="Henüz teknik servis kaydınız yok"
-        description="Oluşturduğunuz teknik servis başvuruları ve durum güncellemeleri burada listelenecek."
+        title={technicalServiceMessages.emptyTitle}
+        description={technicalServiceMessages.emptyDescription}
       />
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       {requests.map((request) => (
         <TechnicalServiceRequestCard key={request.id} request={request} />
       ))}

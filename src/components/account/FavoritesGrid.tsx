@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import { FavoriteProductCard } from "@/components/account/FavoriteProductCard";
 import { AccountEmptyState } from "@/components/account/AccountEmptyState";
 import { AccountSectionSkeleton } from "@/components/account/AccountSectionSkeleton";
+import { useI18n } from "@/i18n/provider";
 import type { FavoriteProductSummary } from "@/lib/account";
 
 type FavoritesGridProps = {
@@ -13,22 +14,30 @@ type FavoritesGridProps = {
 };
 
 export function FavoritesGrid({ products, isLoading, error }: FavoritesGridProps) {
+  const { locale } = useI18n();
+  const copy =
+    locale === "en"
+      ? {
+          loadError: "Favorites could not be loaded",
+          emptyTitle: "Your favorites list is empty",
+          emptyDescription: "Save products you like with the heart icon and review them quickly from this area later.",
+        }
+      : {
+          loadError: "Favoriler yuklenemedi",
+          emptyTitle: "Favori listeniz bos",
+          emptyDescription: "Begendiginiz urunleri kalp ikonuyla kaydedebilir, daha sonra bu alandan hizlica inceleyebilirsiniz.",
+        };
+
   if (isLoading) {
     return <AccountSectionSkeleton cards={1} rows={4} />;
   }
 
   if (error) {
-    return <AccountEmptyState icon={Heart} title="Favoriler yuklenemedi" description={error} />;
+    return <AccountEmptyState icon={Heart} title={copy.loadError} description={error} />;
   }
 
   if (products.length === 0) {
-    return (
-      <AccountEmptyState
-        icon={Heart}
-        title="Favori listeniz bos"
-        description="Begendiginiz urunleri kalp ikonuyla kaydedebilir, daha sonra bu alandan hizlica inceleyebilirsiniz."
-      />
-    );
+    return <AccountEmptyState icon={Heart} title={copy.emptyTitle} description={copy.emptyDescription} />;
   }
 
   return (

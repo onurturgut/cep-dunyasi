@@ -5,8 +5,10 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { sanitizePhone, type AccountAddress } from "@/lib/account";
+import { findCanonicalCity, findCanonicalDistrict, getDistrictsByCity, isDistrictInCity, turkeyCities } from "@/lib/turkey-addresses";
 
 type AddressFormValue = Omit<AccountAddress, "id" | "created_at" | "updated_at"> & { id?: string };
 
@@ -29,9 +31,22 @@ const defaultValue: AddressFormValue = {
   is_default: false,
 };
 
+const createFormValue = (initialValue?: AddressFormValue | null): AddressFormValue => {
+  const baseValue = initialValue ? { ...defaultValue, ...initialValue } : { ...defaultValue };
+  const city = findCanonicalCity(baseValue.city);
+  const district = findCanonicalDistrict(city, baseValue.district);
+
+  return {
+    ...baseValue,
+    city,
+    district,
+  };
+};
+
 export function AddressForm({ initialValue, onSubmit, onCancel, submitting }: AddressFormProps) {
-  const [value, setValue] = useState<AddressFormValue>(initialValue ? { ...defaultValue, ...initialValue } : defaultValue);
+  const [value, setValue] = useState<AddressFormValue>(() => createFormValue(initialValue));
   const [error, setError] = useState("");
+  const districtOptions = getDistrictsByCity(value.city);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -75,11 +90,42 @@ export function AddressForm({ initialValue, onSubmit, onCancel, submitting }: Ad
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="address-city">Sehir</Label>
-          <Input id="address-city" value={value.city} onChange={(event) => setValue((current) => ({ ...current, city: event.target.value }))} placeholder="Istanbul" />
+          <Select
+            value={value.city || undefined}
+            onValueChange={(nextCity) =>
+              setValue((current) => ({
+                ...current,
+                city: nextCity,
+                district: isDistrictInCity(nextCity, current.district) ? current.district : "",
+              }))
+            }
+          >
+            <SelectTrigger id="address-city">
+              <SelectValue placeholder="Sehir secin" />
+            </SelectTrigger>
+            <SelectContent>
+              {turkeyCities.map((city) => (
+                <SelectItem key={city} value={city}>
+                  {city}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="address-district">Ilce</Label>
-          <Input id="address-district" value={value.district} onChange={(event) => setValue((current) => ({ ...current, district: event.target.value }))} placeholder="Kadikoy" />
+          <Select value={value.district || undefined} onValueChange={(nextDistrict) => setValue((current) => ({ ...current, district: nextDistrict }))} disabled={!value.city}>
+            <SelectTrigger id="address-district">
+              <SelectValue placeholder={value.city ? "Ilce secin" : "Once sehir secin"} />
+            </SelectTrigger>
+            <SelectContent>
+              {districtOptions.map((district) => (
+                <SelectItem key={district} value={district}>
+                  {district}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="address-neighborhood">Mahalle</Label>

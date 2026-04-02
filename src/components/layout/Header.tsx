@@ -1,218 +1,219 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from '@/lib/router';
-import { ShoppingCart, Menu, User, Search, ChevronRight, Moon, Sun, Heart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { useCartStore } from '@/lib/cart-store';
-import { useAuth } from '@/hooks/use-auth';
-import { useWishlist } from '@/hooks/use-wishlist';
-import { cn } from '@/lib/utils';
-import { useTheme } from '@/components/ThemeProvider';
+import { useEffect, useRef, useState } from "react";
+import { ChevronRight, Heart, Menu, Moon, Search, ShoppingCart, Sun, User } from "lucide-react";
+import { Link, useNavigate } from "@/lib/router";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { useTheme } from "@/components/ThemeProvider";
+import { useAuth } from "@/hooks/use-auth";
+import { useI18n } from "@/i18n/provider";
+import { useCartStore } from "@/lib/cart-store";
+import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { label: 'Ana Sayfa', href: '/' },
-  { label: 'Telefonlar', href: '/products?category=telefon' },
-  { label: '2. El Telefonlar', href: '/products?category=ikinci-el-telefon' },
-  { label: 'Saatler', href: '/products?category=akilli-saatler' },
-  { label: 'Kılıflar', href: '/products?category=kilif' },
-  { label: 'Şarj Aleti', href: '/products?category=sarj-aleti' },
-  { label: 'Power Bank', href: '/products?category=power-bank' },
-  { label: 'Teknik Servis', href: '/technical-service' },
+  { label: "Ana Sayfa", href: "/" },
+  { label: "Telefonlar", href: "/products?category=telefon" },
+  { label: "2. El Telefonlar", href: "/products?category=ikinci-el-telefon" },
+  { label: "Saatler", href: "/products?category=akilli-saatler" },
+  { label: "Kiliflar", href: "/products?category=kilif" },
+  { label: "Sarj Aleti", href: "/products?category=sarj-aleti" },
+  { label: "Power Bank", href: "/products?category=power-bank" },
+  { label: "Teknik Servis", href: "/technical-service" },
 ];
 
 const megaMenuData = {
   telefonlar: {
-    label: 'Telefonlar',
-    href: '/products?category=telefon',
+    label: "Telefonlar",
+    href: "/products?category=telefon",
     columns: [
       {
-        title: 'Apple Modelleri',
+        title: "Apple Modelleri",
         items: [
-          { label: 'Apple', href: '/products?category=telefon' },
-          { label: 'Samsung', href: '/products?category=telefon' },
-          { label: 'Xiaomi', href: '/products?category=telefon' },
-          { label: 'Huawei', href: '/products?category=telefon' },
+          { label: "Apple", href: "/products?category=telefon" },
+          { label: "Samsung", href: "/products?category=telefon" },
+          { label: "Xiaomi", href: "/products?category=telefon" },
+          { label: "Huawei", href: "/products?category=telefon" },
         ],
       },
       {
-        title: 'Popüler Modeller',
+        title: "Populer Modeller",
         items: [
-          { label: 'iPhone 15', href: '/products?category=telefon' },
-          { label: 'iPhone 14', href: '/products?category=telefon' },
-          { label: 'Galaxy S24', href: '/products?category=telefon' },
-          { label: 'Redmi Note 13', href: '/products?category=telefon' },
+          { label: "iPhone 15", href: "/products?category=telefon" },
+          { label: "iPhone 14", href: "/products?category=telefon" },
+          { label: "Galaxy S24", href: "/products?category=telefon" },
+          { label: "Redmi Note 13", href: "/products?category=telefon" },
         ],
       },
       {
-        title: 'Seriler',
+        title: "Seriler",
         items: [
-          { label: 'Pro Serisi', href: '/products?category=telefon' },
-          { label: 'Max Serisi', href: '/products?category=telefon' },
-          { label: 'Ultra Serisi', href: '/products?category=telefon' },
-          { label: 'A Serisi', href: '/products?category=telefon' },
+          { label: "Pro Serisi", href: "/products?category=telefon" },
+          { label: "Max Serisi", href: "/products?category=telefon" },
+          { label: "Ultra Serisi", href: "/products?category=telefon" },
+          { label: "A Serisi", href: "/products?category=telefon" },
         ],
       },
     ],
   },
   ikinciElTelefonlar: {
-    label: '2. El Telefonlar',
-    href: '/products?category=ikinci-el-telefon',
+    label: "2. El Telefonlar",
+    href: "/products?category=ikinci-el-telefon",
     columns: [
       {
-        title: 'Markalar',
+        title: "Markalar",
         items: [
-          { label: 'Apple', href: '/products?category=ikinci-el-telefon' },
-          { label: 'iPhone 15 Serisi', href: '/products?category=ikinci-el-telefon' },
-          { label: 'iPhone 14 Serisi', href: '/products?category=ikinci-el-telefon' },
-          { label: 'iPhone 13 Serisi', href: '/products?category=ikinci-el-telefon' },
+          { label: "Apple", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 15 Serisi", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 14 Serisi", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 13 Serisi", href: "/products?category=ikinci-el-telefon" },
         ],
       },
       {
-        title: 'Popüler Modeller',
+        title: "Populer Modeller",
         items: [
-          { label: 'iPhone 15', href: '/products?category=ikinci-el-telefon' },
-          { label: 'iPhone 14', href: '/products?category=ikinci-el-telefon' },
-          { label: 'iPhone 13', href: '/products?category=ikinci-el-telefon' },
-          { label: 'iPhone 12', href: '/products?category=ikinci-el-telefon' },
+          { label: "iPhone 15", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 14", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 13", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 12", href: "/products?category=ikinci-el-telefon" },
         ],
       },
       {
-        title: 'Durum',
+        title: "Durum",
         items: [
-          { label: 'Cok Iyi', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Iyi', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Pil Sagligi Yuksek', href: '/products?category=ikinci-el-telefon' },
-          { label: 'Garantili Secimler', href: '/products?category=ikinci-el-telefon' },
+          { label: "Cok Iyi", href: "/products?category=ikinci-el-telefon" },
+          { label: "Iyi", href: "/products?category=ikinci-el-telefon" },
+          { label: "Pil Sagligi Yuksek", href: "/products?category=ikinci-el-telefon" },
+          { label: "Garantili Secimler", href: "/products?category=ikinci-el-telefon" },
         ],
       },
     ],
   },
   saatler: {
-    label: 'Saatler',
-    href: '/products?category=akilli-saatler',
+    label: "Saatler",
+    href: "/products?category=akilli-saatler",
     columns: [
       {
-        title: 'Apple Watch Modelleri',
+        title: "Apple Watch Modelleri",
         items: [
-          { label: 'Apple Watch Series 9', href: '/products?category=akilli-saatler' },
-          { label: 'Apple Watch Ultra 2', href: '/products?category=akilli-saatler' },
-          { label: 'Apple Watch SE', href: '/products?category=akilli-saatler' },
+          { label: "Apple Watch Series 9", href: "/products?category=akilli-saatler" },
+          { label: "Apple Watch Ultra 2", href: "/products?category=akilli-saatler" },
+          { label: "Apple Watch SE", href: "/products?category=akilli-saatler" },
         ],
       },
       {
-        title: 'Samsung Watch Modelleri',
+        title: "Samsung Watch Modelleri",
         items: [
-          { label: 'Galaxy Watch6', href: '/products?category=akilli-saatler' },
-          { label: 'Galaxy Watch6 Classic', href: '/products?category=akilli-saatler' },
-          { label: 'Galaxy Watch5 Pro', href: '/products?category=akilli-saatler' },
+          { label: "Galaxy Watch6", href: "/products?category=akilli-saatler" },
+          { label: "Galaxy Watch6 Classic", href: "/products?category=akilli-saatler" },
+          { label: "Galaxy Watch5 Pro", href: "/products?category=akilli-saatler" },
         ],
       },
       {
-        title: 'Akıllı Bileklikler',
+        title: "Akilli Bileklikler",
         items: [
-          { label: 'Xiaomi Smart Band 8', href: '/products?category=akilli-saatler' },
-          { label: 'Huawei Band 9', href: '/products?category=akilli-saatler' },
-          { label: 'Samsung Galaxy Fit3', href: '/products?category=akilli-saatler' },
+          { label: "Xiaomi Smart Band 8", href: "/products?category=akilli-saatler" },
+          { label: "Huawei Band 9", href: "/products?category=akilli-saatler" },
+          { label: "Samsung Galaxy Fit3", href: "/products?category=akilli-saatler" },
         ],
       },
     ],
   },
   kiliflar: {
-    label: 'Kılıflar',
-    href: '/products?category=kilif',
+    label: "Kiliflar",
+    href: "/products?category=kilif",
     columns: [
       {
-        title: 'iPhone Modellerine Göre',
+        title: "iPhone Modellerine Gore",
         items: [
-          { label: 'iPhone 15 Kılıfları', href: '/products?category=kilif' },
-          { label: 'iPhone 14 Kılıfları', href: '/products?category=kilif' },
-          { label: 'iPhone 13 Kılıfları', href: '/products?category=kilif' },
+          { label: "iPhone 15 Kiliflari", href: "/products?category=kilif" },
+          { label: "iPhone 14 Kiliflari", href: "/products?category=kilif" },
+          { label: "iPhone 13 Kiliflari", href: "/products?category=kilif" },
         ],
       },
       {
-        title: 'Samsung Modellerine Göre',
+        title: "Samsung Modellerine Gore",
         items: [
-          { label: 'Galaxy S24 Kılıfları', href: '/products?category=kilif' },
-          { label: 'Galaxy S23 Kılıfları', href: '/products?category=kilif' },
-          { label: 'Galaxy A55 Kılıfları', href: '/products?category=kilif' },
+          { label: "Galaxy S24 Kiliflari", href: "/products?category=kilif" },
+          { label: "Galaxy S23 Kiliflari", href: "/products?category=kilif" },
+          { label: "Galaxy A55 Kiliflari", href: "/products?category=kilif" },
         ],
       },
       {
-        title: 'Filtreler',
+        title: "Filtreler",
         items: [
-          { label: 'Şeffaf Kılıflar', href: '/products?category=kilif' },
-          { label: 'Deri Kılıflar', href: '/products?category=kilif' },
-          { label: 'Silikon Kılıflar', href: '/products?category=kilif' },
+          { label: "Seffaf Kiliflar", href: "/products?category=kilif" },
+          { label: "Deri Kiliflar", href: "/products?category=kilif" },
+          { label: "Silikon Kiliflar", href: "/products?category=kilif" },
         ],
       },
     ],
   },
   powerBank: {
-    label: 'Power Bank',
-    href: '/products?category=power-bank',
+    label: "Power Bank",
+    href: "/products?category=power-bank",
     columns: [
       {
-        title: 'Markalar',
+        title: "Markalar",
         items: [
-          { label: 'Anker', href: '/products?category=power-bank' },
-          { label: 'Baseus', href: '/products?category=power-bank' },
-          { label: 'Xiaomi', href: '/products?category=power-bank' },
-          { label: 'Samsung', href: '/products?category=power-bank' },
+          { label: "Anker", href: "/products?category=power-bank" },
+          { label: "Baseus", href: "/products?category=power-bank" },
+          { label: "Xiaomi", href: "/products?category=power-bank" },
+          { label: "Samsung", href: "/products?category=power-bank" },
         ],
       },
       {
-        title: 'Kapasite',
+        title: "Kapasite",
         items: [
-          { label: '10000 mAh', href: '/products?category=power-bank' },
-          { label: '20000 mAh', href: '/products?category=power-bank' },
-          { label: '30000 mAh', href: '/products?category=power-bank' },
-          { label: '50000 mAh', href: '/products?category=power-bank' },
+          { label: "10000 mAh", href: "/products?category=power-bank" },
+          { label: "20000 mAh", href: "/products?category=power-bank" },
+          { label: "30000 mAh", href: "/products?category=power-bank" },
+          { label: "50000 mAh", href: "/products?category=power-bank" },
         ],
       },
       {
-        title: 'Özellikler',
+        title: "Ozellikler",
         items: [
-          { label: 'PD Hızlı Şarj', href: '/products?category=power-bank' },
-          { label: 'Kablosuz Şarj', href: '/products?category=power-bank' },
-          { label: 'MagSafe Uyumlu', href: '/products?category=power-bank' },
-          { label: 'İnce Tasarım', href: '/products?category=power-bank' },
+          { label: "PD Hizli Sarj", href: "/products?category=power-bank" },
+          { label: "Kablosuz Sarj", href: "/products?category=power-bank" },
+          { label: "MagSafe Uyumlu", href: "/products?category=power-bank" },
+          { label: "Ince Tasarim", href: "/products?category=power-bank" },
         ],
       },
     ],
   },
   sarjAleti: {
-    label: 'Şarj Aleti',
-    href: '/products?category=sarj-aleti',
+    label: "Sarj Aleti",
+    href: "/products?category=sarj-aleti",
     columns: [
       {
-        title: 'Markalar',
+        title: "Markalar",
         items: [
-          { label: 'Anker', href: '/products?category=sarj-aleti' },
-          { label: 'Baseus', href: '/products?category=sarj-aleti' },
-          { label: 'Samsung', href: '/products?category=sarj-aleti' },
-          { label: 'Apple', href: '/products?category=sarj-aleti' },
+          { label: "Anker", href: "/products?category=sarj-aleti" },
+          { label: "Baseus", href: "/products?category=sarj-aleti" },
+          { label: "Samsung", href: "/products?category=sarj-aleti" },
+          { label: "Apple", href: "/products?category=sarj-aleti" },
         ],
       },
       {
-        title: 'Güç Seçenekleri',
+        title: "Guc Secenekleri",
         items: [
-          { label: '20W', href: '/products?category=sarj-aleti' },
-          { label: '33W', href: '/products?category=sarj-aleti' },
-          { label: '45W', href: '/products?category=sarj-aleti' },
-          { label: '65W', href: '/products?category=sarj-aleti' },
+          { label: "20W", href: "/products?category=sarj-aleti" },
+          { label: "33W", href: "/products?category=sarj-aleti" },
+          { label: "45W", href: "/products?category=sarj-aleti" },
+          { label: "65W", href: "/products?category=sarj-aleti" },
         ],
       },
       {
-        title: 'Tipler',
+        title: "Tipler",
         items: [
-          { label: 'USB-C Adaptörlü', href: '/products?category=sarj-aleti' },
-          { label: 'Çoklu Port', href: '/products?category=sarj-aleti' },
-          { label: 'GaN Teknolojili', href: '/products?category=sarj-aleti' },
-          { label: 'Araç Şarj Aleti', href: '/products?category=sarj-aleti' },
+          { label: "USB-C Adapterli", href: "/products?category=sarj-aleti" },
+          { label: "Coklu Port", href: "/products?category=sarj-aleti" },
+          { label: "GaN Teknolojili", href: "/products?category=sarj-aleti" },
+          { label: "Arac Sarj Aleti", href: "/products?category=sarj-aleti" },
         ],
       },
     ],
@@ -221,9 +222,7 @@ const megaMenuData = {
 
 type MegaMenuKey = keyof typeof megaMenuData;
 
-const desktopStandaloneLinks = [
-  { label: 'Teknik Servis', href: '/technical-service' },
-];
+const desktopStandaloneLinks = [{ label: "Teknik Servis", href: "/technical-service" }];
 
 const megaMenuPromoContent: Partial<Record<MegaMenuKey, { title: string; description: string; cta: string }>> = {
   ikinciElTelefonlar: {
@@ -237,12 +236,14 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<MegaMenuKey | null>(null);
   const [mounted, setMounted] = useState(false);
-  const totalItems = useCartStore((s) => s.totalItems());
+  const totalItems = useCartStore((state) => state.totalItems());
   const { user, isAdmin, signOut } = useAuth();
-  const { productIds: wishlistProductIds } = useWishlist();
   const { resolvedTheme, setTheme } = useTheme();
+  const { messages } = useI18n();
   const navigate = useNavigate();
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const headerMessages = messages.header;
+  const localizedNavLinks = headerMessages.mobileNavLinks;
 
   const clearCloseTimer = () => {
     if (closeTimerRef.current) {
@@ -282,8 +283,8 @@ export function Header() {
       }
     };
 
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   useEffect(() => {
@@ -294,8 +295,8 @@ export function Header() {
   const primaryMegaColumns = activeMegaData ? activeMegaData.columns.slice(0, 2) : [];
   const promoMegaColumn = activeMegaData?.columns[2] ?? null;
   const activePromoContent = activeMegaMenu ? megaMenuPromoContent[activeMegaMenu] : null;
-  const megaMenuTransitionStyle = { transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' } as const;
-  const isDarkMode = mounted && resolvedTheme === 'dark';
+  const megaMenuTransitionStyle = { transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)" } as const;
+  const isDarkMode = mounted && resolvedTheme === "dark";
 
   return (
     <>
@@ -304,11 +305,12 @@ export function Header() {
         onMouseLeave={scheduleCloseMegaMenu}
       >
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
+
         <div className="container relative z-10 flex h-16 items-center justify-between gap-3 sm:h-[4.5rem]">
           <Link to="/" className="flex min-w-0 items-center gap-2">
             <img
               src={isDarkMode ? "/images/cep-dunyasi-logo-dark-v3-tight.png" : "/images/image.png"}
-              alt="Cep Dünyası"
+              alt={headerMessages.brandAlt}
               className="h-9 w-auto rounded-lg sm:h-10 md:h-11"
             />
           </Link>
@@ -330,100 +332,100 @@ export function Header() {
             ))}
 
             {desktopStandaloneLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className="text-sm font-semibold text-foreground/80 transition-colors hover:text-primary"
-              >
+              <Link key={link.href} to={link.href} className="text-sm font-semibold text-foreground/80 transition-colors hover:text-primary">
                 {link.label}
               </Link>
             ))}
           </nav>
 
           <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate('/products')}>
+            <LanguageSwitcher className="hidden md:inline-flex" />
+
+            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate("/products")} aria-label={headerMessages.actions.search}>
               <Search className="h-5 w-5" />
             </Button>
 
-            <Button variant="ghost" size="icon" className="relative h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate('/cart')}>
+            <Button variant="ghost" size="icon" className="relative h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate("/cart")} aria-label={headerMessages.actions.cart}>
               <ShoppingCart className="h-5 w-5" />
-              {mounted && totalItems > 0 && (
+              {mounted && totalItems > 0 ? (
                 <div className="absolute -right-1 -top-1">
                   <Badge className="flex h-5 w-5 items-center justify-center rounded-full bg-accent p-0 text-[10px] text-accent-foreground">
                     {totalItems}
                   </Badge>
                 </div>
-              )}
+              ) : null}
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
-              className="relative h-9 w-9 sm:h-10 sm:w-10"
-              onClick={() => navigate(user ? '/account/favorites' : '/auth')}
+              className="h-9 w-9 sm:h-10 sm:w-10"
+              onClick={() => navigate(user ? "/account/favorites" : "/auth")}
+              aria-label={headerMessages.actions.favorites}
             >
               <Heart className="h-5 w-5" />
-              {mounted && user && wishlistProductIds.length > 0 ? (
-                <div className="absolute -right-1 -top-1">
-                  <Badge className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary p-0 px-1 text-[10px] text-primary-foreground">
-                    {wishlistProductIds.length}
-                  </Badge>
-                </div>
-              ) : null}
             </Button>
 
             {user ? (
               <div className="hidden items-center gap-2 lg:flex">
-                {isAdmin && (
+                {isAdmin ? (
                   <Button
                     variant="outline"
                     size="sm"
                     className="border-border/80 bg-secondary text-secondary-foreground hover:bg-secondary/85"
-                    onClick={() => navigate('/admin')}
+                    onClick={() => navigate("/admin")}
                   >
-                    Admin
+                    {headerMessages.actions.admin}
                   </Button>
-                )}
-                <Button variant="ghost" size="sm" onClick={() => navigate('/account/profile')}>
+                ) : null}
+
+                <Button variant="ghost" size="sm" onClick={() => navigate("/account/profile")}>
                   <User className="mr-1 h-4 w-4" />
-                  Hesap
+                  {headerMessages.actions.account}
                 </Button>
+
                 <Button variant="ghost" size="sm" onClick={signOut}>
-                  Cikis
+                  {headerMessages.actions.signOut}
                 </Button>
               </div>
             ) : (
-              <Button variant="default" size="sm" className="hidden lg:flex" onClick={() => navigate('/auth')}>
-                Giris Yap
+              <Button variant="default" size="sm" className="hidden lg:flex" onClick={() => navigate("/auth")}>
+                {headerMessages.actions.signIn}
               </Button>
             )}
 
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild className="lg:hidden">
-                <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
+                <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" aria-label={headerMessages.actions.menu}>
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
+
               <SheetContent side="right" className="flex h-full w-[92vw] max-w-xs flex-col overflow-hidden px-5 sm:max-w-sm">
-                <SheetTitle className="font-display">Menu</SheetTitle>
+                <SheetTitle className="font-display">{headerMessages.actions.menu}</SheetTitle>
+
                 <div className="mt-6 flex min-h-0 flex-1 flex-col">
-                  <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/40 px-4 py-3 sm:hidden">
-                    <span className="text-sm font-medium text-foreground">Tema</span>
+                  <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/40 px-4 py-3">
+                    <span className="text-sm font-medium text-foreground">{messages.common.language}</span>
+                    <LanguageSwitcher />
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between rounded-2xl border border-border/70 bg-muted/40 px-4 py-3 sm:hidden">
+                    <span className="text-sm font-medium text-foreground">{headerMessages.actions.theme}</span>
                     <Switch
-                      aria-label={isDarkMode ? 'Gunduz moduna gec' : 'Gece moduna gec'}
+                      aria-label={isDarkMode ? headerMessages.actions.switchToLight : headerMessages.actions.switchToDark}
                       checked={isDarkMode}
                       disabled={!mounted}
                       className="h-7 w-14 border border-border/70 bg-muted data-[state=checked]:bg-primary/90 data-[state=unchecked]:bg-muted [&>span]:h-6 [&>span]:w-6 [&>span[data-state=checked]]:translate-x-7 [&>span[data-state=unchecked]]:translate-x-0"
                       thumbChildren={
-                        isDarkMode
-                          ? <Moon className="h-3.5 w-3.5 text-primary" />
-                          : <Sun className="h-3.5 w-3.5 text-amber-500" />
+                        isDarkMode ? <Moon className="h-3.5 w-3.5 text-primary" /> : <Sun className="h-3.5 w-3.5 text-amber-500" />
                       }
-                      onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                      onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
                     />
                   </div>
+
                   <nav className="mt-6 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-6 pr-1">
-                    {navLinks.map((link) => (
+                    {localizedNavLinks.map((link) => (
                       <Link
                         key={link.href}
                         to={link.href}
@@ -433,24 +435,27 @@ export function Header() {
                         {link.label}
                       </Link>
                     ))}
+
                     {user ? (
                       <div className="mt-2 flex flex-col gap-3 border-t border-border/70 pt-4">
-                        {isAdmin && (
+                        {isAdmin ? (
                           <Link
                             to="/admin"
                             className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
                             onClick={() => setMobileOpen(false)}
                           >
-                            Admin Panel
+                            {headerMessages.actions.adminPanel}
                           </Link>
-                        )}
+                        ) : null}
+
                         <Link
                           to="/account/profile"
                           className="rounded-xl border border-transparent px-2 py-2 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-muted/40"
                           onClick={() => setMobileOpen(false)}
                         >
-                          Hesabim
+                          {headerMessages.actions.accountMenu}
                         </Link>
+
                         <Button
                           variant="outline"
                           className="w-full"
@@ -459,18 +464,18 @@ export function Header() {
                             setMobileOpen(false);
                           }}
                         >
-                          Cikis Yap
+                          {headerMessages.actions.signOutMobile}
                         </Button>
                       </div>
                     ) : (
                       <Button
                         className="mt-2 w-full"
                         onClick={() => {
-                          navigate('/auth');
+                          navigate("/auth");
                           setMobileOpen(false);
                         }}
                       >
-                        Giris Yap
+                        {headerMessages.actions.signIn}
                       </Button>
                     )}
                   </nav>
@@ -480,20 +485,17 @@ export function Header() {
 
             <div className="ml-1 hidden rounded-full border border-border/70 bg-background/80 p-1 sm:block">
               <Switch
-                aria-label={isDarkMode ? 'Gunduz moduna gec' : 'Gece moduna gec'}
+                aria-label={isDarkMode ? headerMessages.actions.switchToLight : headerMessages.actions.switchToDark}
                 checked={isDarkMode}
                 disabled={!mounted}
                 className="h-7 w-14 border border-border/70 bg-muted data-[state=checked]:bg-primary/90 data-[state=unchecked]:bg-muted [&>span]:h-6 [&>span]:w-6 [&>span[data-state=checked]]:translate-x-7 [&>span[data-state=unchecked]]:translate-x-0"
-                thumbChildren={
-                  isDarkMode
-                    ? <Moon className="h-3.5 w-3.5 text-primary" />
-                    : <Sun className="h-3.5 w-3.5 text-amber-500" />
-                }
-                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                thumbChildren={isDarkMode ? <Moon className="h-3.5 w-3.5 text-primary" /> : <Sun className="h-3.5 w-3.5 text-amber-500" />}
+                onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
               />
             </div>
           </div>
         </div>
+
         <div
           onMouseEnter={() => activeMegaMenu && openMegaMenu(activeMegaMenu)}
           style={megaMenuTransitionStyle}
@@ -504,7 +506,7 @@ export function Header() {
         >
           <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
             <div className="max-h-[70vh] overflow-y-auto rounded-b-3xl border-x border-b border-border/70 bg-background/92 shadow-[0_28px_55px_rgba(0,0,0,0.2)] backdrop-blur-xl">
-              {activeMegaData && (
+              {activeMegaData ? (
                 <div className="mx-auto max-w-5xl p-3.5 md:p-4">
                   <div className="mb-3 flex items-center justify-between border-b border-border/50 pb-2.5">
                     <h3 className="font-display text-lg font-semibold text-primary">{activeMegaData.label}</h3>
@@ -513,9 +515,10 @@ export function Header() {
                       className="text-sm font-semibold text-primary/90 transition-colors hover:text-primary"
                       onClick={closeMegaMenu}
                     >
-                      Tümünü Gör
+                      Tumunu Gor
                     </Link>
                   </div>
+
                   <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
                     {primaryMegaColumns.map((column) => (
                       <div key={column.title} className="self-start rounded-2xl border border-border/65 bg-background/75 p-3">
@@ -536,6 +539,7 @@ export function Header() {
                         </ul>
                       </div>
                     ))}
+
                     {promoMegaColumn ? (
                       <div className="self-start rounded-[1.45rem] border border-border/65 bg-gradient-to-br from-background via-background to-secondary/20 p-3.5 shadow-[0_24px_44px_rgba(0,0,0,0.12)]">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">{promoMegaColumn.title}</p>
@@ -569,7 +573,7 @@ export function Header() {
                     ) : null}
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -587,4 +591,3 @@ export function Header() {
     </>
   );
 }
-

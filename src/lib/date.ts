@@ -1,3 +1,5 @@
+import { getIntlLocale, getRuntimeLocale } from "@/i18n/config";
+
 export function parseValidDate(value: string | number | Date | null | undefined): Date | null {
   if (value === null || value === undefined || value === "") {
     return null;
@@ -14,7 +16,7 @@ export function parseValidDate(value: string | number | Date | null | undefined)
 
 export function formatDate(
   value: string | number | Date | null | undefined,
-  locale = "tr-TR",
+  locale?: string,
   options?: Intl.DateTimeFormatOptions,
   fallback = "-"
 ) {
@@ -24,12 +26,12 @@ export function formatDate(
     return fallback;
   }
 
-  return date.toLocaleDateString(locale, options);
+  return date.toLocaleDateString(getIntlLocale(getRuntimeLocale(locale)), options);
 }
 
 export function formatDateTime(
   value: string | number | Date | null | undefined,
-  locale = "tr-TR",
+  locale?: string,
   options?: Intl.DateTimeFormatOptions,
   fallback = "-"
 ) {
@@ -39,7 +41,7 @@ export function formatDateTime(
     return fallback;
   }
 
-  return date.toLocaleString(locale, options);
+  return date.toLocaleString(getIntlLocale(getRuntimeLocale(locale)), options);
 }
 
 export function toIsoDateKey(value: string | number | Date | null | undefined) {

@@ -24,21 +24,19 @@ import { StockStatusBadge } from "@/components/product-detail/StockStatusBadge";
 import { ProductSpecsTable } from "@/components/product-detail/ProductSpecsTable";
 import { DeliveryEstimate } from "@/components/product-detail/DeliveryEstimate";
 import { InstallmentCalculator } from "@/components/product-detail/InstallmentCalculator";
-import { ProductFaqSection } from "@/components/product-detail/ProductFaqSection";
 import { StickyBuyBar } from "@/components/product-detail/StickyBuyBar";
 import { SecondHandInfo } from "@/components/product-detail/SecondHandInfo";
 import { WarrantyReturnInfo } from "@/components/product-detail/WarrantyReturnInfo";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { ReviewStars } from "@/components/reviews/ReviewStars";
+import { useI18n } from "@/i18n/provider";
+import { getLocalizedCategoryLabel } from "@/i18n/category-labels";
 import { db } from "@/integrations/mongo/client";
 import { useCartStore } from "@/lib/cart-store";
 import { addRecentlyViewedProduct } from "@/lib/recently-viewed";
 import { useStickyBuyBarVisibility } from "@/hooks/use-sticky-buy-bar-visibility";
 import {
   buildBreadcrumbStructuredData,
-  buildFaqStructuredData,
-  buildProductFaqItems,
-  type ProductFaqItem,
 } from "@/lib/product-detail";
 import { type ProductSpecs } from "@/lib/product-specs";
 import { getBatteryHealthBucketLabel, getSecondHandConditionLabel, normalizeSecondHandDetails, type SecondHandDetails } from "@/lib/second-hand";
@@ -107,6 +105,89 @@ export default function ProductDetail() {
   const addItem = useCartStore((state) => state.addItem);
   const purchasePanelRef = useRef<HTMLDivElement | null>(null);
   const stickyVisible = useStickyBuyBarVisibility(purchasePanelRef, Boolean(product));
+  const { locale } = useI18n();
+  const copy =
+    locale === "en"
+      ? {
+          productLoadError: "Product details could not be loaded",
+          productNotFound: "Product not found",
+          home: "Home",
+          products: "Products",
+          chooseModel: "Please choose a valid model",
+          outOfStockSelection: "The selected model is currently out of stock",
+          addedToCart: (count: number) => `${count} item(s) added to cart`,
+          backToProducts: "Back to products",
+          unavailableDescription: "The product you are looking for could not be found or is temporarily unavailable.",
+          unavailableModel: "This model is temporarily unavailable.",
+          lowStock: (count: number) => `Only ${count} left for the selected model.`,
+          readyStock: (count: number) => `${count} units available and ready to order.`,
+          supportReport: "Condition report included",
+          supportWarranty: "Device-specific warranty info",
+          supportStandard: "Apple standard support",
+          reviews: (count: number) => `${count} reviews`,
+          selectedModel: "Selected model",
+          standardSelection: "Standard selection",
+          savings: (rate: number) => `${rate}% savings`,
+          secureShipping: "Ships with secure payment and fast delivery.",
+          delivery: "Delivery",
+          support: "Support",
+          returns: "Returns",
+          fastShipping: "Fast shipping available",
+          warrantySpecified: "Warranty status specified",
+          warrantyAvailable: "Device-specific warranty info available",
+          supportYears: "2 years of support",
+          easyReturn: "14-day easy return",
+          addToCart: "Add to Cart",
+          noStock: "Out of Stock",
+          freeShippingTitle: "Free shipping option",
+          freeShippingDescription: "No extra delivery fee is applied for eligible campaign totals.",
+          securePaymentTitle: "Secure payment",
+          securePaymentDescription: "All payments are processed through encrypted infrastructure and secure connections.",
+          easyReturnTitle: "Easy returns",
+          easyReturnDescription: "You can start the return process online after your order is delivered.",
+          overviewTitle: "Product Overview",
+          overviewFallback: "A detailed product introduction has not been added yet. You can review all model-specific details from the section above.",
+        }
+      : {
+          productLoadError: "Urun detayi yuklenemedi",
+          productNotFound: "Urun bulunamadi",
+          home: "Ana Sayfa",
+          products: "Urunler",
+          chooseModel: "Lutfen gecerli bir model secin",
+          outOfStockSelection: "Secilen model su an stokta yok",
+          addedToCart: (count: number) => `${count} adet sepete eklendi`,
+          backToProducts: "Urunlere don",
+          unavailableDescription: "Aradiginiz urun bulunamadi ya da gecici olarak erisilemiyor.",
+          unavailableModel: "Bu model gecici olarak stokta bulunmuyor.",
+          lowStock: (count: number) => `Secili modelde son ${count} adet kaldi.`,
+          readyStock: (count: number) => `${count} adet stokla siparise hazir.`,
+          supportReport: "Durum raporu paylasilir",
+          supportWarranty: "Cihaza ozel garanti bilgisi",
+          supportStandard: "Apple standart destek",
+          reviews: (count: number) => `${count} yorum`,
+          selectedModel: "Secili model",
+          standardSelection: "Standart secim",
+          savings: (rate: number) => `%${rate} fiyat avantaji`,
+          secureShipping: "Guvenli odeme ve hizli kargo ile gonderilir.",
+          delivery: "Teslimat",
+          support: "Destek",
+          returns: "Iade",
+          fastShipping: "Hizli kargo uygun",
+          warrantySpecified: "Garanti durumu belirtilmis",
+          warrantyAvailable: "Cihaza ozel garanti bilgisi mevcut",
+          supportYears: "2 yil destek",
+          easyReturn: "14 gun kosulsuz",
+          addToCart: "Sepete Ekle",
+          noStock: "Stokta Yok",
+          freeShippingTitle: "Ucretsiz kargo secenegi",
+          freeShippingDescription: "Uygun kampanyali tutarlarda ek teslimat bedeli yansimaz.",
+          securePaymentTitle: "Guvenli odeme",
+          securePaymentDescription: "Tum odemeler sifrelenmis altyapi ve guvenli baglanti ile islenir.",
+          easyReturnTitle: "Kolay iade",
+          easyReturnDescription: "Siparisiniz size ulastiktan sonra iade surecini online olarak baslatabilirsiniz.",
+          overviewTitle: "Urune Genel Bakis",
+          overviewFallback: "Bu urun icin henuz detayli bir tanitim metni eklenmemis. Secili modele ait tum detaylari yukaridaki alandan inceleyebilirsiniz.",
+        };
 
   useEffect(() => {
     let isMounted = true;
@@ -232,18 +313,6 @@ export default function ProductDetail() {
   const secondHandDetails = normalizeSecondHandDetails(product?.second_hand);
   const secondHandConditionLabel = getSecondHandConditionLabel(secondHandDetails?.condition);
   const secondHandBatteryLabel = getBatteryHealthBucketLabel(secondHandDetails?.battery_health);
-  const productFaqItems = useMemo<ProductFaqItem[]>(
-    () =>
-      product
-        ? buildProductFaqItems({
-            productName: product.name,
-            brand: product.brand,
-            categoryName: product.categories?.name,
-            stock: selectedStock,
-          })
-        : [],
-    [product, selectedStock],
-  );
 
   const breadcrumbSchema = useMemo(() => {
     if (!product || !currentUrl) {
@@ -267,10 +336,9 @@ export default function ProductDetail() {
     }
   }, [currentUrl, product]);
 
-  const faqSchema = useMemo(() => buildFaqStructuredData(productFaqItems), [productFaqItems]);
   const schemaPayload = useMemo(
-    () => [breadcrumbSchema, faqSchema].filter(Boolean),
-    [breadcrumbSchema, faqSchema],
+    () => [breadcrumbSchema].filter(Boolean),
+    [breadcrumbSchema],
   );
 
   const handleSelectVariant = (variant: ProductVariantRecord | null) => {
@@ -297,6 +365,7 @@ export default function ProductDetail() {
         productName: product.name,
         variantInfo: getVariantLabel(selectedVariant),
         price: toPriceNumber(selectedVariant.price),
+        originalPrice: selectedComparePrice ?? undefined,
         image: galleryImages[0],
         stock: selectedVariant.stock,
       });
@@ -355,6 +424,13 @@ export default function ProductDetail() {
         ? `Seçili modelde son ${selectedStock} adet kaldı.`
         : `${selectedStock} adet stokla siparişe hazır.`;
 
+  const supportMessage =
+    secondHandDetails
+      ? secondHandDetails.warranty_type === "none"
+        ? "Durum raporu paylasilir"
+        : "Cihaza ozel garanti bilgisi"
+      : "Apple standart destek";
+
   return (
     <Layout>
       <div className="container space-y-10 py-6 sm:py-8 lg:space-y-12">
@@ -394,29 +470,29 @@ export default function ProductDetail() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
           <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             <ProductGallery images={galleryImages} productName={product.name} />
           </div>
 
-          <div className="space-y-6">
-            <div className="space-y-4">
-              {product.brand ? <p className="text-sm font-medium uppercase tracking-[0.24em] text-muted-foreground">{product.brand}</p> : null}
+          <div className="space-y-7">
+            <div className="space-y-5">
+              {product.brand ? <p className="text-[12px] font-medium uppercase tracking-[0.34em] text-white/58">{product.brand}</p> : null}
 
               <div className="space-y-3">
-                <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">{product.name}</h1>
+                <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-foreground sm:text-[3.35rem] sm:leading-[1.02]">{product.name}</h1>
 
-                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-3 text-sm text-white/72">
                   <div className="flex items-center gap-2">
                     <ReviewStars rating={product.rating_average ?? 0} showValue />
-                    <a href="#reviews" className="transition-colors hover:text-foreground">
+                    <a href="#reviews" className="transition-colors hover:text-white">
                       {product.rating_count ?? 0} yorum
                     </a>
                   </div>
 
                   {selectedVariant?.sku ? (
                     <>
-                      <span className="hidden text-border sm:inline">/</span>
+                      <span className="hidden text-white/20 sm:inline">/</span>
                       <span>SKU: {selectedVariant.sku}</span>
                     </>
                   ) : null}
@@ -424,55 +500,69 @@ export default function ProductDetail() {
               </div>
 
               {product.description ? (
-                <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-[15px]">{product.description}</p>
+                <p className="max-w-2xl text-[15px] leading-7 text-white/64">{product.description}</p>
               ) : null}
             </div>
 
             <Card
               ref={purchasePanelRef}
-              className="overflow-hidden border-border/70 bg-gradient-to-br from-white via-white to-slate-100/80 text-slate-950 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.48)]"
+              className="overflow-hidden rounded-[2rem] border border-black/5 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.96))] text-slate-950 shadow-[0_36px_80px_-46px_rgba(15,23,42,0.42)]"
             >
-              <CardContent className="space-y-6 p-6 sm:p-7">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+              <CardContent className="space-y-7 p-6 sm:p-8">
+                <div className="space-y-6">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="space-y-3">
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2.5">
                         <StockStatusBadge stock={selectedStock} />
                         {secondHandConditionLabel ? (
-                          <Badge variant="secondary" className="rounded-full bg-primary/10 px-3 py-1 text-primary">
+                          <Badge variant="outline" className="rounded-full border-slate-200 px-3 py-1 text-slate-600">
                             {secondHandConditionLabel}
                           </Badge>
                         ) : null}
                         {secondHandBatteryLabel ? (
-                          <Badge variant="outline" className="rounded-full px-3 py-1">
+                          <Badge variant="outline" className="rounded-full border-slate-200 px-3 py-1 text-slate-600">
                             Pil {secondHandBatteryLabel}
                           </Badge>
                         ) : null}
-                        {discountRate ? (
-                          <Badge variant="secondary" className="rounded-full bg-primary/10 px-3 py-1 text-primary">
-                            %{discountRate} indirim
-                          </Badge>
-                      ) : null}
                     </div>
 
+                      <div className="space-y-2">
                     <div className="flex flex-wrap items-end gap-3">
-                      <span className="text-3xl font-semibold tracking-tight text-primary sm:text-4xl">{formatCurrency(selectedPrice)}</span>
+                      <span className="text-[2.4rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[3rem]">{formatCurrency(selectedPrice)}</span>
                       {selectedComparePrice ? (
-                        <span className="pb-1 text-sm text-slate-500 line-through">{formatCurrency(selectedComparePrice)}</span>
+                        <span className="pb-2 text-sm text-slate-400 line-through">{formatCurrency(selectedComparePrice)}</span>
                       ) : null}
                     </div>
 
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm leading-6 text-slate-500">
                       Seçili model: <span className="font-medium text-slate-950">{selectedVariantSummary || "Standart seçim"}</span>
                     </p>
+                    {discountRate ? <p className="text-sm font-medium text-emerald-700">%{discountRate} fiyat avantaji</p> : null}
+                      </div>
                   </div>
 
-                  <div className="rounded-2xl border border-border/70 bg-card/70 px-4 py-3 text-sm shadow-sm">
-                    <div className="font-medium text-slate-50">{lowStockMessage}</div>
+                  <div className="min-w-[220px] rounded-[1.4rem] border border-slate-200/80 bg-white/80 px-5 py-4 shadow-[0_18px_35px_-28px_rgba(15,23,42,0.24)]">
+                    <p className="text-sm font-medium text-slate-900">{lowStockMessage}</p>
                     <div className="mt-1 text-slate-300">Güvenli ödeme ve hızlı kargo ile gönderilir.</div>
                   </div>
                 </div>
 
-                <Separator className="bg-border/60" />
+                <div className="grid gap-3 rounded-[1.65rem] border border-slate-200 bg-slate-50/75 p-3 sm:grid-cols-3">
+                  <div className="rounded-[1.15rem] bg-white px-4 py-4">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Teslimat</div>
+                    <div className="mt-2 text-sm font-medium text-slate-900">Hizli kargo uygun</div>
+                  </div>
+                  <div className="rounded-[1.15rem] bg-white px-4 py-4">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Destek</div>
+                    <div className="mt-2 text-sm font-medium text-slate-900">{supportMessage}</div>
+                  </div>
+                  <div className="rounded-[1.15rem] bg-white px-4 py-4">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Iade</div>
+                    <div className="mt-2 text-sm font-medium text-slate-900">14 gun kosulsuz</div>
+                  </div>
+                </div>
+
+                <Separator className="bg-slate-200" />
 
                 <VariantSelector
                   variants={variants}
@@ -481,7 +571,7 @@ export default function ProductDetail() {
                   onVariantSelect={handleSelectVariant}
                 />
 
-                <div className="grid gap-3 rounded-3xl border border-border/70 bg-muted/10 p-4 sm:grid-cols-3">
+                <div className="hidden grid gap-3 rounded-3xl border border-border/70 bg-muted/10 p-4 sm:grid-cols-3">
                   <div className="rounded-2xl bg-card px-4 py-3">
                     <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Teslimat</div>
                     <div className="mt-2 text-sm font-medium text-white">Hızlı kargo uygun</div>
@@ -503,25 +593,25 @@ export default function ProductDetail() {
                 </div>
 
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                  <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-card px-2 py-1 sm:w-auto sm:min-w-[148px]">
+                  <div className="flex items-center justify-between rounded-full border border-slate-200 bg-slate-50 px-2 py-1 sm:w-auto sm:min-w-[156px]">
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10 rounded-xl"
+                      className="h-10 w-10 rounded-full text-slate-700"
                       onClick={() => setQuantity((current) => Math.max(1, current - 1))}
                       disabled={!selectedVariant || selectedStock <= 0}
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
 
-                    <span className="min-w-[32px] text-center text-sm font-semibold text-foreground">{quantity}</span>
+                    <span className="min-w-[32px] text-center text-sm font-semibold text-slate-950">{quantity}</span>
 
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10 rounded-xl"
+                      className="h-10 w-10 rounded-full text-slate-700"
                       onClick={() => setQuantity((current) => Math.min(selectedStock || 1, current + 1))}
                       disabled={!selectedVariant || selectedStock <= 0}
                     >
@@ -532,7 +622,7 @@ export default function ProductDetail() {
                   <Button
                     type="button"
                     size="lg"
-                    className="h-12 flex-1 rounded-2xl text-base font-medium"
+                    className="h-14 flex-1 rounded-full bg-slate-950 text-base font-medium text-white hover:bg-slate-900"
                     onClick={handleAddToCart}
                     disabled={!canAddToCart}
                   >
@@ -540,6 +630,7 @@ export default function ProductDetail() {
                     {canAddToCart ? "Sepete Ekle" : "Stokta Yok"}
                   </Button>
                 </div>
+              </div>
               </CardContent>
             </Card>
 
@@ -547,24 +638,24 @@ export default function ProductDetail() {
             <InstallmentCalculator price={selectedPrice} />
 
             <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-border/70 bg-card p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white">
                   <Truck className="h-4 w-4" />
                 </div>
                 <p className="mt-4 text-sm font-semibold text-foreground">Ücretsiz kargo seçeneği</p>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">Uygun kampanyalı tutarlarda ek teslimat bedeli yansımaz.</p>
               </div>
 
-              <div className="rounded-2xl border border-border/70 bg-card p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white">
                   <ShieldCheck className="h-4 w-4" />
                 </div>
                 <p className="mt-4 text-sm font-semibold text-foreground">Güvenli ödeme</p>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">Tüm ödemeler şifrelenmiş altyapı ve güvenli bağlantı ile işlenir.</p>
               </div>
 
-              <div className="rounded-2xl border border-border/70 bg-card p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white">
                   <RefreshCcw className="h-4 w-4" />
                 </div>
                 <p className="mt-4 text-sm font-semibold text-foreground">Kolay iade</p>
@@ -613,8 +704,6 @@ export default function ProductDetail() {
             availability={buildOfferAvailability(selectedStock)}
             url={currentUrl}
           />
-
-          <ProductFaqSection items={productFaqItems} />
         </div>
       </div>
 

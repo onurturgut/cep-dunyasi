@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { useI18n } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
 
 type ProductImageZoomModalProps = {
@@ -15,15 +16,25 @@ type ProductImageZoomModalProps = {
   productName: string;
 };
 
-export function ProductImageZoomModal({
-  open,
-  onOpenChange,
-  images,
-  activeIndex,
-  onIndexChange,
-  productName,
-}: ProductImageZoomModalProps) {
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+export function ProductImageZoomModal({ open, onOpenChange, images, activeIndex, onIndexChange, productName }: ProductImageZoomModalProps) {
+  const [touchStartPoint, setTouchStartPoint] = useState<{ x: number; y: number } | null>(null);
+  const { locale } = useI18n();
+  const copy =
+    locale === "en"
+      ? {
+          title: `${productName} image gallery`,
+          description: "Review product images in large preview mode.",
+          fullScreen: "Full-screen preview",
+          close: "Close gallery",
+          missingImage: "Image not found",
+        }
+      : {
+          title: `${productName} gorsel galerisi`,
+          description: "Urun gorsellerini buyuk onizleme modunda inceleyin.",
+          fullScreen: "Tam ekran inceleme",
+          close: "Galeriyi kapat",
+          missingImage: "Gorsel bulunamadi",
+        };
 
   useEffect(() => {
     if (!open) {
@@ -52,16 +63,19 @@ export function ProductImageZoomModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="grid h-[100dvh] max-w-none gap-0 border-none bg-black/95 p-0 text-white shadow-none sm:h-[92vh] sm:max-w-6xl sm:rounded-3xl">
+      <DialogContent
+        showClose={false}
+        className="grid h-[100dvh] max-h-[100dvh] max-w-none grid-rows-[minmax(0,1fr)_auto] gap-0 overflow-hidden bg-black/95 p-0 text-white shadow-none overscroll-contain sm:h-[92vh] sm:max-h-[92vh] sm:max-w-6xl sm:rounded-3xl"
+      >
         <div className="sr-only">
-          <DialogTitle>{productName} görsel galerisi</DialogTitle>
-          <DialogDescription>Ürün görsellerini büyük önizleme modunda inceleyin.</DialogDescription>
+          <DialogTitle>{copy.title}</DialogTitle>
+          <DialogDescription>{copy.description}</DialogDescription>
         </div>
 
         <div className="absolute right-4 top-4 z-20 flex items-center gap-2">
           <div className="hidden items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/80 sm:flex">
             <ZoomIn className="h-3.5 w-3.5" />
-            Tam ekran inceleme
+            {copy.fullScreen}
           </div>
           <Button
             type="button"
@@ -69,25 +83,41 @@ export function ProductImageZoomModal({
             size="icon"
             className="h-10 w-10 rounded-full border border-white/15 bg-black/45 p-0 text-white shadow-[0_10px_24px_rgba(0,0,0,0.32)] hover:bg-black/65 hover:text-white"
             onClick={() => onOpenChange(false)}
-            aria-label="Galeriyi kapat"
+            aria-label={copy.close}
           >
             <X className="h-4 w-4 stroke-[2.25]" />
           </Button>
         </div>
 
         <div
-          className="relative flex h-full min-h-0 items-center justify-center overflow-hidden"
-          onTouchStart={(event) => setTouchStartX(event.touches[0]?.clientX ?? null)}
-          onTouchEnd={(event) => {
-            if (touchStartX === null || !canNavigate) {
-              setTouchStartX(null);
+          className="relative flex min-h-0 items-center justify-center overflow-hidden touch-pan-y"
+          onTouchStart={(event) => {
+            const touch = event.touches[0];
+
+            if (!touch) {
+              setTouchStartPoint(null);
               return;
             }
 
-            const touchEndX = event.changedTouches[0]?.clientX ?? 0;
-            const deltaX = touchEndX - touchStartX;
+            setTouchStartPoint({ x: touch.clientX, y: touch.clientY });
+          }}
+          onTouchEnd={(event) => {
+            if (!touchStartPoint || !canNavigate) {
+              setTouchStartPoint(null);
+              return;
+            }
 
-            if (Math.abs(deltaX) > 50) {
+            const touch = event.changedTouches[0];
+
+            if (!touch) {
+              setTouchStartPoint(null);
+              return;
+            }
+
+            const deltaX = touch.clientX - touchStartPoint.x;
+            const deltaY = touch.clientY - touchStartPoint.y;
+
+            if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
               if (deltaX > 0) {
                 onIndexChange(activeIndex > 0 ? activeIndex - 1 : images.length - 1);
               } else {
@@ -95,7 +125,7 @@ export function ProductImageZoomModal({
               }
             }
 
-            setTouchStartX(null);
+            setTouchStartPoint(null);
           }}
         >
           {canNavigate ? (
@@ -115,7 +145,7 @@ export function ProductImageZoomModal({
               <img src={currentImage} alt={productName} className="max-h-full max-w-full rounded-2xl object-contain" />
             ) : (
               <div className="flex h-[320px] w-full items-center justify-center rounded-3xl border border-dashed border-white/15 bg-white/5 text-sm text-white/60">
-                Görsel bulunamadı
+                {copy.missingImage}
               </div>
             )}
           </div>

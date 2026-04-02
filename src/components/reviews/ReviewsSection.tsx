@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { useMarkReviewHelpful, useProductReviews } from "@/hooks/use-reviews";
+import { useI18n } from "@/i18n/provider";
 import { ReviewFilters } from "@/components/reviews/ReviewFilters";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { ReviewList } from "@/components/reviews/ReviewList";
@@ -142,11 +143,29 @@ export function ReviewsSection({
   currency = "TRY",
 }: ReviewsSectionProps) {
   const { user } = useAuth();
+  const { locale } = useI18n();
   const [page, setPage] = useState(1);
   const [rating, setRating] = useState<number | undefined>(undefined);
   const [verified, setVerified] = useState<boolean | undefined>(undefined);
   const [sort, setSort] = useState<ReviewSort>("newest");
   const helpfulMutation = useMarkReviewHelpful();
+
+  const copy =
+    locale === "en"
+      ? {
+          helpfulError: "Helpful vote could not be saved",
+          signInRequired: "You need to sign in to leave a review.",
+          page: (current: number, total: number) => `Page ${current} / ${total}`,
+          previous: "Previous",
+          next: "Next",
+        }
+      : {
+          helpfulError: "Faydali oyu kaydedilemedi",
+          signInRequired: "Yorum birakmak icin hesabiniza giris yapmaniz gerekiyor.",
+          page: (current: number, total: number) => `Sayfa ${current} / ${total}`,
+          previous: "Onceki",
+          next: "Sonraki",
+        };
 
   const { data, isLoading, isFetching } = useProductReviews(productId, {
     page,
@@ -179,14 +198,14 @@ export function ReviewsSection({
           created_at: review.created_at,
         })),
       }),
-    [availability, brand, compareAtPrice, currency, data?.items, data?.summary.average, data?.summary.count, description, images, price, productName, sku, url]
+    [availability, brand, compareAtPrice, currency, data?.items, data?.summary.average, data?.summary.count, description, images, price, productName, sku, url],
   );
 
   const handleHelpful = async (reviewId: string) => {
     try {
       await helpfulMutation.mutateAsync({ reviewId, productId });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Faydalı oyu kaydedilemedi");
+      toast.error(error instanceof Error ? error.message : copy.helpfulError);
     }
   };
 
@@ -218,9 +237,7 @@ export function ReviewsSection({
           />
         ) : (
           <Card className="border-border/70">
-            <CardContent className="p-5 text-sm text-muted-foreground">
-              Yorum bırakmak için hesabınıza giriş yapmanız gerekiyor.
-            </CardContent>
+            <CardContent className="p-5 text-sm text-muted-foreground">{copy.signInRequired}</CardContent>
           </Card>
         )}
 
@@ -245,19 +262,13 @@ export function ReviewsSection({
 
         {(data?.totalPages ?? 1) > 1 ? (
           <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card p-4 sm:flex-row">
-            <p className="text-sm text-muted-foreground">
-              Sayfa {data?.page ?? 1} / {data?.totalPages ?? 1}
-            </p>
+            <p className="text-sm text-muted-foreground">{copy.page(data?.page ?? 1, data?.totalPages ?? 1)}</p>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={(data?.page ?? 1) <= 1}>
-                Önceki
+                {copy.previous}
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => setPage((current) => Math.min(data?.totalPages ?? current, current + 1))}
-                disabled={(data?.page ?? 1) >= (data?.totalPages ?? 1)}
-              >
-                Sonraki
+              <Button variant="outline" onClick={() => setPage((current) => Math.min(data?.totalPages ?? current, current + 1))} disabled={(data?.page ?? 1) >= (data?.totalPages ?? 1)}>
+                {copy.next}
               </Button>
             </div>
           </div>

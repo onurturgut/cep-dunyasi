@@ -3,6 +3,7 @@
 import { ACCOUNT_NAV_ITEMS } from "@/lib/account";
 import { Link, useLocation } from "@/lib/router";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/provider";
 
 function isActivePath(pathname: string, href: string) {
   return href === "/account" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
@@ -10,6 +11,7 @@ function isActivePath(pathname: string, href: string) {
 
 export function AccountSidebar() {
   const { pathname } = useLocation();
+  const { messages } = useI18n();
 
   return (
     <aside className="hidden lg:block">
@@ -27,7 +29,7 @@ export function AccountSidebar() {
                   active ? "bg-foreground text-background" : "text-foreground/80 hover:bg-muted/50 hover:text-foreground",
                 )}
               >
-                {item.label}
+                {messages.account.nav[item.key]}
               </Link>
             );
           })}

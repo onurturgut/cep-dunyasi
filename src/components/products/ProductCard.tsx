@@ -1,11 +1,14 @@
-import { Heart, ShoppingCart } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Link } from "@/lib/router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { useCartStore } from "@/lib/cart-store";
 import { useAuth } from "@/hooks/use-auth";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { useI18n } from "@/i18n/provider";
 import { isBestSeller, isLowStock, isNewProduct } from "@/lib/product-catalog";
 import type { ProductSpecs } from "@/lib/product-specs";
 import {
@@ -15,7 +18,7 @@ import {
   normalizeSecondHandDetails,
   type SecondHandDetails,
 } from "@/lib/second-hand";
-import { formatCurrency, toPriceNumber } from "@/lib/utils";
+import { cn, formatCurrency, toPriceNumber } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface ProductCardProps {
@@ -63,8 +66,11 @@ export function ProductCard({
   storage,
   ram,
 }: ProductCardProps) {
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const { user } = useAuth();
   const { isFavorite, toggleWishlist, togglingProductId } = useWishlist();
+  const { locale } = useI18n();
   const addItem = useCartStore((state) => state.addItem);
   const normalizedPrice = toPriceNumber(price);
   const normalizedOriginalPrice = toPriceNumber(originalPrice);
@@ -81,6 +87,132 @@ export function ProductCard({
     normalizedSecondHand?.warranty_type,
     normalizedSecondHand?.warranty_remaining_months,
   );
+  const discountRate =
+    normalizedOriginalPrice > normalizedPrice ? Math.round(((normalizedOriginalPrice - normalizedPrice) / normalizedOriginalPrice) * 100) : 0;
+  const overline = [brand, category].filter(Boolean).join(" • ");
+  const detailTokens = Array.from(
+    new Set(
+      [
+        secondHandConditionLabel,
+        storage && storage !== "Standart" ? storage : null,
+        ram ? `${ram} RAM` : null,
+        !storage && !ram ? variantInfo : null,
+        normalizedSecondHand && secondHandBatteryLabel ? `Pil ${secondHandBatteryLabel}` : null,
+        normalizedSecondHand && secondHandWarrantyLabel ? secondHandWarrantyLabel : null,
+      ].filter(Boolean) as string[],
+    ),
+  ).slice(0, 2);
+  const copy =
+    locale === "en"
+      ? {
+          soldOut: "Sold Out",
+          secondHand: "Second-Hand",
+          discount: `${discountRate}% Off`,
+          bestSeller: "Best Seller",
+          new: "New",
+          lowStock: "Running Low",
+          favoriteAdd: "Add to favorites",
+          favoriteRemove: "Remove from favorites",
+          favoriteAuthRequired: "You need to sign in to add favorites",
+          favoriteAdded: "Added to favorites",
+          favoriteRemoved: "Removed from favorites",
+          favoriteError: "Favorite action could not be completed",
+          imageLabel: (index: number) => `${name} image ${index + 1}`,
+          outOfStock: "Out of stock",
+          price: "Price",
+          addToCart: "Add to cart",
+          addedToCart: "Added to cart!",
+          savings: `${discountRate}% savings`,
+        }
+      : {
+          soldOut: "Tukendi",
+          secondHand: "2. El",
+          discount: `%${discountRate} Indirim`,
+          bestSeller: "Cok Satan",
+          new: "Yeni",
+          lowStock: "Tukeniyor",
+          favoriteAdd: "Favorilere ekle",
+          favoriteRemove: "Favorilerden cikar",
+          favoriteAuthRequired: "Favorilere eklemek icin giris yapmaniz gerekiyor",
+          favoriteAdded: "Favorilere eklendi",
+          favoriteRemoved: "Favorilerden cikarildi",
+          favoriteError: "Favori islemi tamamlanamadi",
+          imageLabel: (index: number) => `${name} gorsel ${index + 1}`,
+          outOfStock: "Stokta yok",
+          price: "Fiyat",
+          addToCart: "Sepete ekle",
+          addedToCart: "Sepete eklendi!",
+          savings: `${discountRate}% fiyat avantaji`,
+        };
+  const statusBadge =
+    stock <= 0
+      ? { label: copy.soldOut, className: "bg-foreground text-background" }
+      : normalizedSecondHand
+        ? { label: secondHandConditionLabel || copy.secondHand, className: "border border-border/70 bg-background/92 text-foreground" }
+        : discountRate > 0
+          ? { label: copy.discount, className: "bg-foreground text-background" }
+          : showBestSellerBadge
+            ? { label: copy.bestSeller, className: "bg-primary text-primary-foreground" }
+            : showNewBadge
+              ? { label: copy.new, className: "border border-border/70 bg-background/92 text-foreground" }
+              : showLowStockBadge
+                ? { label: copy.lowStock, className: "border border-amber-200 bg-amber-100 text-amber-900" }
+                : null;
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+    carouselApi?.scrollTo(0);
+  }, [carouselApi, id, galleryImages.length]);
+
+  useEffect(() => {
+    if (!carouselApi) {
+      return;
+    }
+
+    const syncActiveIndex = () => {
+      setActiveImageIndex(carouselApi.selectedScrollSnap());
+    };
+
+    syncActiveIndex();
+    carouselApi.on("select", syncActiveIndex);
+    carouselApi.on("reInit", syncActiveIndex);
+
+    return () => {
+      carouselApi.off("select", syncActiveIndex);
+      carouselApi.off("reInit", syncActiveIndex);
+    };
+  }, [carouselApi]);
+
+  void specs;
+
+  const handleImageSelect = (event: React.MouseEvent, index: number) => {
+    event.preventDefault();
+    event.stopPropagation();
+    carouselApi?.scrollTo(index);
+  };
+
+  const handleImageHover = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!carouselApi || galleryImages.length <= 1) {
+      return;
+    }
+
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const relativeX = event.clientX - bounds.left;
+    const segmentWidth = bounds.width / galleryImages.length;
+    const nextIndex = Math.max(0, Math.min(galleryImages.length - 1, Math.floor(relativeX / segmentWidth)));
+
+    if (nextIndex !== activeImageIndex) {
+      carouselApi.scrollTo(nextIndex);
+    }
+  };
+
+  const handleImageLeave = () => {
+    if (!carouselApi || galleryImages.length <= 1) {
+      return;
+    }
+
+    carouselApi.scrollTo(0);
+  };
 
   const handleAddToCart = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -96,11 +228,12 @@ export function ProductCard({
       productName: name,
       variantInfo: variantInfo || brand || "",
       price: normalizedPrice,
+      originalPrice: normalizedOriginalPrice > normalizedPrice ? normalizedOriginalPrice : undefined,
       image: primaryImage,
       stock,
     });
 
-    toast.success("Sepete eklendi!", { description: name });
+    toast.success(copy.addedToCart, { description: name });
   };
 
   const handleToggleWishlist = async (event: React.MouseEvent) => {
@@ -108,83 +241,90 @@ export function ProductCard({
     event.stopPropagation();
 
     if (!user) {
-      toast.error("Favorilere eklemek için giriş yapmanız gerekiyor");
+      toast.error(copy.favoriteAuthRequired);
       return;
     }
 
     try {
       const result = await toggleWishlist(id);
-      toast.success(result.isFavorite ? "Favorilere eklendi" : "Favorilerden çıkarıldı", { description: name });
+      toast.success(result.isFavorite ? copy.favoriteAdded : copy.favoriteRemoved, { description: name });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Favori işlemi tamamlanamadı");
+      toast.error(error instanceof Error ? error.message : copy.favoriteError);
     }
   };
 
   return (
     <div className="h-full">
       <Link to={`/product/${slug}`} className="block h-full">
-        <Card className="group flex h-full flex-col overflow-hidden border bg-card transition-shadow hover:shadow-lg">
-          <div className="relative aspect-[5/4] overflow-hidden bg-muted sm:aspect-square">
+        <Card className="group flex h-full flex-col overflow-hidden rounded-[28px] border-border/70 bg-card shadow-[0_18px_50px_-36px_rgba(15,23,42,0.4)] transition-all duration-300 hover:-translate-y-1 hover:border-foreground/10 hover:shadow-[0_28px_70px_-38px_rgba(15,23,42,0.45)]">
+          <div className="relative aspect-[4/4.35] overflow-hidden bg-gradient-to-b from-transparent via-muted/10 to-transparent sm:aspect-[4/4.15]">
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background/25 to-transparent" />
+
             <Button
               type="button"
               size="icon"
               variant="secondary"
-              className="absolute right-1.5 top-1.5 z-20 h-8 w-8 rounded-full bg-background/90 backdrop-blur sm:right-2 sm:top-2"
+              className="absolute right-3 top-3 z-20 h-9 w-9 rounded-full border border-border/70 bg-background/92 text-foreground shadow-sm backdrop-blur"
               onClick={handleToggleWishlist}
               disabled={togglingProductId === id}
-              aria-label={favorite ? "Favorilerden çıkar" : "Favorilere ekle"}
+              aria-label={favorite ? copy.favoriteRemove : copy.favoriteAdd}
             >
               <Heart className={`h-4 w-4 ${favorite ? "fill-primary text-primary" : "text-foreground"}`} />
             </Button>
 
-            <div className="absolute left-1.5 top-1.5 z-20 flex max-w-[70%] flex-wrap gap-1 sm:left-2 sm:top-2">
-              {normalizedOriginalPrice > normalizedPrice ? (
-                <Badge className="bg-accent px-2 py-0.5 text-[10px] text-accent-foreground sm:text-xs">
-                  %{Math.round(((normalizedOriginalPrice - normalizedPrice) / normalizedOriginalPrice) * 100)} İndirim
-                </Badge>
-              ) : null}
-              {showNewBadge ? (
-                <Badge variant="secondary" className="px-2 py-0.5 text-[10px] sm:text-xs">
-                  Yeni
-                </Badge>
-              ) : null}
-              {showBestSellerBadge ? (
-                <Badge className="bg-primary/90 px-2 py-0.5 text-[10px] text-primary-foreground sm:text-xs">
-                  Çok Satan
-                </Badge>
-              ) : null}
-              {showLowStockBadge ? (
-                <Badge variant="secondary" className="px-2 py-0.5 text-[10px] sm:text-xs">
-                  Tükeniyor
-                </Badge>
-              ) : null}
-            </div>
+            {statusBadge ? (
+              <Badge
+                className={cn(
+                  "absolute left-3 top-3 z-20 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] shadow-sm",
+                  statusBadge.className,
+                )}
+              >
+                {statusBadge.label}
+              </Badge>
+            ) : null}
 
             {galleryImages.length > 0 ? (
-              <>
-                <div className="h-full w-full snap-x snap-mandatory overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
-                  <div className="grid h-full grid-flow-col auto-cols-[100%]">
-                    {galleryImages.map((galleryImage, index) => (
-                      <div key={`${id}-image-${index}`} className="overflow-hidden">
-                        <div className="flex h-full w-full items-center justify-center p-2 sm:p-4">
-                          <img
-                            src={galleryImage}
-                            alt={`${name} - ${index + 1}`}
-                            className="h-full w-full rounded-md object-cover"
-                            loading="lazy"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <div className="relative h-full w-full px-3 pb-3 pt-12 sm:px-4 sm:pb-4">
+                <div className="absolute inset-x-8 bottom-4 h-10 rounded-full bg-foreground/10 blur-2xl" />
+                <div className="relative h-full w-full overflow-hidden rounded-[22px] bg-background/5" onMouseMove={handleImageHover} onMouseLeave={handleImageLeave}>
+                  <Carousel setApi={setCarouselApi} opts={{ align: "start", loop: false, dragFree: false }} className="h-full w-full touch-pan-y">
+                    <CarouselContent className="-ml-0 h-full">
+                      {galleryImages.map((galleryImage, index) => (
+                        <CarouselItem key={`${id}-image-${index}`} className="pl-0">
+                          <div className="h-full">
+                            <img
+                              src={galleryImage}
+                              alt={`${name} ${index + 1}`}
+                              className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]"
+                              loading="lazy"
+                              draggable={false}
+                            />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                  </Carousel>
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/10 to-transparent opacity-60" />
 
-                {galleryImages.length > 1 ? (
-                  <Badge className="absolute bottom-1.5 right-1.5 bg-background/85 px-2 py-0.5 text-[10px] text-foreground hover:bg-background/85 sm:bottom-2 sm:right-2 sm:text-xs">
-                    {galleryImages.length} foto
-                  </Badge>
-                ) : null}
-              </>
+                  {galleryImages.length > 1 ? (
+                    <div className="absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-1.5 px-4">
+                      {galleryImages.map((_, index) => (
+                        <button
+                          key={`${id}-dot-${index}`}
+                          type="button"
+                          aria-label={copy.imageLabel(index)}
+                          aria-pressed={activeImageIndex === index}
+                          className={cn(
+                            "h-1.5 rounded-full bg-white/55 transition-all duration-300",
+                            activeImageIndex === index ? "w-5 bg-white" : "w-1.5 hover:bg-white/80",
+                          )}
+                          onClick={(event) => handleImageSelect(event, index)}
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             ) : (
               <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                 <ShoppingCart className="h-10 w-10 opacity-20 sm:h-12 sm:w-12" />
@@ -192,63 +332,66 @@ export function ProductCard({
             )}
 
             {stock <= 0 ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/60">
-                <Badge variant="secondary">Tükendi</Badge>
+              <div className="absolute inset-x-0 bottom-0 border-t border-border/70 bg-background/90 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground backdrop-blur">
+                {copy.outOfStock}
               </div>
             ) : null}
           </div>
 
-          <CardContent className="flex flex-col p-3 sm:p-4">
-            {brand ? <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground sm:text-xs sm:tracking-wider">{brand}</p> : null}
-            <h3 className="mt-1 line-clamp-2 text-xs font-semibold text-foreground sm:text-sm">{name}</h3>
-            {description ? <p className="mt-1.5 line-clamp-1 text-[11px] text-muted-foreground sm:mt-2 sm:line-clamp-2 sm:text-xs">{description}</p> : null}
-            {ratingAverage && ratingAverage > 0 ? (
-              <p className="mt-1 text-[11px] font-medium text-muted-foreground sm:text-xs">Puan {ratingAverage.toFixed(1)}</p>
-            ) : null}
-            {normalizedSecondHand ? (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {secondHandConditionLabel ? (
-                  <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/5 px-2 py-0.5 text-[10px] text-primary sm:text-[11px]">
-                    {secondHandConditionLabel}
-                  </Badge>
-                ) : null}
-                {secondHandBatteryLabel ? (
-                  <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px]">
-                    Pil {secondHandBatteryLabel}
-                  </Badge>
-                ) : null}
-                {secondHandWarrantyLabel ? (
-                  <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px]">
-                    {secondHandWarrantyLabel}
-                  </Badge>
-                ) : null}
-                {normalizedSecondHand.includes_box ? (
-                  <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px]">
-                    Kutulu
-                  </Badge>
-                ) : null}
+          <CardContent className="flex flex-1 flex-col px-4 pb-4 pt-4 sm:px-5 sm:pb-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                {overline ? <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px]">{overline}</p> : null}
+                <h3 className="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-foreground sm:text-[1.02rem]">{name}</h3>
               </div>
+
+              {ratingAverage && ratingAverage > 0 ? (
+                <div className="inline-flex shrink-0 items-center gap-1 rounded-full bg-muted/70 px-2.5 py-1 text-[11px] font-semibold text-foreground">
+                  <Star className="h-3.5 w-3.5 fill-current text-amber-500" />
+                  {ratingAverage.toFixed(1)}
+                </div>
+              ) : null}
+            </div>
+
+            {detailTokens.length > 0 ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {detailTokens.map((token) => (
+                  <span key={token} className="rounded-full border border-border/70 bg-muted/35 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                    {token}
+                  </span>
+                ))}
+              </div>
+            ) : description ? (
+              <p className="mt-3 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">{description}</p>
             ) : null}
 
-            <div className="mt-2.5 flex items-end justify-between gap-2 sm:mt-3 sm:gap-3">
-              <div className="flex min-w-0 flex-col gap-1">
-                <span className="text-base font-bold text-primary sm:text-lg">{formatCurrency(normalizedPrice)}</span>
+            <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+              <div className="min-w-0">
                 {normalizedOriginalPrice > normalizedPrice ? (
-                  <span className="text-[11px] text-muted-foreground line-through sm:text-xs">{formatCurrency(normalizedOriginalPrice)}</span>
-                ) : null}
+                  <span className="block text-[11px] text-muted-foreground line-through sm:text-xs">{formatCurrency(normalizedOriginalPrice)}</span>
+                ) : (
+                  <span className="block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{copy.price}</span>
+                )}
+                <span className="mt-1 block text-lg font-bold tracking-tight text-foreground sm:text-[1.35rem]">{formatCurrency(normalizedPrice)}</span>
               </div>
 
               {variantId && stock > 0 ? (
                 <Button
-                  size="icon"
                   variant="secondary"
-                  className="h-7 w-7 shrink-0 rounded-full opacity-100 transition-opacity sm:h-8 sm:w-8 sm:opacity-0 sm:group-hover:opacity-100"
+                  className="h-10 shrink-0 rounded-full border border-border/70 bg-background px-4 text-xs font-semibold text-foreground shadow-sm hover:bg-foreground hover:text-background"
                   onClick={handleAddToCart}
                 >
-                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <ShoppingCart className="h-4 w-4" />
+                  {copy.addToCart}
                 </Button>
-              ) : null}
+              ) : (
+                <span className="rounded-full border border-border/70 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  {copy.soldOut}
+                </span>
+              )}
             </div>
+
+            {normalizedOriginalPrice > normalizedPrice ? <p className="mt-2 text-[11px] font-medium text-emerald-700 sm:text-xs">{copy.savings}</p> : null}
           </CardContent>
         </Card>
       </Link>

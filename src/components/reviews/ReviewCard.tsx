@@ -1,7 +1,10 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ReviewStars } from "@/components/reviews/ReviewStars";
+import { useI18n } from "@/i18n/provider";
 import type { ProductReviewListItem } from "@/lib/reviews";
 
 type ReviewCardProps = {
@@ -12,6 +15,24 @@ type ReviewCardProps = {
 };
 
 export function ReviewCard({ review, onHelpful, helpfulLoading = false, canMarkHelpful = false }: ReviewCardProps) {
+  const { locale } = useI18n();
+  const copy =
+    locale === "en"
+      ? {
+          verified: "Verified Purchase",
+          helpful: "Helpful",
+          imageAlt: "Review image",
+          storeReply: "Store Reply",
+          dateLocale: "en-US",
+        }
+      : {
+          verified: "Dogrulanmis Satin Alma",
+          helpful: "Faydali",
+          imageAlt: "Yorum gorseli",
+          storeReply: "Magaza Cevabi",
+          dateLocale: "tr-TR",
+        };
+
   return (
     <Card className="border-border/70">
       <CardContent className="space-y-4 p-5">
@@ -19,12 +40,12 @@ export function ReviewCard({ review, onHelpful, helpfulLoading = false, canMarkH
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <p className="font-medium text-foreground">{review.author_name}</p>
-              {review.is_verified_purchase ? <Badge variant="secondary">Dogrulanmis Satin Alma</Badge> : null}
+              {review.is_verified_purchase ? <Badge variant="secondary">{copy.verified}</Badge> : null}
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <ReviewStars rating={review.rating} />
               <span className="text-sm text-muted-foreground">
-                {new Date(review.created_at).toLocaleDateString("tr-TR", {
+                {new Date(review.created_at).toLocaleDateString(copy.dateLocale, {
                   day: "2-digit",
                   month: "long",
                   year: "numeric",
@@ -40,7 +61,7 @@ export function ReviewCard({ review, onHelpful, helpfulLoading = false, canMarkH
             disabled={!canMarkHelpful || helpfulLoading || review.viewer_has_marked_helpful}
             onClick={() => onHelpful?.(review.id)}
           >
-            Faydali
+            {copy.helpful}
             <span className="ml-2 rounded-full bg-background/70 px-2 py-0.5 text-xs">{review.helpful_count}</span>
           </Button>
         </div>
@@ -52,7 +73,7 @@ export function ReviewCard({ review, onHelpful, helpfulLoading = false, canMarkH
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {review.images.map((imageUrl) => (
               <a key={imageUrl} href={imageUrl} target="_blank" rel="noreferrer" className="overflow-hidden rounded-xl border border-border/70">
-                <img src={imageUrl} alt="Yorum gorseli" className="h-24 w-full object-cover transition-transform hover:scale-[1.03]" />
+                <img src={imageUrl} alt={copy.imageAlt} className="h-24 w-full object-cover transition-transform hover:scale-[1.03]" />
               </a>
             ))}
           </div>
@@ -60,7 +81,7 @@ export function ReviewCard({ review, onHelpful, helpfulLoading = false, canMarkH
 
         {review.admin_reply ? (
           <div className="rounded-xl border border-primary/15 bg-primary/5 p-4">
-            <p className="text-sm font-semibold text-foreground">Magaza Cevabi</p>
+            <p className="text-sm font-semibold text-foreground">{copy.storeReply}</p>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-muted-foreground">{review.admin_reply.message}</p>
           </div>
         ) : null}

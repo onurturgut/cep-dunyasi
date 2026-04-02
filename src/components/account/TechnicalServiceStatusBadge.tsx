@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { TECHNICAL_SERVICE_STATUS_LABELS } from "@/lib/account";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/provider";
 
 const toneMap: Record<string, string> = {
   new: "border-amber-500/20 bg-amber-500/10 text-amber-700",
@@ -14,6 +15,8 @@ const toneMap: Record<string, string> = {
 
 export function TechnicalServiceStatusBadge({ status }: { status: string }) {
   const normalized = `${status || "new"}`.trim().toLowerCase();
+  const { messages } = useI18n();
+  const localizedLabel = messages.account.technicalService.statuses[normalized as keyof typeof messages.account.technicalService.statuses];
 
   return (
     <Badge
@@ -23,7 +26,7 @@ export function TechnicalServiceStatusBadge({ status }: { status: string }) {
         toneMap[normalized] || "border-border/70 bg-muted/30 text-foreground/80",
       )}
     >
-      {TECHNICAL_SERVICE_STATUS_LABELS[normalized] || status}
+      {localizedLabel || TECHNICAL_SERVICE_STATUS_LABELS[normalized] || status}
     </Badge>
   );
 }

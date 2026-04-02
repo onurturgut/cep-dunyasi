@@ -54,6 +54,9 @@ export default function ProductDetail() {
         productName: product.name,
         variantInfo: JSON.stringify(selectedVariant.attributes || {}),
         price: toPriceNumber(selectedVariant.price),
+        originalPrice: toPriceNumber(selectedVariant.compare_at_price) > toPriceNumber(selectedVariant.price)
+          ? toPriceNumber(selectedVariant.compare_at_price)
+          : undefined,
         image: product.images?.[0],
         stock: selectedVariant.stock,
       });

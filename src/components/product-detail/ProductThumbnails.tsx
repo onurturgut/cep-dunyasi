@@ -22,13 +22,14 @@ export function ProductThumbnails({ images, productName, activeIndex, onSelect }
           type="button"
           onClick={() => onSelect(index)}
           className={cn(
-            "relative aspect-square overflow-hidden rounded-2xl border bg-card transition-all",
+            "relative aspect-square overflow-hidden rounded-[1.35rem] border transition-all duration-300",
             index === activeIndex
-              ? "border-primary shadow-[0_14px_30px_-20px_rgba(220,38,38,0.55)]"
-              : "border-border/70 hover:-translate-y-0.5 hover:border-foreground/20",
+              ? "border-white/30 bg-white/10 shadow-[0_18px_36px_-28px_rgba(255,255,255,0.45)]"
+              : "border-white/8 bg-white/[0.03] hover:-translate-y-0.5 hover:border-white/20",
           )}
         >
           <img src={image} alt={`${productName} ${index + 1}`} className="h-full w-full object-cover" />
+          <div className={cn("absolute inset-0 transition-colors", index === activeIndex ? "ring-1 ring-inset ring-white/20" : "")} />
         </button>
       ))}
     </div>

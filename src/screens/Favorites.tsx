@@ -1,40 +1,33 @@
 "use client";
 
-import { useEffect } from "react";
-import { Heart } from "lucide-react";
-import { useNavigate } from "@/lib/router";
 import { Layout } from "@/components/layout/Layout";
 import { FavoritesSection } from "@/components/account/FavoritesSection";
-import { useAuth } from "@/hooks/use-auth";
+import { useI18n } from "@/i18n/provider";
 
 export default function Favorites() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [loading, navigate, user]);
-
-  if (!user) {
-    return null;
-  }
+  const { locale } = useI18n();
+  const copy =
+    locale === "en"
+      ? {
+          title: "My Favorites",
+          description: "Track the products you liked from this area.",
+          savedProducts: "Saved Products",
+        }
+      : {
+          title: "Favorilerim",
+          description: "Begendiginiz urunleri buradan takip edebilirsiniz.",
+          savedProducts: "Kaydettigin Urunler",
+        };
 
   return (
     <Layout>
-      <div className="container py-8">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border/70 bg-muted/30">
-            <Heart className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold">Favorilerim</h1>
-            <p className="text-sm text-muted-foreground">Beğendiğiniz ürünleri buradan takip edebilirsiniz.</p>
-          </div>
+      <div className="container py-6 sm:py-8">
+        <div className="space-y-1">
+          <h1 className="font-display text-2xl font-bold">{copy.title}</h1>
+          <p className="text-sm text-muted-foreground">{copy.description}</p>
         </div>
 
-        <FavoritesSection className="mt-8" title="Kaydettiğin Ürünler" />
+        <FavoritesSection className="mt-8" title={copy.savedProducts} />
       </div>
     </Layout>
   );
