@@ -17,25 +17,37 @@ globalThis.mongooseCache = cached;
 let dnsConfigured = false;
 let usingPublicDnsFallback = false;
 
+function getConfiguredDnsServers() {
+  return process.env.MONGODB_DNS_SERVERS
+    ?.split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function applyDnsServers(servers: string[]) {
+  try {
+    dns.setServers(servers);
+    dnsConfigured = true;
+    usingPublicDnsFallback = servers.join(",") === "1.1.1.1,8.8.8.8";
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function configureMongoDns(mongoUri: string) {
   if (dnsConfigured || !mongoUri.startsWith("mongodb+srv://")) {
     return;
   }
 
-  const configuredServers = process.env.MONGODB_DNS_SERVERS
-    ?.split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
+  const configuredServers = getConfiguredDnsServers();
 
   if (!configuredServers?.length) {
-    dnsConfigured = true;
+    applyPublicDnsFallback();
     return;
   }
 
-  try {
-    dns.setServers(configuredServers);
-    dnsConfigured = true;
-  } catch {
+  if (!applyDnsServers(configuredServers)) {
     dnsConfigured = false;
   }
 }
@@ -50,14 +62,11 @@ function isSrvDnsFailure(error: unknown) {
 }
 
 function applyPublicDnsFallback() {
-  try {
-    dns.setServers(["1.1.1.1", "8.8.8.8"]);
-    dnsConfigured = true;
-    usingPublicDnsFallback = true;
-    return true;
-  } catch {
-    return false;
-  }
+  return applyDnsServers(["1.1.1.1", "8.8.8.8"]);
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function connectToDatabase() {
@@ -96,19 +105,24 @@ export async function connectToDatabase() {
         cached.promise = null;
         cached.conn = null;
 
-        if (
-          mongoUri.startsWith("mongodb+srv://") &&
-          !process.env.MONGODB_DNS_SERVERS &&
-          !usingPublicDnsFallback &&
-          isSrvDnsFailure(error) &&
-          applyPublicDnsFallback()
-        ) {
-          continue;
+        if (mongoUri.startsWith("mongodb+srv://") && isSrvDnsFailure(error)) {
+          const configuredServers = getConfiguredDnsServers();
+          const reapplied =
+            configuredServers?.length
+              ? applyDnsServers(configuredServers) || applyPublicDnsFallback()
+              : !usingPublicDnsFallback && applyPublicDnsFallback();
+
+          if (reapplied) {
+            await wait(250 * attempt);
+            continue;
+          }
         }
 
         if (attempt >= attempts) {
           throw error;
         }
+
+        await wait(250 * attempt);
       }
     }
 

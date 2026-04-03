@@ -109,6 +109,12 @@ type AdminProductRecord = {
   categories?: { name?: string } | null;
 };
 
+type AdminProductListItem = Omit<AdminProductRecord, "description" | "specs" | "second_hand"> & {
+  description?: string;
+  specs?: ProductSpecs | null;
+  second_hand?: SecondHandDetails | null;
+};
+
 function mapSecondHandToForm(details?: SecondHandDetails | null): ProductForm["second_hand"] {
   const normalizedInspectionDate = details?.inspection_date ? new Date(details.inspection_date) : null;
   const inspectionDateValue =
@@ -257,7 +263,7 @@ function hasCustomSlug(name: string, slug: string) {
 }
 
 export default function AdminProducts() {
-  const [products, setProducts] = useState<AdminProductRecord[]>([]);
+  const [products, setProducts] = useState<AdminProductListItem[]>([]);
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -284,18 +290,45 @@ export default function AdminProducts() {
   const variantAxes = useMemo(() => getProductVariantAxes(selectedCategory?.slug), [selectedCategory?.slug]);
 
   const fetchProducts = async () => {
-    const { data, error } = await db.from("products").select("*, product_variants(*), categories(name)").order("created_at", { ascending: false });
+    const { data, error } = await db
+      .from("products")
+      .select("id, name, slug, brand, type, category_id, subcategory_id, is_featured, is_active, images, product_variants(id, sku, color_name, storage, ram, attributes, is_active, sort_order), categories(name)")
+      .order("created_at", { ascending: false });
     if (error) {
       toast.error(error.message);
       return;
     }
 
-    const nextProducts = ((data || []) as AdminProductRecord[]).map((product) => ({
+    const nextProducts = ((data || []) as AdminProductListItem[]).map((product) => ({
       ...product,
       images: Array.isArray(product.images) ? product.images : [],
       product_variants: normalizeProductVariants(product.product_variants || []),
     }));
     setProducts(nextProducts);
+  };
+
+  const loadProductDetail = async (productId: string) => {
+    const { data, error } = await db
+      .from("products")
+      .select("*, product_variants(*), categories(name)")
+      .eq("id", productId)
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const product = data as AdminProductRecord | null;
+
+    if (!product) {
+      throw new Error("Urun bulunamadi");
+    }
+
+    return {
+      ...product,
+      images: Array.isArray(product.images) ? product.images : [],
+      product_variants: normalizeProductVariants(product.product_variants || []),
+    } satisfies AdminProductRecord;
   };
 
   useEffect(() => {
@@ -621,15 +654,20 @@ export default function AdminProducts() {
     fetchProducts();
   };
 
-  const handleEdit = (product: AdminProductRecord) => {
-    const nextForm = mapProductToForm(product);
-    setEditing(product);
-    setForm(nextForm);
-    setIsSlugManuallyEdited(hasCustomSlug(nextForm.name, nextForm.slug));
-    setDialogOpen(true);
+  const handleEdit = async (productId: string) => {
+    try {
+      const product = await loadProductDetail(productId);
+      const nextForm = mapProductToForm(product);
+      setEditing(product);
+      setForm(nextForm);
+      setIsSlugManuallyEdited(hasCustomSlug(nextForm.name, nextForm.slug));
+      setDialogOpen(true);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Urun detaylari yuklenemedi");
+    }
   };
 
-  const getProductCategoryLabel = (product: AdminProductRecord) => {
+  const getProductCategoryLabel = (product: AdminProductListItem | AdminProductRecord) => {
     const mainCategoryName = product.categories?.name || categoryById.get(product.category_id || "")?.name || "Kategorisiz";
     const subcategoryName = product.subcategory_id ? categoryById.get(product.subcategory_id)?.name : null;
 
@@ -637,7 +675,15 @@ export default function AdminProducts() {
   };
 
   const handleDelete = async (id: string) => {
-    const product = products.find((item) => item.id === id) || null;
+    let product: AdminProductRecord | null = null;
+
+    try {
+      product = await loadProductDetail(id);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Urun detaylari yuklenemedi");
+      return;
+    }
+
     const { error } = await db.from("products").delete().eq("id", id);
     if (error) {
       toast.error(error.message);
@@ -1470,11 +1516,11 @@ export default function AdminProducts() {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => handleEdit(product)}>
+                <Button variant="outline" className="flex-1" onClick={() => void handleEdit(product.id)}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Duzenle
                 </Button>
-                <Button variant="outline" className="flex-1 text-destructive" onClick={() => handleDelete(product.id)}>
+                <Button variant="outline" className="flex-1 text-destructive" onClick={() => void handleDelete(product.id)}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Sil
                 </Button>
@@ -1558,10 +1604,10 @@ export default function AdminProducts() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
+                    <Button variant="ghost" size="icon" onClick={() => void handleEdit(product.id)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(product.id)}>
+                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => void handleDelete(product.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

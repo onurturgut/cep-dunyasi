@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { CampaignBadge } from "@/components/home/CampaignBadge";
 import { CampaignCTAButton } from "@/components/home/CampaignCTAButton";
 import type { CampaignPromoCardData, CampaignThemeVariant } from "@/lib/home-campaigns";
+import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type CampaignPromoCardProps = {
   card: CampaignPromoCardData;
@@ -17,10 +18,6 @@ const cardThemeClasses: Record<CampaignThemeVariant, string> = {
   graphite: "md:from-zinc-50 md:via-slate-50 md:to-white dark:md:from-zinc-900/95 dark:md:via-slate-900/80 dark:md:to-zinc-950/95",
   emerald: "md:from-emerald-50 md:via-slate-50 md:to-cyan-50 dark:md:from-emerald-950/90 dark:md:via-slate-900/85 dark:md:to-slate-950/95",
 };
-
-function isOptimizedSource(src: string) {
-  return src.startsWith("/");
-}
 
 export function CampaignPromoCard({ card, index }: CampaignPromoCardProps) {
   return (
@@ -40,23 +37,14 @@ export function CampaignPromoCard({ card, index }: CampaignPromoCardProps) {
         </div>
 
         <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-border/70 bg-background px-4 py-6 md:bg-background/75 md:backdrop-blur-xl dark:border-white/10 dark:bg-slate-900 dark:md:bg-white/5">
-          {isOptimizedSource(card.imageUrl) ? (
-            <Image
-              src={card.imageUrl}
-              alt={card.title}
-              width={640}
-              height={640}
-              sizes="(max-width: 768px) 90vw, 30vw"
-              className="mx-auto h-auto max-h-52 w-auto object-contain transition-transform duration-700 group-hover:scale-[1.05]"
-            />
-          ) : (
-            <img
-              src={card.imageUrl}
-              alt={card.title}
-              loading="lazy"
-              className="mx-auto h-auto max-h-52 w-auto object-contain transition-transform duration-700 group-hover:scale-[1.05]"
-            />
-          )}
+          <Image
+            src={getOptimizedImageUrl(card.imageUrl, { kind: "campaign-banner" })}
+            alt={card.title}
+            width={640}
+            height={640}
+            sizes={getResponsiveImageSizes("campaign-banner")}
+            className="mx-auto h-auto max-h-52 w-auto object-contain transition-transform duration-700 group-hover:scale-[1.05]"
+          />
         </div>
 
         <div className="mt-5 space-y-3">

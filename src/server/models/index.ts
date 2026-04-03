@@ -95,6 +95,12 @@ const productSchema = new Schema(
   { versionKey: false }
 );
 
+productSchema.index({ is_active: 1, category_id: 1, created_at: -1 });
+productSchema.index({ is_active: 1, subcategory_id: 1, created_at: -1 });
+productSchema.index({ is_active: 1, is_featured: 1, created_at: -1 });
+productSchema.index({ is_active: 1, brand: 1, created_at: -1 });
+productSchema.index({ category_id: 1, subcategory_id: 1, is_active: 1 });
+
 const productVariantSchema = new Schema(
   {
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
@@ -121,6 +127,8 @@ const productVariantSchema = new Schema(
 );
 
 productVariantSchema.index({ product_id: 1, is_active: 1, sort_order: 1 });
+productVariantSchema.index({ product_id: 1, sku: 1 });
+productVariantSchema.index({ product_id: 1, stock: 1, is_active: 1 });
 productVariantSchema.index(
   { product_id: 1, option_signature: 1 },
   { unique: true, partialFilterExpression: { option_signature: { $type: "string" } } }
@@ -178,6 +186,10 @@ const orderSchema = new Schema(
   },
   { versionKey: false }
 );
+
+orderSchema.index({ user_id: 1, created_at: -1 });
+orderSchema.index({ order_status: 1, created_at: -1 });
+orderSchema.index({ payment_status: 1, created_at: -1 });
 
 const orderItemSchema = new Schema(
   {
@@ -243,6 +255,9 @@ const shipmentSchema = new Schema(
   },
   { versionKey: false }
 );
+
+shipmentSchema.index({ order_id: 1, created_at: -1 });
+shipmentSchema.index({ tracking_number: 1 }, { sparse: true });
 
 const missionItemSchema = new Schema(
   {
@@ -373,6 +388,9 @@ const siteContentSchema = new Schema(
   { versionKey: false }
 );
 
+siteContentSchema.index({ is_published: 1, slug: 1 });
+siteContentSchema.index({ is_published: 1, updated_at: -1 });
+
 const technicalServiceRequestSchema = new Schema(
   {
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
@@ -392,6 +410,9 @@ const technicalServiceRequestSchema = new Schema(
   },
   { versionKey: false }
 );
+
+technicalServiceRequestSchema.index({ user_id: 1, status: 1, created_at: -1 });
+technicalServiceRequestSchema.index({ status: 1, created_at: -1 });
 
 const userAddressSchema = new Schema(
   {
@@ -441,6 +462,8 @@ const userSchema = new Schema(
   },
   { versionKey: false }
 );
+
+userSchema.index({ is_active: 1, created_at: -1 });
 
 const bannerCampaignSchema = new Schema(
   {

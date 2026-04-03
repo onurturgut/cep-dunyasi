@@ -12,6 +12,7 @@ import { normalizeMediaUrl } from "@/server/storage/r2";
 import { getSessionUserFromRequest, hasPermission, isAdmin, type SessionUser } from "@/server/auth-session";
 import { type AdminPermission } from "@/lib/admin";
 import { normalizeProductVariants, sortProductVariants } from "@/lib/product-variants";
+import { createRequestTimer } from "@/server/observability/request-timing";
 
 export const runtime = "nodejs";
 
@@ -270,30 +271,46 @@ function withUpdatedAt(table: DbTableName, data: Record<string, any>) {
 }
 
 export async function POST(request: Request) {
+  const timer = createRequestTimer("POST /api/db/query");
+  let payload: QueryPayload | null = null;
+
   try {
-    const payload = (await request.json()) as QueryPayload;
+    payload = (await request.json()) as QueryPayload;
+    timer.mark("parse-body");
 
     if (!payload?.table || !payload?.action) {
-      return NextResponse.json({ data: null, error: { message: "Invalid query payload" } }, { status: 400 });
+      const response = NextResponse.json({ data: null, error: { message: "Invalid query payload" } }, { status: 400, headers: timer.headers() });
+      timer.log({ error: "invalid-payload" });
+      return response;
     }
 
     const sessionUser = getSessionUserFromRequest(request);
     const admin = isAdmin(sessionUser);
+    timer.mark("resolve-auth");
 
     if (payload.action !== "select" && !canMutate(payload, sessionUser)) {
-      return jsonError("Bu işlem için admin yetkisi gerekiyor", 403);
+      const response = jsonError("Bu iÅŸlem iÃ§in admin yetkisi gerekiyor", 403);
+      response.headers.set("Server-Timing", timer.toServerTimingValue());
+      timer.log({ table: payload.table, action: payload.action, error: "forbidden" });
+      return response;
     }
 
     if (payload.action === "select" && ADMIN_ONLY_SELECT_TABLES.has(payload.table) && !hasTablePermission(payload.table, sessionUser)) {
-      return jsonError("Bu veriye erisim yetkiniz yok", 403);
+      const response = jsonError("Bu veriye erisim yetkiniz yok", 403);
+      response.headers.set("Server-Timing", timer.toServerTimingValue());
+      timer.log({ table: payload.table, action: payload.action, error: "forbidden-select" });
+      return response;
     }
 
     await connectToDatabase();
+    timer.mark("db-connect");
 
     const model = tableModelMap[payload.table];
 
     if (!model) {
-      return NextResponse.json({ data: null, error: { message: "Table is not supported" } }, { status: 400 });
+      const response = NextResponse.json({ data: null, error: { message: "Table is not supported" } }, { status: 400, headers: timer.headers() });
+      timer.log({ table: payload.table, action: payload.action, error: "unsupported-table" });
+      return response;
     }
 
     const filters = payload.filters ?? [];
@@ -301,7 +318,10 @@ export async function POST(request: Request) {
 
     if (payload.table === "orders" && payload.action === "select" && !admin) {
       if (!sessionUser?.id) {
-        return jsonError("Siparişleri görmek için giriş yapmanız gerekiyor", 401);
+        const response = jsonError("SipariÅŸleri gÃ¶rmek iÃ§in giriÅŸ yapmanÄ±z gerekiyor", 401);
+        response.headers.set("Server-Timing", timer.toServerTimingValue());
+        timer.log({ table: payload.table, action: payload.action, error: "unauthorized-orders" });
+        return response;
       }
 
       mongoQuery.user_id = sessionUser.id;
@@ -310,9 +330,14 @@ export async function POST(request: Request) {
     if (payload.action === "select") {
       const shouldReturnCount = payload.count === "exact";
       const count = shouldReturnCount ? await model.countDocuments(mongoQuery) : null;
+      if (shouldReturnCount) {
+        timer.mark("count-documents");
+      }
 
       if (payload.head) {
-        return NextResponse.json({ data: null, error: null, count });
+        const response = NextResponse.json({ data: null, error: null, count }, { headers: timer.headers() });
+        timer.log({ table: payload.table, action: payload.action, head: true, filters: filters.length });
+        return response;
       }
 
       const projection = getProjection(payload.select);
@@ -327,25 +352,31 @@ export async function POST(request: Request) {
       }
 
       let data = normalizeEntity(await query.lean());
+      timer.mark("find-documents");
 
       if (payload.table === "products") {
         data = await attachProductRelations(data, payload.select ?? "*", admin);
+        timer.mark("attach-product-relations");
       }
 
       if (payload.table === "product_variants") {
         const normalizedVariants = sortProductVariants(normalizeProductVariants(data));
         data = admin ? normalizedVariants : normalizedVariants.filter((variant) => variant.is_active);
+        timer.mark("normalize-variants");
       }
 
       if (payload.table === "orders") {
         data = await attachOrderRelations(data, payload.select ?? "*");
+        timer.mark("attach-order-relations");
       }
 
       if (payload.single) {
         data = data[0] ?? null;
       }
 
-      return NextResponse.json({ data, error: null, count });
+      const response = NextResponse.json({ data, error: null, count }, { headers: timer.headers() });
+      timer.log({ table: payload.table, action: payload.action, filters: filters.length, single: Boolean(payload.single) });
+      return response;
     }
 
     if (payload.action === "insert") {
@@ -353,37 +384,51 @@ export async function POST(request: Request) {
       const docsToInsert = inputItems.filter(Boolean).map((item) => withDefaults(payload.table, item));
 
       if (docsToInsert.length === 0) {
-        return NextResponse.json({ data: null, error: { message: "Insert payload is empty" } }, { status: 400 });
+        const response = NextResponse.json({ data: null, error: { message: "Insert payload is empty" } }, { status: 400, headers: timer.headers() });
+        timer.log({ table: payload.table, action: payload.action, error: "empty-insert" });
+        return response;
       }
 
       const inserted = normalizeEntity(await model.insertMany(docsToInsert));
+      timer.mark("insert-many");
       const prepared = Array.isArray(payload.data) ? inserted : inserted[0] ?? null;
 
       if (payload.single) {
-        return NextResponse.json({ data: Array.isArray(prepared) ? prepared[0] ?? null : prepared, error: null });
+        const response = NextResponse.json({ data: Array.isArray(prepared) ? prepared[0] ?? null : prepared, error: null }, { headers: timer.headers() });
+        timer.log({ table: payload.table, action: payload.action, count: docsToInsert.length, single: true });
+        return response;
       }
 
-      return NextResponse.json({ data: prepared, error: null });
+      const response = NextResponse.json({ data: prepared, error: null }, { headers: timer.headers() });
+      timer.log({ table: payload.table, action: payload.action, count: docsToInsert.length });
+      return response;
     }
 
     if (payload.action === "update") {
       const updatePayload = withUpdatedAt(payload.table, payload.data ?? {});
       await model.updateMany(mongoQuery, { $set: updatePayload });
+      timer.mark("update-many");
 
       const updatedRows = normalizeEntity(await model.find(mongoQuery).lean());
+      timer.mark("load-updated-rows");
       const data = payload.single ? updatedRows[0] ?? null : updatedRows;
 
-      return NextResponse.json({ data, error: null });
+      const response = NextResponse.json({ data, error: null }, { headers: timer.headers() });
+      timer.log({ table: payload.table, action: payload.action, single: Boolean(payload.single) });
+      return response;
     }
 
     if (payload.action === "delete") {
       const deletingRows = normalizeEntity(await model.find(mongoQuery).lean());
+      timer.mark("load-deleting-rows");
       await model.deleteMany(mongoQuery);
+      timer.mark("delete-many");
 
       if (payload.table === "products") {
         const productIds = deletingRows.map((row: any) => row.id);
         if (productIds.length > 0) {
           await ProductVariant.deleteMany({ product_id: { $in: productIds } });
+          timer.mark("delete-product-variants");
         }
       }
 
@@ -392,15 +437,23 @@ export async function POST(request: Request) {
         if (orderIds.length > 0) {
           await OrderItem.deleteMany({ order_id: { $in: orderIds } });
           await Shipment.deleteMany({ order_id: { $in: orderIds } });
+          timer.mark("delete-order-relations");
         }
       }
 
-      return NextResponse.json({ data: deletingRows, error: null });
+      const response = NextResponse.json({ data: deletingRows, error: null }, { headers: timer.headers() });
+      timer.log({ table: payload.table, action: payload.action, count: deletingRows.length });
+      return response;
     }
 
-    return NextResponse.json({ data: null, error: { message: "Unsupported action" } }, { status: 400 });
+    const response = NextResponse.json({ data: null, error: { message: "Unsupported action" } }, { status: 400, headers: timer.headers() });
+    timer.log({ table: payload.table, action: payload.action, error: "unsupported-action" });
+    return response;
   } catch (error) {
+    timer.mark("error");
     const message = error instanceof Error ? error.message : "Unknown database error";
-    return NextResponse.json({ data: null, error: { message } }, { status: 500 });
+    const response = NextResponse.json({ data: null, error: { message } }, { status: 500, headers: timer.headers() });
+    timer.log({ table: payload?.table ?? "unknown", action: payload?.action ?? "unknown", error: message });
+    return response;
   }
 }

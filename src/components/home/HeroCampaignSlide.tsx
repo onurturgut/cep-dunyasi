@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { CampaignBadge } from "@/components/home/CampaignBadge";
 import { CampaignCTAButton } from "@/components/home/CampaignCTAButton";
 import type { CampaignThemeVariant, HeroCampaignSlideData } from "@/lib/home-campaigns";
+import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type HeroCampaignSlideProps = {
   slide: HeroCampaignSlideData;
@@ -33,10 +34,6 @@ const themeClassMap: Record<CampaignThemeVariant, { shell: string; accent: strin
     glow: "bg-emerald-300/18 dark:bg-emerald-300/18",
   },
 };
-
-function isOptimizedSource(src: string) {
-  return src.startsWith("/");
-}
 
 export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlideProps) {
   const theme = themeClassMap[slide.themeVariant];
@@ -104,24 +101,15 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
               transition={{ duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
               className="relative flex max-h-[30rem] min-h-[18rem] w-full items-center justify-center"
             >
-              {isOptimizedSource(slide.imageUrl) ? (
-                <Image
-                  src={slide.imageUrl}
-                  alt={slide.title}
-                  width={1000}
-                  height={1000}
-                  priority={priority}
-                  sizes="(max-width: 1024px) 80vw, 40vw"
-                  className="h-auto max-h-[26rem] w-auto max-w-full object-contain drop-shadow-[0_28px_80px_rgba(15,23,42,0.5)] sm:max-h-[28rem] lg:max-h-[32rem]"
-                />
-              ) : (
-                <img
-                  src={slide.imageUrl}
-                  alt={slide.title}
-                  loading={priority ? "eager" : "lazy"}
-                  className="h-auto max-h-[26rem] w-auto max-w-full object-contain drop-shadow-[0_28px_80px_rgba(15,23,42,0.5)] sm:max-h-[28rem] lg:max-h-[32rem]"
-                />
-              )}
+              <Image
+                src={getOptimizedImageUrl(slide.imageUrl, { kind: "campaign-banner" })}
+                alt={slide.title}
+                width={1000}
+                height={1000}
+                priority={priority}
+                sizes={getResponsiveImageSizes("campaign-banner")}
+                className="h-auto max-h-[26rem] w-auto max-w-full object-contain drop-shadow-[0_28px_80px_rgba(15,23,42,0.5)] sm:max-h-[28rem] lg:max-h-[32rem]"
+              />
             </motion.div>
           </div>
         </motion.div>

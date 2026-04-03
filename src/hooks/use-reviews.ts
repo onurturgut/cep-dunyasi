@@ -94,6 +94,8 @@ export function useProductReviews(productId: string | null | undefined, filters:
   return useQuery({
     queryKey: reviewQueryKeys.product(productId || "unknown", filters),
     enabled: Boolean(productId),
+    staleTime: 30_000,
+    placeholderData: (previousData) => previousData,
     queryFn: () =>
       requestJson<ProductReviewListResponse>(
         `/api/reviews/list?${toQueryString({
@@ -183,6 +185,8 @@ export function useMarkReviewHelpful() {
 export function useAdminReviews(filters: AdminReviewFilters) {
   return useQuery({
     queryKey: reviewQueryKeys.admin(filters),
+    staleTime: 15_000,
+    placeholderData: (previousData) => previousData,
     queryFn: () =>
       requestJson<ProductReviewListResponse>(
         `/api/admin/reviews/list?${toQueryString({

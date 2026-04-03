@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type ProductThumbnailsProps = {
   images: string[];
@@ -28,7 +30,15 @@ export function ProductThumbnails({ images, productName, activeIndex, onSelect }
               : "border-white/8 bg-white/[0.03] hover:-translate-y-0.5 hover:border-white/20",
           )}
         >
-          <img src={image} alt={`${productName} ${index + 1}`} className="h-full w-full object-cover" />
+          <Image
+            src={getOptimizedImageUrl(image, { kind: "thumbnail" })}
+            alt={`${productName} ${index + 1}`}
+            width={160}
+            height={160}
+            sizes={getResponsiveImageSizes("thumbnail")}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
           <div className={cn("absolute inset-0 transition-colors", index === activeIndex ? "ring-1 ring-inset ring-white/20" : "")} />
         </button>
       ))}

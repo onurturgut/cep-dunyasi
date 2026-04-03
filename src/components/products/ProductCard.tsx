@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Link } from "@/lib/router";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import {
   normalizeSecondHandDetails,
   type SecondHandDetails,
 } from "@/lib/second-hand";
+import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 import { cn, formatCurrency, toPriceNumber } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -292,13 +294,18 @@ export function ProductCard({
                       {galleryImages.map((galleryImage, index) => (
                         <CarouselItem key={`${id}-image-${index}`} className="pl-0">
                           <div className="h-full">
-                            <img
-                              src={galleryImage}
-                              alt={`${name} ${index + 1}`}
-                              className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]"
-                              loading="lazy"
-                              draggable={false}
-                            />
+                            <div className="relative h-full w-full">
+                              <Image
+                                src={getOptimizedImageUrl(galleryImage, { kind: "product-card" })}
+                                alt={`${name} ${index + 1}`}
+                                width={720}
+                                height={780}
+                                sizes={getResponsiveImageSizes("product-card")}
+                                className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]"
+                                loading="lazy"
+                                draggable={false}
+                              />
+                            </div>
                           </div>
                         </CarouselItem>
                       ))}

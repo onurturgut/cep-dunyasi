@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Expand, ImageOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type ProductMainImageProps = {
   image: string | null;
@@ -37,10 +39,13 @@ export function ProductMainImage({ image, alt, onOpenZoom, index, total }: Produ
               setZoomPosition({ x, y });
             }}
           >
-            <img
-              src={image}
+            <Image
+              src={getOptimizedImageUrl(image, { kind: "product-detail" })}
               alt={alt}
-              className="h-full w-full object-contain transition-transform duration-300 ease-out group-hover:scale-[1.18]"
+              fill
+              priority
+              sizes={getResponsiveImageSizes("product-detail")}
+              className="object-contain transition-transform duration-300 ease-out group-hover:scale-[1.18]"
               style={{ transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` }}
               onLoad={() => setLoaded(true)}
             />

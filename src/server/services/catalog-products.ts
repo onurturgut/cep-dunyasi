@@ -26,6 +26,7 @@ export type CatalogProductsQuery = {
 export type CatalogProductsListResult = {
   items: CatalogProductRecord[];
   facetSections: CatalogFacetSectionData[];
+  totalCount: number;
 };
 
 type CatalogProductsSource = {
@@ -260,6 +261,7 @@ export async function listCatalogProducts(query: CatalogProductsQuery): Promise<
 
   return {
     items: filteredProducts.slice(start, end),
+    totalCount: filteredProducts.length,
     facetSections: buildCatalogFacetSectionsData({
       filters: query.filters,
       filterProfile,

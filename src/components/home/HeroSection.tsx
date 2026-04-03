@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/lib/router";
 import { benefitIcons, type HomeSiteContent } from "@/components/home/home-data";
+import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type HeroSectionProps = {
   activeSlide: number;
@@ -99,16 +101,31 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                 <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] sm:text-5xl md:text-6xl xl:text-7xl">
                   {content.hero_title_prefix}
                   <span className="text-primary"> {content.hero_title_highlight} </span>
-                  <img
-                    src={content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-black-v3-tight.png")}
-                    alt="Cep Dunyasi logosu"
-                    className="mx-1 inline-block h-auto w-[160px] align-middle dark:hidden sm:w-[200px] md:w-[240px] xl:w-[300px]"
-                  />
-                  <img
-                    src={content.hero_logo_dark_url || content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-dark-v3-tight.png")}
-                    alt="Cep Dunyasi logosu"
-                    className="mx-1 hidden h-auto w-[160px] align-middle dark:inline-block sm:w-[200px] md:w-[240px] xl:w-[300px]"
-                  />
+                  <span className="mx-1 inline-flex align-middle dark:hidden">
+                    <Image
+                      src={getOptimizedImageUrl(content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-black-v3-tight.png"), { kind: "logo" })}
+                      alt="Cep Dunyasi logosu"
+                      width={300}
+                      height={90}
+                      priority
+                      sizes={getResponsiveImageSizes("logo")}
+                      className="h-auto w-[160px] sm:w-[200px] md:w-[240px] xl:w-[300px]"
+                    />
+                  </span>
+                  <span className="mx-1 hidden align-middle dark:inline-flex">
+                    <Image
+                      src={getOptimizedImageUrl(
+                        content.hero_logo_dark_url || content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-dark-v3-tight.png"),
+                        { kind: "logo" },
+                      )}
+                      alt="Cep Dunyasi logosu"
+                      width={300}
+                      height={90}
+                      priority
+                      sizes={getResponsiveImageSizes("logo")}
+                      className="h-auto w-[160px] sm:w-[200px] md:w-[240px] xl:w-[300px]"
+                    />
+                  </span>
                   {content.hero_title_suffix}
                 </h1>
                 <p className="mt-4 max-w-xl text-sm text-muted-foreground drop-shadow-[0_8px_18px_rgba(0,0,0,0.16)] sm:text-base md:text-lg">
@@ -145,10 +162,13 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                 <div className="relative h-[320px] w-full sm:h-[420px] md:h-[520px] lg:h-[620px]">
                   <div className="absolute inset-x-10 bottom-10 h-24 rounded-full bg-primary/15 blur-3xl" />
                   {heroSlides.map((slide, index) => (
-                    <img
+                    <Image
                       key={slide.id}
-                      src={slide.image_url}
+                      src={getOptimizedImageUrl(slide.image_url, { kind: "hero" })}
                       alt={slide.alt}
+                      fill
+                      priority={index === 0}
+                      sizes={getResponsiveImageSizes("hero")}
                       className={`absolute inset-0 mx-auto h-full w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.65)] transition-all duration-700 ease-out ${
                         index === activeSlide ? "translate-x-0 scale-100 opacity-100" : "translate-x-8 scale-95 opacity-0"
                       }`}

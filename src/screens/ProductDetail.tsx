@@ -1,9 +1,10 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
 import { Minus, Plus, RefreshCcw, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
-import { useParams, useSearchParams, Link } from "@/lib/router";
+import { useSearchParams, Link } from "@/lib/router";
 import { Layout } from "@/components/layout/Layout";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -27,7 +28,6 @@ import { InstallmentCalculator } from "@/components/product-detail/InstallmentCa
 import { StickyBuyBar } from "@/components/product-detail/StickyBuyBar";
 import { SecondHandInfo } from "@/components/product-detail/SecondHandInfo";
 import { WarrantyReturnInfo } from "@/components/product-detail/WarrantyReturnInfo";
-import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { ReviewStars } from "@/components/reviews/ReviewStars";
 import { useI18n } from "@/i18n/provider";
 import { getLocalizedCategoryLabel } from "@/i18n/category-labels";
@@ -50,25 +50,41 @@ import {
   type ProductVariantRecord,
 } from "@/lib/product-variants";
 import { toast } from "sonner";
+import type { ProductDetailRecord } from "@/types/product-detail";
 
-type ProductRecord = {
-  id: string;
-  name: string;
+type ProductRecord = ProductDetailRecord;
+
+type ProductDetailProps = {
   slug: string;
-  brand?: string | null;
-  description?: string | null;
-  images: string[];
-  starting_price?: number;
-  created_at?: string | Date;
-  sales_count?: number;
-  rating_average?: number;
-  rating_count?: number;
-  rating_distribution?: Record<string, number> | null;
-  specs?: ProductSpecs | null;
-  second_hand?: SecondHandDetails | null;
-  categories?: { name?: string; slug?: string } | null;
-  product_variants: ProductVariantRecord[];
+  initialProduct?: ProductRecord | null;
 };
+
+const ReviewsSection = dynamic(
+  () => import("@/components/reviews/ReviewsSection").then((module) => module.ReviewsSection),
+  {
+    ssr: false,
+    loading: () => (
+      <section className="mt-10 border-t border-border/50 pt-8">
+        <div className="space-y-4">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-32 w-full rounded-3xl" />
+          <Skeleton className="h-40 w-full rounded-3xl" />
+        </div>
+      </section>
+    ),
+  },
+);
+
+function resolveProductState(product: ProductRecord | null, initialSelection: { variantId: string | null; colorName: string | null; storage: string | null; ram: string | null }) {
+  const variants = product ? normalizeProductVariants(product.product_variants || []) : [];
+  const initialVariant = findProductVariantBySelection(variants, initialSelection) || getDefaultProductVariant(variants);
+
+  return {
+    product,
+    variants,
+    selectedVariantId: initialVariant?.id || null,
+  };
+}
 
 function buildOfferAvailability(stock: number) {
   if (stock <= 0) {
@@ -86,8 +102,7 @@ function buildDiscountRate(compareAtPrice: number | null, price: number) {
   return Math.round(((compareAtPrice - price) / compareAtPrice) * 100);
 }
 
-export default function ProductDetail() {
-  const { slug } = useParams<{ slug: string }>();
+export default function ProductDetail({ slug, initialProduct = null }: ProductDetailProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [initialSelection] = useState(() => ({
     variantId: searchParams.get("variant"),
@@ -95,11 +110,12 @@ export default function ProductDetail() {
     storage: searchParams.get("storage"),
     ram: searchParams.get("ram"),
   }));
-  const [product, setProduct] = useState<ProductRecord | null>(null);
-  const [variants, setVariants] = useState<ProductVariantRecord[]>([]);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const initialResolvedState = useMemo(() => resolveProductState(initialProduct, initialSelection), [initialProduct, initialSelection]);
+  const [product, setProduct] = useState<ProductRecord | null>(initialResolvedState.product);
+  const [variants, setVariants] = useState<ProductVariantRecord[]>(initialResolvedState.variants);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(initialResolvedState.selectedVariantId);
   const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState<string | null>(null);
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
   const addItem = useCartStore((state) => state.addItem);
@@ -190,6 +206,15 @@ export default function ProductDetail() {
         };
 
   useEffect(() => {
+    if (initialProduct) {
+      setProduct(initialResolvedState.product);
+      setVariants(initialResolvedState.variants);
+      setSelectedVariantId(initialResolvedState.selectedVariantId);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     let isMounted = true;
 
     const fetchProduct = async () => {
@@ -212,9 +237,30 @@ export default function ProductDetail() {
         }
 
         const nextProduct: ProductRecord = {
-          ...(data as ProductRecord),
+          id: `${data.id ?? ""}`,
+          name: `${data.name ?? ""}`,
+          slug: `${data.slug ?? ""}`,
+          brand: data.brand ?? null,
+          description: data.description ?? null,
           images: Array.isArray(data.images) ? data.images.filter(Boolean) : [],
           starting_price: toPriceNumber(data.starting_price),
+          created_at: data.created_at,
+          sales_count: Number(data.sales_count ?? 0),
+          rating_average: Number(data.rating_average ?? 0),
+          rating_count: Number(data.rating_count ?? 0),
+          rating_distribution:
+            data.rating_distribution && typeof data.rating_distribution === "object"
+              ? (data.rating_distribution as Record<string, number>)
+              : null,
+          specs: (data.specs as ProductSpecs | null | undefined) ?? null,
+          second_hand: (data.second_hand as SecondHandDetails | null | undefined) ?? null,
+          categories:
+            data.categories && typeof data.categories === "object"
+              ? {
+                  name: `${(data.categories as { name?: string }).name ?? ""}`.trim() || undefined,
+                  slug: `${(data.categories as { slug?: string }).slug ?? ""}`.trim() || undefined,
+                }
+              : null,
           product_variants: normalizeProductVariants(data.product_variants || []),
         };
 
@@ -247,7 +293,7 @@ export default function ProductDetail() {
     return () => {
       isMounted = false;
     };
-  }, [initialSelection, slug]);
+  }, [initialProduct, initialResolvedState, initialSelection, slug]);
 
   const selectedVariant = useMemo(
     () => variants.find((variant) => variant.id === selectedVariantId) || getDefaultProductVariant(variants) || null,

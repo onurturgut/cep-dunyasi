@@ -1,9 +1,14 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { ProductImageZoomModal } from "@/components/product-detail/ProductImageZoomModal";
 import { ProductMainImage } from "@/components/product-detail/ProductMainImage";
 import { ProductThumbnails } from "@/components/product-detail/ProductThumbnails";
+
+const ProductImageZoomModal = dynamic(
+  () => import("@/components/product-detail/ProductImageZoomModal").then((module) => module.ProductImageZoomModal),
+  { ssr: false },
+);
 
 type ProductGalleryProps = {
   images: string[];

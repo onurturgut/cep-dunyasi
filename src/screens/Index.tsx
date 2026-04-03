@@ -1,27 +1,53 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from 'react';
-import { db } from '@/integrations/mongo/client';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from '@/lib/router';
 import { Layout } from '@/components/layout/Layout';
 import { CategoriesSection } from '@/components/home/CategoriesSection';
-import { CampaignShowcaseSection } from '@/components/home/CampaignShowcaseSection';
 import { ExploreCategoriesSection } from '@/components/home/ExploreCategoriesSection';
 import { FeaturedProductsSection } from '@/components/home/FeaturedProductsSection';
 import { HeroSection } from '@/components/home/HeroSection';
-import { PromoVideoModal } from '@/components/home/PromoVideoModal';
-import { RecentlyViewedSection } from '@/components/home/RecentlyViewedSection';
-import { defaultCategories, defaultSiteContent, mergeCategories, type HomeCategory, type HomeSiteContent } from '@/components/home/home-data';
+import { defaultCategories, defaultSiteContent, type HomeCategory, type HomeProduct, type HomeSiteContent } from '@/components/home/home-data';
 
-export default function Index() {
+const PromoVideoModal = dynamic(() => import('@/components/home/PromoVideoModal').then((module) => module.PromoVideoModal), {
+  ssr: false,
+});
+
+const CampaignShowcaseSection = dynamic(
+  () => import('@/components/home/CampaignShowcaseSection').then((module) => module.CampaignShowcaseSection),
+  {
+    ssr: false,
+    loading: () => <section className="py-10 md:py-14" aria-hidden="true" />,
+  },
+);
+
+const RecentlyViewedSection = dynamic(
+  () => import('@/components/home/RecentlyViewedSection').then((module) => module.RecentlyViewedSection),
+  {
+    ssr: false,
+    loading: () => <section className="py-6 md:py-10" aria-hidden="true" />,
+  },
+);
+
+type IndexProps = {
+  initialCategories?: HomeCategory[];
+  initialSiteContent?: HomeSiteContent;
+  initialFeaturedProducts?: HomeProduct[];
+};
+
+export default function Index({
+  initialCategories = defaultCategories,
+  initialSiteContent = defaultSiteContent,
+  initialFeaturedProducts = [],
+}: IndexProps) {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
-  const [categories, setCategories] = useState<HomeCategory[]>(defaultCategories);
-  const [siteContent, setSiteContent] = useState<HomeSiteContent>(defaultSiteContent);
-  const [isSiteContentLoading, setIsSiteContentLoading] = useState(true);
-  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [activeSlide, setActiveSlide] = useState(0);
+  const categories = initialCategories.length > 0 ? initialCategories : defaultCategories;
+  const siteContent = initialSiteContent;
+  const featuredProducts = initialFeaturedProducts;
 
   useEffect(() => {
     if (!loading && user && isAdmin) {
@@ -30,57 +56,7 @@ export default function Index() {
   }, [loading, user, isAdmin, navigate]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [catRes, siteContentRes, featuredRes, activeRes] = await Promise.all([
-          db.from('categories').select('*'),
-          db.from('site_contents').select('*').eq('key', 'home').single(),
-          db
-            .from('products')
-            .select('*, product_variants(*), categories(name, slug)')
-            .eq('is_featured', true)
-            .eq('is_active', true)
-            .limit(8),
-          db
-            .from('products')
-            .select('*, product_variants(*), categories(name, slug)')
-            .eq('is_active', true)
-            .limit(16),
-        ]);
-
-        if (catRes.data && catRes.data.length > 0) {
-          setCategories(mergeCategories(defaultCategories, catRes.data.filter((category) => !category.parent_category_id)));
-        }
-
-        if (siteContentRes.data) {
-          setSiteContent({ ...defaultSiteContent, ...siteContentRes.data });
-        }
-
-        const featuredRows = Array.isArray(featuredRes.data) ? featuredRes.data : [];
-        const activeRows = Array.isArray(activeRes.data) ? activeRes.data : [];
-
-        const featuredWithImages = featuredRows.filter((product) => Array.isArray(product.images) && product.images.some(Boolean));
-        const activeWithImages = activeRows.filter((product) => Array.isArray(product.images) && product.images.some(Boolean));
-
-        if (featuredWithImages.length > 0) {
-          setFeaturedProducts(featuredWithImages);
-        } else if (activeWithImages.length > 0) {
-          setFeaturedProducts(activeWithImages.slice(0, 8));
-        } else {
-          setFeaturedProducts(featuredRows.length > 0 ? featuredRows : activeRows.slice(0, 8));
-        }
-      } catch (error) {
-        console.error('Ana sayfa verileri yuklenemedi:', error);
-      } finally {
-        setIsSiteContentLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (isSiteContentLoading || siteContent.hero_slides.length < 2) {
+    if (siteContent.hero_slides.length < 2) {
       return;
     }
 
@@ -89,7 +65,7 @@ export default function Index() {
     }, 3500);
 
     return () => window.clearInterval(intervalId);
-  }, [isSiteContentLoading, siteContent.hero_slides.length]);
+  }, [siteContent.hero_slides.length]);
 
   if (!loading && user && isAdmin) {
     return null;
@@ -98,10 +74,10 @@ export default function Index() {
   return (
     <Layout>
       <PromoVideoModal />
-      <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} content={siteContent} isLoading={isSiteContentLoading} />
+      <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} content={siteContent} />
       <CampaignShowcaseSection />
       <CategoriesSection categories={categories} content={siteContent} />
-      <ExploreCategoriesSection categories={categories.length > 0 ? categories : defaultCategories} content={siteContent} />
+      <ExploreCategoriesSection categories={categories} content={siteContent} />
       <FeaturedProductsSection featuredProducts={featuredProducts} content={siteContent} />
       <RecentlyViewedSection />
     </Layout>

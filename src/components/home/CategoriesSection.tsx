@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from 'framer-motion';
 import {
   sectionReveal,
   type HomeCategory,
   type HomeSiteContent,
 } from '@/components/home/home-data';
+import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type CategoriesSectionProps = {
   categories: HomeCategory[];
@@ -54,19 +56,23 @@ export function CategoriesSection({ categories: _categories, content }: Categori
                 {(content.hero_logo_dark_url || content.hero_logo_light_url) && (
                   <div className="flex shrink-0 items-center rounded-[1.5rem] bg-card px-4 py-3 shadow-[0_14px_30px_rgba(15,23,42,0.08)] md:bg-background/80 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/6 dark:md:shadow-[0_20px_60px_rgba(2,6,23,0.28)]">
                     {(content.hero_logo_light_url || content.hero_logo_dark_url) && (
-                      <img
-                        src={content.hero_logo_light_url || content.hero_logo_dark_url}
+                      <Image
+                        src={getOptimizedImageUrl(content.hero_logo_light_url || content.hero_logo_dark_url, { kind: "logo" })}
                         alt="Cep Dunyasi"
+                        width={240}
+                        height={72}
+                        sizes={getResponsiveImageSizes("logo")}
                         className="block h-auto w-[180px] dark:hidden md:w-[240px]"
-                        loading="lazy"
                       />
                     )}
                     {(content.hero_logo_dark_url || content.hero_logo_light_url) && (
-                      <img
-                        src={content.hero_logo_dark_url || content.hero_logo_light_url}
+                      <Image
+                        src={getOptimizedImageUrl(content.hero_logo_dark_url || content.hero_logo_light_url, { kind: "logo" })}
                         alt="Cep Dunyasi"
+                        width={240}
+                        height={72}
+                        sizes={getResponsiveImageSizes("logo")}
                         className="hidden h-auto w-[180px] dark:block md:w-[240px]"
-                        loading="lazy"
                       />
                     )}
                   </div>

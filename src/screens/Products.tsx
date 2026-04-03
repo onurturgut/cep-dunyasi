@@ -19,7 +19,6 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { db } from "@/integrations/mongo/client";
 import { type CatalogFacetSectionData } from "@/lib/catalog-facets";
 import {
   createEmptyCatalogFilters,
@@ -81,25 +80,8 @@ type ApiResponse<T> = {
 type CatalogListResponse = {
   items: CatalogProductRecord[];
   facetSections: CatalogFacetSectionData[];
-};
-
-type CatalogCountResponse = {
   totalCount: number;
 };
-
-function mergeCategories(fallbackCategories: Array<Record<string, string>>, dbCategories: Array<Record<string, string>>) {
-  const categoriesBySlug = new Map<string, Record<string, string>>();
-
-  fallbackCategories.forEach((category) => {
-    categoriesBySlug.set(category.slug, category);
-  });
-
-  dbCategories.forEach((category) => {
-    categoriesBySlug.set(category.slug, category);
-  });
-
-  return Array.from(categoriesBySlug.values());
-}
 
 function toggleStringValue(values: string[] | undefined, value: string) {
   const currentValues = values ?? [];
@@ -300,15 +282,17 @@ function FilterPanelCard({
   );
 }
 
-export default function Products() {
+type ProductsProps = {
+  initialCategories?: Array<Record<string, string>>;
+};
+
+export default function Products({ initialCategories = defaultCategories }: ProductsProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState<CatalogProductRecord[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [facetSectionData, setFacetSectionData] = useState<CatalogFacetSectionData[]>([]);
-  const [categories, setCategories] = useState<Array<Record<string, string>>>(defaultCategories);
   const [loading, setLoading] = useState(true);
-  const [countLoading, setCountLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<ProductSortOption>("newest");
   const [draftFilters, setDraftFilters] = useState<CatalogFilters>(createEmptyCatalogFilters);
@@ -320,6 +304,7 @@ export default function Products() {
   const filterProfile = useMemo(() => getCatalogFilterProfile(activeCategory), [activeCategory]);
   const isSecondHandIphoneCategory = activeCategory === "ikinci-el-telefon";
   const deferredSearch = useDeferredValue(search);
+  const categories = initialCategories.length > 0 ? initialCategories : defaultCategories;
 
   useEffect(() => {
     const nextFilters = createEmptyCatalogFilters();
@@ -334,16 +319,6 @@ export default function Products() {
       navigate("/technical-service", { replace: true });
     }
   }, [activeCategory, navigate]);
-
-  useEffect(() => {
-    db.from("categories")
-      .select("*")
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setCategories(mergeCategories(defaultCategories, data.filter((category) => !category.parent_category_id)));
-        }
-      });
-  }, []);
 
   useEffect(() => {
     if (activeCategory === "teknik-servis") {
@@ -376,10 +351,12 @@ export default function Products() {
             product_variants: normalizeProductVariants(product.product_variants || []),
           })),
         );
+        setTotalCount(data.totalCount);
         setFacetSectionData(data.facetSections);
       } catch (error) {
         if (!controller.signal.aborted) {
           setProducts([]);
+          setTotalCount(0);
           setFacetSectionData([]);
           console.error(error);
         }
@@ -394,48 +371,6 @@ export default function Products() {
 
     return () => controller.abort();
   }, [activeCategory, currentPage, deferredSearch, draftFilters, sortBy]);
-
-  useEffect(() => {
-    if (activeCategory === "teknik-servis") {
-      return;
-    }
-
-    const controller = new AbortController();
-
-    const fetchTotalCount = async () => {
-      setCountLoading(true);
-
-      try {
-        const data = await requestCatalog<CatalogCountResponse>(
-          {
-            mode: "count",
-            activeCategory,
-            search: deferredSearch,
-            sortBy: "newest",
-            page: 1,
-            limit: PRODUCTS_PER_PAGE,
-            filters: draftFilters,
-          },
-          controller.signal,
-        );
-
-        setTotalCount(data.totalCount);
-      } catch (error) {
-        if (!controller.signal.aborted) {
-          setTotalCount(0);
-          console.error(error);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setCountLoading(false);
-        }
-      }
-    };
-
-    fetchTotalCount();
-
-    return () => controller.abort();
-  }, [activeCategory, deferredSearch, draftFilters]);
 
   const currentCategoryName = useMemo(() => {
     if (!activeCategory) {
@@ -738,7 +673,7 @@ export default function Products() {
               </div>
             </div>
 
-            {!loading && !countLoading && totalCount > 0 ? (
+            {!loading && totalCount > 0 ? (
               <div className="mb-4 flex flex-col gap-2 rounded-3xl border border-border/60 bg-card/50 px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
                 <span>
                   {pageStart}-{pageEnd} arası gösteriliyor
@@ -747,7 +682,7 @@ export default function Products() {
               </div>
             ) : null}
 
-            {loading || countLoading ? (
+            {loading ? (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <div key={index} className="space-y-3">

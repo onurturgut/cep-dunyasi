@@ -11,7 +11,23 @@ import { LocaleProvider } from "@/i18n/provider";
 import type { AppLocale } from "@/i18n/config";
 
 export function AppProviders({ children, initialLocale }: { children: React.ReactNode; initialLocale: AppLocale }) {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 30_000,
+            gcTime: 5 * 60_000,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
+            retry: 1,
+          },
+          mutations: {
+            retry: 0,
+          },
+        },
+      }),
+  );
 
   return (
     <LocaleProvider initialLocale={initialLocale}>

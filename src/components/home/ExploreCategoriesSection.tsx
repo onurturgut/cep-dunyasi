@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from 'framer-motion';
 import { Link } from '@/lib/router';
 import { categoryIcons, sectionReveal, type HomeCategory, type HomeSiteContent } from '@/components/home/home-data';
+import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type ExploreCategoriesSectionProps = {
   categories: HomeCategory[];
@@ -47,14 +49,15 @@ export function ExploreCategoriesSection({ categories, content }: ExploreCategor
                   >
                     {category.image_url ? (
                       <>
-                        <div className="flex h-[190px] w-full items-center justify-center overflow-hidden sm:h-[250px]">
-                          <img
-                            src={category.image_url}
+                        <div className="relative flex h-[190px] w-full items-center justify-center overflow-hidden sm:h-[250px]">
+                          <Image
+                            src={getOptimizedImageUrl(category.image_url, { kind: "campaign-banner" })}
                             alt={category.name}
+                            fill
+                            sizes={getResponsiveImageSizes("campaign-banner")}
                             className={`h-full w-full ${
                               category.image_url.startsWith('/images/') ? 'object-contain p-2' : 'object-cover'
                             }`}
-                            loading="lazy"
                           />
                         </div>
                         <span className="explore-category-label px-3 pb-2 text-sm font-semibold text-foreground sm:text-base">{category.name}</span>
