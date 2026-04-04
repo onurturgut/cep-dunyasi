@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
@@ -9,6 +9,7 @@ import { HeroCampaignControls } from "@/components/home/HeroCampaignControls";
 import { HeroCampaignDots } from "@/components/home/HeroCampaignDots";
 import { HeroCampaignSlide } from "@/components/home/HeroCampaignSlide";
 import type { HeroCampaignSlideData } from "@/lib/home-campaigns";
+import { postMarketingEventOnce } from "@/lib/marketing-events";
 
 type HeroCampaignSliderProps = {
   slides: HeroCampaignSlideData[];
@@ -19,6 +20,7 @@ export function HeroCampaignSlider({ slides, isLoading = false }: HeroCampaignSl
   const [api, setApi] = useState<CarouselApi>();
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const trackedSlideIdsRef = useRef<Set<string>>(new Set());
   const sliderSlides = useMemo(() => slides.filter((slide) => slide.imageUrl), [slides]);
 
   useEffect(() => {
@@ -53,6 +55,29 @@ export function HeroCampaignSlider({ slides, isLoading = false }: HeroCampaignSl
 
     return () => window.clearInterval(intervalId);
   }, [api, paused, sliderSlides.length]);
+
+  useEffect(() => {
+    const activeSlide = sliderSlides[activeIndex];
+    if (!activeSlide) {
+      return;
+    }
+
+    if (trackedSlideIdsRef.current.has(activeSlide.id)) {
+      return;
+    }
+
+    trackedSlideIdsRef.current.add(activeSlide.id);
+
+    void postMarketingEventOnce({
+      eventType: "campaign_view",
+      entityType: "campaign",
+      entityId: activeSlide.id,
+      pagePath: typeof window !== "undefined" ? window.location.pathname : "/",
+      metadata: {
+        position: activeIndex,
+      },
+    }, { dedupeKey: `campaign-view:${activeSlide.id}`, windowMs: 60_000 });
+  }, [activeIndex, sliderSlides]);
 
   if (isLoading) {
     return (

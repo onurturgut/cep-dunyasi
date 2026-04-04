@@ -53,7 +53,13 @@ export function CampaignPromoCard({ card, index }: CampaignPromoCardProps) {
         </div>
 
         <div className="mt-6">
-          <CampaignCTAButton to={card.ctaLink} label={card.ctaText} variant="secondary" className="w-full justify-center sm:w-auto" />
+          <CampaignCTAButton
+            to={card.ctaLink}
+            label={card.ctaText}
+            variant="secondary"
+            className="w-full justify-center sm:w-auto"
+            campaignId={card.id}
+          />
         </div>
       </div>
     </motion.article>

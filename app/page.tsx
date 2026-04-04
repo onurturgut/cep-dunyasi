@@ -13,6 +13,7 @@ export default async function HomePage() {
         initialCategories={data.categories}
         initialSiteContent={data.siteContent}
         initialFeaturedProducts={data.featuredProducts}
+        initialMarketing={data.marketing}
       />
     );
   } catch (error) {
@@ -23,6 +24,7 @@ export default async function HomePage() {
         initialCategories={defaultCategories}
         initialSiteContent={defaultSiteContent}
         initialFeaturedProducts={[]}
+        initialMarketing={null}
       />
     );
   }

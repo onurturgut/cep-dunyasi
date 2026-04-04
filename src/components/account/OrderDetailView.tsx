@@ -7,6 +7,7 @@ import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
 import { OrderTimeline } from "@/components/account/OrderTimeline";
 import { ShipmentTrackingCard } from "@/components/account/ShipmentTrackingCard";
 import type { MyOrderDetail } from "@/lib/account";
+import { PAYMENT_METHOD_LABELS } from "@/lib/checkout";
 import { formatDate } from "@/lib/date";
 import { formatCurrency } from "@/lib/utils";
 
@@ -124,8 +125,12 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
                 </div>
                 <div className="border-t border-border/70 pt-3">
                   <p>
-                    <span className="font-medium text-foreground">Odeme Yontemi:</span> {order.payment_provider.toUpperCase()}
+                    <span className="font-medium text-foreground">Odeme Yontemi:</span>{" "}
+                    {order.payment_method ? PAYMENT_METHOD_LABELS[order.payment_method as keyof typeof PAYMENT_METHOD_LABELS] ?? order.payment_method : order.payment_provider.toUpperCase()}
                   </p>
+                  {order.payment_failure_reason ? (
+                    <p className="mt-2 text-xs text-destructive">{order.payment_failure_reason}</p>
+                  ) : null}
                 </div>
               </CardContent>
             </Card>
@@ -142,6 +147,23 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
                 {getShippingField(order.shipping_address, "email") ? <p>{getShippingField(order.shipping_address, "email")}</p> : null}
               </CardContent>
             </Card>
+
+            {order.billing_info ? (
+              <Card className="rounded-[1.5rem] border-border/70 bg-card shadow-none">
+                <CardHeader>
+                  <CardTitle className="text-lg">Fatura Bilgileri</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm text-muted-foreground">
+                  {"billingFullName" in order.billing_info ? <p className="font-medium text-foreground">{`${order.billing_info.billingFullName ?? ""}`}</p> : null}
+                  {"companyName" in order.billing_info && order.billing_info.companyName ? <p>{`${order.billing_info.companyName}`}</p> : null}
+                  {"taxNumber" in order.billing_info && order.billing_info.taxNumber ? <p>Vergi No: {`${order.billing_info.taxNumber}`}</p> : null}
+                  {"billingAddressLine" in order.billing_info && order.billing_info.billingAddressLine ? <p>{`${order.billing_info.billingAddressLine}`}</p> : null}
+                  {"billingDistrict" in order.billing_info || "billingCity" in order.billing_info ? (
+                    <p>{[`${order.billing_info.billingDistrict ?? ""}`, `${order.billing_info.billingCity ?? ""}`, `${order.billing_info.billingPostalCode ?? ""}`].filter(Boolean).join(" / ")}</p>
+                  ) : null}
+                </CardContent>
+              </Card>
+            ) : null}
           </div>
         </CardContent>
       </Card>

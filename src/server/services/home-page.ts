@@ -1,9 +1,11 @@
 import type { HomeCategory, HomeProduct, HomeSiteContent } from "@/components/home/home-data";
 import { defaultCategories, defaultSiteContent, mergeCategories } from "@/components/home/home-data";
+import type { MarketingHomeModules } from "@/lib/marketing";
 import { normalizeProductVariants, sortProductVariants } from "@/lib/product-variants";
 import { connectToDatabase } from "@/server/mongodb";
 import { Category, Product, ProductVariant, SiteContent } from "@/server/models";
 import { createRequestTimer } from "@/server/observability/request-timing";
+import { getMarketingHomeModules } from "@/server/services/marketing";
 import { normalizeMediaUrl } from "@/server/storage/r2";
 
 type RawRecord = Record<string, unknown>;
@@ -12,6 +14,7 @@ export type HomePageData = {
   categories: HomeCategory[];
   featuredProducts: HomeProduct[];
   siteContent: HomeSiteContent;
+  marketing: MarketingHomeModules;
 };
 
 function serializeForClient<T>(value: T): T {
@@ -21,7 +24,7 @@ function serializeForClient<T>(value: T): T {
 const homeSiteContentSelect =
   "hero_title_prefix hero_title_highlight hero_title_suffix hero_subtitle hero_logo_light_url hero_logo_dark_url hero_cta_label hero_cta_href shipping_fee hero_slides hero_benefits category_section_title category_section_description category_banner_enabled category_banner_main_image category_banner_video category_banner_video_link category_banner_badge_text category_banner_intro_text category_banner_brand_title category_banner_stat_1_label category_banner_stat_1_value category_banner_stat_2_label category_banner_stat_2_value category_banner_highlight_label category_banner_brand_desc_1 category_banner_brand_desc_2 category_banner_brand_desc_3 category_banner_slots explore_section_title featured_section_title featured_section_cta_label featured_section_cta_href";
 
-const homeProductSelect = "id name slug description category_id brand images created_at sales_count rating_average specs";
+const homeProductSelect = "id name slug description category_id brand images created_at sales_count rating_average rating_count specs second_hand";
 
 function normalizeText(value: unknown) {
   const normalized = `${value ?? ""}`.trim();
@@ -135,7 +138,9 @@ function mapProductRecord(
     created_at: product.created_at as string | Date | undefined,
     sales_count: Number(product.sales_count ?? 0),
     rating_average: Number(product.rating_average ?? 0),
+    rating_count: Number(product.rating_count ?? 0),
     specs: (product.specs as Record<string, string | null> | null) ?? null,
+    second_hand: (product.second_hand as Record<string, unknown> | null) ?? null,
     product_variants: variantsByProductId.get(productId) ?? [],
     categories: categoriesById.get(`${product.category_id ?? ""}`) ?? null,
   };
@@ -146,7 +151,7 @@ export async function getHomePageData(): Promise<HomePageData> {
   await connectToDatabase();
   timer.mark("db-connect");
 
-  const [rawCategories, rawSiteContent, rawFeaturedProducts] = await Promise.all([
+  const [rawCategories, rawSiteContent, rawFeaturedProducts, marketing] = await Promise.all([
     Category.find({ parent_category_id: null }).select("id name slug icon description image_url").sort({ name: 1 }).lean(),
     SiteContent.findOne({ key: "home" }).select(homeSiteContentSelect).lean(),
     Product.find({ is_featured: true, is_active: true })
@@ -154,6 +159,7 @@ export async function getHomePageData(): Promise<HomePageData> {
       .sort({ created_at: -1 })
       .limit(8)
       .lean(),
+    getMarketingHomeModules(),
   ]);
   timer.mark("load-home-documents");
 
@@ -244,6 +250,7 @@ export async function getHomePageData(): Promise<HomePageData> {
   const result = {
     categories,
     siteContent: normalizeSiteContent((rawSiteContent as RawRecord | null) ?? null),
+    marketing,
     featuredProducts:
       featuredWithImages.length > 0
         ? featuredWithImages

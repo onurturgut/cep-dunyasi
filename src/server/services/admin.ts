@@ -62,10 +62,15 @@ type OrderRecord = {
   final_price?: number;
   payment_status?: string;
   payment_provider?: string;
+  payment_method?: string;
+  payment_reference_id?: string | null;
+  payment_failure_reason?: string | null;
+  payment_attempts_count?: number;
   order_status?: string;
   coupon_code?: string | null;
   admin_note?: string | null;
   shipping_address?: Record<string, unknown> | null;
+  billing_info?: Record<string, unknown> | null;
   status_history?: Array<{
     status?: string;
     note?: string | null;
@@ -174,6 +179,13 @@ type BannerCampaignDoc = {
   cta_label?: string | null;
   cta_href?: string | null;
   badge_text?: string | null;
+  theme_variant?: string | null;
+  trigger_type?: "delay" | "scroll" | "exit_intent" | null;
+  trigger_delay_seconds?: number | null;
+  trigger_scroll_percent?: number | null;
+  show_once_per_session?: boolean | null;
+  target_paths?: string[] | null;
+  audience?: "all" | "guest" | "authenticated" | null;
   start_at?: Date | string | null;
   end_at?: Date | string | null;
   is_active?: boolean;
@@ -225,6 +237,13 @@ const bannerSchema = z.object({
   ctaLabel: z.string().trim().max(50, "CTA metni en fazla 50 karakter olabilir").optional().nullable().or(z.literal("")),
   ctaHref: z.string().trim().max(255, "CTA linki en fazla 255 karakter olabilir").optional().nullable().or(z.literal("")),
   badgeText: z.string().trim().max(40, "Rozet metni en fazla 40 karakter olabilir").optional().nullable().or(z.literal("")),
+  themeVariant: z.string().trim().max(40, "Tema varyanti en fazla 40 karakter olabilir").optional().nullable().or(z.literal("")),
+  triggerType: z.enum(["delay", "scroll", "exit_intent"]).default("delay"),
+  triggerDelaySeconds: z.coerce.number().min(0).max(120).default(4),
+  triggerScrollPercent: z.coerce.number().min(0).max(100).default(40),
+  showOncePerSession: z.boolean().default(true),
+  targetPaths: z.array(z.string().trim().min(1)).default([]),
+  audience: z.enum(["all", "guest", "authenticated"]).default("all"),
   startAt: z.string().trim().optional().nullable().or(z.literal("")),
   endAt: z.string().trim().optional().nullable().or(z.literal("")),
   isActive: z.boolean().default(true),
@@ -911,12 +930,13 @@ export async function listAdminOrders(input: {
         id: order.id,
         customerName: getDisplayName(user),
         customerEmail: user?.email ?? null,
-        createdAt: toIsoString(order.created_at),
-        finalPrice: toPriceNumber(order.final_price),
-        paymentStatus: `${order.payment_status ?? "pending"}`,
-        orderStatus: `${order.order_status ?? "pending"}`,
-        itemCount: itemCountByOrderId.get(order.id) ?? 0,
-        shipmentTrackingNumber: shipment?.tracking_number ?? null,
+          createdAt: toIsoString(order.created_at),
+          finalPrice: toPriceNumber(order.final_price),
+          paymentStatus: `${order.payment_status ?? "pending"}`,
+          paymentMethod: `${order.payment_method ?? "credit_card_3ds"}`,
+          orderStatus: `${order.order_status ?? "pending"}`,
+          itemCount: itemCountByOrderId.get(order.id) ?? 0,
+          shipmentTrackingNumber: shipment?.tracking_number ?? null,
         shipmentCompany: shipment?.cargo_company ?? null,
       };
     }),
@@ -959,14 +979,19 @@ export async function getAdminOrderDetail(orderId: string): Promise<AdminOrderDe
     totalPrice: toPriceNumber(order.total_price),
     discount: toPriceNumber(order.discount),
     shippingPrice: toPriceNumber(order.shipping_price),
-    finalPrice: toPriceNumber(order.final_price),
-    paymentProvider: `${order.payment_provider ?? "iyzico"}`,
-    paymentStatus: `${order.payment_status ?? "pending"}`,
-    orderStatus: `${order.order_status ?? "pending"}`,
-    adminNote: order.admin_note ?? null,
-    couponCode: order.coupon_code ?? null,
-    shippingAddress: (order.shipping_address as Record<string, unknown> | null) ?? null,
-    items: (items as OrderItemRecord[]).map((item) => ({
+      finalPrice: toPriceNumber(order.final_price),
+      paymentProvider: `${order.payment_provider ?? "iyzico"}`,
+      paymentStatus: `${order.payment_status ?? "pending"}`,
+      paymentMethod: `${order.payment_method ?? "credit_card_3ds"}`,
+      paymentReferenceId: order.payment_reference_id ?? null,
+      paymentFailureReason: order.payment_failure_reason ?? null,
+      paymentAttemptsCount: Number(order.payment_attempts_count ?? 0),
+      orderStatus: `${order.order_status ?? "pending"}`,
+      adminNote: order.admin_note ?? null,
+      couponCode: order.coupon_code ?? null,
+      shippingAddress: (order.shipping_address as Record<string, unknown> | null) ?? null,
+      billingInfo: (order.billing_info as Record<string, unknown> | null) ?? null,
+      items: (items as OrderItemRecord[]).map((item) => ({
       id: item.id,
       productName: item.product_name,
       variantInfo: item.variant_info ?? null,
@@ -1483,6 +1508,13 @@ function mapBannerRecord(banner: BannerCampaignDoc): BannerCampaignRecord {
     ctaLabel: banner.cta_label ?? null,
     ctaHref: banner.cta_href ?? null,
     badgeText: banner.badge_text ?? null,
+    themeVariant: banner.theme_variant ?? null,
+    triggerType: banner.trigger_type ?? "delay",
+    triggerDelaySeconds: Number(banner.trigger_delay_seconds ?? 4),
+    triggerScrollPercent: Number(banner.trigger_scroll_percent ?? 40),
+    showOncePerSession: banner.show_once_per_session !== false,
+    targetPaths: Array.isArray(banner.target_paths) ? banner.target_paths : [],
+    audience: banner.audience ?? "all",
     startAt: banner.start_at ? toIsoString(banner.start_at) : null,
     endAt: banner.end_at ? toIsoString(banner.end_at) : null,
     isActive: banner.is_active !== false,
@@ -1514,6 +1546,13 @@ export async function upsertBannerCampaign(
     cta_label: payload.ctaLabel || null,
     cta_href: payload.ctaHref || null,
     badge_text: payload.badgeText || null,
+    theme_variant: payload.themeVariant || null,
+    trigger_type: payload.triggerType,
+    trigger_delay_seconds: payload.triggerDelaySeconds,
+    trigger_scroll_percent: payload.triggerScrollPercent,
+    show_once_per_session: payload.showOncePerSession,
+    target_paths: payload.targetPaths,
+    audience: payload.audience,
     start_at: payload.startAt ? new Date(payload.startAt) : null,
     end_at: payload.endAt ? new Date(payload.endAt) : null,
     is_active: payload.isActive,

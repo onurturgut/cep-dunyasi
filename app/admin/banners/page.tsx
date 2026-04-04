@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import AdminCampaignsScreen from "@/screens/admin/AdminCampaigns";
+import AdminBannersScreen from "@/screens/admin/AdminBanners";
 
 export default function AdminBannersPage() {
   return (
     <Suspense fallback={null}>
-      <AdminCampaignsScreen />
+      <AdminBannersScreen />
     </Suspense>
   );
 }

@@ -7,9 +7,13 @@ import { useNavigate } from '@/lib/router';
 import { Layout } from '@/components/layout/Layout';
 import { CategoriesSection } from '@/components/home/CategoriesSection';
 import { ExploreCategoriesSection } from '@/components/home/ExploreCategoriesSection';
+import { FeaturedReviewsSection } from '@/components/home/FeaturedReviewsSection';
 import { FeaturedProductsSection } from '@/components/home/FeaturedProductsSection';
 import { HeroSection } from '@/components/home/HeroSection';
+import { SocialProofStats } from '@/components/home/SocialProofStats';
+import { NewsletterInlineCard } from '@/components/newsletter/NewsletterInlineCard';
 import { defaultCategories, defaultSiteContent, type HomeCategory, type HomeProduct, type HomeSiteContent } from '@/components/home/home-data';
+import type { MarketingHomeModules } from '@/lib/marketing';
 
 const PromoVideoModal = dynamic(() => import('@/components/home/PromoVideoModal').then((module) => module.PromoVideoModal), {
   ssr: false,
@@ -35,12 +39,14 @@ type IndexProps = {
   initialCategories?: HomeCategory[];
   initialSiteContent?: HomeSiteContent;
   initialFeaturedProducts?: HomeProduct[];
+  initialMarketing?: MarketingHomeModules | null;
 };
 
 export default function Index({
   initialCategories = defaultCategories,
   initialSiteContent = defaultSiteContent,
   initialFeaturedProducts = [],
+  initialMarketing = null,
 }: IndexProps) {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
@@ -48,6 +54,7 @@ export default function Index({
   const categories = initialCategories.length > 0 ? initialCategories : defaultCategories;
   const siteContent = initialSiteContent;
   const featuredProducts = initialFeaturedProducts;
+  const marketing = initialMarketing;
 
   useEffect(() => {
     if (!loading && user && isAdmin) {
@@ -76,9 +83,12 @@ export default function Index({
       <PromoVideoModal />
       <HeroSection activeSlide={activeSlide} onSlideChange={setActiveSlide} content={siteContent} />
       <CampaignShowcaseSection />
+      {marketing?.socialProofItems?.length ? <SocialProofStats items={marketing.socialProofItems} /> : null}
       <CategoriesSection categories={categories} content={siteContent} />
       <ExploreCategoriesSection categories={categories} content={siteContent} />
       <FeaturedProductsSection featuredProducts={featuredProducts} content={siteContent} />
+      {marketing?.featuredReviews?.length ? <FeaturedReviewsSection reviews={marketing.featuredReviews} /> : null}
+      {marketing?.settings ? <NewsletterInlineCard settings={marketing.settings} /> : null}
       <RecentlyViewedSection />
     </Layout>
   );

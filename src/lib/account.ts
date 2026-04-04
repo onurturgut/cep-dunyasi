@@ -30,6 +30,9 @@ export type AccountProfile = {
   created_at: string;
   updated_at: string;
   addresses: AccountAddress[];
+  loyalty_points_balance?: number;
+  referral_code?: string | null;
+  referred_by?: string | null;
 };
 
 export type AccountStatCards = {
@@ -94,6 +97,7 @@ export type MyOrderSummary = {
   final_price: number;
   payment_status: string;
   payment_provider: string;
+  payment_method?: string;
   order_status: string;
   item_count: number;
   items_preview: OrderPreviewItem[];
@@ -129,6 +133,10 @@ export type MyOrderDetail = {
   final_price: number;
   payment_status: string;
   payment_provider: string;
+  payment_method?: string;
+  payment_failure_reason?: string | null;
+  payment_attempts_count?: number;
+  is_retryable_payment?: boolean;
   order_status: string;
   shipping_address: {
     fullName?: string;
@@ -137,6 +145,7 @@ export type MyOrderDetail = {
     address?: string;
     city?: string;
   } | null;
+  billing_info?: Record<string, unknown> | null;
   coupon_code: string | null;
   items: MyOrderItemDetail[];
   shipment: ShipmentSummary | null;
@@ -191,19 +200,25 @@ export const ACCOUNT_NAV_ITEMS = [
 
 export const ORDER_STATUS_LABELS: Record<string, string> = {
   pending: "Beklemede",
+  awaiting_transfer: "Havale Bekleniyor",
   confirmed: "Onaylandi",
   processing: "Hazirlaniyor",
   preparing: "Hazirlaniyor",
   shipped: "Kargoda",
   delivered: "Teslim Edildi",
   cancelled: "Iptal",
+  refunded: "Iade Edildi",
+  failed: "Basarisiz",
 };
 
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   pending: "Beklemede",
+  requires_action: "Islem Bekleniyor",
   success: "Odendi",
   paid: "Odendi",
   failed: "Basarisiz",
+  cancelled: "Iptal Edildi",
+  refunded: "Iade Edildi",
 };
 
 export const RETURN_STATUS_LABELS: Record<ReturnRequestStatus, string> = {

@@ -40,6 +40,7 @@ export const ROLE_PERMISSION_PRESETS: Record<AdminRole, AdminPermission[]> = {
 
 export const ORDER_STATUS_OPTIONS = [
   "pending",
+  "awaiting_transfer",
   "confirmed",
   "preparing",
   "shipped",
@@ -53,6 +54,7 @@ export type AdminOrderStatus = (typeof ORDER_STATUS_OPTIONS)[number];
 
 export const ORDER_STATUS_LABELS: Record<AdminOrderStatus, string> = {
   pending: "Beklemede",
+  awaiting_transfer: "Havale Bekleniyor",
   confirmed: "Onaylandi",
   preparing: "Hazirlaniyor",
   shipped: "Kargoda",
@@ -64,8 +66,10 @@ export const ORDER_STATUS_LABELS: Record<AdminOrderStatus, string> = {
 
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   pending: "Beklemede",
+  requires_action: "İşlem Bekleniyor",
   paid: "Odendi",
   failed: "Basarisiz",
+  cancelled: "Iptal Edildi",
   refunded: "Iade Edildi",
 };
 
@@ -250,6 +254,7 @@ export type AdminOrderListItem = {
   createdAt: string;
   finalPrice: number;
   paymentStatus: string;
+  paymentMethod?: string;
   orderStatus: string;
   itemCount: number;
   shipmentTrackingNumber: string | null;
@@ -288,10 +293,15 @@ export type AdminOrderDetail = {
   finalPrice: number;
   paymentProvider: string;
   paymentStatus: string;
+  paymentMethod?: string;
+  paymentReferenceId?: string | null;
+  paymentFailureReason?: string | null;
+  paymentAttemptsCount?: number;
   orderStatus: string;
   adminNote: string | null;
   couponCode: string | null;
   shippingAddress: Record<string, unknown> | null;
+  billingInfo?: Record<string, unknown> | null;
   items: AdminOrderItem[];
   shipment: ShipmentRecordSummary | null;
   statusHistory: OrderStatusHistoryEntry[];
@@ -355,6 +365,13 @@ export type BannerCampaignRecord = {
   ctaLabel: string | null;
   ctaHref: string | null;
   badgeText: string | null;
+  themeVariant?: string | null;
+  triggerType?: "delay" | "scroll" | "exit_intent";
+  triggerDelaySeconds?: number;
+  triggerScrollPercent?: number;
+  showOncePerSession?: boolean;
+  targetPaths?: string[];
+  audience?: "all" | "guest" | "authenticated";
   startAt: string | null;
   endAt: string | null;
   isActive: boolean;

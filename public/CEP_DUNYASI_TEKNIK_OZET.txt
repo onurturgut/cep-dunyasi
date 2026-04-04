@@ -1,0 +1,558 @@
+CEP DUNYASI - TEKNIK OZET VE YAKLASIK PROJE DEGERLENDIRMESI
+Tarih: 04.04.2026
+
+1. PROJE OZETI
+
+Cep Dunyasi, Next.js App Router tabanli, TypeScript ile yazilmis, MongoDB/Mongoose kullanan,
+ozel admin panelli bir e-ticaret uygulamasidir.
+
+Proje; sadece urun listeleyen basit bir vitrin degil, ayni zamanda:
+- tam urun katalogu
+- sepet ve checkout
+- Iyzico odeme akisi
+- kullanici hesabi
+- favoriler
+- teknik servis modulu
+- yorum ve puan sistemi
+- marketing / kampanya modulleri
+- genis admin operasyon paneli
+iceren, orta-ileri kapsamda bir ozel yazilimdir.
+
+
+2. TEKNOLOJI YIGINI
+
+Ana teknoloji:
+- Next.js 16 (App Router)
+- React 18
+- TypeScript
+- Tailwind CSS
+- MongoDB + Mongoose
+
+UI ve state:
+- Radix UI
+- shadcn/ui yapisi
+- TanStack React Query
+- Zustand
+- React Hook Form
+- Zod
+- Framer Motion
+- Embla Carousel
+- Recharts
+- Sonner
+
+Odeme ve entegrasyonlar:
+- Iyzico / iyzipay
+- Cloudflare R2
+- AWS S3 SDK (R2 ile uyumlu kullanim)
+
+Kalite ve gelistirme:
+- ESLint
+- Vitest
+
+
+3. MIMARI YAPI
+
+Klasor yapisi ana hatlariyla:
+- app/
+  Next.js sayfa route'lari ve API route handler'lari
+- src/screens/
+  sayfa seviyesinde UI ekranlari
+- src/components/
+  ortak bilesenler
+- src/hooks/
+  React Query ve client hook'lari
+- src/lib/
+  tipler, client yardimcilari, formatter ve uygulama yardimcilari
+- src/server/
+  Mongo baglantisi, modeller, servisler, storage ve backend mantigi
+- src/test/
+  testler
+
+Server tarafinda service katmani bulunuyor:
+- account.ts
+- admin.ts
+- admin-products.ts
+- admin-categories.ts
+- campaigns.ts
+- catalog-products.ts
+- checkout.ts
+- corporate-pages.ts
+- home-page.ts
+- iyzico.ts
+- marketing.ts
+- order-notifications.ts
+- product-detail.ts
+- reviews.ts
+- site-config.ts
+- wishlist.ts
+
+Bu yapi, uygulamanin yalnizca frontend degil, servis katmaniyla ayrilmaya baslanmis
+ozel yazilim karakteri tasidigini gosterir.
+
+
+4. PUBLIC / KULLANICI TARAFI OZELLIKLER
+
+4.1 Ana sayfa
+- server-side home data hazirlama
+- hero ve kampanya alanlari
+- kategori vitrinleri
+- featured product alanlari
+- campaign/promo modulleri
+- sosyal kanit ve featured reviews yapisi
+
+Ana dosyalar:
+- app/page.tsx
+- src/screens/Index.tsx
+- src/server/services/home-page.ts
+
+4.2 Urun katalogu
+- kategori filtreleme
+- marka / stok / fiyat benzeri katalog filtreleri
+- sayfalama / katalog endpointi
+- urun karti bazli performans optimizasyonlari
+
+Ana dosyalar:
+- app/products/page.tsx
+- app/api/products/catalog/route.ts
+- src/screens/Products.tsx
+- src/server/services/catalog-products.ts
+
+4.3 Urun detay
+- slug bazli urun sayfasi
+- galeri
+- varyant secimi
+- yorumlar
+- sosyal kanit / ilgi sinyalleri
+
+Ana dosyalar:
+- app/product/[slug]/page.tsx
+- src/screens/ProductDetail.tsx
+- src/server/services/product-detail.ts
+
+4.4 Sepet ve checkout
+- client-side cart state
+- shipping fee config
+- kupon onizleme
+- checkout baslatma
+- odeme sonucu ekrani
+
+Ana dosyalar:
+- app/cart/page.tsx
+- app/checkout/page.tsx
+- app/checkout/result/page.tsx
+- src/screens/Cart.tsx
+- src/screens/Checkout.tsx
+- src/screens/CheckoutResult.tsx
+
+4.5 Kimlik dogrulama ve kullanici hesabi
+- signup / signin / signout
+- session endpoint
+- profil
+- adresler
+- siparisler
+- siparis detayi
+- favoriler
+- guvenlik / sifre degistirme
+- iade talebi
+- teknik servis gecmisi
+- loyalty / referral gorunumleri
+
+Ana route'lar:
+- app/auth/page.tsx
+- app/account/*
+- app/api/auth/*
+- app/api/account/*
+
+4.6 Favoriler ve wishlist
+- public favorites sayfasi
+- account favorites sayfasi
+- wishlist API
+
+4.7 Teknik servis modulu
+- teknik servis talebi
+- gorsel yukleme
+- kullanici gecmisi
+- admin takibi
+
+Ana dosyalar:
+- app/technical-service/page.tsx
+- app/api/technical-service/requests/route.ts
+- app/api/account/technical-service/route.ts
+
+4.8 Kurumsal ve yasal sayfalar
+- hakkimizda
+- iletisim
+- SSS
+- gizlilik politikasi
+- KVKK
+- iade / degisim
+- mesafeli satis sozlesmesi
+- teslimat kosullari
+
+
+5. ODEME VE SIPARIS ALTYAPISI
+
+Projede Iyzico odeme akisi bulunuyor.
+
+Gorunen odeme akislari:
+- checkout form olusturma
+- Iyzico callback route
+- payment status endpointi
+- retry payment endpointi
+- installment preview endpointi
+- payment methods endpointi
+
+Ana API route'lar:
+- app/api/payments/iyzico/checkout-form/route.ts
+- app/api/payments/iyzico/callback/route.ts
+- app/api/orders/[orderId]/payment-status/route.ts
+- app/api/checkout/retry-payment/route.ts
+- app/api/checkout/installments-preview/route.ts
+- app/api/checkout/payment-methods/route.ts
+
+Siparis ve odeme tarafinda su yetenekler mevcut veya future-ready yapida:
+- payment status alanlari
+- payment method alanlari
+- payment reference tutma
+- payment attempts / retry mantigi
+- billing info snapshot
+- order notifications mantigi
+
+
+6. ADMIN PANEL MODULLERI
+
+Admin panel kapsam olarak kuvvetli.
+
+Mevcut admin ekranlari:
+- Genel bakis / dashboard
+- Banner ve kampanyalar
+- Campaign management
+- Kategoriler
+- Kuponlar
+- Import / export
+- Envanter / dusuk stok
+- Audit loglar
+- Marketing ayarlari
+- Mission / site vitrini
+- Siparisler
+- Urunler
+- Raporlar
+- Yorumlar
+- Roller ve yetkiler
+- Site content
+- Teknik servis yonetimi
+- Kullanicilar
+
+Route'lar:
+- app/admin/*
+- app/api/admin/*
+
+Admin tarafi sadece CRUD degil, operasyonel ozellikler de iceriyor:
+- dashboard metrikleri
+- gelir ve siparis trendleri
+- shipment / kargo guncelleme
+- bulk product actions
+- import/export
+- audit logging
+- rol / yetki yontemi
+- marketing / social proof ayarlari
+
+
+7. MARKETING VE DONUSUM MODULLERI
+
+Projede vitrinsel ve donusum odakli marketing altyapisi bulunuyor:
+- kampanya route'lari
+- admin marketing settings
+- newsletter subscribe
+- social proof endpointi
+- featured reviews endpointi
+- event tracking endpointi
+- referral register / resolve route'lari
+- loyalty / referral account gorunumu
+
+Ana route'lar:
+- app/api/campaigns/route.ts
+- app/api/newsletter/subscribe/route.ts
+- app/api/social-proof/route.ts
+- app/api/reviews/featured/route.ts
+- app/api/events/track/route.ts
+- app/api/referral/register/route.ts
+- app/api/referral/resolve/route.ts
+- app/api/admin/marketing/settings/route.ts
+- app/api/admin/newsletter/route.ts
+- app/api/admin/social-proof/route.ts
+
+Bu, projeyi sadece "urun satilan site" olmaktan cikarip, marketing katmani da olan bir
+e-ticaret uygulamasina yaklastiriyor.
+
+
+8. MEDYA VE DOSYA YONETIMI
+
+Proje Cloudflare R2 kullaniyor.
+
+Medya akisinda:
+- upload route
+- R2 storage mantigi
+- public media route
+- optimize image helper
+bulunuyor.
+
+Ana alanlar:
+- app/api/upload/route.ts
+- app/media/[...objectKey]/route.ts
+- src/lib/media.ts
+
+Yuklenen varlik tipleri:
+- urun gorselleri
+- teknik servis gorselleri
+- banner / site content gorselleri
+- mission medya
+
+
+9. VERI MODELI / DOMAIN KAPSAMI
+
+Model katmani tek dosyada toplanmis olsa da kapsam genis.
+
+Gorunen ana koleksiyon/alan aileleri:
+- users
+- products
+- product_variants
+- categories
+- orders
+- order_items
+- shipments
+- coupons
+- site_contents / pages
+- reviews
+- banners / campaigns
+- newsletter_subscribers
+- social_proof_items
+- loyalty_transactions
+- referrals
+- marketing_events
+- marketing_settings
+- payment_attempts
+- notifications
+- technical_service_requests
+- audit_logs
+
+Bu kapsam, projenin "tema kurulmus katalog sitesi" seviyesinin uzerinde oldugunu gosterir.
+
+
+10. VERI ERISIM YONTEMI
+
+Projede iki farkli veri erisim tarzi bir arada bulunuyor:
+
+A) Ozel backend service + route mantigi
+- home page
+- product detail
+- catalog
+- checkout
+- admin listeleri
+- account endpointleri
+- marketing endpointleri
+
+B) Halen kismen bulunan generic query mantigi
+- app/api/db/query/route.ts
+- src/integrations/mongo/client.ts
+
+Not:
+Bu generic query bagimliligi azaltildikca proje mimarisi daha temiz ve daha guvenli hale gelir.
+
+
+11. PERFORMANS VE OPTIMIZASYON DURUMU
+
+Projede son donemde su performans odakli yapilar bulunuyor:
+- ana sayfa server-side preload
+- katalog endpoint ayrimi
+- urun detay server-side veri hazirlama
+- image optimization helper
+- next/image kullaniminin yayginlastirilmasi
+- ISR / cache stratejileri
+- request timing / observability loglari
+- lazy load edilen marketing ve gorunum alti moduller
+- React Query varsayilan cache davranislari
+
+Bu, performans dusunulmeden yazilmis bir proje olmadigini gosteriyor.
+
+
+12. TEST VE KALITE DURUMU
+
+Projede:
+- ESLint
+- Vitest
+kullaniliyor.
+
+Bu iyi bir taban.
+
+Ancak kurumsal olgunluk acisindan hala daha fazla test yazilmasi gereken alanlar var:
+- checkout callback
+- katalog filtreleri
+- admin kritik CRUD akislari
+- auth/session
+- payment retry / notification yan etkileri
+
+
+13. PROJENIN GUCLU YANLARI
+
+- Ozel yazilim karakteri guclu
+- Hazir tema duzeyinde degil
+- Admin panel kapsami genis
+- Odeme, siparis, teknik servis ve marketing ayni sistemde toplanmis
+- Cloudflare R2 ve Iyzico entegrasyonlari var
+- Modern stack kullaniliyor
+- Performans ve donusum odakli iyilestirmeler dusunulmus
+
+
+14. PROJENIN EKSIK / GELISTIRILEBILECEK YANLARI
+
+- Generic /api/db/query bagimliligi tamamen bitmis degil
+- Model katmani tek dosyada toplu duruyor, ileride parcali yapilabilir
+- Test coverage proje kapsamina gore daha da artmali
+- Gercek production observability (error tracking / alerting) daha da guclendirilebilir
+- Promosyon kural motoru (or. secili urunlerde % indirim, 3 al 2 ode) ayri bir domain olarak kurulabilir
+- Canli operasyon tarafinda yedekleme / rate limiting / queue / cron stratejileri ayrica sertlestirilebilir
+
+
+15. BU SITEDE HANGI OZELLIKLER VAR? KISA LISTE
+
+- Ana sayfa vitrini
+- Kampanya bannerlari
+- Popup mantigi
+- Newsletter altyapisi
+- Social proof
+- Yorum / puan sistemi
+- Urun listeleme
+- Urun detay
+- Varyant secimi
+- Favoriler
+- Sepet
+- Checkout
+- Kupon
+- Taksit onizleme
+- Coklu odeme yontemi temeli
+- Iyzico entegrasyonu
+- Siparis sonucu sayfasi
+- Kullanici hesabi
+- Adres yonetimi
+- Siparis gecmisi
+- Iade akisi
+- Teknik servis akisi
+- Admin dashboard
+- Admin urun yonetimi
+- Admin siparis yonetimi
+- Admin kategori / kupon / banner / content yonetimi
+- Admin raporlar
+- Admin roller / yetkiler
+- Admin loglar
+- Marketing ve newsletter yonetimi
+- Referral ve loyalty temeli
+- Cloudflare R2 medya yonetimi
+
+
+16. BU PROJE NE KADAR EDER?
+
+ONEMLI NOT:
+Asagidaki rakam, "yazilim ve kod tabaninin gelistirme/devir degeri" icin yaklasik
+bir teknik piyasa yorumudur.
+
+Bu rakam:
+- aktif musteri sayisi
+- aylik ciro
+- organik trafik
+- reklam performansi
+- domain marka gucu
+- tedarik ve lojistik operasyonu
+olmadan, yalnizca yazilimin kendisine bakilarak soylenmistir.
+
+16.1 Sadece kod ve proje degeri olarak
+
+Bu proje bugunku haliyle, Turkiye pazarinda yaklasik:
+
+- freelancer / tek gelistirici devri: 180.000 TL - 300.000 TL
+- kucuk ajans / butik yazilim sirketi fiyatlamasi: 250.000 TL - 450.000 TL
+- tam kurumsal teklif / destek ve garantiyle: 400.000 TL - 700.000 TL
+
+bandinda konumlanabilir.
+
+Bu araligi yukari ceken sebepler:
+- Next.js + TypeScript + Mongo + admin panel + odeme + medya + marketing + teknik servis
+- sifirdan yapimi haftalar degil aylar surecek kapsam
+- hazir paket degil, ozel is mantigi barindirmasi
+- admin ve operasyon tarafinin guclu olmasi
+
+Bu araligi asagi ceken sebepler:
+- test coverage'in daha da gelistirilmeye acik olmasi
+- generic query teknik borcunun tamamen kapanmamis olmasi
+- promosyon motoru gibi ileri ticari modullerin henuz tamamlanmamasi
+- canli trafik/gelir verisinin bilinmemesi
+
+16.2 Eger "hazir satilan canli is" olarak degerlenecekse
+
+Bu durumda yalniz yazilim yetmez.
+Su veriler gerekir:
+- aylik organik trafik
+- aylik siparis sayisi
+- donusum orani
+- reklam ROAS
+- tekrar satin alma orani
+- musteri veri tabani
+- ortalama sepet tutari
+- marka arama hacmi
+
+Eger bunlar da gucluyse, isletme degeri yazilim degerinin ustune cikar.
+Ama sadece kod tabani icin teknik yorum yukaridaki araliktir.
+
+
+17. BU DEGERLENDIRME HANGI REFERANSLARLA SOYLENDI?
+
+Asagidaki kaynaklar piyasa bandini anlamak icin incelendi:
+
+1. Blue Ajans - 2026 e-ticaret fiyat araliklari
+https://www.blueajans.com.tr/e-ticaret-sitesi-kurma-rehberi-%282026%29
+
+Sayfada ortalama band olarak:
+- Standart e-ticaret: 40.000 TL - 90.000 TL
+- Profesyonel e-ticaret: 90.000 TL - 150.000 TL
+- Ozel yazilim e-ticaret: 150.000 TL - 300.000 TL
+ifadesi yer aliyor.
+
+2. DevPixel - 2026 web / e-ticaret / ozel yazilim fiyat tablosu
+https://devpixel.com.tr/blog/2026-web-sitesi-yaptirma-fiyatlari-kurumsal-e-ticaret-ve-ozel-tasarim-maliyetleri-rehberi
+
+Sayfada 2026 icin:
+- E-ticaret sitesi: 25.000 TL - 60.000 TL
+- Portal ve ozel yazilim: 30.000 TL - 80.000 TL
+gibi ortalama ajans bantlari veriliyor.
+
+3. ADN Bilisim - 2025 ozel e-ticaret yazilim bandi
+https://www.adnbilisim.com.tr/blog/web-tasarim/e-ticaret-sitesi-kurmak-kac-tl-2025-guncel-maliyet-rehberi/
+
+Sayfada:
+- ozel yazilim e-ticaret 50.000 TL - 250.000 TL
+bandi veriliyor.
+
+Bu proje, yalniz "standart e-ticaret" degil; admin, teknik servis, marketing, odeme,
+medya, raporlama, rol/yetki ve account modulleri sebebiyle bu araliklarin ust bolgesine
+yaklasan bir ozel yazilim niteligindedir.
+
+
+18. SONUC
+
+Bu proje:
+- teknik olarak ciddi kapsama sahip
+- ozel gelistirilmis
+- orta-ileri seviye bir e-ticaret altyapisi
+- admin ve operasyon tarafinda guclu
+- gelistirmeye acik ama zayif bir proje degil
+
+Kisa teknik sonuc:
+Bu site "tema kurulmus basit e-ticaret sitesi" degil, "ozel yazilim e-ticaret platformu"
+sinifina daha yakin.
+
+Kisa ticari sonuc:
+Sadece yazilim olarak bugunku haliyle makul teknik deger bandi:
+180.000 TL - 450.000 TL
+
+Daha kurumsal teslim, garanti, destek ve markalama paketiyle:
+400.000 TL+ seviyesinde fiyatlanabilir.

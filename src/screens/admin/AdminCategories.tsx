@@ -1,7 +1,6 @@
 "use client";
 
 import { type ChangeEvent, useEffect, useMemo, useState } from "react";
-import { db } from "@/integrations/mongo/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,6 +33,11 @@ type AdminCategoryRecord = {
   image_url?: string | null;
 };
 
+type ApiResponse<T> = {
+  data: T;
+  error: { message: string } | null;
+};
+
 const iconOptions = ["Smartphone", "Watch", "ShieldCheck", "BatteryCharging", "Battery", "Wrench"];
 
 const defaultForm: CategoryForm = {
@@ -49,6 +53,24 @@ function hasCustomSlug(name: string, slug: string) {
   return Boolean(slug) && slug !== sanitizeSlug(name);
 }
 
+async function requestJson<T>(input: string, init?: RequestInit) {
+  const response = await fetch(input, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
+
+  const payload = (await response.json().catch(() => null)) as ApiResponse<T> | null;
+
+  if (!response.ok || payload?.error) {
+    throw new Error(payload?.error?.message || "Istek tamamlanamadi");
+  }
+
+  return payload?.data as T;
+}
+
 export default function AdminCategories() {
   const [categories, setCategories] = useState<AdminCategoryRecord[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -59,12 +81,12 @@ export default function AdminCategories() {
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([]);
 
   const fetchCategories = async () => {
-    const { data, error } = await db.from("categories").select("*").order("created_at", { ascending: false });
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      const data = await requestJson<AdminCategoryRecord[]>("/api/admin/categories");
+      setCategories(data);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kategoriler yuklenemedi");
     }
-    setCategories((data || []) as AdminCategoryRecord[]);
   };
 
   useEffect(() => {
@@ -228,11 +250,10 @@ export default function AdminCategories() {
 
     if (editing) {
       const previousImageUrl = editing.image_url || "";
-      const { error } = await db.from("categories").update(payload).eq("id", editing.id);
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
+      await requestJson<AdminCategoryRecord[]>(`/api/admin/categories/${editing.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
       const removedUrls = diffRemovedMediaUrls([previousImageUrl], [payload.image_url]);
       if (removedUrls.length > 0) {
         try {
@@ -243,11 +264,10 @@ export default function AdminCategories() {
       }
       toast.success("Kategori guncellendi");
     } else {
-      const { error } = await db.from("categories").insert(payload);
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
+      await requestJson<AdminCategoryRecord[]>("/api/admin/categories", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
       toast.success(form.parent_category_id ? "Alt kategori eklendi" : "Kategori eklendi");
     }
 
@@ -281,11 +301,9 @@ export default function AdminCategories() {
       return;
     }
 
-    const { error } = await db.from("categories").delete().eq("id", id);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
+    await requestJson<{ deleted: boolean }>(`/api/admin/categories/${id}`, {
+      method: "DELETE",
+    });
     if (category?.image_url) {
       try {
         await deleteMediaUrls([category.image_url]);

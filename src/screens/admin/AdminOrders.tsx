@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ShipmentForm } from "@/components/admin/ShipmentForm";
 import { useAdminOrderDetail, useAdminOrders, useUpdateOrderStatus, useUpsertShipment } from "@/hooks/use-admin";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_OPTIONS, PAYMENT_STATUS_LABELS } from "@/lib/admin";
+import { PAYMENT_METHOD_LABELS } from "@/lib/checkout";
 import { formatDateTime } from "@/lib/date";
 import { formatCurrency } from "@/lib/utils";
 
@@ -33,7 +34,7 @@ export default function AdminOrders() {
   const currentOrderStatus = currentDetail?.orderStatus ?? "pending";
   const orderItems = ordersQuery.data?.items ?? [];
 
-  const paymentStatuses = useMemo(() => ["all", "pending", "paid", "failed", "refunded"], []);
+  const paymentStatuses = useMemo(() => ["all", "pending", "requires_action", "paid", "failed", "cancelled", "refunded"], []);
 
   useEffect(() => {
     if (currentDetail) {
@@ -226,6 +227,11 @@ export default function AdminOrders() {
                 <div className="rounded-xl border border-border/70 p-4">
                   <p className="text-sm text-muted-foreground">Odeme</p>
                   <p className="mt-2 font-semibold">{PAYMENT_STATUS_LABELS[currentDetail.paymentStatus] ?? currentDetail.paymentStatus}</p>
+                  {currentDetail.paymentMethod ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {PAYMENT_METHOD_LABELS[currentDetail.paymentMethod as keyof typeof PAYMENT_METHOD_LABELS] ?? currentDetail.paymentMethod}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -263,6 +269,40 @@ export default function AdminOrders() {
                   <Input value={adminNote} onChange={(event) => setAdminNote(event.target.value)} placeholder="Siparis notu ekleyin" />
                 </div>
               </div>
+
+              <Card>
+                <CardContent className="space-y-4 p-4">
+                  <p className="font-semibold">Odeme ve Fatura</p>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="rounded-xl border border-border/70 p-3 text-sm">
+                      <p className="text-muted-foreground">Odeme Yontemi</p>
+                      <p className="mt-1 font-medium">
+                        {currentDetail.paymentMethod
+                          ? PAYMENT_METHOD_LABELS[currentDetail.paymentMethod as keyof typeof PAYMENT_METHOD_LABELS] ?? currentDetail.paymentMethod
+                          : currentDetail.paymentProvider}
+                      </p>
+                      {currentDetail.paymentReferenceId ? (
+                        <p className="mt-2 text-xs text-muted-foreground">Referans: {currentDetail.paymentReferenceId}</p>
+                      ) : null}
+                      {currentDetail.paymentAttemptsCount ? (
+                        <p className="mt-1 text-xs text-muted-foreground">Deneme: {currentDetail.paymentAttemptsCount}</p>
+                      ) : null}
+                      {currentDetail.paymentFailureReason ? (
+                        <p className="mt-2 text-xs text-destructive">{currentDetail.paymentFailureReason}</p>
+                      ) : null}
+                    </div>
+                    {currentDetail.billingInfo ? (
+                      <div className="rounded-xl border border-border/70 p-3 text-sm">
+                        <p className="text-muted-foreground">Fatura Bilgisi</p>
+                        {"billingFullName" in currentDetail.billingInfo ? <p className="mt-1 font-medium">{`${currentDetail.billingInfo.billingFullName ?? ""}`}</p> : null}
+                        {"companyName" in currentDetail.billingInfo && currentDetail.billingInfo.companyName ? <p>{`${currentDetail.billingInfo.companyName}`}</p> : null}
+                        {"taxNumber" in currentDetail.billingInfo && currentDetail.billingInfo.taxNumber ? <p>Vergi No: {`${currentDetail.billingInfo.taxNumber}`}</p> : null}
+                        {"billingAddressLine" in currentDetail.billingInfo && currentDetail.billingInfo.billingAddressLine ? <p className="mt-1 text-muted-foreground">{`${currentDetail.billingInfo.billingAddressLine}`}</p> : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </CardContent>
+              </Card>
 
               <Card>
                 <CardContent className="space-y-4 p-4">

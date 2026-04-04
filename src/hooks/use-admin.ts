@@ -244,6 +244,13 @@ export function useCreateBanner() {
       ctaLabel?: string;
       ctaHref?: string;
       badgeText?: string;
+      themeVariant?: string;
+      triggerType?: "delay" | "scroll" | "exit_intent";
+      triggerDelaySeconds?: number;
+      triggerScrollPercent?: number;
+      showOncePerSession?: boolean;
+      targetPaths?: string[];
+      audience?: "all" | "guest" | "authenticated";
       startAt?: string;
       endAt?: string;
       isActive: boolean;

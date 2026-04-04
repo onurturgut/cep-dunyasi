@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/server/mongodb";
 import { User } from "@/server/models";
 import { setSessionCookie } from "@/server/auth-session";
+import { ensureUserMarketingProfile, registerReferralForNewUser } from "@/server/services/marketing";
 
 export const runtime = "nodejs";
 
@@ -31,7 +32,7 @@ function splitFullName(fullName: string) {
 
 export async function POST(request: Request) {
   try {
-    const { email, password, fullName } = await request.json();
+    const { email, password, fullName, referralCode } = await request.json();
 
     if (!email || !password) {
       return NextResponse.json({ error: { message: "Email ve sifre zorunludur" } }, { status: 400 });
@@ -62,6 +63,9 @@ export async function POST(request: Request) {
       created_at: new Date(),
       updated_at: new Date(),
     });
+
+    await ensureUserMarketingProfile(user.id as string);
+    await registerReferralForNewUser(typeof referralCode === "string" ? referralCode : null, user.id as string);
 
     const response = NextResponse.json({ user: sanitizeUser(user) });
     setSessionCookie(response, sanitizeUser(user));

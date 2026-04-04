@@ -162,8 +162,27 @@ const orderSchema = new Schema(
     coupon_id: { type: String, default: null, index: true },
     coupon_code: { type: String, default: null },
     payment_id: { type: String, default: null },
+    payment_method: { type: String, default: "credit_card_3ds", index: true },
     payment_provider: { type: String, default: "iyzico" },
     payment_status: { type: String, default: "pending" },
+    payment_reference_id: { type: String, default: null },
+    payment_conversation_id: { type: String, default: null, index: true },
+    payment_transaction_id: { type: String, default: null },
+    payment_attempts_count: { type: Number, default: 0 },
+    last_payment_attempt_at: { type: Date, default: null },
+    payment_failure_reason: { type: String, default: null },
+    is_retryable_payment: { type: Boolean, default: true },
+    billing_info: { type: Schema.Types.Mixed, default: null },
+    notification_summary: {
+      type: new Schema(
+        {
+          email: { type: String, default: null },
+          sms: { type: String, default: null },
+        },
+        { _id: false }
+      ),
+      default: () => ({ email: null, sms: null }),
+    },
     order_status: { type: String, default: "pending" },
     status_history: {
       type: [
@@ -190,6 +209,186 @@ const orderSchema = new Schema(
 orderSchema.index({ user_id: 1, created_at: -1 });
 orderSchema.index({ order_status: 1, created_at: -1 });
 orderSchema.index({ payment_status: 1, created_at: -1 });
+orderSchema.index({ payment_method: 1, created_at: -1 });
+orderSchema.index({ payment_transaction_id: 1 }, { sparse: true, unique: true });
+
+const paymentAttemptSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    order_id: { type: String, required: true, index: true },
+    provider: { type: String, required: true, default: "iyzico", index: true },
+    payment_method: { type: String, required: true, default: "credit_card_3ds", index: true },
+    attempt_number: { type: Number, required: true, min: 1 },
+    status: { type: String, default: "started", index: true },
+    started_at: { type: Date, default: Date.now, index: true },
+    completed_at: { type: Date, default: null },
+    failure_reason: { type: String, default: null },
+    provider_reference: { type: String, default: null },
+    conversation_id: { type: String, default: null, index: true },
+    transaction_id: { type: String, default: null },
+    checkout_token: { type: String, default: null, index: true },
+    payment_page_url: { type: String, default: null },
+    raw_response_summary: { type: Schema.Types.Mixed, default: null },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
+paymentAttemptSchema.index({ order_id: 1, attempt_number: 1 }, { unique: true });
+paymentAttemptSchema.index({ order_id: 1, status: 1, created_at: -1 });
+paymentAttemptSchema.index({ provider_reference: 1 }, { sparse: true });
+paymentAttemptSchema.index({ transaction_id: 1 }, { sparse: true, unique: true });
+
+const notificationSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    user_id: { type: String, default: null, index: true },
+    related_order_id: { type: String, default: null, index: true },
+    type: { type: String, required: true, index: true },
+    channel: { type: String, required: true, enum: ["email", "sms"], index: true },
+    recipient: { type: String, required: true },
+    subject: { type: String, default: null },
+    message: { type: String, required: true },
+    status: { type: String, default: "queued", index: true },
+    sent_at: { type: Date, default: null },
+    error_message: { type: String, default: null },
+    provider_response_summary: { type: Schema.Types.Mixed, default: null },
+    created_at: { type: Date, default: Date.now, index: true },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
+notificationSchema.index({ related_order_id: 1, created_at: -1 });
+notificationSchema.index({ user_id: 1, created_at: -1 });
+notificationSchema.index({ status: 1, created_at: -1 });
+
+const newsletterSubscriberSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    email: { type: String, required: true, unique: true, index: true },
+    first_name: { type: String, default: null },
+    source: { type: String, default: "footer", index: true },
+    campaign_source: { type: String, default: null, index: true },
+    is_verified: { type: Boolean, default: false, index: true },
+    consent_newsletter: { type: Boolean, default: true },
+    consent_kvkk: { type: Boolean, default: false },
+    created_at: { type: Date, default: Date.now, index: true },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
+newsletterSubscriberSchema.index({ source: 1, created_at: -1 });
+
+const socialProofItemSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    label: { type: String, required: true, trim: true },
+    value: { type: String, required: true, trim: true },
+    icon: { type: String, default: null },
+    description: { type: String, default: null },
+    source_type: { type: String, default: "manual", index: true },
+    is_active: { type: Boolean, default: true, index: true },
+    sort_order: { type: Number, default: 0, index: true },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
+socialProofItemSchema.index({ is_active: 1, sort_order: 1 });
+
+const marketingSettingSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    key: { type: String, required: true, unique: true, index: true },
+    newsletter_enabled: { type: Boolean, default: true },
+    newsletter_title: { type: String, default: "Kampanyalari ilk sen ogren" },
+    newsletter_description: {
+      type: String,
+      default: "Yeni urunler, premium koleksiyonlar ve sessizce gelen indirimler icin e-posta listemize katil.",
+    },
+    newsletter_success_message: {
+      type: String,
+      default: "Kaydin tamamlandi. Yeni kampanyalari sana e-posta ile haber verecegiz.",
+    },
+    newsletter_consent_label: { type: String, default: "Kampanya ve urun bilgilendirmelerini almak istiyorum." },
+    whatsapp_enabled: { type: Boolean, default: true },
+    whatsapp_phone: { type: String, default: "" },
+    whatsapp_message: { type: String, default: "Merhaba, Cep Dunyasi urunleri hakkinda bilgi almak istiyorum." },
+    whatsapp_help_text: { type: String, default: "Yardim ister misin?" },
+    whatsapp_show_on_mobile: { type: Boolean, default: true },
+    whatsapp_show_on_desktop: { type: Boolean, default: true },
+    live_support_enabled: { type: Boolean, default: false },
+    live_support_provider: { type: String, default: "none" },
+    live_support_script_url: { type: String, default: null },
+    live_support_widget_id: { type: String, default: null },
+    live_support_show_on_mobile: { type: Boolean, default: false },
+    live_support_show_on_desktop: { type: Boolean, default: true },
+    loyalty_enabled: { type: Boolean, default: true },
+    loyalty_points_per_currency: { type: Number, default: 1, min: 0 },
+    referral_enabled: { type: Boolean, default: true },
+    referral_reward_points: { type: Number, default: 250, min: 0 },
+    low_stock_threshold: { type: Number, default: 5, min: 0 },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
+const marketingEventSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    user_id: { type: String, default: null, index: true },
+    session_id: { type: String, default: null, index: true },
+    event_type: { type: String, required: true, index: true },
+    entity_type: { type: String, default: null, index: true },
+    entity_id: { type: String, default: null, index: true },
+    page_path: { type: String, default: null, index: true },
+    metadata: { type: Schema.Types.Mixed, default: null },
+    ip: { type: String, default: null },
+    created_at: { type: Date, default: Date.now, index: true },
+  },
+  { versionKey: false }
+);
+
+marketingEventSchema.index({ event_type: 1, created_at: -1 });
+marketingEventSchema.index({ entity_type: 1, entity_id: 1, created_at: -1 });
+
+const loyaltyTransactionSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    user_id: { type: String, required: true, index: true },
+    type: { type: String, required: true, index: true },
+    points: { type: Number, required: true },
+    order_id: { type: String, default: null, index: true },
+    description: { type: String, required: true },
+    created_at: { type: Date, default: Date.now, index: true },
+  },
+  { versionKey: false }
+);
+
+loyaltyTransactionSchema.index({ user_id: 1, created_at: -1 });
+
+const referralSchema = new Schema(
+  {
+    id: { type: String, default: () => randomUUID(), unique: true, index: true },
+    referrer_user_id: { type: String, required: true, index: true },
+    referred_user_id: { type: String, default: null },
+    referral_code: { type: String, required: true, index: true },
+    status: { type: String, default: "registered", index: true },
+    reward_type: { type: String, default: "loyalty_points" },
+    reward_value: { type: Number, default: 0 },
+    created_at: { type: Date, default: Date.now, index: true },
+    updated_at: { type: Date, default: Date.now },
+  },
+  { versionKey: false }
+);
+
+referralSchema.index({ referrer_user_id: 1, created_at: -1 });
+referralSchema.index({ referred_user_id: 1 }, { sparse: true, unique: true });
 
 const orderItemSchema = new Schema(
   {
@@ -457,6 +656,9 @@ const userSchema = new Schema(
     is_active: { type: Boolean, default: true, index: true },
     last_login_at: { type: Date, default: null },
     wishlist_product_ids: { type: [String], default: [] },
+    loyalty_points_balance: { type: Number, default: 0, index: true },
+    referral_code: { type: String, default: null, index: true, unique: true, sparse: true },
+    referred_by: { type: String, default: null, index: true },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
   },
@@ -478,6 +680,13 @@ const bannerCampaignSchema = new Schema(
     cta_href: { type: String, default: null, trim: true },
     badge_text: { type: String, default: null, trim: true },
     badge_color: { type: String, default: null, trim: true },
+    theme_variant: { type: String, default: null, trim: true },
+    trigger_type: { type: String, default: "delay", index: true },
+    trigger_delay_seconds: { type: Number, default: 4, min: 0 },
+    trigger_scroll_percent: { type: Number, default: 40, min: 0, max: 100 },
+    show_once_per_session: { type: Boolean, default: true },
+    target_paths: { type: [String], default: [] },
+    audience: { type: String, default: "all", index: true },
     start_at: { type: Date, default: null, index: true },
     end_at: { type: Date, default: null, index: true },
     is_active: { type: Boolean, default: true, index: true },
@@ -554,17 +763,79 @@ export const Category: any = ensureModelSchema("Category", categorySchema, ["par
 export const Product: any = ensureModelSchema("Product", productSchema, ["subcategory_id"]);
 export const ProductVariant: any = models.ProductVariant || model("ProductVariant", productVariantSchema);
 export const Coupon: any = models.Coupon || model("Coupon", couponSchema);
-export const Order: any = models.Order || model("Order", orderSchema);
+export const Order: any = ensureModelSchema("Order", orderSchema, [
+  "payment_method",
+  "payment_reference_id",
+  "payment_conversation_id",
+  "payment_transaction_id",
+  "payment_attempts_count",
+  "last_payment_attempt_at",
+  "payment_failure_reason",
+  "is_retryable_payment",
+  "billing_info",
+  "notification_summary",
+]);
 export const OrderItem: any = models.OrderItem || model("OrderItem", orderItemSchema);
+export const PaymentAttempt: any = ensureModelSchema("PaymentAttempt", paymentAttemptSchema, [
+  "order_id",
+  "payment_method",
+  "attempt_number",
+  "provider_reference",
+  "checkout_token",
+]);
+export const Notification: any = ensureModelSchema("Notification", notificationSchema, [
+  "related_order_id",
+  "channel",
+  "status",
+]);
+export const NewsletterSubscriber: any = ensureModelSchema("NewsletterSubscriber", newsletterSubscriberSchema, [
+  "campaign_source",
+  "consent_newsletter",
+  "consent_kvkk",
+]);
+export const SocialProofItem: any = ensureModelSchema("SocialProofItem", socialProofItemSchema, [
+  "source_type",
+  "sort_order",
+  "is_active",
+]);
+export const MarketingSetting: any = ensureModelSchema("MarketingSetting", marketingSettingSchema, [
+  "newsletter_enabled",
+  "whatsapp_phone",
+  "live_support_provider",
+  "referral_reward_points",
+]);
+export const MarketingEvent: any = ensureModelSchema("MarketingEvent", marketingEventSchema, [
+  "session_id",
+  "entity_type",
+  "page_path",
+]);
+export const LoyaltyTransaction: any = ensureModelSchema("LoyaltyTransaction", loyaltyTransactionSchema, [
+  "user_id",
+  "type",
+  "order_id",
+]);
+export const Referral: any = ensureModelSchema("Referral", referralSchema, [
+  "referrer_user_id",
+  "referred_user_id",
+  "reward_value",
+]);
 export const ProductReview: any = models.ProductReview || model("ProductReview", productReviewSchema);
 export const Shipment: any = models.Shipment || model("Shipment", shipmentSchema);
 export const MissionItem: any = models.MissionItem || model("MissionItem", missionItemSchema);
 export const SiteContent: any = models.SiteContent || model("SiteContent", siteContentSchema);
 export const TechnicalServiceRequest: any =
   models.TechnicalServiceRequest || model("TechnicalServiceRequest", technicalServiceRequestSchema);
-export const User: any = models.User || model("User", userSchema);
+export const User: any = ensureModelSchema("User", userSchema, ["loyalty_points_balance", "referral_code", "referred_by"]);
 export const ReturnRequest: any = models.ReturnRequest || model("ReturnRequest", returnRequestSchema);
-export const BannerCampaign: any = models.BannerCampaign || model("BannerCampaign", bannerCampaignSchema);
+export const BannerCampaign: any = ensureModelSchema("BannerCampaign", bannerCampaignSchema, [
+  "theme_variant",
+  "trigger_type",
+  "trigger_delay_seconds",
+  "trigger_scroll_percent",
+  "show_once_per_session",
+  "target_paths",
+  "audience",
+]);
 export const AuditLog: any = models.AuditLog || model("AuditLog", auditLogSchema);
 
 export type DbTableName =
@@ -573,6 +844,7 @@ export type DbTableName =
   | "product_variants"
   | "coupons"
   | "orders"
+  | "payment_attempts"
   | "order_items"
   | "shipments"
   | "mission_items"
@@ -582,7 +854,14 @@ export type DbTableName =
   | "users"
   | "product_reviews"
   | "banner_campaigns"
-  | "audit_logs";
+  | "audit_logs"
+  | "notifications"
+  | "newsletter_subscribers"
+  | "social_proof_items"
+  | "marketing_settings"
+  | "marketing_events"
+  | "loyalty_transactions"
+  | "referrals";
 
 export const tableModelMap: Record<DbTableName, any> = {
   categories: Category,
@@ -590,6 +869,7 @@ export const tableModelMap: Record<DbTableName, any> = {
   product_variants: ProductVariant,
   coupons: Coupon,
   orders: Order,
+  payment_attempts: PaymentAttempt,
   order_items: OrderItem,
   shipments: Shipment,
   mission_items: MissionItem,
@@ -600,4 +880,11 @@ export const tableModelMap: Record<DbTableName, any> = {
   product_reviews: ProductReview,
   banner_campaigns: BannerCampaign,
   audit_logs: AuditLog,
+  notifications: Notification,
+  newsletter_subscribers: NewsletterSubscriber,
+  social_proof_items: SocialProofItem,
+  marketing_settings: MarketingSetting,
+  marketing_events: MarketingEvent,
+  loyalty_transactions: LoyaltyTransaction,
+  referrals: Referral,
 };

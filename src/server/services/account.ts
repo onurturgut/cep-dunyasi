@@ -16,6 +16,7 @@ import {
   type ShipmentSummary,
   type TechnicalServiceHistoryItem,
 } from "@/lib/account";
+import { ensureUserMarketingProfile } from "@/server/services/marketing";
 import { listWishlist, toggleWishlist } from "@/server/services/wishlist";
 import { toPriceNumber } from "@/lib/utils";
 
@@ -87,6 +88,9 @@ type UserRecord = {
   communication_preferences?: { email?: boolean; sms?: boolean } | null;
   roles?: string[];
   wishlist_product_ids?: string[];
+  loyalty_points_balance?: number;
+  referral_code?: string | null;
+  referred_by?: string | null;
   created_at?: Date | string;
   updated_at?: Date | string;
   addresses?: Array<Record<string, unknown>>;
@@ -101,8 +105,13 @@ type OrderRecord = {
   final_price?: number;
   payment_status?: string;
   payment_provider?: string;
+  payment_method?: string;
+  payment_failure_reason?: string | null;
+  payment_attempts_count?: number;
+  is_retryable_payment?: boolean;
   order_status?: string;
   shipping_address?: Record<string, unknown> | null;
+  billing_info?: Record<string, unknown> | null;
   coupon_code?: string | null;
   created_at?: Date | string;
   updated_at?: Date | string;
@@ -271,6 +280,9 @@ function toProfile(user: UserRecord): AccountProfile {
       email: user.communication_preferences?.email !== false,
       sms: Boolean(user.communication_preferences?.sms),
     },
+    loyalty_points_balance: Number(user.loyalty_points_balance ?? 0),
+    referral_code: user.referral_code ?? null,
+    referred_by: user.referred_by ?? null,
     created_at: toIsoString(user.created_at),
     updated_at: toIsoString(user.updated_at),
     addresses,
@@ -327,6 +339,7 @@ export function sanitizeSessionPayload(
 
 export async function getAccountProfile(sessionUser: SessionUser | null) {
   const currentUser = requireSessionUser(sessionUser);
+  await ensureUserMarketingProfile(currentUser.id);
   const user = await findUserBySession(currentUser);
   const profile = toProfile(user);
 
@@ -524,13 +537,14 @@ export async function listMyOrders(sessionUser: SessionUser | null, page = 1, li
       created_at: toIsoString(order.created_at),
       total_price: toPriceNumber(order.total_price),
       discount: toPriceNumber(order.discount),
-      shipping_price: toPriceNumber(order.shipping_price),
-      final_price: toPriceNumber(order.final_price),
-      payment_status: `${order.payment_status ?? "pending"}`,
-      payment_provider: `${order.payment_provider ?? "iyzico"}`,
-      order_status: `${order.order_status ?? "pending"}`,
-      item_count: orderItems.reduce((sum, item) => sum + Number(item.quantity ?? 0), 0),
-      items_preview: orderItems.slice(0, 3).map((item) => ({
+        shipping_price: toPriceNumber(order.shipping_price),
+        final_price: toPriceNumber(order.final_price),
+        payment_status: `${order.payment_status ?? "pending"}`,
+        payment_provider: `${order.payment_provider ?? "iyzico"}`,
+        payment_method: `${order.payment_method ?? "credit_card_3ds"}`,
+        order_status: `${order.order_status ?? "pending"}`,
+        item_count: orderItems.reduce((sum, item) => sum + Number(item.quantity ?? 0), 0),
+        items_preview: orderItems.slice(0, 3).map((item) => ({
         id: item.id,
         product_name: item.product_name,
         variant_info: item.variant_info ?? null,
@@ -593,13 +607,18 @@ export async function getMyOrderDetail(orderId: string, sessionUser: SessionUser
     created_at: toIsoString(order.created_at),
     total_price: toPriceNumber(order.total_price),
     discount: toPriceNumber(order.discount),
-    shipping_price: toPriceNumber(order.shipping_price),
-    final_price: toPriceNumber(order.final_price),
-    payment_status: `${order.payment_status ?? "pending"}`,
-    payment_provider: `${order.payment_provider ?? "iyzico"}`,
-    order_status: `${order.order_status ?? "pending"}`,
-    shipping_address: (order.shipping_address as Record<string, string> | null) ?? null,
-    coupon_code: order.coupon_code ?? null,
+      shipping_price: toPriceNumber(order.shipping_price),
+      final_price: toPriceNumber(order.final_price),
+      payment_status: `${order.payment_status ?? "pending"}`,
+      payment_provider: `${order.payment_provider ?? "iyzico"}`,
+      payment_method: `${order.payment_method ?? "credit_card_3ds"}`,
+      payment_failure_reason: order.payment_failure_reason ?? null,
+      payment_attempts_count: Number(order.payment_attempts_count ?? 0),
+      is_retryable_payment: order.is_retryable_payment !== false,
+      order_status: `${order.order_status ?? "pending"}`,
+      shipping_address: (order.shipping_address as Record<string, string> | null) ?? null,
+      billing_info: (order.billing_info as Record<string, unknown> | null) ?? null,
+      coupon_code: order.coupon_code ?? null,
     items: (items as OrderItemRecord[]).map((item) => ({
       id: item.id,
       variant_id: item.variant_id,

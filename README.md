@@ -1,40 +1,335 @@
 # Cep Dunyasi
 
-Next.js 16 + MongoDB + Iyzico ile gelistirilmis, admin panelli bir e-ticaret uygulamasi.
+Next.js App Router, TypeScript, MongoDB/Mongoose, React Query, custom auth session, Iyzico ve Cloudflare R2 kullanan, admin panelli ozel e-ticaret uygulamasi.
 
-## Ozellikler
+Bu proje yalnizca urun vitrininden ibaret degildir. Kullanici tarafi, hesap alani, siparis ve odeme akislari, teknik servis, marketing modulleri ve operasyonel admin panelini ayni kod tabaninda toplar.
 
-- Urun listeleme ve urun detay sayfalari
-- Kategori bazli filtreleme
-- Sepet ve checkout akisi
-- Kupon uygulama
-- Iyzico ile odeme baslatma ve callback yonetimi
-- Kullanici kayit/giris cikis
-- Rol bazli admin paneli (urun, siparis, kupon)
-- MongoDB tabanli veri modeli
+## One Cikan Ozellikler
 
-## Teknoloji
-- Next.js (App Router)
-- React + TypeScript
-- Tailwind CSS + shadcn/ui + Radix UI
-- Mongoose (MongoDB)
-- Iyzipay Node SDK
-- Zustand (sepet state)
+### Magaza / public taraf
+- Ana sayfa vitrini ve kampanya alanlari
+- Urun katalogu, kategori filtreleri ve urun detay sayfalari
+- Varyant secimi, favoriler ve sepet
+- Checkout, kupon, taksit onizleme ve odeme sonucu sayfasi
+- Yorum ve puan sistemi
+- Teknik servis talep akisi
+- Kurumsal ve yasal sayfalar
+
+### Hesap alani
+- Kayit / giris / cikis
+- Profil, adresler ve sifre degistirme
+- Siparis gecmisi ve siparis detayi
+- Favoriler
+- Iade / talep alanlari
+- Teknik servis gecmisi
+- Loyalty / referral ozeti
+
+### Odeme ve siparis
+- Iyzico checkout form baslatma
+- Callback ile odeme sonucunu isleme
+- Retry payment endpointi
+- Payment status endpointi
+- Coklu payment method yapisi
+- Billing info snapshot ve order status history
+- Bildirim altyapisi icin email/SMS future-ready servis katmani
+
+### Marketing ve donusum
+- Hero / campaign / popup banner alanlari
+- Newsletter aboneligi
+- Social proof bloklari
+- Featured reviews
+- WhatsApp ve canli destek ayarlari
+- Referral ve loyalty altyapisi
+- Marketing event tracking
+
+### Admin panel
+- Dashboard ve raporlar
+- Urun, kategori, kupon ve banner yonetimi
+- Marketing ayarlari ve newsletter listesi
+- Siparis, shipment ve teknik servis operasyonlari
+- Review moderasyonu
+- Kullanici, rol ve yetki yonetimi
+- Audit loglari
+- Import / export
+
+## Teknoloji Yigini
+
+### Uygulama
+- Next.js 16
+- React 18
+- TypeScript
+
+### UI
+- Tailwind CSS
+- Radix UI
+- shadcn/ui yapisi
+- Framer Motion
+- Embla Carousel
+- Recharts
+- Sonner
+
+### Veri ve durum
+- MongoDB
+- Mongoose
+- TanStack React Query
+- Zustand
+- React Hook Form
+- Zod
+
+### Entegrasyonlar
+- Iyzico / iyzipay
+- Cloudflare R2
+- AWS S3 SDK
+
+### Kalite
+- ESLint
+- Vitest
 
 ## Proje Yapisi
 
-- `app/`: Next.js route ve API endpointleri
-- `src/screens/`: UI ekran bilesenleri
-- `src/components/`: ortak UI/layout bilesenleri
-- `src/server/`: Mongo baglanti, modeller, seed
-- `src/integrations/mongo/client.ts`: istemci tarafi DB/Auth adapter
-- `public/images/image.png`: header logosu
+```text
+app/
+  Next.js sayfa route'lari ve API route handler'lari
 
-## Gereksinimler
+src/screens/
+  Sayfa seviyesinde ekran bilesenleri
 
-- Node.js 20+
-- npm
-- Calisan bir MongoDB (lokalde servis ya da uzak URI)
+src/components/
+  Ortak UI, layout, home, reviews, marketing vb. bilesenler
+
+src/hooks/
+  React Query ve client-side hook'lar
+
+src/lib/
+  Tipler, formatter'lar, client helper'lari, marketing ve checkout yardimcilari
+
+src/server/
+  Mongo baglantisi, modeller, servisler, auth/session, storage ve backend mantigi
+
+src/test/
+  Vitest testleri
+```
+
+## Kritik Servis Katmani
+
+Server tarafinda ayri servisler bulunur:
+
+- `src/server/services/home-page.ts`
+- `src/server/services/catalog-products.ts`
+- `src/server/services/product-detail.ts`
+- `src/server/services/checkout.ts`
+- `src/server/services/iyzico.ts`
+- `src/server/services/account.ts`
+- `src/server/services/admin.ts`
+- `src/server/services/admin-products.ts`
+- `src/server/services/admin-categories.ts`
+- `src/server/services/reviews.ts`
+- `src/server/services/marketing.ts`
+- `src/server/services/order-notifications.ts`
+- `src/server/services/site-config.ts`
+- `src/server/services/wishlist.ts`
+
+Bu servisler, route handler ve ekran mantigini tek yerde toplamak yerine domain bazli ayirmaya baslanmis bir yapi saglar.
+
+## Public Sayfalar
+
+- `/`
+- `/products`
+- `/product/[slug]`
+- `/cart`
+- `/checkout`
+- `/checkout/result`
+- `/favorites`
+- `/auth`
+- `/technical-service`
+- `/hakkimizda`
+- `/iletisim`
+- `/sss`
+- `/gizlilik-politikasi`
+- `/kvkk`
+- `/iade-ve-degisim-politikasi`
+- `/mesafeli-satis-sozlesmesi`
+- `/teslimat-kosullari`
+
+## Hesap Sayfalari
+
+- `/account`
+- `/account/profile`
+- `/account/addresses`
+- `/account/orders`
+- `/account/orders/[orderId]`
+- `/account/favorites`
+- `/account/security`
+- `/account/returns`
+- `/account/technical-service`
+
+## Admin Sayfalari
+
+- `/admin`
+- `/admin/products`
+- `/admin/categories`
+- `/admin/coupons`
+- `/admin/banners`
+- `/admin/marketing`
+- `/admin/orders`
+- `/admin/reports`
+- `/admin/inventory`
+- `/admin/reviews`
+- `/admin/users`
+- `/admin/roles`
+- `/admin/logs`
+- `/admin/site-content`
+- `/admin/mission`
+- `/admin/technical-service`
+- `/admin/import-export`
+
+## Onemli API Route'lari
+
+### Auth
+- `POST /api/auth/signup`
+- `POST /api/auth/signin`
+- `POST /api/auth/signout`
+- `GET /api/auth/session`
+
+### Urun ve katalog
+- `POST /api/products/catalog`
+- `GET /api/campaigns`
+- `GET /api/pages/[slug]`
+
+### Checkout ve odeme
+- `POST /api/checkout`
+- `POST /api/checkout/coupon-preview`
+- `POST /api/checkout/installments-preview`
+- `GET /api/checkout/payment-methods`
+- `POST /api/checkout/retry-payment`
+- `POST /api/payments/iyzico/checkout-form`
+- `POST /api/payments/iyzico/callback`
+- `GET /api/orders/[orderId]/payment-status`
+- `GET /api/site-config/shipping`
+
+### Account
+- `GET/POST /api/account/addresses`
+- `GET /api/account/orders`
+- `GET /api/account/orders/[orderId]`
+- `GET/PATCH /api/account/profile`
+- `POST /api/account/security/change-password`
+- `GET /api/account/favorites`
+- `GET /api/account/marketing`
+
+### Reviews
+- `GET /api/reviews/list`
+- `POST /api/reviews/create`
+- `POST /api/reviews/helpful`
+- `GET /api/reviews/featured`
+
+### Marketing
+- `GET /api/social-proof`
+- `GET /api/marketing/settings`
+- `POST /api/newsletter/subscribe`
+- `POST /api/events/track`
+- `GET /api/referral/resolve`
+- `POST /api/referral/register`
+
+### Admin
+- `GET /api/admin/dashboard/summary`
+- `GET /api/admin/reports`
+- `GET /api/admin/orders/list`
+- `GET /api/admin/orders/[orderId]`
+- `POST /api/admin/orders/status`
+- `POST /api/admin/shipments`
+- `GET/POST /api/admin/products`
+- `POST /api/admin/products/bulk`
+- `POST /api/admin/products/import`
+- `GET /api/admin/products/export`
+- `GET/POST /api/admin/categories`
+- `PATCH/DELETE /api/admin/categories/[categoryId]`
+- `GET/POST/DELETE /api/admin/banners`
+- `GET/PUT /api/admin/marketing/settings`
+- `GET /api/admin/newsletter`
+- `GET/POST/DELETE /api/admin/social-proof`
+- `GET /api/admin/reviews/list`
+- `POST /api/admin/reviews/approve`
+- `POST /api/admin/reviews/reply`
+- `POST /api/admin/reviews/delete`
+- `GET/PATCH /api/admin/users`
+- `GET/PATCH /api/admin/roles`
+- `GET /api/admin/logs`
+
+## Veri Modeli Ozet
+
+Mongoose model katmani su ana alanlari kapsar:
+
+- users
+- products
+- product_variants
+- categories
+- orders
+- order_items
+- shipments
+- coupons
+- site_contents / pages
+- product_reviews
+- audit_logs
+- newsletter_subscribers
+- marketing_settings
+- marketing_events
+- loyalty_transactions
+- referrals
+- payment_attempts
+- notifications
+- technical_service_requests
+
+Model tanimlari su dosyada toplanir:
+- [src/server/models/index.ts](/c:/Users/onurt/OneDrive/Masaüstü/cep_dunyasi/src/server/models/index.ts)
+
+## Ortam Degiskenleri
+
+`.env.local` dosyasini repo kokunde kendin olusturman gerekir.
+
+### Zorunlu / ana degiskenler
+- `MONGODB_URI`
+- `AUTH_SESSION_SECRET`
+- `IYZICO_API_KEY`
+- `IYZICO_SECRET_KEY`
+- `NEXT_PUBLIC_SITE_URL`
+
+### Mongo baglanti ayarlari
+- `MONGODB_SERVER_SELECTION_TIMEOUT_MS`
+- `MONGODB_DNS_SERVERS`
+- `MONGODB_CONNECT_RETRIES`
+
+### Iyzico
+- `IYZICO_BASE_URL`
+
+### Admin girisi
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+
+### Cloudflare R2
+- `CLOUDFLARE_R2_ACCOUNT_ID`
+- `CLOUDFLARE_R2_ACCESS_KEY_ID`
+- `CLOUDFLARE_R2_SECRET_ACCESS_KEY`
+- `CLOUDFLARE_R2_BUCKET_NAME`
+- `CLOUDFLARE_R2_PUBLIC_BASE_URL`
+
+### Checkout / banka havalesi
+- `BANK_TRANSFER_IBAN`
+- `BANK_TRANSFER_ACCOUNT_HOLDER`
+- `BANK_TRANSFER_BANK_NAME`
+- `BANK_TRANSFER_BRANCH_NAME`
+
+### Checkout feature flags
+- `NEXT_PUBLIC_ENABLE_BANK_TRANSFER`
+- `NEXT_PUBLIC_ENABLE_CASH_ON_DELIVERY`
+- `NEXT_PUBLIC_ENABLE_PAY_AT_STORE`
+
+### Bildirimler
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL`
+- `SMS_WEBHOOK_URL`
+
+### Gozlemlenebilirlik
+- `ENABLE_SERVER_TIMING_LOGS`
 
 ## Kurulum
 
@@ -44,93 +339,19 @@ Next.js 16 + MongoDB + Iyzico ile gelistirilmis, admin panelli bir e-ticaret uyg
 npm install
 ```
 
-2. Ortam degiskenlerini olustur:
+2. `.env.local` dosyasini repo kokunde olustur.
 
-```bash
-cp .env.example .env.local
-```
-
-Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env.local
-```
-
-3. `.env.local` dosyasini duzenle.
-
-4. Gelistirme sunucusunu baslat:
+3. Gelistirme sunucusunu baslat:
 
 ```bash
 npm run dev
 ```
 
-Uygulama varsayilan olarak `http://localhost:3000` adresinde acilir.
+4. Uygulamayi ac:
 
-## Ortam Degiskenleri
-
-`.env.local` icin gerekli degiskenler:
-
-- `MONGODB_URI`: Mongo baglanti adresi
-- `MONGODB_SERVER_SELECTION_TIMEOUT_MS`: (Opsiyonel) Mongo baglanti bekleme suresi, milisaniye (varsayilan `10000`)
-- `MONGODB_DNS_SERVERS`: (Opsiyonel) `mongodb+srv` kullaniyorsan SRV sorgulari icin DNS sunuculari. Virgulle ayir, varsayilan `1.1.1.1,8.8.8.8`
-- `IYZICO_API_KEY`: Iyzico API key
-- `IYZICO_SECRET_KEY`: Iyzico secret key
-- `IYZICO_BASE_URL`: Genelde sandbox icin `https://sandbox-api.iyzipay.com`
-- `NEXT_PUBLIC_SITE_URL`: Ornek `http://localhost:3000`
-- `CLOUDFLARE_R2_ACCOUNT_ID`: Cloudflare account ID
-- `CLOUDFLARE_R2_ACCESS_KEY_ID`: R2 access key
-- `CLOUDFLARE_R2_SECRET_ACCESS_KEY`: R2 secret key
-- `CLOUDFLARE_R2_BUCKET_NAME`: Upload'larin yazilacagi R2 bucket adi
-- `CLOUDFLARE_R2_PUBLIC_BASE_URL`: Bucket'in public custom domain'i veya gelistirme icin `r2.dev` URL tabani
-
-## Dosya Yukleme ve Cloudflare R2
-
-Uygulamadaki aktif upload akislari Cloudflare R2'ye yazar:
-
-- teknik servis formu fotograf yuklemeleri
-- admin misyon medya ve poster yuklemeleri
-- admin urun fotograf yuklemeleri
-
-Kullanilan object key prefix'leri:
-
-- `uploads/technical-service/images`
-- `uploads/mission/images`
-- `uploads/mission/videos`
-- `uploads/products/images`
-
-R2 kurulumu:
-
-1. Bir R2 bucket olusturun.
-2. Bucket icin bir Access Key / Secret Key uretin.
-3. Bucket'i public erisim icin bir custom domain ile yayinlayin.
-4. `.env.local` icinde yukaridaki `CLOUDFLARE_R2_*` degiskenlerini doldurun.
-
-Not:
-
-- Uygulama public dosya URL'lerini `CLOUDFLARE_R2_PUBLIC_BASE_URL` uzerinden uretir.
-- Cloudflare dokumantasyonuna gore `r2.dev` URL'leri gelistirme icindir; production icin custom domain tercih edilmelidir.
-
-## Admin Paneli Girisi
-
-- Admin rotasi: `/admin`
-- Normal kayit olan kullanicilar varsayilan olarak `customer` olur.
-- Admin girisi `ADMIN_EMAIL` ve `ADMIN_PASSWORD` ortam degiskenleri ile yapilir.
-
-Admin giris kodu: `app/api/auth/signin/route.ts`
-
-## Seed (Ornek Veri)
-
-Uygulama, DB bos/eksikse otomatik seed atar:
-
-- Kategoriler: telefon, kilif, sarj-aleti, power-bank, teknik-servis
-- Ornek urunler: toplam 100 urun (telefon, 2. el, akilli saat, kilif, sarj, power bank, teknik servis dagilimli)
-- Ornek kuponlar:
-  - HOSGELDIN10 (%10, min sepet 2000)
-  - SEPET500 (500 TL, min sepet 10000)
-- Ornek satis verisi: 100 adet sahte siparis + siparis kalemi (dashboard analizleri icin)
-- Tetiklenme: ilk `POST /api/db/query` isteginde otomatik kontrol edilir ve eksikler eklenir.
-
-Seed kodu: `src/server/seed.ts`
+```text
+http://localhost:3000
+```
 
 ## Komutlar
 
@@ -139,41 +360,52 @@ Seed kodu: `src/server/seed.ts`
 - Production baslatma: `npm run start`
 - Lint: `npm run lint`
 - Test: `npm run test`
+- Watch mod test: `npm run test:watch`
 
-## API Endpointleri (Ozet)
+## Dosya Yukleme ve Cloudflare R2
 
-- `POST /api/auth/signup`
-- `POST /api/auth/signin`
-- `POST /api/auth/signout`
-- `POST /api/db/query`
-- `POST /api/rpc`
-- `POST /api/payments/iyzico/checkout-form`
-- `POST /api/payments/iyzico/callback`
+Aktif upload akislarinda R2 kullanilir:
+- urun gorselleri
+- teknik servis gorselleri
+- site content / mission medya
+- review ve diger belirli medya alanlari
 
-## Sik Karsilasilan Sorunlar
+Public medya akisinda:
+- `app/media/[...objectKey]/route.ts`
+- `src/server/storage/r2.ts`
+- `src/lib/media.ts`
 
-### 1) `POST /api/auth/signup 500`
+R2 public domain ve bucket ayarlari dogru degilse upload ve medya URL'leri calismaz.
 
-Muhtemel sebepler:
+## Seed ve Demo Veri
 
-- `.env.local` yok
-- `MONGODB_URI` bos/yanlis
-- MongoDB Atlas IP whitelist'te mevcut public IP yok
-- `next dev` yeniden baslatilmadi
+Uygulama bos veritabaniyla acildiginda ornek veri uretebilen seed mantigina sahiptir.
 
-Cozum:
+Icerik olarak tipik olarak:
+- kategoriler
+- ornek urunler
+- kuponlar
+- dashboard icin satis verisi
+uretimi bulunur.
 
-1. `.env.local` dosyasini kontrol et
-2. Mongo servisinin calistigini dogrula
-3. Dev serveri kapatip tekrar ac (`npm run dev`)
+Ana seed dosyasi:
+- `src/server/seed.ts`
 
-### 2) "Bu e-posta zaten kayitli"
+## Bilinen Teknik Notlar
 
-- Ayni e-posta ile tekrar kayit deneniyor.
-- Farkli e-posta ile kayit ol ya da giris yap.
+- Projede service-first yone gecis var ama `POST /api/db/query` gibi legacy generic veri erisim noktasi halen tamamen kapanmis degil.
+- Admin ve marketing tarafi son donemde genisletildi; eski dokumanlar bunlari eksik anlatabilir.
+- README bu dosya ile birlikte bugunku kod tabanina gore guncellenmistir.
 
-## Notlar
+## Gelistirme Oncelikleri
 
-- Frontend auth oturumu localStorage uzerinden tutulur.
-- Iyzico callback sonrasi siparisin `payment_status` ve `order_status` degerleri guncellenir.
-- Header logosu: `public/images/image.png`
+Orta vadede en mantikli teknik adimlar:
+- generic `/api/db/query` bagimliligini daha da azaltmak
+- promosyon / indirim kurallari icin ayri bir promotion engine kurmak
+- test coverage'i checkout, catalog ve admin operasyonlarinda genisletmek
+- production observability ve error tracking katmanini sertlestirmek
+
+## Lisans / Not
+
+Bu repo ozel gelistirme projesidir. Ticari kullanim, devir veya ajans teslimi yapilacaksa;
+env yonetimi, odeme anahtarlari, medya erisimleri ve operasyonel guvenlik ayrica gozden gecirilmelidir.

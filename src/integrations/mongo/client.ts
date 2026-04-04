@@ -263,7 +263,7 @@ const db = {
     }: {
       email: string;
       password: string;
-      options?: { data?: { full_name?: string } };
+      options?: { data?: { full_name?: string; referral_code?: string } };
     }) {
       try {
         const response = await fetch("/api/auth/signup", {
@@ -275,6 +275,7 @@ const db = {
             email,
             password,
             fullName: options?.data?.full_name ?? "",
+            referralCode: options?.data?.referral_code ?? null,
           }),
         });
 

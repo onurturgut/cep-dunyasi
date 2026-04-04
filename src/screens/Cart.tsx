@@ -9,10 +9,13 @@ import { useCartStore } from "@/lib/cart-store";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { db } from "@/integrations/mongo/client";
 import { calculateShippingPrice, DEFAULT_SHIPPING_FEE, FREE_SHIPPING_THRESHOLD, resolveShippingFee } from "@/lib/shipping";
 import { formatCurrency, toPriceNumber } from "@/lib/utils";
 import { useI18n } from "@/i18n/provider";
+
+type ShippingConfigResponse = {
+  shippingFee: number;
+};
 
 export default function Cart() {
   const { items, updateQuantity, removeItem, totalPrice } = useCartStore();
@@ -55,13 +58,20 @@ export default function Cart() {
     let cancelled = false;
 
     const fetchShippingFee = async () => {
-      const { data } = await db.from("site_contents").select("shipping_fee").eq("key", "home").single();
+      const response = await fetch("/api/site-config/shipping");
+      const payload = (await response.json().catch(() => null)) as
+        | { data?: ShippingConfigResponse; error?: { message?: string } | null }
+        | null;
+
+      if (!response.ok || payload?.error) {
+        return;
+      }
 
       if (cancelled) {
         return;
       }
 
-      setShippingFee(resolveShippingFee(data?.shipping_fee));
+      setShippingFee(resolveShippingFee(payload?.data?.shippingFee));
     };
 
     void fetchShippingFee();

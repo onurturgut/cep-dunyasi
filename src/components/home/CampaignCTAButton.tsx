@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTrackMarketingEvent } from "@/hooks/use-marketing";
 import { Link } from "@/lib/router";
 import { cn } from "@/lib/utils";
 
@@ -10,9 +11,12 @@ type CampaignCTAButtonProps = {
   label: string;
   variant?: "primary" | "secondary";
   className?: string;
+  campaignId?: string;
 };
 
-export function CampaignCTAButton({ to, label, variant = "primary", className }: CampaignCTAButtonProps) {
+export function CampaignCTAButton({ to, label, variant = "primary", className, campaignId }: CampaignCTAButtonProps) {
+  const { mutate: trackMarketingEvent } = useTrackMarketingEvent();
+
   return (
     <Button
       asChild
@@ -26,7 +30,21 @@ export function CampaignCTAButton({ to, label, variant = "primary", className }:
         className,
       )}
     >
-      <Link to={to}>
+      <Link
+        to={to}
+        onClick={() =>
+          void trackMarketingEvent({
+            eventType: "campaign_click",
+            entityType: "campaign",
+            entityId: campaignId ?? null,
+            pagePath: typeof window !== "undefined" ? window.location.pathname : "/",
+            metadata: {
+              destination: to,
+              label,
+            },
+          })
+        }
+      >
         {label}
         <ArrowRight className="ml-2 h-4 w-4" />
       </Link>

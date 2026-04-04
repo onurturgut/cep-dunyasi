@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import { ProductUrgencyInfo } from "@/components/products/ProductUrgencyInfo";
 import { useCartStore } from "@/lib/cart-store";
 import { useAuth } from "@/hooks/use-auth";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { useTrackMarketingEvent } from "@/hooks/use-marketing";
 import { useI18n } from "@/i18n/provider";
 import { isBestSeller, isLowStock, isNewProduct } from "@/lib/product-catalog";
 import type { ProductSpecs } from "@/lib/product-specs";
@@ -39,6 +41,7 @@ interface ProductCardProps {
   createdAt?: string | Date;
   salesCount?: number;
   ratingAverage?: number;
+  ratingCount?: number;
   category?: string;
   secondHand?: SecondHandDetails | null;
   specs?: ProductSpecs | null;
@@ -62,6 +65,7 @@ export function ProductCard({
   createdAt,
   salesCount,
   ratingAverage,
+  ratingCount,
   category,
   secondHand,
   specs,
@@ -73,6 +77,7 @@ export function ProductCard({
   const { user } = useAuth();
   const { isFavorite, toggleWishlist, togglingProductId } = useWishlist();
   const { locale } = useI18n();
+  const { mutate: trackMarketingEvent } = useTrackMarketingEvent();
   const addItem = useCartStore((state) => state.addItem);
   const normalizedPrice = toPriceNumber(price);
   const normalizedOriginalPrice = toPriceNumber(originalPrice);
@@ -236,6 +241,16 @@ export function ProductCard({
     });
 
     toast.success(copy.addedToCart, { description: name });
+    void trackMarketingEvent({
+      eventType: "add_to_cart",
+      entityType: "product",
+      entityId: id,
+      pagePath: typeof window !== "undefined" ? window.location.pathname : "/products",
+      metadata: {
+        variantId: variantId || null,
+        quantity: 1,
+      },
+    });
   };
 
   const handleToggleWishlist = async (event: React.MouseEvent) => {
@@ -250,6 +265,15 @@ export function ProductCard({
     try {
       const result = await toggleWishlist(id);
       toast.success(result.isFavorite ? copy.favoriteAdded : copy.favoriteRemoved, { description: name });
+      void trackMarketingEvent({
+        eventType: "add_to_favorites",
+        entityType: "product",
+        entityId: id,
+        pagePath: typeof window !== "undefined" ? window.location.pathname : "/products",
+        metadata: {
+          isFavorite: result.isFavorite,
+        },
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : copy.favoriteError);
     }
@@ -371,6 +395,10 @@ export function ProductCard({
             ) : description ? (
               <p className="mt-3 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">{description}</p>
             ) : null}
+
+            <div className="mt-3">
+              <ProductUrgencyInfo salesCount={salesCount} stock={stock} ratingCount={ratingCount} compact />
+            </div>
 
             <div className="mt-auto flex items-end justify-between gap-3 pt-5">
               <div className="min-w-0">

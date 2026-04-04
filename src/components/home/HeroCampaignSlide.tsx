@@ -78,8 +78,8 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-            <CampaignCTAButton to={slide.ctaLink} label={slide.ctaText} />
-            <CampaignCTAButton to={slide.ctaLink} label="Detaylari Gor" variant="secondary" />
+            <CampaignCTAButton to={slide.ctaLink} label={slide.ctaText} campaignId={slide.id} />
+            <CampaignCTAButton to={slide.ctaLink} label="Detaylari Gor" variant="secondary" campaignId={slide.id} />
           </div>
         </motion.div>
 

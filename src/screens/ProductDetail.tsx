@@ -20,6 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductGallery } from "@/components/product-detail/ProductGallery";
+import { ProductUrgencyInfo } from "@/components/products/ProductUrgencyInfo";
 import { VariantSelector } from "@/components/product-detail/VariantSelector";
 import { StockStatusBadge } from "@/components/product-detail/StockStatusBadge";
 import { ProductSpecsTable } from "@/components/product-detail/ProductSpecsTable";
@@ -29,12 +30,14 @@ import { StickyBuyBar } from "@/components/product-detail/StickyBuyBar";
 import { SecondHandInfo } from "@/components/product-detail/SecondHandInfo";
 import { WarrantyReturnInfo } from "@/components/product-detail/WarrantyReturnInfo";
 import { ReviewStars } from "@/components/reviews/ReviewStars";
+import { useTrackMarketingEvent } from "@/hooks/use-marketing";
 import { useI18n } from "@/i18n/provider";
 import { getLocalizedCategoryLabel } from "@/i18n/category-labels";
 import { db } from "@/integrations/mongo/client";
 import { useCartStore } from "@/lib/cart-store";
 import { addRecentlyViewedProduct } from "@/lib/recently-viewed";
 import { useStickyBuyBarVisibility } from "@/hooks/use-sticky-buy-bar-visibility";
+import { postMarketingEventOnce } from "@/lib/marketing-events";
 import {
   buildBreadcrumbStructuredData,
 } from "@/lib/product-detail";
@@ -119,7 +122,9 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   const [error, setError] = useState<string | null>(null);
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
   const addItem = useCartStore((state) => state.addItem);
+  const { mutate: trackMarketingEvent } = useTrackMarketingEvent();
   const purchasePanelRef = useRef<HTMLDivElement | null>(null);
+  const trackedProductViewIdsRef = useRef<Set<string>>(new Set());
   const stickyVisible = useStickyBuyBarVisibility(purchasePanelRef, Boolean(product));
   const { locale } = useI18n();
   const copy =
@@ -340,6 +345,29 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   }, [product, selectedVariant?.id, variants]);
 
   useEffect(() => {
+    if (!product?.id) {
+      return;
+    }
+
+    const dedupeKey = `product-view:${product.id}`;
+    if (trackedProductViewIdsRef.current.has(dedupeKey)) {
+      return;
+    }
+
+    trackedProductViewIdsRef.current.add(dedupeKey);
+
+    void postMarketingEventOnce({
+      eventType: "product_view",
+      entityType: "product",
+      entityId: product.id,
+      pagePath: typeof window !== "undefined" ? window.location.pathname : `/product/${slug}`,
+      metadata: {
+        category: product.categories?.slug || null,
+      },
+    }, { dedupeKey, windowMs: 30_000 });
+  }, [product?.id, product?.categories?.slug, slug]);
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
       setCurrentUrl(window.location.href);
     }
@@ -418,6 +446,16 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
     }
 
     toast.success(`${quantity} adet sepete eklendi`);
+    void trackMarketingEvent({
+      eventType: "add_to_cart",
+      entityType: "product",
+      entityId: product.id,
+      pagePath: typeof window !== "undefined" ? window.location.pathname : `/product/${slug}`,
+      metadata: {
+        quantity,
+        variantId: selectedVariant.id || null,
+      },
+    });
   };
 
   if (loading) {
@@ -607,6 +645,13 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                     <div className="mt-2 text-sm font-medium text-slate-900">14 gun kosulsuz</div>
                   </div>
                 </div>
+
+                <ProductUrgencyInfo
+                  salesCount={product.sales_count}
+                  stock={selectedStock}
+                  ratingCount={product.rating_count}
+                  compact={false}
+                />
 
                 <Separator className="bg-slate-200" />
 

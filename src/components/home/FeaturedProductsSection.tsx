@@ -63,6 +63,7 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
                       createdAt={product.created_at}
                       salesCount={product.sales_count}
                       ratingAverage={product.rating_average}
+                      ratingCount={product.rating_count}
                       specs={product.specs}
                       storage={variant?.storage}
                       ram={variant?.ram}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useNavigate } from "@/lib/router";
+import { useNavigate, useSearchParams } from "@/lib/router";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,10 @@ export default function Auth() {
   const [signupName, setSignupName] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { locale } = useI18n();
+  const referralCode = searchParams.get("ref");
 
   const copy =
     locale === "en"
@@ -37,10 +39,11 @@ export default function Auth() {
           signUp: "Sign Up",
           loginError: "Sign-in failed",
           loginSuccess: "Signed in successfully!",
-          signupError: "Sign-up failed",
-          signupSuccess: "Account created successfully!",
-          signupSuccessDescription: "Please verify your email address.",
-        }
+        signupError: "Sign-up failed",
+        signupSuccess: "Account created successfully!",
+        signupSuccessDescription: "Please verify your email address.",
+        referralHint: "Referral code detected. Your welcome benefits will be linked after sign up.",
+      }
       : {
           loginTab: "Giris Yap",
           signupTab: "Kayit Ol",
@@ -53,10 +56,11 @@ export default function Auth() {
           signUp: "Kayit Ol",
           loginError: "Giris basarisiz",
           loginSuccess: "Giris basarili!",
-          signupError: "Kayit basarisiz",
-          signupSuccess: "Kayit basarili!",
-          signupSuccessDescription: "E-posta adresinizi dogrulayin.",
-        };
+        signupError: "Kayit basarisiz",
+        signupSuccess: "Kayit basarili!",
+        signupSuccessDescription: "E-posta adresinizi dogrulayin.",
+        referralHint: "Referans kodu algilandi. Kayit sonrasi hos geldin avantajiniza baglanir.",
+      };
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -75,7 +79,7 @@ export default function Auth() {
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
-    const { error } = await signUp(signupEmail, signupPassword, signupName);
+    const { error } = await signUp(signupEmail, signupPassword, signupName, referralCode);
     setLoading(false);
 
     if (error) {
@@ -114,6 +118,11 @@ export default function Auth() {
               </TabsContent>
               <TabsContent value="signup">
                 <form onSubmit={handleSignup} className="space-y-4">
+                  {referralCode ? (
+                    <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+                      {copy.referralHint}
+                    </div>
+                  ) : null}
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">{copy.fullName}</Label>
                     <Input id="signup-name" required value={signupName} onChange={(event) => setSignupName(event.target.value)} />
