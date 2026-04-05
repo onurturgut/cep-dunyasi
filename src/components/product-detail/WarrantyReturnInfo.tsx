@@ -6,6 +6,7 @@ import { buildPolicyHighlights } from "@/lib/product-detail";
 type WarrantyReturnInfoProps = {
   productName: string;
   brand?: string | null;
+  embedded?: boolean;
 };
 
 export function PolicyHighlights({ brand }: { brand?: string | null }) {
@@ -30,15 +31,15 @@ export function PolicyHighlights({ brand }: { brand?: string | null }) {
   );
 }
 
-export function WarrantyReturnInfo({ productName, brand }: WarrantyReturnInfoProps) {
+export function WarrantyReturnInfo({ productName, brand, embedded = false }: WarrantyReturnInfoProps) {
   return (
     <section className="space-y-4" id="warranty">
-      <div className="space-y-2">
+      {!embedded ? <div className="space-y-2">
         <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Garanti ve İade</h2>
         <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
           {productName} için satın alma sonrası süreçler, açık ve güven veren bir özet ile sunulur.
         </p>
-      </div>
+      </div> : null}
 
       <PolicyHighlights brand={brand} />
 

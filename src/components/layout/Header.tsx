@@ -34,21 +34,21 @@ const megaMenuData = {
     href: "/products?category=telefon",
     columns: [
       {
-        title: "Apple Modelleri",
+        title: "Markalar",
         items: [
-          { label: "Apple", href: "/products?category=telefon" },
-          { label: "Samsung", href: "/products?category=telefon" },
-          { label: "Xiaomi", href: "/products?category=telefon" },
-          { label: "Huawei", href: "/products?category=telefon" },
+          { label: "Apple", description: "iPhone 16, 15, 14 ve Pro serileri", href: "/products?category=telefon" },
+          { label: "Samsung", description: "Galaxy S, Z Fold ve A serileri", href: "/products?category=telefon" },
+          { label: "Xiaomi", description: "Redmi Note ve Xiaomi amiral gemileri", href: "/products?category=telefon" },
+          { label: "Huawei", description: "Kamera odakli secili modeller", href: "/products?category=telefon" },
         ],
       },
       {
-        title: "Populer Modeller",
+        title: "Hizli Kesfet",
         items: [
-          { label: "iPhone 15", href: "/products?category=telefon" },
-          { label: "iPhone 14", href: "/products?category=telefon" },
-          { label: "Galaxy S24", href: "/products?category=telefon" },
-          { label: "Redmi Note 13", href: "/products?category=telefon" },
+          { label: "En Cok Satanlar", description: "En cok tercih edilen telefon secimleri", href: "/products?category=telefon" },
+          { label: "Yeni Gelenler", description: "Son eklenen modelleri hizlica inceleyin", href: "/products?category=telefon" },
+          { label: "Pro Modeller", description: "Kamera ve performans odakli ust segment", href: "/products?category=telefon" },
+          { label: "128 GB Secimleri", description: "Gunluk kullanim icin dengeli kapasite", href: "/products?category=telefon" },
         ],
       },
       {
@@ -67,21 +67,21 @@ const megaMenuData = {
     href: "/products?category=ikinci-el-telefon",
     columns: [
       {
-        title: "Markalar",
+        title: "Apple Serileri",
         items: [
-          { label: "Apple", href: "/products?category=ikinci-el-telefon" },
-          { label: "iPhone 15 Serisi", href: "/products?category=ikinci-el-telefon" },
-          { label: "iPhone 14 Serisi", href: "/products?category=ikinci-el-telefon" },
-          { label: "iPhone 13 Serisi", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 15 Serisi", description: "Daha yeni kasa ve guclu pil secenekleri", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 14 Serisi", description: "Dengeli fiyat ve performans secimleri", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 13 Serisi", description: "Fiyat avantajli populer iPhone ailesi", href: "/products?category=ikinci-el-telefon" },
+          { label: "iPhone 12 Serisi", description: "Butce dostu ikinci el giris secenekleri", href: "/products?category=ikinci-el-telefon" },
         ],
       },
       {
-        title: "Populer Modeller",
+        title: "Hizli Kesfet",
         items: [
-          { label: "iPhone 15", href: "/products?category=ikinci-el-telefon" },
-          { label: "iPhone 14", href: "/products?category=ikinci-el-telefon" },
-          { label: "iPhone 13", href: "/products?category=ikinci-el-telefon" },
-          { label: "iPhone 12", href: "/products?category=ikinci-el-telefon" },
+          { label: "Cok Iyi Kondisyon", description: "Kozmetik olarak daha temiz urunler", href: "/products?category=ikinci-el-telefon" },
+          { label: "Pil Sagligi Yuksek", description: "Pil performansi daha guclu secimler", href: "/products?category=ikinci-el-telefon" },
+          { label: "Garantili Secimler", description: "Guven veren ikinci el cihazlar", href: "/products?category=ikinci-el-telefon" },
+          { label: "Fiyat Avantajli", description: "Butce dostu iPhone firsatlari", href: "/products?category=ikinci-el-telefon" },
         ],
       },
       {
@@ -100,19 +100,19 @@ const megaMenuData = {
     href: "/products?category=akilli-saatler",
     columns: [
       {
-        title: "Apple Watch Modelleri",
+        title: "Markalar",
         items: [
-          { label: "Apple Watch Series 9", href: "/products?category=akilli-saatler" },
-          { label: "Apple Watch Ultra 2", href: "/products?category=akilli-saatler" },
-          { label: "Apple Watch SE", href: "/products?category=akilli-saatler" },
+          { label: "Apple Watch", description: "Series, SE ve Ultra ailesi", href: "/products?category=akilli-saatler" },
+          { label: "Samsung Watch", description: "Classic ve Pro secenekleri", href: "/products?category=akilli-saatler" },
+          { label: "Xiaomi Band", description: "Daha hafif ve gunluk kullanim odakli", href: "/products?category=akilli-saatler" },
         ],
       },
       {
-        title: "Samsung Watch Modelleri",
+        title: "Hizli Kesfet",
         items: [
-          { label: "Galaxy Watch6", href: "/products?category=akilli-saatler" },
-          { label: "Galaxy Watch6 Classic", href: "/products?category=akilli-saatler" },
-          { label: "Galaxy Watch5 Pro", href: "/products?category=akilli-saatler" },
+          { label: "Spor Takip", description: "Aktif yasam icin one cikan saatler", href: "/products?category=akilli-saatler" },
+          { label: "Premium Saatler", description: "Daha buyuk ekranli ve guclu modeller", href: "/products?category=akilli-saatler" },
+          { label: "Gunluk Kullanim", description: "Bildirim ve saglik takibi odakli", href: "/products?category=akilli-saatler" },
         ],
       },
       {
@@ -130,19 +130,21 @@ const megaMenuData = {
     href: "/products?category=kilif",
     columns: [
       {
-        title: "iPhone Modellerine Gore",
+        title: "Kılıf Tipleri",
         items: [
-          { label: "iPhone 15 Kiliflari", href: "/products?category=kilif" },
-          { label: "iPhone 14 Kiliflari", href: "/products?category=kilif" },
-          { label: "iPhone 13 Kiliflari", href: "/products?category=kilif" },
+          { label: "Seffaf Kiliflar", description: "Temiz gorunum ve ince koruma", href: "/products?category=kilif" },
+          { label: "Silikon Kiliflar", description: "Gunluk kullanim icin yumusak koruma", href: "/products?category=kilif" },
+          { label: "Magsafe Uyumlu", description: "Magsafe aksesuarlarla tam uyum", href: "/products?category=kilif" },
+          { label: "Guess Serisi", description: "Daha premium ve tasarim odakli secimler", href: "/products?category=kilif" },
         ],
       },
       {
-        title: "Samsung Modellerine Gore",
+        title: "Hizli Kesfet",
         items: [
-          { label: "Galaxy S24 Kiliflari", href: "/products?category=kilif" },
-          { label: "Galaxy S23 Kiliflari", href: "/products?category=kilif" },
-          { label: "Galaxy A55 Kiliflari", href: "/products?category=kilif" },
+          { label: "iPhone 15 Serisi", description: "En cok aranan kılıf uyumluluklari", href: "/products?category=kilif" },
+          { label: "iPhone 16 Serisi", description: "Yeni nesil cihazlara uygun secimler", href: "/products?category=kilif" },
+          { label: "Cok Satan Kiliflar", description: "En cok tercih edilen modeller", href: "/products?category=kilif" },
+          { label: "Yeni Eklenenler", description: "Son eklenen tasarimlari kesfet", href: "/products?category=kilif" },
         ],
       },
       {
@@ -162,19 +164,19 @@ const megaMenuData = {
       {
         title: "Markalar",
         items: [
-          { label: "Anker", href: "/products?category=power-bank" },
-          { label: "Baseus", href: "/products?category=power-bank" },
-          { label: "Xiaomi", href: "/products?category=power-bank" },
-          { label: "Samsung", href: "/products?category=power-bank" },
+          { label: "Anker", description: "Guvenilir premium guc cozumleri", href: "/products?category=power-bank" },
+          { label: "Baseus", description: "Tasarim ve hizli sarj odakli modeller", href: "/products?category=power-bank" },
+          { label: "Xiaomi", description: "Fiyat performans guc secenekleri", href: "/products?category=power-bank" },
+          { label: "Samsung", description: "Mobil cihazlarla dengeli uyum", href: "/products?category=power-bank" },
         ],
       },
       {
-        title: "Kapasite",
+        title: "Hizli Kesfet",
         items: [
-          { label: "10000 mAh", href: "/products?category=power-bank" },
-          { label: "20000 mAh", href: "/products?category=power-bank" },
-          { label: "30000 mAh", href: "/products?category=power-bank" },
-          { label: "50000 mAh", href: "/products?category=power-bank" },
+          { label: "10000 mAh", description: "Cebinde tasinabilir kompakt guc", href: "/products?category=power-bank" },
+          { label: "20000 mAh", description: "Gun boyu destek icin en dengeli secim", href: "/products?category=power-bank" },
+          { label: "PD Hizli Sarj", description: "Hizli dolum destekli modeller", href: "/products?category=power-bank" },
+          { label: "MagSafe Uyumlu", description: "Kablosuz ve hizli kullanim odakli", href: "/products?category=power-bank" },
         ],
       },
       {
@@ -195,19 +197,19 @@ const megaMenuData = {
       {
         title: "Markalar",
         items: [
-          { label: "Anker", href: "/products?category=sarj-aleti" },
-          { label: "Baseus", href: "/products?category=sarj-aleti" },
-          { label: "Samsung", href: "/products?category=sarj-aleti" },
-          { label: "Apple", href: "/products?category=sarj-aleti" },
+          { label: "Anker", description: "Guclu ve guvenilir sarj cozumleri", href: "/products?category=sarj-aleti" },
+          { label: "Baseus", description: "Hizli sarj ve modern tasarim odakli", href: "/products?category=sarj-aleti" },
+          { label: "Samsung", description: "Telefon ve tabletlerle uyumlu secimler", href: "/products?category=sarj-aleti" },
+          { label: "Apple", description: "iPhone icin guvenli adapter secenekleri", href: "/products?category=sarj-aleti" },
         ],
       },
       {
-        title: "Guc Secenekleri",
+        title: "Hizli Kesfet",
         items: [
-          { label: "20W", href: "/products?category=sarj-aleti" },
-          { label: "33W", href: "/products?category=sarj-aleti" },
-          { label: "45W", href: "/products?category=sarj-aleti" },
-          { label: "65W", href: "/products?category=sarj-aleti" },
+          { label: "20W Adapterler", description: "iPhone kullaniminda en yaygin tercih", href: "/products?category=sarj-aleti" },
+          { label: "45W ve Ustu", description: "Tablet ve hizli sarj ihtiyaclari icin", href: "/products?category=sarj-aleti" },
+          { label: "GaN Teknolojili", description: "Daha kompakt ve verimli adapterler", href: "/products?category=sarj-aleti" },
+          { label: "Coklu Port", description: "Birden fazla cihaz icin pratik kullanim", href: "/products?category=sarj-aleti" },
         ],
       },
       {
@@ -606,7 +608,7 @@ export function Header() {
                     </Link>
                   </div>
 
-                  <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
+                  <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_360px]">
                     {primaryMegaColumns.map((column) => (
                       <div key={column.title} className="self-start rounded-2xl border border-border/65 bg-background p-3 shadow-[0_8px_20px_rgba(15,23,42,0.03)] dark:shadow-none">
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{column.title}</p>
@@ -616,10 +618,24 @@ export function Header() {
                               <Link
                                 to={item.href}
                                 onClick={closeMegaMenu}
-                                className="group flex items-center justify-between rounded-lg px-2 py-1.5 text-sm font-medium text-foreground/90 transition-colors hover:bg-muted hover:text-foreground"
+                                className="group flex items-start justify-between gap-3 rounded-xl border border-transparent px-2.5 py-2.5 text-sm font-medium text-foreground/90 transition-all hover:border-border/70 hover:bg-muted/55 hover:text-foreground"
                               >
-                                <span>{item.label}</span>
-                                <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1" />
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="truncate">{item.label}</span>
+                                    {"badge" in item && item.badge ? (
+                                      <span className="shrink-0 rounded-full border border-primary/15 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                                        {item.badge}
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                  {"description" in item && item.description ? (
+                                    <p className="mt-1 line-clamp-2 text-xs font-normal leading-5 text-muted-foreground">
+                                      {item.description}
+                                    </p>
+                                  ) : null}
+                                </div>
+                                <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1" />
                               </Link>
                             </li>
                           ))}
@@ -636,24 +652,27 @@ export function Header() {
                         <p className="mt-2 text-sm leading-6 text-muted-foreground">
                           {activePromoContent?.description || "Bu kategoride en cok ilgi goren urunleri dogrudan urun detayina giderek inceleyin."}
                         </p>
-                        <div className="mt-3.5 space-y-2.5">
+                        <div className="mt-3.5">
                           {isActiveMegaMenuSuggestionsLoading ? (
-                            Array.from({ length: 3 }, (_, index) => (
-                              <div
+                            <div className="grid grid-cols-2 gap-2.5">
+                              {Array.from({ length: 4 }, (_, index) => (
+                                <div
                                 key={`mega-menu-skeleton-${index}`}
                                 className="flex items-center gap-3 rounded-2xl border border-border/70 bg-background/90 p-2.5"
                               >
                                 <div className="h-16 w-16 shrink-0 animate-pulse rounded-xl bg-muted/70" />
                                 <div className="min-w-0 flex-1 space-y-2">
-                                  <div className="h-3 w-20 animate-pulse rounded bg-muted/70" />
+                                  <div className="h-3 w-16 animate-pulse rounded bg-muted/70" />
                                   <div className="h-4 w-full animate-pulse rounded bg-muted/70" />
-                                  <div className="h-3 w-24 animate-pulse rounded bg-muted/70" />
+                                  <div className="h-3 w-20 animate-pulse rounded bg-muted/70" />
                                 </div>
                               </div>
-                            ))
+                              ))}
+                            </div>
                           ) : activeSuggestedProducts && activeSuggestedProducts.length > 0 ? (
-                            activeSuggestedProducts.slice(0, 3).map((product) => (
-                              <Link
+                            <div className="grid grid-cols-2 gap-2.5">
+                              {activeSuggestedProducts.slice(0, 4).map((product) => (
+                                <Link
                                 key={product.id}
                                 to={`/product/${product.slug}`}
                                 onClick={closeMegaMenu}
@@ -691,7 +710,8 @@ export function Header() {
                                   </div>
                                 </div>
                               </Link>
-                            ))
+                              ))}
+                            </div>
                           ) : (
                             <div className="grid grid-cols-2 gap-2">
                               {promoMegaColumn.items.map((item) => (

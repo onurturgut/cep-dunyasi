@@ -26,6 +26,7 @@ type ReviewsSectionProps = {
   url?: string | null;
   availability?: "https://schema.org/InStock" | "https://schema.org/OutOfStock" | "https://schema.org/PreOrder";
   currency?: string;
+  embedded?: boolean;
 };
 
 function buildReviewStructuredData(props: {
@@ -141,6 +142,7 @@ export function ReviewsSection({
   url,
   availability,
   currency = "TRY",
+  embedded = false,
 }: ReviewsSectionProps) {
   const { user } = useAuth();
   const { locale } = useI18n();
@@ -210,7 +212,7 @@ export function ReviewsSection({
   };
 
   return (
-    <section className="mt-10 border-t border-border/50 pt-8" id="reviews">
+    <section className={embedded ? "space-y-6" : "mt-10 border-t border-border/50 pt-8"} id="reviews">
       <Script id={`product-reviews-schema-${productId}`} type="application/ld+json" strategy="afterInteractive">
         {JSON.stringify(structuredData)}
       </Script>

@@ -15,6 +15,7 @@ import {
 
 type SecondHandInfoProps = {
   details?: SecondHandDetails | null;
+  embedded?: boolean;
 };
 
 function buildRows(details: SecondHandDetails) {
@@ -38,7 +39,7 @@ function buildRows(details: SecondHandDetails) {
   ];
 }
 
-export function SecondHandInfo({ details }: SecondHandInfoProps) {
+export function SecondHandInfo({ details, embedded = false }: SecondHandInfoProps) {
   const normalized = normalizeSecondHandDetails(details);
 
   if (!normalized) {
@@ -50,12 +51,12 @@ export function SecondHandInfo({ details }: SecondHandInfoProps) {
 
   return (
     <section className="space-y-4">
-      <div className="space-y-2">
+      {!embedded ? <div className="space-y-2">
         <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">2. El Cihaz Durumu</h2>
         <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
           Bu cihaz için kondisyon, pil sağlığı, donanım kontrolleri ve ekspertiz özeti aşağıda sunulur.
         </p>
-      </div>
+      </div> : null}
 
       <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-card via-card to-muted/15 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.42)]">
         <CardContent className="space-y-6 p-6">

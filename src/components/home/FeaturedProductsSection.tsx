@@ -62,6 +62,7 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
                       caseDetails={product.case_details}
                       specs={product.specs}
                       productVariants={normalizeProductVariants(product.product_variants || [])}
+                      colorName={variant?.color_name}
                       storage={variant?.storage}
                       ram={variant?.ram}
                       stock={variant?.stock || 0}

@@ -100,6 +100,51 @@ export function buildCatalogFacetSectionsData({
     });
   }
 
+  if (filterProfile.showCaseDetails) {
+    const selectedCaseTypes = filters.caseType ?? [];
+    const selectedCaseThemes = filters.caseTheme ?? [];
+    const selectedCaseFeatures = filters.caseFeature ?? [];
+
+    if (catalogOptions.caseTypes.length > 0 || selectedCaseTypes.length > 0) {
+      sections.push({
+        id: "caseType",
+        title: "Kılıf Tipi",
+        options: buildFacetOptions(
+          catalogOptions.caseTypes.map((option) => ({ value: option, label: option })),
+          (value) => ({ ...filters, caseType: [value] }),
+          selectedCaseTypes,
+        ),
+        selectedValues: selectedCaseTypes,
+      });
+    }
+
+    if (catalogOptions.caseThemes.length > 0 || selectedCaseThemes.length > 0) {
+      sections.push({
+        id: "caseTheme",
+        title: "Tema / Seri",
+        options: buildFacetOptions(
+          catalogOptions.caseThemes.map((option) => ({ value: option, label: option })),
+          (value) => ({ ...filters, caseTheme: [value] }),
+          selectedCaseThemes,
+        ),
+        selectedValues: selectedCaseThemes,
+      });
+    }
+
+    if (catalogOptions.caseFeatures.length > 0 || selectedCaseFeatures.length > 0) {
+      sections.push({
+        id: "caseFeature",
+        title: "Ek Özellikler",
+        options: buildFacetOptions(
+          catalogOptions.caseFeatures.map((option) => ({ value: option, label: option })),
+          (value) => ({ ...filters, caseFeature: [value] }),
+          selectedCaseFeatures,
+        ),
+        selectedValues: selectedCaseFeatures,
+      });
+    }
+  }
+
   if (isSecondHandIphoneCategory) {
     const conditionValues = filters.secondHandCondition ?? [];
     sections.push({

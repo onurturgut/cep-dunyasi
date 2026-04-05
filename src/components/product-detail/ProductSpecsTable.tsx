@@ -11,9 +11,10 @@ type ProductSpecsTableProps = {
   specs?: ProductSpecs | null;
   variant?: ProductVariantRecord | null;
   context?: ProductSpecsTableContext;
+  embedded?: boolean;
 };
 
-export function ProductSpecsTable({ specs, variant, context }: ProductSpecsTableProps) {
+export function ProductSpecsTable({ specs, variant, context, embedded = false }: ProductSpecsTableProps) {
   const sections = getProductSpecsSections(specs, variant, context);
 
   if (sections.length === 0) {
@@ -22,12 +23,12 @@ export function ProductSpecsTable({ specs, variant, context }: ProductSpecsTable
 
   return (
     <section className="space-y-4" id="specs">
-      <div className="space-y-2">
+      {!embedded ? <div className="space-y-2">
         <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Teknik Özellikler</h2>
         <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
           Seçili modele ve ürün kategorisine ait teknik bilgiler, sade ve okunabilir bir formatta sunulur.
         </p>
-      </div>
+      </div> : null}
 
       <div className="grid gap-4 xl:grid-cols-2">
         {sections.map((section) => (

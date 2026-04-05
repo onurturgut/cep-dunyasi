@@ -7,6 +7,7 @@ import { Minus, Plus, RefreshCcw, ShieldCheck, ShoppingCart, Truck } from "lucid
 import { useSearchParams, Link } from "@/lib/router";
 import { Layout } from "@/components/layout/Layout";
 import { Badge } from "@/components/ui/badge";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -165,6 +166,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   const [product, setProduct] = useState<ProductRecord | null>(initialResolvedState.product);
   const [variants, setVariants] = useState<ProductVariantRecord[]>(initialResolvedState.variants);
   const [selectedSelection, setSelectedSelection] = useState<VariantSelection>(initialResolvedState.selectedSelection);
+  const [detailSection, setDetailSection] = useState("overview");
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState<string | null>(null);
@@ -172,6 +174,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   const addItem = useCartStore((state) => state.addItem);
   const { mutate: trackMarketingEvent } = useTrackMarketingEvent();
   const purchasePanelRef = useRef<HTMLDivElement | null>(null);
+  const reviewsSectionRef = useRef<HTMLDivElement | null>(null);
   const selectedSelectionRef = useRef<VariantSelection>(initialResolvedState.selectedSelection);
   const currentSlugRef = useRef(slug);
   const trackedProductViewIdsRef = useRef<Set<string>>(new Set());
@@ -464,9 +467,34 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   const discountRate = buildDiscountRate(selectedComparePrice, selectedPrice);
   const selectedStock = selectedVariant?.stock ?? 0;
   const selectedVariantSummary = selectedVariant ? getVariantLabel(selectedVariant) : "";
+  const selectedCompatibility =
+    selectedVariant?.attributes.uyumluluk || selectedVariant?.attributes.compatibility || null;
+  const productHighlights = Array.from(
+    new Set(
+      [
+        product.case_details?.case_type || null,
+        product.case_details?.case_theme && product.case_details.case_theme !== "Duz" ? product.case_details.case_theme : null,
+        ...(product.case_details?.feature_tags || []).slice(0, 2),
+      ].filter(Boolean) as string[],
+    ),
+  ).slice(0, 4);
+  const caseInformationItems = [
+    { label: "Kılıf Tipi", value: product.case_details?.case_type || null },
+    {
+      label: "Tema / Seri",
+      value: product.case_details?.case_theme && product.case_details.case_theme !== "Duz" ? product.case_details.case_theme : null,
+    },
+    { label: "Uyumluluk", value: selectedCompatibility },
+    {
+      label: "Ek Özellikler",
+      value: product.case_details?.feature_tags?.length ? product.case_details.feature_tags.join(", ") : null,
+    },
+  ].filter((item): item is { label: string; value: string } => Boolean(item.value));
   const secondHandDetails = normalizeSecondHandDetails(product?.second_hand);
   const secondHandConditionLabel = getSecondHandConditionLabel(secondHandDetails?.condition);
   const secondHandBatteryLabel = getBatteryHealthBucketLabel(secondHandDetails?.battery_health);
+  const reviewCount = Number(product.rating_count ?? 0);
+  const reviewAverage = Number(product.rating_average ?? 0);
 
   const breadcrumbSchema = useMemo(() => {
     if (!product || !currentUrl) {
@@ -498,6 +526,21 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   const handleSelectionChange = (nextSelection: VariantSelection) => {
     setSelectedSelection(nextSelection);
     setQuantity(1);
+  };
+
+  const openReviewsSection = () => {
+    setDetailSection("reviews");
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.setTimeout(() => {
+      reviewsSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
   };
 
   const handleAddToCart = () => {
@@ -587,13 +630,6 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
         ? `Seçili modelde son ${selectedStock} adet kaldı.`
         : `${selectedStock} adet stokla siparişe hazır.`;
 
-  const supportMessage =
-    secondHandDetails
-      ? secondHandDetails.warranty_type === "none"
-        ? "Durum raporu paylasilir"
-        : "Cihaza ozel garanti bilgisi"
-      : "Apple standart destek";
-
   return (
     <Layout>
       <div className="container space-y-10 py-6 sm:py-8 lg:space-y-12">
@@ -646,29 +682,43 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
             <div className="space-y-5">
               {product.brand ? <p className="text-[12px] font-medium uppercase tracking-[0.34em] text-white/58">{product.brand}</p> : null}
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-foreground sm:text-[3.35rem] sm:leading-[1.02]">{product.name}</h1>
 
-                <div className="flex flex-wrap items-center gap-3 text-sm text-white/72">
-                  <div className="flex items-center gap-2">
-                    <ReviewStars rating={product.rating_average ?? 0} showValue />
-                    <a href="#reviews" className="transition-colors hover:text-white">
-                      {product.rating_count ?? 0} yorum
-                    </a>
+                {productHighlights.length > 0 ? (
+                  <div className="flex flex-wrap gap-2.5">
+                    {productHighlights.map((item) => (
+                      <Badge key={item} variant="outline" className="rounded-full border-border/70 bg-muted/15 px-3 py-1.5 text-muted-foreground">
+                        {item}
+                      </Badge>
+                    ))}
                   </div>
+                ) : null}
 
-                  {selectedVariant?.sku ? (
-                    <>
-                      <span className="hidden text-white/20 sm:inline">/</span>
-                      <span>SKU: {selectedVariant.sku}</span>
-                    </>
-                  ) : null}
+                <div className="flex flex-wrap items-center gap-3 text-sm text-white/72">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/15 px-3 py-2 text-left transition-colors hover:border-foreground/20 hover:bg-muted/25"
+                    onClick={openReviewsSection}
+                  >
+                    <ReviewStars rating={reviewAverage} showValue={reviewAverage > 0} />
+                    <span className="text-muted-foreground">
+                      {reviewCount > 0 ? `${reviewCount} yorum ve değerlendirme` : "Yorumlar ve değerlendirmeler"}
+                    </span>
+                  </button>
                 </div>
-              </div>
 
-              {product.description ? (
-                <p className="max-w-2xl text-[15px] leading-7 text-white/74">{product.description}</p>
-              ) : null}
+                {caseInformationItems.length > 0 ? (
+                  <div className="grid gap-3 rounded-[1.6rem] border border-border/70 bg-muted/15 p-4 sm:grid-cols-2">
+                    {caseInformationItems.map((item) => (
+                      <div key={item.label} className="space-y-1">
+                        <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{item.label}</div>
+                        <div className="text-sm font-medium leading-6 text-foreground">{item.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             </div>
 
             <Card
@@ -714,20 +764,22 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                   </div>
                 </div>
 
-                <div className="grid gap-3 rounded-[1.65rem] border border-border/70 bg-muted/20 p-3 sm:grid-cols-3">
-                  <div className="rounded-[1.15rem] bg-card px-4 py-4">
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Teslimat</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">Hizli kargo uygun</div>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between rounded-[1.65rem] border border-border/70 bg-muted/20 p-4 text-left transition-colors hover:border-foreground/20 hover:bg-muted/25"
+                  onClick={openReviewsSection}
+                >
+                  <div className="space-y-1">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">MÃ¼ÅŸteri DeÄŸerlendirmeleri</div>
+                    <div className="flex items-center gap-2">
+                      <ReviewStars rating={reviewAverage} showValue={reviewAverage > 0} />
+                      <span className="text-sm text-foreground">
+                        {reviewCount > 0 ? `${reviewCount} yorum mevcut` : "HenÃ¼z yorum yok"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="rounded-[1.15rem] bg-card px-4 py-4">
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Destek</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">{supportMessage}</div>
-                  </div>
-                  <div className="rounded-[1.15rem] bg-card px-4 py-4">
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Iade</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">14 gun kosulsuz</div>
-                  </div>
-                </div>
+                  <span className="text-sm font-medium text-foreground">TÃ¼mÃ¼nÃ¼ gÃ¶r</span>
+                </button>
 
                 <ProductUrgencyInfo
                   salesCount={product.sales_count}
@@ -808,6 +860,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
               </CardContent>
             </Card>
 
+            <div className="hidden">
             <DeliveryEstimate stock={selectedStock} />
             <InstallmentCalculator price={selectedPrice} />
 
@@ -836,10 +889,11 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">Siparişiniz size ulaştıktan sonra iade sürecini online olarak başlatabilirsiniz.</p>
               </div>
             </div>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-10 lg:space-y-12">
+        <div className="hidden space-y-10 lg:space-y-12">
           <section className="space-y-4">
             <div className="space-y-2">
               <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Ürüne Genel Bakış</h2>
@@ -878,6 +932,69 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
             availability={buildOfferAvailability(selectedStock)}
             url={currentUrl}
           />
+        </div>
+
+        <div ref={reviewsSectionRef}>
+        <Card className="overflow-hidden rounded-[2rem] border border-border/70 bg-card/85 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.42)]">
+          <CardContent className="p-0">
+            <Accordion type="single" collapsible value={detailSection} onValueChange={(value) => setDetailSection(value || "overview")} className="w-full">
+              <AccordionItem value="overview" className="border-border/60 px-6">
+                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Urun Detayi</AccordionTrigger>
+                <AccordionContent className="pb-6 text-sm leading-7 text-muted-foreground">
+                  {product.description || "Bu urun icin henuz detayli bir tanitim metni eklenmemis. Secili modele ait tum detaylari yukaridaki alandan inceleyebilirsiniz."}
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="specs" className="border-border/60 px-6">
+                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Teknik Ozellikler</AccordionTrigger>
+                <AccordionContent className="space-y-6 pb-6">
+                  <ProductSpecsTable
+                    specs={product.specs}
+                    variant={selectedVariant}
+                    embedded
+                    context={{
+                      brand: product.brand,
+                      categoryName: product.categories?.name,
+                      categorySlug: product.categories?.slug,
+                      sku: selectedVariant?.sku,
+                      color: selectedVariant?.color_name,
+                      variantSummary: selectedVariantSummary,
+                    }}
+                  />
+                  <SecondHandInfo details={secondHandDetails} embedded />
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="shipping" className="border-border/60 px-6">
+                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Teslimat, Odeme ve Iade</AccordionTrigger>
+                <AccordionContent className="space-y-6 pb-6">
+                  <DeliveryEstimate stock={selectedStock} />
+                  <InstallmentCalculator price={selectedPrice} />
+                  <WarrantyReturnInfo productName={product.name} brand={product.brand} embedded />
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="reviews" className="border-border/60 px-6" id="product-reviews-section">
+                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Musteri Degerlendirmeleri ve Yorumlar</AccordionTrigger>
+                <AccordionContent className="pb-6">
+                  <ReviewsSection
+                    embedded
+                    productId={product.id}
+                    productName={product.name}
+                    brand={product.brand}
+                    description={product.description}
+                    images={galleryImages}
+                    price={selectedPrice}
+                    compareAtPrice={selectedComparePrice}
+                    sku={selectedVariant?.sku || null}
+                    availability={buildOfferAvailability(selectedStock)}
+                    url={currentUrl}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
         </div>
       </div>
 

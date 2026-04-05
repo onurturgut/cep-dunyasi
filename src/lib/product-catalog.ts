@@ -38,6 +38,9 @@ export type CatalogFilters = {
   color?: string[];
   storage?: string[];
   ram?: string[];
+  caseType?: string[];
+  caseTheme?: string[];
+  caseFeature?: string[];
   inStockOnly?: boolean;
   minPrice?: number | null;
   maxPrice?: number | null;
@@ -61,6 +64,7 @@ export type CatalogFilterProfile = {
   showColor: boolean;
   showStorage: boolean;
   showRam: boolean;
+  showCaseDetails: boolean;
   attributeFilters: CatalogAttributeFilterDefinition[];
   helperText: string;
 };
@@ -70,6 +74,9 @@ type CatalogVariantOptions = {
   colors: string[];
   storages: string[];
   ramOptions: string[];
+  caseTypes: string[];
+  caseThemes: string[];
+  caseFeatures: string[];
   attributeOptions: Record<string, string[]>;
 };
 
@@ -81,6 +88,7 @@ function buildFilterProfile(activeCategory?: string | null): CatalogFilterProfil
     showColor: filterAxes.some((axis) => axis.id === "color_name"),
     showStorage: filterAxes.some((axis) => axis.id === "storage"),
     showRam: filterAxes.some((axis) => axis.id === "ram"),
+    showCaseDetails: activeCategory === "kilif",
     attributeFilters: filterAxes
       .filter((axis) => !["color_name", "storage", "ram"].includes(axis.id))
       .map((axis) => ({
@@ -138,6 +146,9 @@ export function createEmptyCatalogFilters(): CatalogFilters {
     color: [],
     storage: [],
     ram: [],
+    caseType: [],
+    caseTheme: [],
+    caseFeature: [],
     inStockOnly: false,
     minPrice: null,
     maxPrice: null,
@@ -160,6 +171,9 @@ export function getCatalogVariantOptions(products: CatalogProductRecord[], profi
   const colors = new Set<string>();
   const storages = new Set<string>();
   const ramOptions = new Set<string>();
+  const caseTypes = new Set<string>();
+  const caseThemes = new Set<string>();
+  const caseFeatures = new Set<string>();
   const attributeOptionMap = new Map<string, Set<string>>();
 
   for (const definition of profile.attributeFilters) {
@@ -170,6 +184,26 @@ export function getCatalogVariantOptions(products: CatalogProductRecord[], profi
     const brand = normalizeText(product.brand);
     if (brand) {
       brands.add(brand);
+    }
+
+    if (profile.showCaseDetails) {
+      const caseType = normalizeText(product.case_details?.case_type);
+      const caseTheme = normalizeText(product.case_details?.case_theme);
+
+      if (caseType) {
+        caseTypes.add(caseType);
+      }
+
+      if (caseTheme && caseTheme !== "Duz") {
+        caseThemes.add(caseTheme);
+      }
+
+      for (const feature of product.case_details?.feature_tags ?? []) {
+        const normalizedFeature = normalizeText(feature);
+        if (normalizedFeature) {
+          caseFeatures.add(normalizedFeature);
+        }
+      }
     }
 
     const variants = normalizeProductVariants(product.product_variants || []);
@@ -198,6 +232,9 @@ export function getCatalogVariantOptions(products: CatalogProductRecord[], profi
     colors: Array.from(colors).sort((a, b) => a.localeCompare(b, "tr")),
     storages: Array.from(storages).sort((a, b) => a.localeCompare(b, "tr")),
     ramOptions: Array.from(ramOptions).sort((a, b) => a.localeCompare(b, "tr")),
+    caseTypes: Array.from(caseTypes).sort((a, b) => a.localeCompare(b, "tr")),
+    caseThemes: Array.from(caseThemes).sort((a, b) => a.localeCompare(b, "tr")),
+    caseFeatures: Array.from(caseFeatures).sort((a, b) => a.localeCompare(b, "tr")),
     attributeOptions: Object.fromEntries(
       Array.from(attributeOptionMap.entries()).map(([key, values]) => [
         key,
@@ -272,6 +309,24 @@ export function matchesCatalogFilters(
   const secondHand = normalizeSecondHandDetails(product.second_hand);
 
   if (hasSelections(filters.brand) && (!brand || !filters.brand?.includes(brand))) {
+    return false;
+  }
+
+  const caseType = normalizeText(product.case_details?.case_type);
+  const caseTheme = normalizeText(product.case_details?.case_theme);
+  const caseFeatureTags = (product.case_details?.feature_tags ?? [])
+    .map((feature) => normalizeText(feature))
+    .filter((feature): feature is string => Boolean(feature));
+
+  if (hasSelections(filters.caseType) && (!caseType || !filters.caseType?.includes(caseType))) {
+    return false;
+  }
+
+  if (hasSelections(filters.caseTheme) && (!caseTheme || !filters.caseTheme?.includes(caseTheme))) {
+    return false;
+  }
+
+  if (hasSelections(filters.caseFeature) && !filters.caseFeature?.some((feature) => caseFeatureTags.includes(feature))) {
     return false;
   }
 

@@ -389,6 +389,9 @@ export default function Products({ initialCategories = defaultCategories }: Prod
       (draftFilters.color?.length ?? 0) +
       (draftFilters.storage?.length ?? 0) +
       (draftFilters.ram?.length ?? 0) +
+      (draftFilters.caseType?.length ?? 0) +
+      (draftFilters.caseTheme?.length ?? 0) +
+      (draftFilters.caseFeature?.length ?? 0) +
       attributeFilterCount +
       (draftFilters.secondHandCondition?.length ?? 0) +
       (draftFilters.batteryHealthMin?.length ?? 0) +
@@ -491,6 +494,22 @@ export default function Products({ initialCategories = defaultCategories }: Prod
 
       if (sectionId === "ram") {
         return (value: string) => setDraftFilters((current) => ({ ...current, ram: toggleStringValue(current.ram, value) }));
+      }
+
+      if (sectionId === "caseType") {
+        return (value: string) => setDraftFilters((current) => ({ ...current, caseType: toggleStringValue(current.caseType, value) }));
+      }
+
+      if (sectionId === "caseTheme") {
+        return (value: string) => setDraftFilters((current) => ({ ...current, caseTheme: toggleStringValue(current.caseTheme, value) }));
+      }
+
+      if (sectionId === "caseFeature") {
+        return (value: string) =>
+          setDraftFilters((current) => ({
+            ...current,
+            caseFeature: toggleStringValue(current.caseFeature, value),
+          }));
       }
 
       return (value: string) =>
@@ -724,6 +743,7 @@ export default function Products({ initialCategories = defaultCategories }: Prod
                         caseDetails={product.case_details}
                         specs={product.specs as Record<string, string | null> | null}
                         productVariants={product.product_variants}
+                        colorName={variant?.color_name}
                         storage={variant?.storage}
                         ram={variant?.ram}
                         stock={variant?.stock || 0}

@@ -233,6 +233,32 @@ function deriveCaseBuilderFromVariants(variants: ProductVariantForm[]): CaseBuil
   };
 }
 
+function findDuplicateCaseVariantCombinations(variants: ProductVariantForm[]) {
+  const seenKeys = new Map<string, string>();
+  const duplicates = new Set<string>();
+
+  for (const variant of getMeaningfulVariants(variants)) {
+    const compatibility = getCaseCompatibilityValue(variant.attributes).trim();
+    const color = variant.color_name.trim();
+
+    if (!compatibility || !color) {
+      continue;
+    }
+
+    const key = `${compatibility.toLocaleLowerCase("tr-TR")}__${color.toLocaleLowerCase("tr-TR")}`;
+    const label = `${compatibility} / ${color}`;
+
+    if (seenKeys.has(key)) {
+      duplicates.add(label);
+      continue;
+    }
+
+    seenKeys.set(key, label);
+  }
+
+  return Array.from(duplicates);
+}
+
 const createEmptyVariant = (sortOrder = 0): ProductVariantForm => ({
   color_name: "",
   color_code: "",
@@ -835,6 +861,20 @@ export default function AdminProducts() {
     if (isCaseCategory && effectiveVariants.length === 0) {
       toast.error("Kılıf urunu icin once uyumlu modelleri ve renkleri secin");
       return;
+    }
+
+    if (isCaseCategory) {
+      const duplicateCombinations = findDuplicateCaseVariantCombinations(effectiveVariants);
+      if (duplicateCombinations.length > 0) {
+        const duplicatePreview = duplicateCombinations.slice(0, 2).join(", ");
+        const remainingCount = Math.max(0, duplicateCombinations.length - 2);
+        toast.error(
+          remainingCount > 0
+            ? `Ayni model ve renk tekrar ediyor: ${duplicatePreview} ve ${remainingCount} secenek daha`
+            : `Ayni model ve renk tekrar ediyor: ${duplicatePreview}`,
+        );
+        return;
+      }
     }
 
     const payload = {

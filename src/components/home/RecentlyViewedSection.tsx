@@ -75,6 +75,7 @@ export function RecentlyViewedSection() {
                       caseDetails={product.case_details}
                       specs={product.specs}
                       productVariants={variants}
+                      colorName={variant?.color_name}
                       storage={variant?.storage}
                       ram={variant?.ram}
                       stock={variant?.stock || 0}

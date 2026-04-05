@@ -14,7 +14,7 @@ import { useTrackMarketingEvent } from "@/hooks/use-marketing";
 import { useI18n } from "@/i18n/provider";
 import { isBestSeller, isLowStock, isNewProduct } from "@/lib/product-catalog";
 import type { ProductSpecs } from "@/lib/product-specs";
-import { getVariantSwatches, type ProductVariantRecord } from "@/lib/product-variants";
+import { getVariantSwatches, normalizeProductVariant, type ProductVariantRecord } from "@/lib/product-variants";
 import {
   getBatteryHealthBucketLabel,
   getSecondHandConditionLabel,
@@ -48,6 +48,7 @@ interface ProductCardProps {
   caseDetails?: CaseDetails | null;
   specs?: ProductSpecs | null;
   productVariants?: ProductVariantRecord[];
+  colorName?: string | null;
   storage?: string;
   ram?: string | null;
 }
@@ -74,6 +75,7 @@ export function ProductCard({
   caseDetails,
   specs,
   productVariants,
+  colorName,
   storage,
   ram,
 }: ProductCardProps) {
@@ -88,8 +90,27 @@ export function ProductCard({
   const galleryImages = Array.from(new Set([...(images || []), image].filter(Boolean) as string[]));
   const primaryImage = galleryImages[0];
   const secondaryImage = galleryImages[1] ?? null;
-  const colorSwatches = getVariantSwatches(productVariants || []).slice(0, 4);
-  const extraColorCount = Math.max(0, getVariantSwatches(productVariants || []).length - colorSwatches.length);
+  const allColorSwatches = getVariantSwatches(productVariants || []);
+  const colorSwatches = allColorSwatches.slice(0, 4);
+  const extraColorCount = Math.max(0, allColorSwatches.length - colorSwatches.length);
+  const isCaseProduct = Boolean(caseDetails);
+  const activeColorName = colorName || colorSwatches[0]?.label || null;
+  const compatibilityLabel =
+    isCaseProduct && variantInfo
+      ? variantInfo
+          .split(" / ")
+          .map((item) => item.trim())
+          .filter(Boolean)[0] || null
+      : null;
+  const compatibilityCount = isCaseProduct
+    ? new Set(
+        (productVariants || [])
+          .map((variant) => normalizeProductVariant(variant))
+          .filter((variant) => variant.is_active)
+          .map((variant) => variant.attributes.uyumluluk || variant.attributes.compatibility || null)
+          .filter(Boolean),
+      ).size
+    : 0;
   const favorite = isFavorite(id);
   const normalizedSecondHand = normalizeSecondHandDetails(secondHand);
   const showNewBadge = isNewProduct(createdAt);
@@ -109,7 +130,7 @@ export function ProductCard({
       [
         caseDetails?.case_type || null,
         caseDetails?.case_theme && caseDetails.case_theme !== "Duz" ? caseDetails.case_theme : null,
-        !storage && !ram ? variantInfo : null,
+        !isCaseProduct && !storage && !ram ? variantInfo : null,
         caseDetails?.feature_tags?.[0] || null,
         secondHandConditionLabel,
         storage && storage !== "Standart" ? storage : null,
@@ -340,6 +361,19 @@ export function ProductCard({
               ) : null}
             </div>
 
+            {compatibilityLabel ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full border border-foreground/10 bg-foreground px-3 py-1 text-[11px] font-semibold text-background">
+                  {compatibilityLabel} Uyumlu
+                </span>
+                {compatibilityCount > 1 ? (
+                  <span className="rounded-full border border-border/70 bg-muted/35 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                    {compatibilityCount} model uyumlu
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+
             {detailTokens.length > 0 ? (
               <div className="mt-3 flex flex-wrap gap-2">
                 {detailTokens.map((token) => (
@@ -355,13 +389,13 @@ export function ProductCard({
             {colorSwatches.length > 1 ? (
               <div className="mt-3 flex items-center gap-2.5">
                 <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Renkler</span>
-                <div className="flex items-center">
+                <div className="flex flex-wrap items-center gap-1.5">
                   {colorSwatches.map((swatch, index) => (
                     <span
                       key={`${swatch.label}-${index}`}
                       className={cn(
-                        "h-4 w-4 rounded-full border border-background shadow-sm ring-1 ring-border/60",
-                        index > 0 ? "-ml-1.5" : "",
+                        "h-4 w-4 rounded-full border border-background shadow-sm ring-1 ring-border/60 transition-transform duration-200",
+                        swatch.label === activeColorName ? "ring-2 ring-foreground/55 scale-105" : "",
                         !swatch.colorCode ? "bg-slate-200" : "",
                       )}
                       style={swatch.colorCode ? { backgroundColor: swatch.colorCode } : undefined}
@@ -388,6 +422,9 @@ export function ProductCard({
                 )}
                 <span className="mt-1 block text-base font-bold tracking-tight text-foreground min-[380px]:text-lg sm:text-[1.35rem]">
                   {formatCurrency(normalizedPrice)}
+                </span>
+                <span className={cn("mt-1 block text-[11px] font-medium sm:text-xs", stock > 0 ? "text-emerald-700" : "text-muted-foreground")}>
+                  {stock > 0 ? (stock <= 5 ? "Son ürünler, hızlı gönderim" : "Stokta, hızlı gönderim") : copy.outOfStock}
                 </span>
               </div>
 

@@ -110,6 +110,7 @@ export function CartRecommendationsSection({ cartProductIds }: CartRecommendatio
                       caseDetails={product.case_details}
                       specs={product.specs as Record<string, string | null> | null}
                       productVariants={normalizeProductVariants(product.product_variants || [])}
+                      colorName={variant?.color_name}
                       storage={variant?.storage}
                       ram={variant?.ram}
                       stock={variant?.stock || 0}
