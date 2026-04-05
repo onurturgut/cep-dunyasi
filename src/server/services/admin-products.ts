@@ -8,6 +8,7 @@ import {
   normalizeProductVariant,
 } from "@/lib/product-variants";
 import { getProductVariantAxes } from "@/lib/product-variant-config";
+import type { CaseDetails } from "@/lib/case-models";
 import { normalizeSecondHandDetails } from "@/lib/second-hand";
 import { sanitizeSlug } from "@/lib/utils";
 
@@ -98,6 +99,12 @@ const secondHandSchema = z.object({
   serial_number: optionalTrimmedStringSchema,
 });
 
+const caseDetailsSchema = z.object({
+  case_type: optionalTrimmedStringSchema,
+  case_theme: optionalTrimmedStringSchema,
+  feature_tags: stringArrayOrNullSchema,
+});
+
 const adminVariantSchema = z
   .object({
     id: optionalTrimmedStringSchema,
@@ -146,6 +153,7 @@ const adminProductSchema = z.object({
   images: imageArraySchema,
   specs: specsSchema,
   second_hand: secondHandSchema.nullable().optional().default(null),
+  case_details: caseDetailsSchema.nullable().optional().default(null),
   variants: z.array(adminVariantSchema).min(1, "En az bir varyant eklemelisiniz"),
 });
 
@@ -417,6 +425,14 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
     images: payload.images,
     specs: Object.values(payload.specs).some(Boolean) ? payload.specs : null,
     second_hand: normalizeSecondHandDetails(payload.second_hand),
+    case_details:
+      payload.case_details && (payload.case_details.case_type || payload.case_details.case_theme || payload.case_details.feature_tags.length > 0)
+        ? ({
+            case_type: payload.case_details.case_type || null,
+            case_theme: payload.case_details.case_theme || null,
+            feature_tags: payload.case_details.feature_tags,
+          } satisfies CaseDetails)
+        : null,
     starting_price: startingPrice,
     updated_at: now,
   };

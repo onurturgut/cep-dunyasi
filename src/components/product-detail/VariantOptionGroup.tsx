@@ -48,8 +48,8 @@ export function VariantOptionGroup({
                 "group inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm transition-all disabled:cursor-not-allowed disabled:opacity-45",
                 style === "swatch" ? "min-w-[118px] justify-start" : "min-w-[92px] justify-center",
                 isSelected
-                  ? "border-slate-900 bg-slate-900 text-white shadow-[0_18px_36px_-28px_rgba(15,23,42,0.72)]"
-                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50",
+                  ? "border-foreground bg-foreground text-background shadow-[0_18px_36px_-28px_rgba(15,23,42,0.72)]"
+                  : "border-border/70 bg-background text-foreground hover:border-foreground/25 hover:bg-muted/25",
               )}
             >
               {style === "swatch" ? (
@@ -65,7 +65,7 @@ export function VariantOptionGroup({
               <span>{option.label}</span>
 
               {!option.disabled && option.inStock === false ? (
-                <span className={cn("text-[10px] uppercase tracking-[0.18em]", isSelected ? "text-white/70" : "text-muted-foreground")}>
+                <span className={cn("text-[10px] uppercase tracking-[0.18em]", isSelected ? "text-background/75" : "text-muted-foreground")}>
                   Tedarik
                 </span>
               ) : null}

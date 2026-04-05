@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useLocation } from "@/lib/router";
 import { useMarketingSettings } from "@/hooks/use-marketing";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { LiveSupportProvider } from "@/components/marketing/LiveSupportProvider";
 import { PromoPopupManager } from "@/components/marketing/PromoPopupManager";
 import { WhatsAppFloatingButton } from "@/components/marketing/WhatsAppFloatingButton";
@@ -13,14 +14,7 @@ export function MarketingShell() {
   const marketing = marketingQuery.data;
   const settings = marketing?.settings;
   const popups = marketing?.popups ?? [];
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const syncViewport = () => setIsMobile(window.innerWidth < 768);
-    syncViewport();
-    window.addEventListener("resize", syncViewport);
-    return () => window.removeEventListener("resize", syncViewport);
-  }, []);
+  const isMobile = useIsMobile();
 
   const canShowWhatsApp = useMemo(() => {
     if (!settings?.whatsappEnabled) {

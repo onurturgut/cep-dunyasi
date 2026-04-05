@@ -24,7 +24,7 @@ function serializeForClient<T>(value: T): T {
 const homeSiteContentSelect =
   "hero_title_prefix hero_title_highlight hero_title_suffix hero_subtitle hero_logo_light_url hero_logo_dark_url hero_cta_label hero_cta_href shipping_fee hero_slides hero_benefits category_section_title category_section_description category_banner_enabled category_banner_main_image category_banner_video category_banner_video_link category_banner_badge_text category_banner_intro_text category_banner_brand_title category_banner_stat_1_label category_banner_stat_1_value category_banner_stat_2_label category_banner_stat_2_value category_banner_highlight_label category_banner_brand_desc_1 category_banner_brand_desc_2 category_banner_brand_desc_3 category_banner_slots explore_section_title featured_section_title featured_section_cta_label featured_section_cta_href";
 
-const homeProductSelect = "id name slug description category_id brand images created_at sales_count rating_average rating_count specs second_hand";
+const homeProductSelect = "id name slug description category_id brand images created_at sales_count rating_average rating_count specs second_hand case_details";
 
 function normalizeText(value: unknown) {
   const normalized = `${value ?? ""}`.trim();
@@ -141,6 +141,7 @@ function mapProductRecord(
     rating_count: Number(product.rating_count ?? 0),
     specs: (product.specs as Record<string, string | null> | null) ?? null,
     second_hand: (product.second_hand as Record<string, unknown> | null) ?? null,
+    case_details: (product.case_details as Record<string, unknown> | null) ?? null,
     product_variants: variantsByProductId.get(productId) ?? [],
     categories: categoriesById.get(`${product.category_id ?? ""}`) ?? null,
   };

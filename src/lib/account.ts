@@ -55,6 +55,7 @@ export type FavoriteProductSummary = {
   rating_average?: number;
   rating_count?: number;
   second_hand?: import("@/lib/second-hand").SecondHandDetails | null;
+  case_details?: import("@/lib/case-models").CaseDetails | null;
   specs?: {
     operatingSystem?: string | null;
     internalStorage?: string | null;

@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Heart, ShoppingCart, Star } from "lucide-react";
+import type { CaseDetails } from "@/lib/case-models";
 import { Link } from "@/lib/router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { ProductUrgencyInfo } from "@/components/products/ProductUrgencyInfo";
 import { useCartStore } from "@/lib/cart-store";
 import { useAuth } from "@/hooks/use-auth";
@@ -44,6 +44,7 @@ interface ProductCardProps {
   ratingCount?: number;
   category?: string;
   secondHand?: SecondHandDetails | null;
+  caseDetails?: CaseDetails | null;
   specs?: ProductSpecs | null;
   storage?: string;
   ram?: string | null;
@@ -68,12 +69,12 @@ export function ProductCard({
   ratingCount,
   category,
   secondHand,
+  caseDetails,
   specs,
   storage,
   ram,
 }: ProductCardProps) {
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [isImageHovered, setIsImageHovered] = useState(false);
   const { user } = useAuth();
   const { isFavorite, toggleWishlist, togglingProductId } = useWishlist();
   const { locale } = useI18n();
@@ -83,6 +84,7 @@ export function ProductCard({
   const normalizedOriginalPrice = toPriceNumber(originalPrice);
   const galleryImages = Array.from(new Set([...(images || []), image].filter(Boolean) as string[]));
   const primaryImage = galleryImages[0];
+  const secondaryImage = galleryImages[1] ?? null;
   const favorite = isFavorite(id);
   const normalizedSecondHand = normalizeSecondHandDetails(secondHand);
   const showNewBadge = isNewProduct(createdAt);
@@ -100,15 +102,18 @@ export function ProductCard({
   const detailTokens = Array.from(
     new Set(
       [
+        caseDetails?.case_type || null,
+        caseDetails?.case_theme && caseDetails.case_theme !== "Duz" ? caseDetails.case_theme : null,
+        !storage && !ram ? variantInfo : null,
+        caseDetails?.feature_tags?.[0] || null,
         secondHandConditionLabel,
         storage && storage !== "Standart" ? storage : null,
         ram ? `${ram} RAM` : null,
-        !storage && !ram ? variantInfo : null,
         normalizedSecondHand && secondHandBatteryLabel ? `Pil ${secondHandBatteryLabel}` : null,
         normalizedSecondHand && secondHandWarrantyLabel ? secondHandWarrantyLabel : null,
       ].filter(Boolean) as string[],
     ),
-  ).slice(0, 2);
+  ).slice(0, caseDetails ? 3 : 2);
   const copy =
     locale === "en"
       ? {
@@ -124,7 +129,6 @@ export function ProductCard({
           favoriteAdded: "Added to favorites",
           favoriteRemoved: "Removed from favorites",
           favoriteError: "Favorite action could not be completed",
-          imageLabel: (index: number) => `${name} image ${index + 1}`,
           outOfStock: "Out of stock",
           price: "Price",
           addToCart: "Add to cart",
@@ -144,7 +148,6 @@ export function ProductCard({
           favoriteAdded: "Favorilere eklendi",
           favoriteRemoved: "Favorilerden cikarildi",
           favoriteError: "Favori islemi tamamlanamadi",
-          imageLabel: (index: number) => `${name} gorsel ${index + 1}`,
           outOfStock: "Stokta yok",
           price: "Fiyat",
           addToCart: "Sepete ekle",
@@ -166,60 +169,7 @@ export function ProductCard({
                 ? { label: copy.lowStock, className: "border border-amber-200 bg-amber-100 text-amber-900" }
                 : null;
 
-  useEffect(() => {
-    setActiveImageIndex(0);
-    carouselApi?.scrollTo(0);
-  }, [carouselApi, id, galleryImages.length]);
-
-  useEffect(() => {
-    if (!carouselApi) {
-      return;
-    }
-
-    const syncActiveIndex = () => {
-      setActiveImageIndex(carouselApi.selectedScrollSnap());
-    };
-
-    syncActiveIndex();
-    carouselApi.on("select", syncActiveIndex);
-    carouselApi.on("reInit", syncActiveIndex);
-
-    return () => {
-      carouselApi.off("select", syncActiveIndex);
-      carouselApi.off("reInit", syncActiveIndex);
-    };
-  }, [carouselApi]);
-
   void specs;
-
-  const handleImageSelect = (event: React.MouseEvent, index: number) => {
-    event.preventDefault();
-    event.stopPropagation();
-    carouselApi?.scrollTo(index);
-  };
-
-  const handleImageHover = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!carouselApi || galleryImages.length <= 1) {
-      return;
-    }
-
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const relativeX = event.clientX - bounds.left;
-    const segmentWidth = bounds.width / galleryImages.length;
-    const nextIndex = Math.max(0, Math.min(galleryImages.length - 1, Math.floor(relativeX / segmentWidth)));
-
-    if (nextIndex !== activeImageIndex) {
-      carouselApi.scrollTo(nextIndex);
-    }
-  };
-
-  const handleImageLeave = () => {
-    if (!carouselApi || galleryImages.length <= 1) {
-      return;
-    }
-
-    carouselApi.scrollTo(0);
-  };
 
   const handleAddToCart = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -312,46 +262,47 @@ export function ProductCard({
             {galleryImages.length > 0 ? (
               <div className="relative h-full w-full px-3 pb-3 pt-12 sm:px-4 sm:pb-4">
                 <div className="absolute inset-x-8 bottom-4 h-10 rounded-full bg-foreground/10 blur-2xl" />
-                <div className="relative h-full w-full overflow-hidden rounded-[22px] bg-background/5" onMouseMove={handleImageHover} onMouseLeave={handleImageLeave}>
-                  <Carousel setApi={setCarouselApi} opts={{ align: "start", loop: false, dragFree: false }} className="h-full w-full touch-pan-y">
-                    <CarouselContent className="-ml-0 h-full">
-                      {galleryImages.map((galleryImage, index) => (
-                        <CarouselItem key={`${id}-image-${index}`} className="pl-0">
-                          <div className="h-full">
-                            <div className="relative h-full w-full">
-                              <Image
-                                src={getOptimizedImageUrl(galleryImage, { kind: "product-card" })}
-                                alt={`${name} ${index + 1}`}
-                                width={720}
-                                height={780}
-                                sizes={getResponsiveImageSizes("product-card")}
-                                className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]"
-                                loading="lazy"
-                                draggable={false}
-                              />
-                            </div>
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                  </Carousel>
+                <div
+                  className="relative h-full w-full overflow-hidden rounded-[22px] bg-background/5"
+                  onMouseEnter={() => setIsImageHovered(true)}
+                  onMouseLeave={() => setIsImageHovered(false)}
+                >
+                  <div className="relative h-full w-full">
+                    <Image
+                      src={getOptimizedImageUrl(primaryImage, { kind: "product-card" })}
+                      alt={name}
+                      width={720}
+                      height={780}
+                      sizes={getResponsiveImageSizes("product-card")}
+                      className={cn(
+                        "absolute inset-0 h-full w-full object-cover object-center transition-all duration-500",
+                        secondaryImage && isImageHovered ? "scale-[1.02] opacity-0" : "scale-100 opacity-100 group-hover:scale-[1.05]",
+                      )}
+                      loading="lazy"
+                      draggable={false}
+                    />
+
+                    {secondaryImage ? (
+                      <Image
+                        src={getOptimizedImageUrl(secondaryImage, { kind: "product-card" })}
+                        alt={`${name} alternatif gorsel`}
+                        width={720}
+                        height={780}
+                        sizes={getResponsiveImageSizes("product-card")}
+                        className={cn(
+                          "absolute inset-0 h-full w-full object-cover object-center transition-all duration-500",
+                          isImageHovered ? "scale-[1.03] opacity-100" : "scale-100 opacity-0",
+                        )}
+                        loading="lazy"
+                        draggable={false}
+                      />
+                    ) : null}
+                  </div>
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/10 to-transparent opacity-60" />
 
                   {galleryImages.length > 1 ? (
-                    <div className="absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-1.5 px-4">
-                      {galleryImages.map((_, index) => (
-                        <button
-                          key={`${id}-dot-${index}`}
-                          type="button"
-                          aria-label={copy.imageLabel(index)}
-                          aria-pressed={activeImageIndex === index}
-                          className={cn(
-                            "h-1.5 rounded-full bg-white/55 transition-all duration-300",
-                            activeImageIndex === index ? "w-5 bg-white" : "w-1.5 hover:bg-white/80",
-                          )}
-                          onClick={(event) => handleImageSelect(event, index)}
-                        />
-                      ))}
+                    <div className="absolute bottom-3 left-3 z-10 rounded-full border border-white/20 bg-black/25 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-white/90 backdrop-blur">
+                      {galleryImages.length} foto
                     </div>
                   ) : null}
                 </div>
@@ -369,7 +320,7 @@ export function ProductCard({
             ) : null}
           </div>
 
-          <CardContent className="flex flex-1 flex-col px-4 pb-4 pt-4 sm:px-5 sm:pb-5">
+          <CardContent className="flex flex-1 flex-col px-3.5 pb-3.5 pt-3.5 sm:px-5 sm:pb-5 sm:pt-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 {overline ? <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px]">{overline}</p> : null}
@@ -400,27 +351,29 @@ export function ProductCard({
               <ProductUrgencyInfo salesCount={salesCount} stock={stock} ratingCount={ratingCount} compact />
             </div>
 
-            <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+            <div className="mt-auto flex flex-col gap-3 pt-4 min-[480px]:flex-row min-[480px]:items-end min-[480px]:justify-between sm:pt-5">
               <div className="min-w-0">
                 {normalizedOriginalPrice > normalizedPrice ? (
                   <span className="block text-[11px] text-muted-foreground line-through sm:text-xs">{formatCurrency(normalizedOriginalPrice)}</span>
                 ) : (
                   <span className="block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{copy.price}</span>
                 )}
-                <span className="mt-1 block text-lg font-bold tracking-tight text-foreground sm:text-[1.35rem]">{formatCurrency(normalizedPrice)}</span>
+                <span className="mt-1 block text-base font-bold tracking-tight text-foreground min-[380px]:text-lg sm:text-[1.35rem]">
+                  {formatCurrency(normalizedPrice)}
+                </span>
               </div>
 
               {variantId && stock > 0 ? (
                 <Button
                   variant="secondary"
-                  className="h-10 shrink-0 rounded-full border border-border/70 bg-background px-4 text-xs font-semibold text-foreground shadow-sm hover:bg-foreground hover:text-background"
+                  className="h-10 w-full rounded-full border border-border/70 bg-background px-4 text-xs font-semibold text-foreground shadow-sm hover:bg-foreground hover:text-background min-[480px]:w-auto min-[480px]:shrink-0"
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="h-4 w-4" />
                   {copy.addToCart}
                 </Button>
               ) : (
-                <span className="rounded-full border border-border/70 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                <span className="w-full rounded-full border border-border/70 px-3 py-2 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground min-[480px]:w-auto">
                   {copy.soldOut}
                 </span>
               )}

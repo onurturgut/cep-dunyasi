@@ -23,12 +23,12 @@ export function DeliveryEstimate({ stock }: DeliveryEstimateProps) {
   }
 
   return (
-    <Card className="border-border/70 bg-gradient-to-br from-white to-slate-100/80 text-slate-950 shadow-[0_18px_40px_-34px_rgba(15,23,42,0.45)]">
+    <Card className="border-border/70 bg-gradient-to-br from-card via-card to-muted/25 text-card-foreground shadow-[0_18px_40px_-34px_rgba(15,23,42,0.45)]">
       <CardContent className="space-y-4 p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-1">
-            <div className="text-sm font-semibold text-slate-950">Teslimat Bilgisi</div>
-            <p className="text-sm leading-6 text-slate-600">{estimate.primary}</p>
+            <div className="text-sm font-semibold text-foreground">Teslimat Bilgisi</div>
+            <p className="text-sm leading-6 text-muted-foreground">{estimate.primary}</p>
           </div>
           <Badge variant="secondary" className="rounded-full px-3 py-1">
             {estimate.badge}
@@ -41,7 +41,7 @@ export function DeliveryEstimate({ stock }: DeliveryEstimateProps) {
               <Truck className="h-4 w-4 text-primary" />
               {estimate.shippingWindow}
             </div>
-            <p className="mt-2 text-xs leading-5 text-slate-300">{estimate.secondary}</p>
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">{estimate.secondary}</p>
           </div>
 
           <div className="rounded-2xl border border-border/70 bg-card/80 p-4">
@@ -49,7 +49,7 @@ export function DeliveryEstimate({ stock }: DeliveryEstimateProps) {
               {estimate.isPreorder ? <Clock3 className="h-4 w-4 text-primary" /> : <PackageCheck className="h-4 w-4 text-primary" />}
               {estimate.deliveryWindow}
             </div>
-            <p className="mt-2 text-xs leading-5 text-slate-300">Ücretsiz ve güvenli kargo seçenekleri sepet adımında netleştirilir.</p>
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">Ücretsiz ve güvenli kargo seçenekleri sepet adımında netleştirilir.</p>
           </div>
         </div>
       </CardContent>

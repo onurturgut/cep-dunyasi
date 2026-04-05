@@ -25,7 +25,7 @@ export function StockStatusBadge({ stock }: StockStatusBadgeProps) {
 
   if (stock <= 0) {
     return (
-      <Badge variant="outline" className="gap-1 rounded-full border-slate-200 px-3 py-1 text-slate-600">
+      <Badge variant="outline" className="gap-1 rounded-full border-border/70 bg-muted/15 px-3 py-1 text-muted-foreground">
         <Clock3 className="h-3.5 w-3.5" />
         {copy.sourcing}
       </Badge>
@@ -34,7 +34,7 @@ export function StockStatusBadge({ stock }: StockStatusBadgeProps) {
 
   if (stock <= 5) {
     return (
-      <Badge variant="outline" className="gap-1 rounded-full border-amber-200 bg-amber-50 px-3 py-1 text-amber-700">
+      <Badge variant="outline" className="gap-1 rounded-full border-amber-500/30 bg-amber-500/10 px-3 py-1 text-amber-700 dark:text-amber-300">
         <AlertTriangle className="h-3.5 w-3.5" />
         {copy.lastUnits}
       </Badge>
@@ -42,7 +42,7 @@ export function StockStatusBadge({ stock }: StockStatusBadgeProps) {
   }
 
   return (
-    <Badge variant="outline" className="gap-1 rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">
+    <Badge variant="outline" className="gap-1 rounded-full border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-emerald-700 dark:text-emerald-300">
       <CheckCircle2 className="h-3.5 w-3.5" />
       {copy.inStock}
     </Badge>

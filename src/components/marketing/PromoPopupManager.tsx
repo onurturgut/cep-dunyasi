@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { MarketingPopupRecord } from "@/lib/marketing";
 import { postMarketingEvent, postMarketingEventOnce } from "@/lib/marketing-events";
 import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
@@ -22,6 +23,7 @@ export function PromoPopupManager({ popups, pathname }: PromoPopupManagerProps) 
   const [visiblePopupId, setVisiblePopupId] = useState<string | null>(null);
   const trackedPopupViewIdsRef = useRef<Set<string>>(new Set());
   const popup = useMemo(() => popups.find((item) => item.id === visiblePopupId) ?? null, [popups, visiblePopupId]);
+  const isMobile = useIsMobile();
 
   const showPopup = useCallback(
     (nextPopup: MarketingPopupRecord) => {
@@ -96,6 +98,10 @@ export function PromoPopupManager({ popups, pathname }: PromoPopupManagerProps) 
   }, [pathname, popups, showPopup, visiblePopupId]);
 
   useEffect(() => {
+    if (isMobile) {
+      return;
+    }
+
     const exitPopup = popups.find((item) => item.triggerType === "exit_intent");
     if (!exitPopup) {
       return;
@@ -115,7 +121,7 @@ export function PromoPopupManager({ popups, pathname }: PromoPopupManagerProps) 
 
     document.addEventListener("mouseout", onMouseLeave);
     return () => document.removeEventListener("mouseout", onMouseLeave);
-  }, [pathname, popups, showPopup, visiblePopupId]);
+  }, [isMobile, pathname, popups, showPopup, visiblePopupId]);
 
   if (!popup) {
     return null;

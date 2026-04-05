@@ -35,6 +35,7 @@ import { useI18n } from "@/i18n/provider";
 import { getLocalizedCategoryLabel } from "@/i18n/category-labels";
 import { db } from "@/integrations/mongo/client";
 import { useCartStore } from "@/lib/cart-store";
+import { getProductVariantAxes } from "@/lib/product-variant-config";
 import { addRecentlyViewedProduct } from "@/lib/recently-viewed";
 import { useStickyBuyBarVisibility } from "@/hooks/use-sticky-buy-bar-visibility";
 import { postMarketingEventOnce } from "@/lib/marketing-events";
@@ -45,11 +46,12 @@ import { type ProductSpecs } from "@/lib/product-specs";
 import { getBatteryHealthBucketLabel, getSecondHandConditionLabel, normalizeSecondHandDetails, type SecondHandDetails } from "@/lib/second-hand";
 import { cn, formatCurrency, toPriceNumber } from "@/lib/utils";
 import {
-  findProductVariantBySelection,
   getDefaultProductVariant,
   getVariantGallery,
   getVariantLabel,
   normalizeProductVariants,
+  resolveProductVariantBySelection,
+  type VariantSelection,
   type ProductVariantRecord,
 } from "@/lib/product-variants";
 import { toast } from "sonner";
@@ -78,14 +80,60 @@ const ReviewsSection = dynamic(
   },
 );
 
+function buildSelectionFromVariant(
+  variant: ProductVariantRecord | null,
+  categorySlug?: string | null,
+): VariantSelection {
+  if (!variant) {
+    return {
+      colorName: null,
+      storage: null,
+      ram: null,
+      attributes: {},
+    };
+  }
+
+  const attributes = Object.fromEntries(
+    getProductVariantAxes(categorySlug)
+      .filter((axis) => axis.source === "attribute")
+      .map((axis) => [axis.attributeKeys[0], axis.attributeKeys.map((key) => variant.attributes[key]).find(Boolean) || null])
+      .filter(([, value]) => Boolean(value)),
+  );
+
+  return {
+    colorName: variant.color_name || null,
+    storage: variant.storage || null,
+    ram: variant.ram || null,
+    attributes,
+  };
+}
+
+function areSelectionsEqual(left: VariantSelection, right: VariantSelection) {
+  const leftAttributes = Object.entries(left.attributes || {})
+    .filter(([, value]) => Boolean(`${value ?? ""}`.trim()))
+    .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey, "tr"));
+  const rightAttributes = Object.entries(right.attributes || {})
+    .filter(([, value]) => Boolean(`${value ?? ""}`.trim()))
+    .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey, "tr"));
+
+  return (
+    (left.colorName || null) === (right.colorName || null) &&
+    (left.storage || null) === (right.storage || null) &&
+    (left.ram || null) === (right.ram || null) &&
+    JSON.stringify(leftAttributes) === JSON.stringify(rightAttributes)
+  );
+}
+
 function resolveProductState(product: ProductRecord | null, initialSelection: { variantId: string | null; colorName: string | null; storage: string | null; ram: string | null }) {
   const variants = product ? normalizeProductVariants(product.product_variants || []) : [];
-  const initialVariant = findProductVariantBySelection(variants, initialSelection) || getDefaultProductVariant(variants);
+  const categorySlug = product?.categories?.slug;
+  const initialVariant =
+    resolveProductVariantBySelection(variants, initialSelection, categorySlug) || getDefaultProductVariant(variants);
 
   return {
     product,
     variants,
-    selectedVariantId: initialVariant?.id || null,
+    selectedSelection: buildSelectionFromVariant(initialVariant, categorySlug),
   };
 }
 
@@ -116,7 +164,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   const initialResolvedState = useMemo(() => resolveProductState(initialProduct, initialSelection), [initialProduct, initialSelection]);
   const [product, setProduct] = useState<ProductRecord | null>(initialResolvedState.product);
   const [variants, setVariants] = useState<ProductVariantRecord[]>(initialResolvedState.variants);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(initialResolvedState.selectedVariantId);
+  const [selectedSelection, setSelectedSelection] = useState<VariantSelection>(initialResolvedState.selectedSelection);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +172,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   const addItem = useCartStore((state) => state.addItem);
   const { mutate: trackMarketingEvent } = useTrackMarketingEvent();
   const purchasePanelRef = useRef<HTMLDivElement | null>(null);
+  const selectedSelectionRef = useRef<VariantSelection>(initialResolvedState.selectedSelection);
   const trackedProductViewIdsRef = useRef<Set<string>>(new Set());
   const stickyVisible = useStickyBuyBarVisibility(purchasePanelRef, Boolean(product));
   const { locale } = useI18n();
@@ -211,20 +260,20 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
         };
 
   useEffect(() => {
-    if (initialProduct) {
-      setProduct(initialResolvedState.product);
-      setVariants(initialResolvedState.variants);
-      setSelectedVariantId(initialResolvedState.selectedVariantId);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
     let isMounted = true;
 
     const fetchProduct = async () => {
       try {
-        setLoading(true);
+        if (initialProduct) {
+          setProduct(initialResolvedState.product);
+          setVariants(initialResolvedState.variants);
+          setSelectedSelection(initialResolvedState.selectedSelection);
+          setLoading(false);
+          setError(null);
+        } else {
+          setLoading(true);
+        }
+
         setError(null);
 
         const { data, error: requestError } = await db
@@ -258,6 +307,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
               ? (data.rating_distribution as Record<string, number>)
               : null,
           specs: (data.specs as ProductSpecs | null | undefined) ?? null,
+          case_details: (data.case_details as ProductRecord["case_details"]) ?? null,
           second_hand: (data.second_hand as SecondHandDetails | null | undefined) ?? null,
           categories:
             data.categories && typeof data.categories === "object"
@@ -270,8 +320,11 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
         };
 
         const nextVariants = nextProduct.product_variants;
-        const initialVariant =
-          findProductVariantBySelection(nextVariants, initialSelection) || getDefaultProductVariant(nextVariants);
+        const currentSelection = selectedSelectionRef.current;
+        const nextSelectedVariant =
+          resolveProductVariantBySelection(nextVariants, currentSelection, nextProduct.categories?.slug) ||
+          resolveProductVariantBySelection(nextVariants, initialSelection, nextProduct.categories?.slug) ||
+          getDefaultProductVariant(nextVariants);
 
         if (!isMounted) {
           return;
@@ -279,7 +332,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
 
         setProduct(nextProduct);
         setVariants(nextVariants);
-        setSelectedVariantId(initialVariant?.id || null);
+        setSelectedSelection(buildSelectionFromVariant(nextSelectedVariant, nextProduct.categories?.slug));
       } catch (fetchError) {
         if (!isMounted) {
           return;
@@ -301,9 +354,25 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   }, [initialProduct, initialResolvedState, initialSelection, slug]);
 
   const selectedVariant = useMemo(
-    () => variants.find((variant) => variant.id === selectedVariantId) || getDefaultProductVariant(variants) || null,
-    [selectedVariantId, variants],
+    () => resolveProductVariantBySelection(variants, selectedSelection, product?.categories?.slug) || getDefaultProductVariant(variants) || null,
+    [product?.categories?.slug, selectedSelection, variants],
   );
+
+  useEffect(() => {
+    selectedSelectionRef.current = selectedSelection;
+  }, [selectedSelection]);
+
+  useEffect(() => {
+    if (!selectedVariant) {
+      return;
+    }
+
+    const normalizedSelection = buildSelectionFromVariant(selectedVariant, product?.categories?.slug);
+
+    if (!areSelectionsEqual(selectedSelection, normalizedSelection)) {
+      setSelectedSelection(normalizedSelection);
+    }
+  }, [product?.categories?.slug, selectedSelection, selectedVariant]);
 
   useEffect(() => {
     if (!selectedVariant) {
@@ -337,6 +406,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
       sales_count: product.sales_count,
       rating_average: product.rating_average,
       second_hand: product.second_hand,
+      case_details: product.case_details,
       specs: product.specs,
       categories: product.categories,
       product_variants: variants,
@@ -415,9 +485,8 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
     [breadcrumbSchema],
   );
 
-  const handleSelectVariant = (variant: ProductVariantRecord | null) => {
-    const fallbackVariant = variant || getDefaultProductVariant(variants) || null;
-    setSelectedVariantId(fallbackVariant?.id || null);
+  const handleSelectionChange = (nextSelection: VariantSelection) => {
+    setSelectedSelection(nextSelection);
     setQuantity(1);
   };
 
@@ -556,7 +625,11 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
           <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-            <ProductGallery images={galleryImages} productName={product.name} />
+            <ProductGallery
+              key={selectedVariant?.id || product.id}
+              images={galleryImages}
+              productName={product.name}
+            />
           </div>
 
           <div className="space-y-7">
@@ -584,13 +657,13 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
               </div>
 
               {product.description ? (
-                <p className="max-w-2xl text-[15px] leading-7 text-white/64">{product.description}</p>
+                <p className="max-w-2xl text-[15px] leading-7 text-white/74">{product.description}</p>
               ) : null}
             </div>
 
             <Card
               ref={purchasePanelRef}
-              className="overflow-hidden rounded-[2rem] border border-black/5 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.96))] text-slate-950 shadow-[0_36px_80px_-46px_rgba(15,23,42,0.42)]"
+              className="overflow-hidden rounded-[2rem] border border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--card))_62%,hsl(var(--muted)/0.42)_100%)] text-card-foreground shadow-[0_36px_80px_-46px_rgba(15,23,42,0.42)]"
             >
               <CardContent className="space-y-7 p-6 sm:p-8">
                 <div className="space-y-6">
@@ -599,12 +672,12 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                       <div className="flex flex-wrap items-center gap-2.5">
                         <StockStatusBadge stock={selectedStock} />
                         {secondHandConditionLabel ? (
-                          <Badge variant="outline" className="rounded-full border-slate-200 px-3 py-1 text-slate-600">
+                          <Badge variant="outline" className="rounded-full border-border/70 bg-muted/15 px-3 py-1 text-muted-foreground">
                             {secondHandConditionLabel}
                           </Badge>
                         ) : null}
                         {secondHandBatteryLabel ? (
-                          <Badge variant="outline" className="rounded-full border-slate-200 px-3 py-1 text-slate-600">
+                          <Badge variant="outline" className="rounded-full border-border/70 bg-muted/15 px-3 py-1 text-muted-foreground">
                             Pil {secondHandBatteryLabel}
                           </Badge>
                         ) : null}
@@ -612,37 +685,37 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
 
                       <div className="space-y-2">
                     <div className="flex flex-wrap items-end gap-3">
-                      <span className="text-[2.4rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[3rem]">{formatCurrency(selectedPrice)}</span>
+                      <span className="text-[2.4rem] font-semibold tracking-[-0.04em] text-foreground sm:text-[3rem]">{formatCurrency(selectedPrice)}</span>
                       {selectedComparePrice ? (
-                        <span className="pb-2 text-sm text-slate-400 line-through">{formatCurrency(selectedComparePrice)}</span>
+                        <span className="pb-2 text-sm text-muted-foreground line-through">{formatCurrency(selectedComparePrice)}</span>
                       ) : null}
                     </div>
 
-                    <p className="text-sm leading-6 text-slate-500">
-                      Seçili model: <span className="font-medium text-slate-950">{selectedVariantSummary || "Standart seçim"}</span>
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      Seçili model: <span className="font-medium text-foreground">{selectedVariantSummary || "Standart seçim"}</span>
                     </p>
-                    {discountRate ? <p className="text-sm font-medium text-emerald-700">%{discountRate} fiyat avantaji</p> : null}
+                    {discountRate ? <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">%{discountRate} fiyat avantaji</p> : null}
                       </div>
                   </div>
 
-                  <div className="min-w-[220px] rounded-[1.4rem] border border-slate-200/80 bg-white/80 px-5 py-4 shadow-[0_18px_35px_-28px_rgba(15,23,42,0.24)]">
-                    <p className="text-sm font-medium text-slate-900">{lowStockMessage}</p>
-                    <div className="mt-1 text-slate-300">Güvenli ödeme ve hızlı kargo ile gönderilir.</div>
+                  <div className="min-w-[220px] rounded-[1.4rem] border border-border/70 bg-muted/20 px-5 py-4 shadow-[0_18px_35px_-28px_rgba(15,23,42,0.24)]">
+                    <p className="text-sm font-medium text-foreground">{lowStockMessage}</p>
+                    <div className="mt-1 text-sm text-muted-foreground">Güvenli ödeme ve hızlı kargo ile gönderilir.</div>
                   </div>
                 </div>
 
-                <div className="grid gap-3 rounded-[1.65rem] border border-slate-200 bg-slate-50/75 p-3 sm:grid-cols-3">
-                  <div className="rounded-[1.15rem] bg-white px-4 py-4">
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Teslimat</div>
-                    <div className="mt-2 text-sm font-medium text-slate-900">Hizli kargo uygun</div>
+                <div className="grid gap-3 rounded-[1.65rem] border border-border/70 bg-muted/20 p-3 sm:grid-cols-3">
+                  <div className="rounded-[1.15rem] bg-card px-4 py-4">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Teslimat</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">Hizli kargo uygun</div>
                   </div>
-                  <div className="rounded-[1.15rem] bg-white px-4 py-4">
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Destek</div>
-                    <div className="mt-2 text-sm font-medium text-slate-900">{supportMessage}</div>
+                  <div className="rounded-[1.15rem] bg-card px-4 py-4">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Destek</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">{supportMessage}</div>
                   </div>
-                  <div className="rounded-[1.15rem] bg-white px-4 py-4">
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Iade</div>
-                    <div className="mt-2 text-sm font-medium text-slate-900">14 gun kosulsuz</div>
+                  <div className="rounded-[1.15rem] bg-card px-4 py-4">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Iade</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">14 gun kosulsuz</div>
                   </div>
                 </div>
 
@@ -653,23 +726,23 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                   compact={false}
                 />
 
-                <Separator className="bg-slate-200" />
+                <Separator className="bg-border/70" />
 
                 <VariantSelector
                   variants={variants}
-                  selectedVariant={selectedVariant}
+                  selectedValues={selectedSelection}
                   categorySlug={product.categories?.slug}
-                  onVariantSelect={handleSelectVariant}
+                  onSelectionChange={handleSelectionChange}
                 />
 
                 <div className="hidden grid gap-3 rounded-3xl border border-border/70 bg-muted/10 p-4 sm:grid-cols-3">
                   <div className="rounded-2xl bg-card px-4 py-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Teslimat</div>
-                    <div className="mt-2 text-sm font-medium text-white">Hızlı kargo uygun</div>
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Teslimat</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">Hızlı kargo uygun</div>
                   </div>
                   <div className="rounded-2xl bg-card px-4 py-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Garanti</div>
-                    <div className="mt-2 text-sm font-medium text-white">
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Garanti</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">
                       {secondHandDetails
                         ? secondHandDetails.warranty_type === "none"
                           ? "Garanti durumu belirtilmiş"
@@ -678,31 +751,31 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                     </div>
                   </div>
                   <div className="rounded-2xl bg-card px-4 py-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">İade</div>
-                    <div className="mt-2 text-sm font-medium text-white">14 gün koşulsuz</div>
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">İade</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">14 gün koşulsuz</div>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                  <div className="flex items-center justify-between rounded-full border border-slate-200 bg-slate-50 px-2 py-1 sm:w-auto sm:min-w-[156px]">
+                  <div className="flex items-center justify-between rounded-full border border-border/70 bg-muted/20 px-2 py-1 sm:w-auto sm:min-w-[156px]">
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10 rounded-full text-slate-700"
+                      className="h-10 w-10 rounded-full text-foreground"
                       onClick={() => setQuantity((current) => Math.max(1, current - 1))}
                       disabled={!selectedVariant || selectedStock <= 0}
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
 
-                    <span className="min-w-[32px] text-center text-sm font-semibold text-slate-950">{quantity}</span>
+                    <span className="min-w-[32px] text-center text-sm font-semibold text-foreground">{quantity}</span>
 
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10 rounded-full text-slate-700"
+                      className="h-10 w-10 rounded-full text-foreground"
                       onClick={() => setQuantity((current) => Math.min(selectedStock || 1, current + 1))}
                       disabled={!selectedVariant || selectedStock <= 0}
                     >
@@ -713,7 +786,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                   <Button
                     type="button"
                     size="lg"
-                    className="h-14 flex-1 rounded-full bg-slate-950 text-base font-medium text-white hover:bg-slate-900"
+                    className="h-14 flex-1 rounded-full bg-foreground text-base font-medium text-background hover:bg-foreground/92"
                     onClick={handleAddToCart}
                     disabled={!canAddToCart}
                   >

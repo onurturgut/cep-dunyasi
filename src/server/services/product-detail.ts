@@ -1,5 +1,6 @@
 import { normalizeMediaUrl } from "@/server/storage/r2";
 import { Category, Product, ProductVariant } from "@/server/models";
+import type { CaseDetails } from "@/lib/case-models";
 import type { ProductSpecs } from "@/lib/product-specs";
 import { normalizeSecondHandDetails, type SecondHandDetails } from "@/lib/second-hand";
 import { normalizeProductVariants, sortProductVariants } from "@/lib/product-variants";
@@ -19,6 +20,7 @@ type ProductDocument = {
   rating_count?: number | null;
   rating_distribution?: Record<string, number> | null;
   specs?: ProductSpecs | null;
+  case_details?: CaseDetails | null;
   second_hand?: SecondHandDetails | null;
   category_id?: string | null;
 };
@@ -37,7 +39,7 @@ function normalizeImageArray(values: unknown) {
 export async function getProductDetailBySlug(slug: string): Promise<ProductDetailRecord | null> {
   const product = (await Product.findOne({ slug, is_active: true })
     .select(
-      "id name slug brand description images starting_price created_at sales_count rating_average rating_count rating_distribution specs second_hand category_id",
+      "id name slug brand description images starting_price created_at sales_count rating_average rating_count rating_distribution specs case_details second_hand category_id",
     )
     .lean()) as ProductDocument | null;
 
@@ -69,6 +71,7 @@ export async function getProductDetailBySlug(slug: string): Promise<ProductDetai
     rating_count: Number(product.rating_count ?? 0),
     rating_distribution: product.rating_distribution ?? null,
     specs: product.specs ?? null,
+    case_details: product.case_details ?? null,
     second_hand: normalizeSecondHandDetails(product.second_hand),
     categories: category ? { name: `${category.name ?? ""}`.trim(), slug: `${category.slug ?? ""}`.trim() } : null,
     product_variants: sortProductVariants(

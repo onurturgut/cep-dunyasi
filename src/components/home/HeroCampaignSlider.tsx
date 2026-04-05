@@ -118,7 +118,7 @@ export function HeroCampaignSlider({ slides, isLoading = false }: HeroCampaignSl
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
-            className="text-xs font-medium uppercase tracking-[0.32em] text-muted-foreground dark:text-white/55"
+            className="text-xs font-medium uppercase tracking-[0.32em] text-muted-foreground dark:text-white/68"
           >
             Premium Campaigns
           </motion.p>

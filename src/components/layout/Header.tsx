@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight, Heart, Menu, Moon, Search, ShoppingCart, Sun, User } from "lucide-react";
 import { Link, useNavigate } from "@/lib/router";
@@ -10,9 +11,11 @@ import { Switch } from "@/components/ui/switch";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useI18n } from "@/i18n/provider";
 import { useCartStore } from "@/lib/cart-store";
-import { cn } from "@/lib/utils";
+import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
+import { cn, formatCurrency } from "@/lib/utils";
 
 const navLinks = [
   { label: "Ana Sayfa", href: "/" },
@@ -222,6 +225,19 @@ const megaMenuData = {
 
 type MegaMenuKey = keyof typeof megaMenuData;
 
+type MegaMenuSuggestedProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  brand: string | null;
+  image: string | null;
+  price: number;
+  originalPrice: number | null;
+  variantLabel: string | null;
+  salesCount: number;
+  inStock: boolean;
+};
+
 const desktopStandaloneLinks = [{ label: "Teknik Servis", href: "/technical-service" }];
 
 const megaMenuPromoContent: Partial<Record<MegaMenuKey, { title: string; description: string; cta: string }>> = {
@@ -232,9 +248,16 @@ const megaMenuPromoContent: Partial<Record<MegaMenuKey, { title: string; descrip
   },
 };
 
+function getMegaMenuCategorySlug(href: string) {
+  const [, search = ""] = href.split("?");
+  return new URLSearchParams(search).get("category");
+}
+
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<MegaMenuKey | null>(null);
+  const [megaMenuSuggestions, setMegaMenuSuggestions] = useState<Partial<Record<MegaMenuKey, MegaMenuSuggestedProduct[]>>>({});
+  const [loadingMegaMenuKey, setLoadingMegaMenuKey] = useState<MegaMenuKey | null>(null);
   const [mounted, setMounted] = useState(false);
   const totalItems = useCartStore((state) => state.totalItems());
   const { user, isAdmin, signOut } = useAuth();
@@ -242,6 +265,7 @@ export function Header() {
   const { messages } = useI18n();
   const navigate = useNavigate();
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingMenuFetchesRef = useRef(new Set<MegaMenuKey>());
   const headerMessages = messages.header;
   const localizedNavLinks = headerMessages.mobileNavLinks;
 
@@ -291,17 +315,80 @@ export function Header() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    const menuKey = activeMegaMenu;
+    if (!menuKey) {
+      return;
+    }
+
+    const categorySlug = getMegaMenuCategorySlug(megaMenuData[menuKey].href);
+    if (!categorySlug || megaMenuSuggestions[menuKey] || pendingMenuFetchesRef.current.has(menuKey)) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const pendingFetches = pendingMenuFetchesRef.current;
+    pendingFetches.add(menuKey);
+    setLoadingMegaMenuKey(menuKey);
+
+    void fetch(`/api/products/mega-menu?category=${encodeURIComponent(categorySlug)}&limit=4`, {
+      method: "GET",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const payload = (await response.json()) as {
+          data?: { items?: MegaMenuSuggestedProduct[] };
+        };
+
+        if (!response.ok) {
+          throw new Error("Mega menu onerileri alinamadi");
+        }
+
+        setMegaMenuSuggestions((current) => ({
+          ...current,
+          [menuKey]: Array.isArray(payload.data?.items) ? payload.data?.items : [],
+        }));
+      })
+      .catch((error) => {
+        if ((error as Error).name === "AbortError") {
+          return;
+        }
+
+        setMegaMenuSuggestions((current) => ({
+          ...current,
+          [menuKey]: current[menuKey] ?? [],
+        }));
+      })
+      .finally(() => {
+        pendingFetches.delete(menuKey);
+        setLoadingMegaMenuKey((current) => (current === menuKey ? null : current));
+      });
+
+    return () => {
+      controller.abort();
+      pendingFetches.delete(menuKey);
+    };
+  }, [activeMegaMenu, megaMenuSuggestions]);
+
   const activeMegaData = activeMegaMenu ? megaMenuData[activeMegaMenu] : null;
   const primaryMegaColumns = activeMegaData ? activeMegaData.columns.slice(0, 2) : [];
   const promoMegaColumn = activeMegaData?.columns[2] ?? null;
   const activePromoContent = activeMegaMenu ? megaMenuPromoContent[activeMegaMenu] : null;
+  const activeSuggestedProducts = activeMegaMenu ? megaMenuSuggestions[activeMegaMenu] ?? null : null;
+  const isActiveMegaMenuSuggestionsLoading = activeMegaMenu != null && loadingMegaMenuKey === activeMegaMenu;
   const megaMenuTransitionStyle = { transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)" } as const;
   const isDarkMode = mounted && resolvedTheme === "dark";
+  const isMobile = useIsMobile();
 
   return (
     <>
       <header
-        className="sticky top-0 z-50 isolate w-full border-b border-border/70 bg-background/92 bg-[linear-gradient(90deg,rgba(255,255,255,0.96)_0%,rgba(248,249,252,0.94)_34%,rgba(236,240,248,0.92)_68%,rgba(225,232,244,0.94)_100%)] text-foreground backdrop-blur-2xl dark:bg-[linear-gradient(90deg,rgba(8,12,22,0.96)_0%,rgba(12,18,32,0.95)_34%,rgba(22,28,45,0.94)_68%,rgba(30,37,56,0.95)_100%)]"
+        className={cn(
+          "sticky top-0 z-50 isolate w-full border-b border-border/70 bg-background/95 text-foreground shadow-[0_12px_30px_rgba(15,23,42,0.04)] dark:shadow-[0_14px_36px_rgba(0,0,0,0.28)]",
+          isMobile
+            ? "bg-background/98"
+            : "bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(249,250,251,0.96)_100%)] dark:bg-[linear-gradient(180deg,rgba(10,14,24,0.98)_0%,rgba(13,18,30,0.96)_100%)]",
+        )}
         onMouseLeave={scheduleCloseMegaMenu}
       >
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
@@ -483,7 +570,7 @@ export function Header() {
               </SheetContent>
             </Sheet>
 
-            <div className="ml-1 hidden rounded-full border border-border/70 bg-background/80 p-1 sm:block">
+            <div className="ml-1 hidden rounded-full border border-border/70 bg-background p-1 shadow-sm sm:block">
               <Switch
                 aria-label={isDarkMode ? headerMessages.actions.switchToLight : headerMessages.actions.switchToDark}
                 checked={isDarkMode}
@@ -505,7 +592,7 @@ export function Header() {
           )}
         >
           <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
-            <div className="max-h-[70vh] overflow-y-auto rounded-b-3xl border-x border-b border-border/70 bg-background/92 shadow-[0_28px_55px_rgba(0,0,0,0.2)] backdrop-blur-xl">
+            <div className="max-h-[70vh] overflow-y-auto rounded-b-3xl border-x border-b border-border/70 bg-background shadow-[0_22px_44px_rgba(15,23,42,0.08)] dark:shadow-[0_22px_48px_rgba(0,0,0,0.34)]">
               {activeMegaData ? (
                 <div className="mx-auto max-w-5xl p-3.5 md:p-4">
                   <div className="mb-3 flex items-center justify-between border-b border-border/50 pb-2.5">
@@ -521,7 +608,7 @@ export function Header() {
 
                   <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
                     {primaryMegaColumns.map((column) => (
-                      <div key={column.title} className="self-start rounded-2xl border border-border/65 bg-background/75 p-3">
+                      <div key={column.title} className="self-start rounded-2xl border border-border/65 bg-background p-3 shadow-[0_8px_20px_rgba(15,23,42,0.03)] dark:shadow-none">
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{column.title}</p>
                         <ul className="mt-3 space-y-1">
                           {column.items.map((item) => (
@@ -541,25 +628,84 @@ export function Header() {
                     ))}
 
                     {promoMegaColumn ? (
-                      <div className="self-start rounded-[1.45rem] border border-border/65 bg-gradient-to-br from-background via-background to-secondary/20 p-3.5 shadow-[0_24px_44px_rgba(0,0,0,0.12)]">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">{promoMegaColumn.title}</p>
+                      <div className="self-start rounded-[1.45rem] border border-border/65 bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(248,250,252,1)_100%)] p-3.5 shadow-[0_18px_36px_rgba(15,23,42,0.08)] dark:bg-[linear-gradient(180deg,rgba(15,20,31,1)_0%,rgba(17,24,39,1)_100%)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.28)]">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">Onerilen Urunler</p>
                         <h4 className="mt-2.5 font-display text-xl font-semibold tracking-tight text-foreground">
-                          {activePromoContent?.title || `${activeMegaData.label} icin ozel secimler`}
+                          {activePromoContent?.title || `${activeMegaData.label} icin one cikan secimler`}
                         </h4>
                         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                          {activePromoContent?.description || "En cok ilgi goren baglantilara hizli gecis yapin ve ilgili koleksiyonu tek adimda inceleyin."}
+                          {activePromoContent?.description || "Bu kategoride en cok ilgi goren urunleri dogrudan urun detayina giderek inceleyin."}
                         </p>
-                        <div className="mt-3.5 grid grid-cols-2 gap-2">
-                          {promoMegaColumn.items.map((item) => (
-                            <Link
-                              key={item.label}
-                              to={item.href}
-                              onClick={closeMegaMenu}
-                              className="flex min-h-[2.5rem] items-center justify-center rounded-full border border-border/75 bg-background/85 px-3 py-1.5 text-center text-[13px] font-medium text-foreground/85 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary"
-                            >
-                              {item.label}
-                            </Link>
-                          ))}
+                        <div className="mt-3.5 space-y-2.5">
+                          {isActiveMegaMenuSuggestionsLoading ? (
+                            Array.from({ length: 3 }, (_, index) => (
+                              <div
+                                key={`mega-menu-skeleton-${index}`}
+                                className="flex items-center gap-3 rounded-2xl border border-border/70 bg-background/90 p-2.5"
+                              >
+                                <div className="h-16 w-16 shrink-0 animate-pulse rounded-xl bg-muted/70" />
+                                <div className="min-w-0 flex-1 space-y-2">
+                                  <div className="h-3 w-20 animate-pulse rounded bg-muted/70" />
+                                  <div className="h-4 w-full animate-pulse rounded bg-muted/70" />
+                                  <div className="h-3 w-24 animate-pulse rounded bg-muted/70" />
+                                </div>
+                              </div>
+                            ))
+                          ) : activeSuggestedProducts && activeSuggestedProducts.length > 0 ? (
+                            activeSuggestedProducts.slice(0, 3).map((product) => (
+                              <Link
+                                key={product.id}
+                                to={`/product/${product.slug}`}
+                                onClick={closeMegaMenu}
+                                className="group flex items-center gap-3 rounded-2xl border border-border/70 bg-background/92 p-2.5 transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_14px_28px_rgba(15,23,42,0.08)] dark:hover:shadow-[0_16px_30px_rgba(0,0,0,0.22)]"
+                              >
+                                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/30">
+                                  {product.image ? (
+                                    <Image
+                                      src={getOptimizedImageUrl(product.image, { kind: "thumbnail", width: 144, height: 144, quality: 80 })}
+                                      alt={product.name}
+                                      fill
+                                      sizes={getResponsiveImageSizes("thumbnail")}
+                                      className="object-cover"
+                                    />
+                                  ) : (
+                                    <div className="flex h-full w-full items-center justify-center text-[11px] font-medium text-muted-foreground">
+                                      Urun
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                  {product.brand ? (
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary/70">{product.brand}</p>
+                                  ) : null}
+                                  <p className="mt-1 line-clamp-2 text-sm font-semibold leading-5 text-foreground">{product.name}</p>
+                                  {product.variantLabel ? (
+                                    <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{product.variantLabel}</p>
+                                  ) : null}
+                                  <div className="mt-2 flex items-center gap-2">
+                                    <span className="text-sm font-semibold text-foreground">{formatCurrency(product.price)}</span>
+                                    {product.originalPrice ? (
+                                      <span className="text-xs text-muted-foreground line-through">{formatCurrency(product.originalPrice)}</span>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              </Link>
+                            ))
+                          ) : (
+                            <div className="grid grid-cols-2 gap-2">
+                              {promoMegaColumn.items.map((item) => (
+                                <Link
+                                  key={item.label}
+                                  to={item.href}
+                                  onClick={closeMegaMenu}
+                                  className="flex min-h-[2.5rem] items-center justify-center rounded-full border border-border/75 bg-background px-3 py-1.5 text-center text-[13px] font-medium text-foreground/85 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary"
+                                >
+                                  {item.label}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         <Link
                           to={activeMegaData.href}
@@ -584,7 +730,7 @@ export function Header() {
         onClick={closeMegaMenu}
         style={megaMenuTransitionStyle}
         className={cn(
-          "fixed inset-x-0 bottom-0 top-16 z-40 hidden bg-secondary/35 backdrop-blur-md transition-opacity duration-300 lg:block",
+          "fixed inset-x-0 bottom-0 top-16 z-40 hidden bg-secondary/22 transition-opacity duration-300 lg:block",
           activeMegaData ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
         )}
       />

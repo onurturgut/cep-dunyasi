@@ -683,7 +683,7 @@ export default function Products({ initialCategories = defaultCategories }: Prod
             ) : null}
 
             {loading ? (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 sm:gap-4 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <div key={index} className="space-y-3">
                     <Skeleton className="aspect-square w-full rounded-lg" />
@@ -700,7 +700,7 @@ export default function Products({ initialCategories = defaultCategories }: Prod
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 sm:gap-4 xl:grid-cols-3">
                   {products.map((product) => {
                     const variant = getDisplayVariantForCatalogProduct(product, draftFilters, filterProfile);
 
@@ -721,6 +721,7 @@ export default function Products({ initialCategories = defaultCategories }: Prod
                         salesCount={product.sales_count}
                         ratingAverage={product.rating_average}
                         secondHand={product.second_hand}
+                        caseDetails={product.case_details}
                         specs={product.specs as Record<string, string | null> | null}
                         storage={variant?.storage}
                         ram={variant?.ram}

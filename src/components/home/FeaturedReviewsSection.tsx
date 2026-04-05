@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Quote, ShieldCheck, Star } from "lucide-react";
 import { Link } from "@/lib/router";
 import type { FeaturedReviewRecord } from "@/lib/marketing";
@@ -33,14 +32,10 @@ export function FeaturedReviewsSection({ reviews }: FeaturedReviewsSectionProps)
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
-            {reviews.slice(0, 6).map((review, index) => (
-              <motion.article
+            {reviews.slice(0, 6).map((review) => (
+              <article
                 key={review.id}
                 className="rounded-[1.6rem] border border-border/70 bg-background/80 p-5"
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: index * 0.04 }}
-                viewport={{ once: true, amount: 0.2 }}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-1 text-amber-500">
@@ -73,7 +68,7 @@ export function FeaturedReviewsSection({ reviews }: FeaturedReviewsSectionProps)
                     </span>
                   ) : null}
                 </div>
-              </motion.article>
+              </article>
             ))}
           </div>
         </div>

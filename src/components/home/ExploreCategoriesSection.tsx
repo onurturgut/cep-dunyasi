@@ -1,9 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from 'framer-motion';
 import { Link } from '@/lib/router';
-import { categoryIcons, sectionReveal, type HomeCategory, type HomeSiteContent } from '@/components/home/home-data';
+import { categoryIcons, type HomeCategory, type HomeSiteContent } from '@/components/home/home-data';
 import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type ExploreCategoriesSectionProps = {
@@ -15,14 +14,10 @@ export function ExploreCategoriesSection({ categories, content }: ExploreCategor
   const exploreCategories = categories.slice(0, 12);
 
   return (
-    <motion.section
+    <section
       id="home-explore"
       data-section="explore"
       className="relative py-4 md:py-6"
-      variants={sectionReveal}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.15 }}
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 hidden h-64 overflow-hidden md:block">
         <div className="absolute left-[14%] top-6 h-24 w-24 rounded-full bg-primary/10 blur-3xl" />
@@ -30,10 +25,10 @@ export function ExploreCategoriesSection({ categories, content }: ExploreCategor
       </div>
 
       <div className="container">
-        <motion.div className="space-y-4">
+        <div className="space-y-4">
           <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">{content.explore_section_title}</h2>
           <div className="explore-categories-scroll overflow-x-auto pb-2">
-            <motion.div className="explore-category-list flex gap-3 pr-2">
+            <div className="explore-category-list flex gap-3 pr-2">
               {exploreCategories.map((category) => {
                 const Icon = categoryIcons[category.icon || 'Smartphone'] || categoryIcons.Smartphone;
                 const categoryName = `${category.name || ''}`.toLowerCase();
@@ -73,10 +68,10 @@ export function ExploreCategoriesSection({ categories, content }: ExploreCategor
                   </Link>
                 );
               })}
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

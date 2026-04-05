@@ -306,9 +306,97 @@ export function findProductVariantBySelection<T extends VariantLike>(variants: T
   }) ?? null;
 }
 
+export function resolveProductVariantBySelection<T extends VariantLike>(
+  variants: T[],
+  selection: VariantSelection,
+  categorySlug?: string | null,
+) {
+  const activeVariants = getActiveProductVariants(variants).map((variant) => normalizeProductVariant(variant));
+
+  if (activeVariants.length === 0) {
+    return null;
+  }
+
+  const requestedAxes = getProductVariantAxes(categorySlug)
+    .map((axis) => ({
+      axis,
+      value: getVariantAxisRawValue(axis, {
+        colorName: selection.colorName,
+        storage: selection.storage,
+        ram: selection.ram,
+        attributes: selection.attributes,
+      }),
+    }))
+    .filter((entry): entry is { axis: VariantAxisDefinition; value: string } => Boolean(entry.value));
+
+  if (requestedAxes.length === 0 && selection.variantId) {
+    const byId = activeVariants.find((variant) => variant.id === selection.variantId);
+    if (byId) {
+      return byId;
+    }
+  }
+
+  const exactMatch = activeVariants.find((variant) =>
+    requestedAxes.every(({ axis, value }) =>
+      getVariantAxisRawValue(axis, {
+        colorName: variant.color_name,
+        storage: variant.storage,
+        ram: variant.ram,
+        attributes: variant.attributes,
+      }) === value,
+    ),
+  );
+
+  if (exactMatch) {
+    return exactMatch;
+  }
+
+  const rankedCandidates = activeVariants
+    .map((variant) => {
+      const axisMatches = requestedAxes.map(({ axis, value }) =>
+        getVariantAxisRawValue(axis, {
+          colorName: variant.color_name,
+          storage: variant.storage,
+          ram: variant.ram,
+          attributes: variant.attributes,
+        }) === value,
+      );
+
+      return {
+        variant,
+        axisMatches,
+        matchedAxisCount: axisMatches.filter(Boolean).length,
+      };
+    })
+    .filter((candidate) => candidate.matchedAxisCount > 0)
+    .sort((left, right) => {
+      if (right.matchedAxisCount !== left.matchedAxisCount) {
+        return right.matchedAxisCount - left.matchedAxisCount;
+      }
+
+      for (let index = 0; index < left.axisMatches.length; index += 1) {
+        const leftMatch = left.axisMatches[index] ? 1 : 0;
+        const rightMatch = right.axisMatches[index] ? 1 : 0;
+
+        if (rightMatch !== leftMatch) {
+          return rightMatch - leftMatch;
+        }
+      }
+
+      if ((right.variant.stock > 0 ? 1 : 0) !== (left.variant.stock > 0 ? 1 : 0)) {
+        return (right.variant.stock > 0 ? 1 : 0) - (left.variant.stock > 0 ? 1 : 0);
+      }
+
+      return left.variant.sort_order - right.variant.sort_order;
+    });
+
+  return rankedCandidates[0]?.variant ?? getDefaultProductVariant(activeVariants);
+}
+
 export function getVariantLabel(variant: VariantLike) {
   const normalized = normalizeProductVariant(variant);
-  const labelParts = [normalized.color_name, normalized.storage, normalized.ram]
+  const compatibilityLabel = normalized.attributes.uyumluluk || normalized.attributes.compatibility || null;
+  const labelParts = [compatibilityLabel, normalized.color_name, normalized.storage, normalized.ram]
     .filter(Boolean)
     .filter((value, index, values) => value !== "Standart" || values.length === 1 || index === values.length - 1)
     .filter((value, index, values) => values.indexOf(value) === index);

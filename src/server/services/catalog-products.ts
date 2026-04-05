@@ -147,7 +147,7 @@ async function loadCatalogProducts(activeCategory: string | null): Promise<Catal
   }
 
   const rawProducts = (await Product.find(productQuery)
-    .select("id name slug description category_id subcategory_id brand images created_at sales_count rating_average second_hand specs")
+    .select("id name slug description category_id subcategory_id brand images created_at sales_count rating_average second_hand specs case_details")
     .sort({ created_at: -1 })
     .lean()) as Array<Record<string, unknown>>;
 
@@ -219,6 +219,7 @@ async function loadCatalogProducts(activeCategory: string | null): Promise<Catal
     sales_count: Number(product.sales_count ?? 0),
     rating_average: Number(product.rating_average ?? 0),
     second_hand: normalizeSecondHandDetails(product.second_hand),
+    case_details: (product.case_details as Record<string, unknown> | null) ?? null,
     specs: (product.specs as Record<string, string | null> | null) ?? null,
     categories: categoriesById.get(`${product.category_id ?? ""}`) ?? null,
     subcategory: categoriesById.get(`${product.subcategory_id ?? ""}`) ?? null,

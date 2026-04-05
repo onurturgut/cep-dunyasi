@@ -35,19 +35,19 @@ export function InstallmentCalculator({ price }: InstallmentCalculatorProps) {
   const highlightedPlan = buildInstallmentOptions(price)[1];
 
   return (
-    <Card className="border-border/70 bg-gradient-to-br from-white to-slate-100/80 text-slate-950 shadow-[0_18px_40px_-34px_rgba(15,23,42,0.45)]">
+    <Card className="border-border/70 bg-gradient-to-br from-card via-card to-muted/25 text-card-foreground shadow-[0_18px_40px_-34px_rgba(15,23,42,0.45)]">
       <CardContent className="p-5">
         <div className="flex items-start gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <CreditCard className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-slate-950">Örnek taksit seçenekleri</div>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
+            <div className="text-sm font-semibold text-foreground">Örnek taksit seçenekleri</div>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
               Gerçek banka kampanyaları ödeme ekranında gösterilir. Buradaki tutarlar bilgilendirme amaçlıdır.
             </p>
             {highlightedPlan ? (
-              <p className="mt-2 text-sm font-medium text-slate-950">
+              <p className="mt-2 text-sm font-medium text-foreground">
                 En dengeli seçenek: {highlightedPlan.months} x {formatCurrency(highlightedPlan.monthlyAmount)}
               </p>
             ) : null}

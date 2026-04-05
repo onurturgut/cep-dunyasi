@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { CampaignBadge } from "@/components/home/CampaignBadge";
 import { CampaignCTAButton } from "@/components/home/CampaignCTAButton";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { CampaignThemeVariant, HeroCampaignSlideData } from "@/lib/home-campaigns";
 import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
@@ -37,20 +38,23 @@ const themeClassMap: Record<CampaignThemeVariant, { shell: string; accent: strin
 
 export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlideProps) {
   const theme = themeClassMap[slide.themeVariant];
+  const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
+  const enableAmbientMotion = !isMobile && !prefersReducedMotion;
 
   return (
     <article className="relative overflow-hidden rounded-[2.25rem] text-foreground shadow-[0_18px_42px_rgba(15,23,42,0.08)] dark:text-white dark:md:shadow-[0_28px_80px_rgba(2,6,23,0.46)]">
       <motion.div
         aria-hidden="true"
         className={`absolute -left-8 top-12 hidden h-40 w-40 rounded-full blur-3xl md:block ${theme.glow}`}
-        animate={{ y: [0, -12, 0], opacity: [0.55, 0.75, 0.55] }}
-        transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        animate={enableAmbientMotion ? { y: [0, -12, 0], opacity: [0.55, 0.75, 0.55] } : undefined}
+        transition={enableAmbientMotion ? { duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" } : undefined}
       />
       <motion.div
         aria-hidden="true"
         className="absolute bottom-[-4rem] right-[-2rem] hidden h-64 w-64 rounded-full bg-primary/10 blur-3xl md:block dark:bg-fuchsia-400/12"
-        animate={{ y: [0, 16, 0], x: [0, -10, 0], opacity: [0.3, 0.48, 0.3] }}
-        transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        animate={enableAmbientMotion ? { y: [0, 16, 0], x: [0, -10, 0], opacity: [0.3, 0.48, 0.3] } : undefined}
+        transition={enableAmbientMotion ? { duration: 10, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" } : undefined}
       />
 
       <div className="relative grid min-h-[34rem] gap-8 px-6 py-8 sm:px-8 md:px-10 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)] lg:items-center lg:px-12 lg:py-12">
@@ -63,17 +67,17 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
           <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-start">
             {slide.badgeText ? <CampaignBadge themeVariant={slide.themeVariant}>{slide.badgeText}</CampaignBadge> : null}
             {slide.badgeSecondaryText ? (
-              <span className="inline-flex rounded-full border border-border/70 bg-card px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground md:bg-background/75 md:backdrop-blur-xl dark:border-white/10 dark:bg-slate-900 dark:md:bg-white/5 dark:text-white/70">
+              <span className="inline-flex rounded-full border border-border/70 bg-card px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground md:bg-background/75 md:backdrop-blur-xl dark:border-white/10 dark:bg-slate-900 dark:md:bg-white/5 dark:text-white/80">
                 {slide.badgeSecondaryText}
               </span>
             ) : null}
           </div>
 
-          <p className="mt-5 text-sm font-medium uppercase tracking-[0.28em] text-muted-foreground dark:text-white/60">{slide.subtitle}</p>
+          <p className="mt-5 text-sm font-medium uppercase tracking-[0.28em] text-muted-foreground dark:text-white/72">{slide.subtitle}</p>
           <h2 className="mt-4 max-w-[12ch] font-display text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl xl:text-6xl">
             {slide.title}
           </h2>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-muted-foreground dark:text-white/72 sm:text-base lg:max-w-xl">
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-muted-foreground dark:text-white/80 sm:text-base lg:max-w-xl">
             {slide.description}
           </p>
 
@@ -93,12 +97,12 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
             <motion.div
               aria-hidden="true"
               className="absolute inset-x-8 bottom-6 hidden h-10 rounded-full bg-foreground/10 blur-2xl md:block dark:bg-white/10"
-              animate={{ scaleX: [1, 1.08, 1] }}
-              transition={{ duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+              animate={enableAmbientMotion ? { scaleX: [1, 1.08, 1] } : undefined}
+              transition={enableAmbientMotion ? { duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" } : undefined}
             />
             <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+              animate={enableAmbientMotion ? { y: [0, -8, 0] } : undefined}
+              transition={enableAmbientMotion ? { duration: 7, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" } : undefined}
               className="relative flex max-h-[30rem] min-h-[18rem] w-full items-center justify-center"
             >
               <Image
@@ -108,7 +112,7 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
                 height={1000}
                 priority={priority}
                 sizes={getResponsiveImageSizes("campaign-banner")}
-                className="h-auto max-h-[26rem] w-auto max-w-full object-contain drop-shadow-[0_28px_80px_rgba(15,23,42,0.5)] sm:max-h-[28rem] lg:max-h-[32rem]"
+                className={`h-auto max-h-[26rem] w-auto max-w-full object-contain ${enableAmbientMotion ? "drop-shadow-[0_28px_80px_rgba(15,23,42,0.5)]" : "drop-shadow-[0_16px_34px_rgba(15,23,42,0.24)]"} sm:max-h-[28rem] lg:max-h-[32rem]`}
               />
             </motion.div>
           </div>

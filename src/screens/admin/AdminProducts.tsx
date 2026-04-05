@@ -17,6 +17,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
+import {
+  buildCaseVariantSku,
+  CASE_FEATURE_OPTIONS,
+  CASE_THEME_OPTIONS,
+  CASE_TYPE_OPTIONS,
+  CASE_COLOR_CODE_MAP,
+  CASE_COLOR_OPTIONS,
+  type CaseDetails,
+  getCaseCompatibilityValue,
+  IPHONE_CASE_MODELS,
+  IPHONE_CASE_SERIES_GROUPS,
+} from "@/lib/case-models";
 import { sanitizeSlug } from "@/lib/utils";
 import { getProductVariantAxes, type VariantAxisDefinition } from "@/lib/product-variant-config";
 import { getVariantLabel, normalizeProductVariants, type ProductVariantRecord } from "@/lib/product-variants";
@@ -63,6 +75,11 @@ type ProductForm = {
   is_active: boolean;
   images: string[];
   specs: ProductSpecs;
+  case_details: {
+    case_type: string;
+    case_theme: string;
+    feature_tags: string[];
+  };
   second_hand: {
     condition: SecondHandCondition | null;
     battery_health: string;
@@ -82,6 +99,16 @@ type ProductForm = {
     serial_number: string;
   };
   variants: ProductVariantForm[];
+};
+
+type CaseBuilderState = {
+  selectedModels: string[];
+  selectedColors: string[];
+  customColor: string;
+  price: string;
+  compare_at_price: string;
+  stock: string;
+  is_active: boolean;
 };
 
 type AdminCategory = {
@@ -104,6 +131,7 @@ type AdminProductRecord = {
   is_active: boolean;
   images: string[];
   specs?: ProductSpecs | null;
+  case_details?: CaseDetails | null;
   second_hand?: SecondHandDetails | null;
   product_variants: ProductVariantRecord[];
   categories?: { name?: string } | null;
@@ -158,6 +186,53 @@ function getVariantAxisFormValue(variant: ProductVariantForm, axis: VariantAxisD
   return variant.attributes[axis.attributeKeys[0]] || "";
 }
 
+function isPlaceholderVariant(variant: ProductVariantForm) {
+  return (
+    !variant.color_name.trim() &&
+    !variant.storage.trim() &&
+    !variant.ram.trim() &&
+    !variant.sku.trim() &&
+    !variant.price.trim() &&
+    !variant.compare_at_price.trim() &&
+    !variant.barcode.trim() &&
+    variant.images.length === 0 &&
+    Object.values(variant.attributes).every((value) => !`${value ?? ""}`.trim())
+  );
+}
+
+function getMeaningfulVariants(variants: ProductVariantForm[]) {
+  return variants.filter((variant) => !isPlaceholderVariant(variant));
+}
+
+function getCommonFieldValue(values: string[]) {
+  const normalizedValues = values.map((value) => `${value ?? ""}`);
+  return new Set(normalizedValues).size === 1 ? normalizedValues[0] || "" : "";
+}
+
+function deriveCaseBuilderFromVariants(variants: ProductVariantForm[]): CaseBuilderState {
+  const meaningfulVariants = getMeaningfulVariants(variants);
+  if (meaningfulVariants.length === 0) {
+    return createEmptyCaseBuilder();
+  }
+
+  const selectedModels = Array.from(
+    new Set(meaningfulVariants.map((variant) => getCaseCompatibilityValue(variant.attributes)).filter(Boolean)),
+  );
+  const selectedColors = Array.from(
+    new Set(meaningfulVariants.map((variant) => variant.color_name.trim()).filter(Boolean)),
+  );
+
+  return {
+    selectedModels,
+    selectedColors,
+    customColor: "",
+    price: getCommonFieldValue(meaningfulVariants.map((variant) => variant.price)),
+    compare_at_price: getCommonFieldValue(meaningfulVariants.map((variant) => variant.compare_at_price)),
+    stock: getCommonFieldValue(meaningfulVariants.map((variant) => variant.stock)) || "0",
+    is_active: meaningfulVariants.every((variant) => variant.is_active),
+  };
+}
+
 const createEmptyVariant = (sortOrder = 0): ProductVariantForm => ({
   color_name: "",
   color_code: "",
@@ -172,6 +247,16 @@ const createEmptyVariant = (sortOrder = 0): ProductVariantForm => ({
   is_active: true,
   barcode: "",
   sort_order: sortOrder,
+});
+
+const createEmptyCaseBuilder = (): CaseBuilderState => ({
+  selectedModels: [],
+  selectedColors: [],
+  customColor: "",
+  price: "",
+  compare_at_price: "",
+  stock: "0",
+  is_active: true,
 });
 
 const defaultForm: ProductForm = {
@@ -192,9 +277,22 @@ const defaultForm: ProductForm = {
     frontCamera: "",
     rearCamera: "",
   },
+  case_details: {
+    case_type: "",
+    case_theme: "",
+    feature_tags: [],
+  },
   second_hand: mapSecondHandToForm(),
   variants: [createEmptyVariant(0)],
 };
+
+function mapCaseDetailsToForm(details?: CaseDetails | null): ProductForm["case_details"] {
+  return {
+    case_type: details?.case_type || "",
+    case_theme: details?.case_theme || "",
+    feature_tags: Array.isArray(details?.feature_tags) ? details!.feature_tags.filter(Boolean) : [],
+  };
+}
 
 function mapVariantToForm(variant: ProductVariantRecord, index: number): ProductVariantForm {
   return {
@@ -238,6 +336,7 @@ function mapProductToForm(product: AdminProductRecord): ProductForm {
       frontCamera: product.specs?.frontCamera || "",
       rearCamera: product.specs?.rearCamera || "",
     },
+    case_details: mapCaseDetailsToForm(product.case_details),
     second_hand: mapSecondHandToForm(product.second_hand),
     variants: variants.length > 0 ? variants.map((variant, index) => mapVariantToForm(variant, index)) : [createEmptyVariant(0)],
   };
@@ -270,6 +369,9 @@ export default function AdminProducts() {
   const [editing, setEditing] = useState<AdminProductRecord | null>(null);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [form, setForm] = useState<ProductForm>(defaultForm);
+  const [caseBuilder, setCaseBuilder] = useState<CaseBuilderState>(createEmptyCaseBuilder);
+  const [caseModelSearch, setCaseModelSearch] = useState("");
+  const [showCaseAdvancedEditor, setShowCaseAdvancedEditor] = useState(false);
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const bulkActions = useBulkProductActions();
@@ -287,7 +389,17 @@ export default function AdminProducts() {
     [categories, form.category_id]
   );
   const isSecondHandIphoneCategory = selectedCategory?.slug === "ikinci-el-telefon";
+  const isCaseCategory = selectedCategory?.slug === "kilif";
   const variantAxes = useMemo(() => getProductVariantAxes(selectedCategory?.slug), [selectedCategory?.slug]);
+  const filteredCaseModels = useMemo(() => {
+    const normalizedSearch = caseModelSearch.trim().toLocaleLowerCase("tr-TR");
+    if (!normalizedSearch) {
+      return [...IPHONE_CASE_MODELS];
+    }
+
+    return IPHONE_CASE_MODELS.filter((model) => model.toLocaleLowerCase("tr-TR").includes(normalizedSearch));
+  }, [caseModelSearch]);
+  const caseGeneratedVariants = useMemo(() => getMeaningfulVariants(form.variants), [form.variants]);
 
   const fetchProducts = async () => {
     const { data, error } = await db
@@ -371,8 +483,33 @@ export default function AdminProducts() {
     }
   }, [form.subcategory_id, subcategories]);
 
+  useEffect(() => {
+    if (!isCaseCategory) {
+      setCaseModelSearch("");
+      setShowCaseAdvancedEditor(false);
+      return;
+    }
+
+    setCaseBuilder((current) => {
+      if (
+        current.selectedModels.length > 0 ||
+        current.selectedColors.length > 0 ||
+        current.price ||
+        current.compare_at_price ||
+        current.stock !== "0"
+      ) {
+        return current;
+      }
+
+      return deriveCaseBuilderFromVariants(form.variants);
+    });
+  }, [form.variants, isCaseCategory]);
+
   const resetForm = () => {
     setForm(defaultForm);
+    setCaseBuilder(createEmptyCaseBuilder());
+    setCaseModelSearch("");
+    setShowCaseAdvancedEditor(false);
     setIsSlugManuallyEdited(false);
   };
 
@@ -532,7 +669,133 @@ export default function AdminProducts() {
             }
           : variant,
       ),
+      }));
+  };
+
+  const handleToggleCaseModel = (model: string) => {
+    setCaseBuilder((current) => ({
+      ...current,
+      selectedModels: current.selectedModels.includes(model)
+        ? current.selectedModels.filter((item) => item !== model)
+        : [...current.selectedModels, model],
     }));
+  };
+
+  const handleApplyCaseSeries = (models: readonly string[]) => {
+    setCaseBuilder((current) => ({
+      ...current,
+      selectedModels: Array.from(new Set([...current.selectedModels, ...models])),
+    }));
+  };
+
+  const handleClearCaseModels = () => {
+    setCaseBuilder((current) => ({
+      ...current,
+      selectedModels: [],
+    }));
+  };
+
+  const handleToggleCaseColor = (color: string) => {
+    setCaseBuilder((current) => ({
+      ...current,
+      selectedColors: current.selectedColors.includes(color)
+        ? current.selectedColors.filter((item) => item !== color)
+        : [...current.selectedColors, color],
+    }));
+  };
+
+  const handleAddCustomCaseColor = () => {
+    const normalizedColor = caseBuilder.customColor.trim();
+    if (!normalizedColor) {
+      return;
+    }
+
+    setCaseBuilder((current) => ({
+      ...current,
+      selectedColors: current.selectedColors.includes(normalizedColor)
+        ? current.selectedColors
+        : [...current.selectedColors, normalizedColor],
+      customColor: "",
+    }));
+  };
+
+  const handleToggleCaseFeature = (feature: string) => {
+    setForm((current) => ({
+      ...current,
+      case_details: {
+        ...current.case_details,
+        feature_tags: current.case_details.feature_tags.includes(feature)
+          ? current.case_details.feature_tags.filter((item) => item !== feature)
+          : [...current.case_details.feature_tags, feature],
+      },
+    }));
+  };
+
+  const buildCaseVariantsFromBuilder = (sourceForm: ProductForm) => {
+    const existingVariants = new Map(
+      getMeaningfulVariants(sourceForm.variants).map((variant) => [
+        `${getCaseCompatibilityValue(variant.attributes)}__${variant.color_name.trim()}`,
+        variant,
+      ]),
+    );
+
+    const nextVariants: ProductVariantForm[] = [];
+    let sortOrder = 0;
+
+    for (const model of caseBuilder.selectedModels) {
+      for (const color of caseBuilder.selectedColors) {
+        const existingVariant = existingVariants.get(`${model}__${color}`);
+        nextVariants.push({
+          id: existingVariant?.id,
+          color_name: color,
+          color_code: existingVariant?.color_code || CASE_COLOR_CODE_MAP[color] || "",
+          storage: "",
+          ram: "",
+          attributes: {
+            ...(existingVariant?.attributes || {}),
+            uyumluluk: model,
+          },
+          sku:
+            existingVariant?.sku ||
+            buildCaseVariantSku({
+              brand: sourceForm.brand,
+              productName: sourceForm.name,
+              model,
+              color,
+            }),
+          price: existingVariant?.price || caseBuilder.price || "",
+          compare_at_price: existingVariant?.compare_at_price || caseBuilder.compare_at_price || "",
+          stock: existingVariant?.stock || caseBuilder.stock || "0",
+          images: existingVariant?.images || [],
+          is_active: existingVariant?.is_active ?? caseBuilder.is_active,
+          barcode: existingVariant?.barcode || "",
+          sort_order: sortOrder,
+        });
+        sortOrder += 1;
+      }
+    }
+
+    return nextVariants;
+  };
+
+  const handleGenerateCaseVariants = () => {
+    if (caseBuilder.selectedModels.length === 0) {
+      toast.error("Once uyumlu telefon modellerini secin");
+      return;
+    }
+
+    if (caseBuilder.selectedColors.length === 0) {
+      toast.error("En az bir renk secin");
+      return;
+    }
+
+    const generatedVariants = buildCaseVariantsFromBuilder(form);
+    setForm((current) => ({
+      ...current,
+      variants: generatedVariants,
+    }));
+    setShowCaseAdvancedEditor(false);
+    toast.success(`${generatedVariants.length} urun secenegi hazirlandi`);
   };
 
   const addVariant = () => {
@@ -562,6 +825,18 @@ export default function AdminProducts() {
   };
 
   const handleSave = async () => {
+    const effectiveVariants = isCaseCategory
+      ? (() => {
+          const meaningfulVariants = getMeaningfulVariants(form.variants);
+          return meaningfulVariants.length > 0 ? meaningfulVariants : buildCaseVariantsFromBuilder(form);
+        })()
+      : getMeaningfulVariants(form.variants);
+
+    if (isCaseCategory && effectiveVariants.length === 0) {
+      toast.error("Kılıf urunu icin once uyumlu modelleri ve renkleri secin");
+      return;
+    }
+
     const payload = {
       productId: editing?.id ?? null,
       name: form.name,
@@ -581,6 +856,13 @@ export default function AdminProducts() {
         frontCamera: form.specs.frontCamera || null,
         rearCamera: form.specs.rearCamera || null,
       },
+      case_details: isCaseCategory
+        ? {
+            case_type: form.case_details.case_type || null,
+            case_theme: form.case_details.case_theme || null,
+            feature_tags: form.case_details.feature_tags,
+          }
+        : null,
       second_hand: isSecondHandIphoneCategory
         ? {
             condition: form.second_hand.condition || null,
@@ -601,7 +883,7 @@ export default function AdminProducts() {
             serial_number: form.second_hand.serial_number || null,
           }
         : null,
-      variants: form.variants.map((variant, index) => ({
+      variants: effectiveVariants.map((variant, index) => ({
         id: variant.id ?? null,
         color_name: variant.color_name,
         color_code: variant.color_code || null,
@@ -660,6 +942,9 @@ export default function AdminProducts() {
       const nextForm = mapProductToForm(product);
       setEditing(product);
       setForm(nextForm);
+      setCaseBuilder(deriveCaseBuilderFromVariants(nextForm.variants));
+      setCaseModelSearch("");
+      setShowCaseAdvancedEditor(false);
       setIsSlugManuallyEdited(hasCustomSlug(nextForm.name, nextForm.slug));
       setDialogOpen(true);
     } catch (error) {
@@ -1299,136 +1584,387 @@ export default function AdminProducts() {
                 </div>
               ) : null}
 
+              {isCaseCategory ? (
+                <div className="space-y-4 rounded-2xl border border-border/70 bg-muted/15 p-4">
+                  <div>
+                    <h3 className="text-sm font-semibold">Kılıf Bilgileri</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Urunun tarzini secin. Bunlar teknik ayar degil; urunu daha kolay ayirt etmek ve filtrelemek icin kullanilir.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Kilif Tipi</Label>
+                      <Select
+                        value={form.case_details.case_type || "none"}
+                        onValueChange={(value) =>
+                          setForm((current) => ({
+                            ...current,
+                            case_details: {
+                              ...current.case_details,
+                              case_type: value === "none" ? "" : value,
+                            },
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Secin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Secin</SelectItem>
+                          {CASE_TYPE_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Tema / Seri</Label>
+                      <Select
+                        value={form.case_details.case_theme || "none"}
+                        onValueChange={(value) =>
+                          setForm((current) => ({
+                            ...current,
+                            case_details: {
+                              ...current.case_details,
+                              case_theme: value === "none" ? "" : value,
+                            },
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Secin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Secin</SelectItem>
+                          {CASE_THEME_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Ek Ozellikler</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {CASE_FEATURE_OPTIONS.map((feature) => (
+                        <Button
+                          key={feature}
+                          type="button"
+                          size="sm"
+                          variant={form.case_details.feature_tags.includes(feature) ? "default" : "outline"}
+                          onClick={() => handleToggleCaseFeature(feature)}
+                        >
+                          {feature}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
               <div className="space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold">Modeller</h3>
+                    <h3 className="text-sm font-semibold">{isCaseCategory ? "Urun Secenekleri" : "Modeller"}</h3>
                     <p className="text-xs text-muted-foreground">
-                      {variantAxes.map((axis) => axis.label).join(", ") || "Temel model bilgileri"} bazli secenekleri fiyat, stok ve gorsellerle birlikte yonetin.
+                      {isCaseCategory
+                        ? "Kılıf urunlerinde teknik varyant yerine uyumlu modelleri, renkleri ve ortak fiyat bilgisini secin."
+                        : `${variantAxes.map((axis) => axis.label).join(", ") || "Temel model bilgileri"} bazli secenekleri fiyat, stok ve gorsellerle birlikte yonetin.`}
                     </p>
                   </div>
-                  <Button type="button" variant="outline" size="sm" className="w-full sm:w-auto" onClick={addVariant}>
-                    <Plus className="mr-1 h-4 w-4" /> Model Ekle
-                  </Button>
+                  {isCaseCategory ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full sm:w-auto"
+                      onClick={() => setShowCaseAdvancedEditor((current) => !current)}
+                    >
+                      {showCaseAdvancedEditor ? "Kolay Moda Don" : "Gelismis Duzenleme"}
+                    </Button>
+                  ) : (
+                    <Button type="button" variant="outline" size="sm" className="w-full sm:w-auto" onClick={addVariant}>
+                      <Plus className="mr-1 h-4 w-4" /> Model Ekle
+                    </Button>
+                  )}
                 </div>
 
-                <div className="space-y-4">
-                  {form.variants.map((variant, variantIndex) => (
-                    <Card key={variant.id || `new-variant-${variantIndex}`} className="p-4">
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="font-medium">
-                            {getVariantLabel({
-                              color_name: variant.color_name,
-                              storage: variant.storage,
-                              ram: variant.ram,
-                              attributes: variant.attributes,
-                              sku: variant.sku,
-                            }) || "Yeni model"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{variant.sku || `Model #${variantIndex + 1}`}</p>
+                {isCaseCategory ? (
+                  <Card className="border-border/70 bg-muted/15 p-4">
+                    <div className="space-y-4">
+                      <div className="grid gap-4 xl:grid-cols-[1.25fr_minmax(0,1fr)]">
+                        <div className="space-y-3">
+                          <div className="space-y-2">
+                            <Label>Uyumlu Telefon Modelleri</Label>
+                            <Input
+                              value={caseModelSearch}
+                              onChange={(event) => setCaseModelSearch(event.target.value)}
+                              placeholder="Model ara: iPhone 15 Pro"
+                            />
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            {IPHONE_CASE_SERIES_GROUPS.map((group) => (
+                              <Button key={group.id} type="button" variant="outline" size="sm" onClick={() => handleApplyCaseSeries(group.models)}>
+                                {group.label}
+                              </Button>
+                            ))}
+                            <Button type="button" variant="outline" size="sm" onClick={() => setCaseBuilder((current) => ({ ...current, selectedModels: [...IPHONE_CASE_MODELS] }))}>
+                              Tumunu Sec
+                            </Button>
+                            <Button type="button" variant="ghost" size="sm" onClick={handleClearCaseModels}>
+                              Temizle
+                            </Button>
+                          </div>
+
+                          <div className="max-h-72 overflow-y-auto rounded-2xl border border-border/70 bg-background/80 p-3">
+                            <div className="grid gap-2 sm:grid-cols-2">
+                              {filteredCaseModels.map((model) => (
+                                <label key={model} className="flex items-center gap-3 rounded-xl border border-border/60 px-3 py-2 text-sm">
+                                  <Checkbox checked={caseBuilder.selectedModels.includes(model)} onCheckedChange={() => handleToggleCaseModel(model)} />
+                                  <span>{model}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{caseBuilder.selectedModels.length} model secildi</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={variant.is_active ? "default" : "secondary"}>{variant.is_active ? "Aktif" : "Pasif"}</Badge>
-                          <Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => removeVariant(variantIndex)}>
-                            <Trash2 className="h-4 w-4" />
+
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>Renkler</Label>
+                            <div className="flex flex-wrap gap-2">
+                              {CASE_COLOR_OPTIONS.map((color) => (
+                                <Button
+                                  key={color}
+                                  type="button"
+                                  size="sm"
+                                  variant={caseBuilder.selectedColors.includes(color) ? "default" : "outline"}
+                                  onClick={() => handleToggleCaseColor(color)}
+                                >
+                                  {color}
+                                </Button>
+                              ))}
+                              {caseBuilder.selectedColors
+                                .filter((color) => !CASE_COLOR_OPTIONS.includes(color as (typeof CASE_COLOR_OPTIONS)[number]))
+                                .map((color) => (
+                                  <Button key={color} type="button" size="sm" variant="default" onClick={() => handleToggleCaseColor(color)}>
+                                    {color}
+                                  </Button>
+                                ))}
+                            </div>
+                            <div className="flex gap-2">
+                              <Input
+                                value={caseBuilder.customColor}
+                                onChange={(event) => setCaseBuilder((current) => ({ ...current, customColor: event.target.value }))}
+                                placeholder="Ozel renk ekle"
+                              />
+                              <Button type="button" variant="outline" onClick={handleAddCustomCaseColor}>
+                                Ekle
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Ortak Fiyat (TL)</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={caseBuilder.price}
+                                onChange={(event) => setCaseBuilder((current) => ({ ...current, price: event.target.value }))}
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Indirimli Fiyat</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={caseBuilder.compare_at_price}
+                                onChange={(event) => setCaseBuilder((current) => ({ ...current, compare_at_price: event.target.value }))}
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Ortak Stok</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={caseBuilder.stock}
+                                onChange={(event) => setCaseBuilder((current) => ({ ...current, stock: event.target.value }))}
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Yayin Durumu</Label>
+                              <Select
+                                value={caseBuilder.is_active ? "true" : "false"}
+                                onValueChange={(value) => setCaseBuilder((current) => ({ ...current, is_active: value === "true" }))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="true">Aktif</SelectItem>
+                                  <SelectItem value="false">Pasif</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className="rounded-2xl border border-dashed border-border/70 bg-background/70 p-3 text-sm">
+                            <p className="font-medium">Hazirlanacak urun secenekleri</p>
+                            <p className="mt-1 text-muted-foreground">
+                              {caseBuilder.selectedModels.length} model x {caseBuilder.selectedColors.length} renk ={" "}
+                              {caseBuilder.selectedModels.length * caseBuilder.selectedColors.length || 0} secenek
+                            </p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {caseGeneratedVariants.slice(0, 6).map((variant) => (
+                                <Badge key={`${variant.sku}-${variant.sort_order}`} variant="outline" className="max-w-full truncate">
+                                  {getCaseCompatibilityValue(variant.attributes)} / {variant.color_name}
+                                </Badge>
+                              ))}
+                              {caseGeneratedVariants.length > 6 ? <Badge variant="outline">+{caseGeneratedVariants.length - 6}</Badge> : null}
+                            </div>
+                          </div>
+
+                          <Button type="button" className="w-full" onClick={handleGenerateCaseVariants}>
+                            Secilen modeller icin urun seceneklerini olustur
                           </Button>
                         </div>
                       </div>
+                    </div>
+                  </Card>
+                ) : null}
 
-                      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                        {variantAxes.map((axis) => (
-                          <div key={`${variantIndex}-${axis.id}`} className="space-y-1">
-                            <Label className="text-xs">
-                              {axis.label}
-                              {axis.required ? " *" : ""}
-                            </Label>
+                {!isCaseCategory || showCaseAdvancedEditor ? (
+                  <div className="space-y-4">
+                    {form.variants.map((variant, variantIndex) => (
+                      <Card key={variant.id || `new-variant-${variantIndex}`} className="p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="font-medium">
+                              {getVariantLabel({
+                                color_name: variant.color_name,
+                                storage: variant.storage,
+                                ram: variant.ram,
+                                attributes: variant.attributes,
+                                sku: variant.sku,
+                              }) || "Yeni model"}
+                            </p>
+                            <p className="text-xs text-muted-foreground">{variant.sku || `Model #${variantIndex + 1}`}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={variant.is_active ? "default" : "secondary"}>{variant.is_active ? "Aktif" : "Pasif"}</Badge>
+                            <Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => removeVariant(variantIndex)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                          {variantAxes.map((axis) => (
+                            <div key={`${variantIndex}-${axis.id}`} className="space-y-1">
+                              <Label className="text-xs">
+                                {axis.label}
+                                {axis.required ? " *" : ""}
+                              </Label>
+                              <Input
+                                value={getVariantAxisFormValue(variant, axis)}
+                                onChange={(event) => handleVariantAxisValueChange(variantIndex, axis, event.target.value)}
+                                placeholder={axis.placeholder}
+                              />
+                            </div>
+                          ))}
+                          <div className="space-y-1">
+                            <Label className="text-xs">SKU</Label>
+                            <Input value={variant.sku} onChange={(event) => handleVariantChange(variantIndex, "sku", event.target.value)} />
+                          </div>
+                        </div>
+
+                        <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Fiyat (TL)</Label>
+                            <Input type="number" min="0" step="0.01" value={variant.price} onChange={(event) => handleVariantChange(variantIndex, "price", event.target.value)} />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Indirimli Fiyat</Label>
                             <Input
-                              value={getVariantAxisFormValue(variant, axis)}
-                              onChange={(event) => handleVariantAxisValueChange(variantIndex, axis, event.target.value)}
-                              placeholder={axis.placeholder}
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={variant.compare_at_price}
+                              onChange={(event) => handleVariantChange(variantIndex, "compare_at_price", event.target.value)}
                             />
                           </div>
-                        ))}
-                        <div className="space-y-1">
-                          <Label className="text-xs">SKU</Label>
-                          <Input value={variant.sku} onChange={(event) => handleVariantChange(variantIndex, "sku", event.target.value)} />
-                        </div>
-                      </div>
-
-                      <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Fiyat (TL)</Label>
-                          <Input type="number" min="0" step="0.01" value={variant.price} onChange={(event) => handleVariantChange(variantIndex, "price", event.target.value)} />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Indirimli Fiyat</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={variant.compare_at_price}
-                            onChange={(event) => handleVariantChange(variantIndex, "compare_at_price", event.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Stok</Label>
-                          <Input type="number" min="0" step="1" value={variant.stock} onChange={(event) => handleVariantChange(variantIndex, "stock", event.target.value)} />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Barcode</Label>
-                          <Input value={variant.barcode} onChange={(event) => handleVariantChange(variantIndex, "barcode", event.target.value)} />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Durum</Label>
-                          <Select value={variant.is_active ? "true" : "false"} onValueChange={(value) => handleVariantChange(variantIndex, "is_active", value === "true")}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="true">Aktif</SelectItem>
-                              <SelectItem value="false">Pasif</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div className={`mt-3 grid gap-3 ${variantAxes.some((axis) => axis.id === "color_name") ? "md:grid-cols-[120px_minmax(0,1fr)]" : "md:grid-cols-1"}`}>
-                        {variantAxes.some((axis) => axis.id === "color_name") ? (
                           <div className="space-y-1">
-                            <Label className="text-xs">Renk Kodu</Label>
-                            <div className="flex gap-2">
-                              <Input type="color" value={variant.color_code || "#000000"} onChange={(event) => handleVariantChange(variantIndex, "color_code", event.target.value)} className="h-10 w-14 p-1" />
-                              <Input value={variant.color_code} onChange={(event) => handleVariantChange(variantIndex, "color_code", event.target.value)} placeholder="#000000" />
-                            </div>
+                            <Label className="text-xs">Stok</Label>
+                            <Input type="number" min="0" step="1" value={variant.stock} onChange={(event) => handleVariantChange(variantIndex, "stock", event.target.value)} />
                           </div>
-                        ) : null}
-                        <div className="space-y-2">
-                          <Label className="text-xs">Model Gorselleri</Label>
-                          <Input type="file" accept="image/*" multiple onChange={(event) => handleVariantImageFilesChange(variantIndex, event)} disabled={uploadingImages} />
-                          {variant.images.length > 0 && (
-                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                              {variant.images.map((imageUrl) => (
-                                <div key={imageUrl} className="relative overflow-hidden rounded-md border">
-                                  <img src={imageUrl} alt="Varyant fotografi" className="h-20 w-full object-cover" />
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute right-1 top-1 h-6 w-6"
-                                    onClick={() => handleRemoveVariantImage(variantIndex, imageUrl)}
-                                  >
-                                    <X className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                          <div className="space-y-1">
+                            <Label className="text-xs">Barcode</Label>
+                            <Input value={variant.barcode} onChange={(event) => handleVariantChange(variantIndex, "barcode", event.target.value)} />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Durum</Label>
+                            <Select value={variant.is_active ? "true" : "false"} onValueChange={(value) => handleVariantChange(variantIndex, "is_active", value === "true")}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="true">Aktif</SelectItem>
+                                <SelectItem value="false">Pasif</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
+
+                        <div className={`mt-3 grid gap-3 ${variantAxes.some((axis) => axis.id === "color_name") ? "md:grid-cols-[120px_minmax(0,1fr)]" : "md:grid-cols-1"}`}>
+                          {variantAxes.some((axis) => axis.id === "color_name") ? (
+                            <div className="space-y-1">
+                              <Label className="text-xs">Renk Kodu</Label>
+                              <div className="flex gap-2">
+                                <Input type="color" value={variant.color_code || "#000000"} onChange={(event) => handleVariantChange(variantIndex, "color_code", event.target.value)} className="h-10 w-14 p-1" />
+                                <Input value={variant.color_code} onChange={(event) => handleVariantChange(variantIndex, "color_code", event.target.value)} placeholder="#000000" />
+                              </div>
+                            </div>
+                          ) : null}
+                          <div className="space-y-2">
+                            <Label className="text-xs">Model Gorselleri</Label>
+                            <Input type="file" accept="image/*" multiple onChange={(event) => handleVariantImageFilesChange(variantIndex, event)} disabled={uploadingImages} />
+                            {variant.images.length > 0 && (
+                              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                {variant.images.map((imageUrl) => (
+                                  <div key={imageUrl} className="relative overflow-hidden rounded-md border">
+                                    <img src={imageUrl} alt="Varyant fotografi" className="h-20 w-full object-cover" />
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="icon"
+                                      className="absolute right-1 top-1 h-6 w-6"
+                                      onClick={() => handleRemoveVariantImage(variantIndex, imageUrl)}
+                                    >
+                                      <X className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : null}
               </div>
 
               <Button className="w-full" onClick={handleSave}>

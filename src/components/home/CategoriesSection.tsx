@@ -49,7 +49,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
           <div className="relative grid items-start gap-8 text-left lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:gap-12">
             <motion.div className="max-w-[38rem] space-y-5">
               <div className="flex flex-wrap flex-col gap-3">
-                <span className="flex shrink-0 items-center rounded-full bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground md:bg-background/75 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/6 dark:text-white/72">
+                <span className="flex shrink-0 items-center rounded-full bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground md:bg-background/75 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/6 dark:text-white/82">
                   {content.category_banner_badge_text || "Brand Finance 2025"}
                 </span>
 
@@ -83,13 +83,13 @@ export function CategoriesSection({ categories: _categories, content }: Categori
                 {content.category_banner_brand_title}
               </h3>
 
-              <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base dark:text-white/62">
+              <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base dark:text-white/76">
                 {content.category_banner_intro_text || "Premium teknoloji vitrini, güven veren marka konumlanması ve temiz bir sunum diliyle desteklenir."}
               </p>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-[1.3rem] bg-card px-4 py-3.5 md:bg-background/80 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/[0.05]">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/80 dark:text-white/45">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/90 dark:text-white/62">
                     {content.category_banner_stat_1_label || "Odak"}
                   </p>
                   <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">
@@ -97,7 +97,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
                   </p>
                 </div>
                 <div className="rounded-[1.3rem] bg-card px-4 py-3.5 md:bg-background/80 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/[0.05]">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/80 dark:text-white/45">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/90 dark:text-white/62">
                     {content.category_banner_stat_2_label || "Konum"}
                   </p>
                   <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">
@@ -115,7 +115,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
                 viewport={{ once: true, amount: 0.35 }}
                 className="rounded-[1.45rem] bg-card px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.08)] md:bg-background/82 md:backdrop-blur-2xl dark:bg-slate-900 dark:md:bg-white/[0.06] dark:md:shadow-[0_18px_46px_rgba(2,6,23,0.18)]"
               >
-                <p className="text-base leading-7 text-muted-foreground md:text-[1.03rem] dark:text-white/74">{content.category_banner_brand_desc_1}</p>
+                <p className="text-base leading-7 text-muted-foreground md:text-[1.03rem] dark:text-white/80">{content.category_banner_brand_desc_1}</p>
               </motion.div>
 
               <motion.div
@@ -138,7 +138,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
                 viewport={{ once: true, amount: 0.35 }}
                 className="rounded-[1.45rem] bg-card px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.08)] md:bg-background/82 md:backdrop-blur-2xl dark:bg-slate-900 dark:md:bg-white/[0.05] dark:md:shadow-[0_18px_46px_rgba(2,6,23,0.18)]"
               >
-                <p className="text-base leading-7 text-muted-foreground md:text-[1.03rem] dark:text-white/74">{content.category_banner_brand_desc_3}</p>
+                <p className="text-base leading-7 text-muted-foreground md:text-[1.03rem] dark:text-white/80">{content.category_banner_brand_desc_3}</p>
               </motion.div>
             </motion.div>
           </div>

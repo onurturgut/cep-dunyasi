@@ -49,7 +49,7 @@ export function CampaignPromoCard({ card, index }: CampaignPromoCardProps) {
 
         <div className="mt-5 space-y-3">
           <h3 className="font-display text-2xl font-semibold tracking-tight">{card.title}</h3>
-          <p className="text-sm leading-7 text-muted-foreground dark:text-white/70">{card.description}</p>
+          <p className="text-sm leading-7 text-muted-foreground dark:text-white/80">{card.description}</p>
         </div>
 
         <div className="mt-6">

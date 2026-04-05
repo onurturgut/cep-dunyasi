@@ -107,6 +107,7 @@ export function CartRecommendationsSection({ cartProductIds }: CartRecommendatio
                       createdAt={product.created_at}
                       salesCount={product.sales_count}
                       ratingAverage={product.rating_average}
+                      caseDetails={product.case_details}
                       specs={product.specs as Record<string, string | null> | null}
                       storage={variant?.storage}
                       ram={variant?.ram}

@@ -64,6 +64,17 @@ const productSchema = new Schema(
       ),
       default: null,
     },
+    case_details: {
+      type: new Schema(
+        {
+          case_type: { type: String, default: null },
+          case_theme: { type: String, default: null },
+          feature_tags: { type: [String], default: [] },
+        },
+        { _id: false }
+      ),
+      default: null,
+    },
     starting_price: { type: Number, default: 0 },
     sales_count: { type: Number, default: 0, index: true },
     rating_average: { type: Number, default: 0 },
@@ -760,7 +771,7 @@ function ensureModelSchema(modelName: string, schema: Schema, requiredPaths: str
 }
 
 export const Category: any = ensureModelSchema("Category", categorySchema, ["parent_category_id"]);
-export const Product: any = ensureModelSchema("Product", productSchema, ["subcategory_id"]);
+export const Product: any = ensureModelSchema("Product", productSchema, ["subcategory_id", "case_details"]);
 export const ProductVariant: any = models.ProductVariant || model("ProductVariant", productVariantSchema);
 export const Coupon: any = models.Coupon || model("Coupon", couponSchema);
 export const Order: any = ensureModelSchema("Order", orderSchema, [

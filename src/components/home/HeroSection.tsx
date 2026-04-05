@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/lib/router";
 import { benefitIcons, type HomeSiteContent } from "@/components/home/home-data";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type HeroSectionProps = {
@@ -77,6 +77,8 @@ function HeroSectionSkeleton() {
 }
 
 export function HeroSection({ activeSlide, onSlideChange, content, isLoading = false }: HeroSectionProps) {
+  const isMobile = useIsMobile();
+
   if (isLoading) {
     return <HeroSectionSkeleton />;
   }
@@ -85,20 +87,20 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
   const heroBenefits = content.hero_benefits.filter((benefit) => benefit.title || benefit.desc);
 
   return (
-    <motion.section id="home-hero" data-section="hero" className="bg-background pb-8 sm:pb-10 md:pb-12">
+    <section id="home-hero" data-section="hero" className="bg-background pb-8 sm:pb-10 md:pb-12">
       <div className="relative min-h-[calc(100svh-4rem)] w-full overflow-hidden sm:min-h-[calc(100svh-4.5rem)]">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/10" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/6 via-transparent to-secondary/10" />
-          <div className="absolute -left-16 top-20 h-52 w-52 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute right-[-4rem] top-12 h-64 w-64 rounded-full bg-secondary/20 blur-3xl" />
+          <div className="absolute -left-16 top-20 hidden h-52 w-52 rounded-full bg-primary/10 blur-3xl md:block" />
+          <div className="absolute right-[-4rem] top-12 hidden h-64 w-64 rounded-full bg-secondary/20 blur-3xl md:block" />
         </div>
 
         <div className="relative">
           <div className="container flex min-h-[calc(100svh-4rem)] items-center py-8 sm:py-10 md:py-14 sm:min-h-[calc(100svh-4.5rem)]">
             <div className="grid w-full items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,540px)] lg:gap-6">
-              <motion.div className="max-w-2xl">
-                <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] sm:text-5xl md:text-6xl xl:text-7xl">
+              <div className="max-w-2xl">
+                <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground md:drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] sm:text-5xl md:text-6xl xl:text-7xl">
                   {content.hero_title_prefix}
                   <span className="text-primary"> {content.hero_title_highlight} </span>
                   <span className="mx-1 inline-flex align-middle dark:hidden">
@@ -128,11 +130,11 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                   </span>
                   {content.hero_title_suffix}
                 </h1>
-                <p className="mt-4 max-w-xl text-sm text-muted-foreground drop-shadow-[0_8px_18px_rgba(0,0,0,0.16)] sm:text-base md:text-lg">
+                <p className="mt-4 max-w-xl text-sm text-muted-foreground md:drop-shadow-[0_8px_18px_rgba(0,0,0,0.16)] sm:text-base md:text-lg">
                   {content.hero_subtitle}
                 </p>
                 <div className="mt-7">
-                  <Button size="lg" asChild className="w-full shadow-[0_12px_28px_rgba(0,0,0,0.24)] sm:w-auto">
+                  <Button size="lg" asChild className="w-full shadow-sm sm:w-auto md:shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
                     <Link to={content.hero_cta_href || "/products"}>
                       {content.hero_cta_label} <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -144,23 +146,23 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                     const Icon = benefitIcons[benefit.icon] || benefitIcons.Truck;
 
                     return (
-                      <div key={benefit.title} className="rounded-xl border border-border/60 bg-card/70 p-3 shadow-[0_24px_52px_rgba(0,0,0,0.24)] sm:px-4 sm:py-3.5">
+                      <div key={benefit.title} className="rounded-xl border border-border/60 bg-card/70 p-3 shadow-sm sm:px-4 sm:py-3.5 md:shadow-[0_24px_52px_rgba(0,0,0,0.24)]">
                         <div className="flex items-center gap-2">
                           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
                             <Icon className="h-3.5 w-3.5" />
                           </div>
-                          <p className="text-sm font-semibold text-foreground drop-shadow-[0_6px_16px_rgba(0,0,0,0.2)] sm:text-base">{benefit.title}</p>
+                          <p className="text-sm font-semibold text-foreground md:drop-shadow-[0_6px_16px_rgba(0,0,0,0.2)] sm:text-base">{benefit.title}</p>
                         </div>
-                        <p className="mt-1 text-xs text-muted-foreground drop-shadow-[0_4px_12px_rgba(0,0,0,0.18)] sm:text-[13px]">{benefit.desc}</p>
+                        <p className="mt-1 text-xs text-muted-foreground md:drop-shadow-[0_4px_12px_rgba(0,0,0,0.18)] sm:text-[13px]">{benefit.desc}</p>
                       </div>
                     );
                   })}
                 </div>
-              </motion.div>
+              </div>
 
-              <motion.div className="mx-auto w-full max-w-[560px] lg:-ml-8">
+              <div className="mx-auto w-full max-w-[560px] lg:-ml-8">
                 <div className="relative h-[320px] w-full sm:h-[420px] md:h-[520px] lg:h-[620px]">
-                  <div className="absolute inset-x-10 bottom-10 h-24 rounded-full bg-primary/15 blur-3xl" />
+                  <div className="absolute inset-x-10 bottom-10 hidden h-24 rounded-full bg-primary/15 blur-3xl md:block" />
                   {heroSlides.map((slide, index) => (
                     <Image
                       key={slide.id}
@@ -169,13 +171,13 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                       fill
                       priority={index === 0}
                       sizes={getResponsiveImageSizes("hero")}
-                      className={`absolute inset-0 mx-auto h-full w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.65)] transition-all duration-700 ease-out ${
-                        index === activeSlide ? "translate-x-0 scale-100 opacity-100" : "translate-x-8 scale-95 opacity-0"
+                      className={`absolute inset-0 mx-auto h-full w-full object-contain ${isMobile ? "" : "drop-shadow-[0_20px_40px_rgba(0,0,0,0.65)]"} transition-all ${isMobile ? "duration-300" : "duration-700"} ease-out ${
+                        index === activeSlide ? "translate-x-0 scale-100 opacity-100" : isMobile ? "opacity-0" : "translate-x-8 scale-95 opacity-0"
                       }`}
                     />
                   ))}
 
-                  <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border/60 bg-card/80 px-3 py-1.5 backdrop-blur-sm">
+                  <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border/60 bg-card/80 px-3 py-1.5 md:backdrop-blur-sm">
                     {heroSlides.map((slide, index) => (
                       <button
                         key={`${slide.id}-dot`}
@@ -189,11 +191,11 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

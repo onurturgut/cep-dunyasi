@@ -1,11 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/ProductCard";
 import { Link } from "@/lib/router";
-import { sectionReveal, type HomeProduct, type HomeSiteContent } from "@/components/home/home-data";
+import { type HomeProduct, type HomeSiteContent } from "@/components/home/home-data";
 import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
 import { ProductRailCarousel } from "@/components/home/ProductRailCarousel";
 
@@ -16,14 +15,10 @@ type FeaturedProductsSectionProps = {
 
 export function FeaturedProductsSection({ featuredProducts, content }: FeaturedProductsSectionProps) {
   return (
-    <motion.section
+    <section
       id="home-featured"
       data-section="featured"
       className="relative py-6 md:py-10"
-      variants={sectionReveal}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.12 }}
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 hidden h-72 overflow-hidden md:block">
         <div className="absolute left-[12%] top-20 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
@@ -31,7 +26,7 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
       </div>
 
       <div className="container">
-        <motion.div className="rounded-3xl border border-border/60 bg-card/55 p-4 shadow-sm backdrop-blur-xl sm:p-5 md:p-8">
+        <div className="rounded-3xl border border-border/60 bg-card/55 p-4 shadow-sm backdrop-blur-xl sm:p-5 md:p-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-5xl">{content.featured_section_title}</h2>
             <Button variant="ghost" asChild className="w-full justify-center sm:w-auto">
@@ -64,6 +59,7 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
                       salesCount={product.sales_count}
                       ratingAverage={product.rating_average}
                       ratingCount={product.rating_count}
+                      caseDetails={product.case_details}
                       specs={product.specs}
                       storage={variant?.storage}
                       ram={variant?.ram}
@@ -77,8 +73,8 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
           ) : (
             <div className="mt-6 p-6 text-sm text-muted-foreground">Henüz öne çıkan ürün eklenmedi.</div>
           )}
-        </motion.div>
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

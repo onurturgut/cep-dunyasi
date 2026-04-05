@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { History } from "lucide-react";
 import { ProductCard } from "@/components/products/ProductCard";
-import { sectionReveal } from "@/components/home/home-data";
 import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
 import { RECENTLY_VIEWED_UPDATED_EVENT, getRecentlyViewedProducts, type RecentlyViewedProductRecord } from "@/lib/recently-viewed";
 import { ProductRailCarousel } from "@/components/home/ProductRailCarousel";
@@ -29,14 +27,10 @@ export function RecentlyViewedSection() {
   }, []);
 
   return (
-    <motion.section
+    <section
       id="home-recently-viewed"
       data-section="recently-viewed"
       className="relative py-6 md:py-10"
-      variants={sectionReveal}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.12 }}
     >
       <div className="container">
         <div className="rounded-3xl border border-border/60 bg-card/55 p-4 shadow-sm backdrop-blur-xl sm:p-5 md:p-8">
@@ -78,6 +72,7 @@ export function RecentlyViewedSection() {
                       salesCount={product.sales_count}
                       ratingAverage={product.rating_average}
                       secondHand={product.second_hand}
+                      caseDetails={product.case_details}
                       specs={product.specs}
                       storage={variant?.storage}
                       ram={variant?.ram}
@@ -91,6 +86,6 @@ export function RecentlyViewedSection() {
           )}
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

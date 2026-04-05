@@ -69,6 +69,7 @@ export function FavoritesSection({ title, className }: FavoritesSectionProps) {
                 salesCount={product.sales_count}
                 ratingAverage={product.rating_average}
                 secondHand={product.second_hand}
+                caseDetails={product.case_details}
                 specs={product.specs}
                 storage={variant?.storage}
                 ram={variant?.ram}

@@ -1,4 +1,5 @@
 import type { ProductSpecs } from "@/lib/product-specs";
+import type { CaseDetails } from "@/lib/case-models";
 import type { SecondHandDetails } from "@/lib/second-hand";
 import type { ProductVariantRecord } from "@/lib/product-variants";
 
@@ -16,6 +17,7 @@ export type ProductDetailRecord = {
   rating_count?: number;
   rating_distribution?: Record<string, number> | null;
   specs?: ProductSpecs | null;
+  case_details?: CaseDetails | null;
   second_hand?: SecondHandDetails | null;
   categories?: { name?: string; slug?: string } | null;
   product_variants: ProductVariantRecord[];

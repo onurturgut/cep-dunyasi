@@ -1,6 +1,7 @@
 "use client";
 
 import type { ProductSpecs } from "@/lib/product-specs";
+import type { CaseDetails } from "@/lib/case-models";
 import type { SecondHandDetails } from "@/lib/second-hand";
 import { normalizeProductVariants, type ProductVariantRecord } from "@/lib/product-variants";
 
@@ -19,6 +20,7 @@ export type RecentlyViewedProductRecord = {
   sales_count?: number;
   rating_average?: number;
   second_hand?: SecondHandDetails | null;
+  case_details?: CaseDetails | null;
   specs?: ProductSpecs | null;
   categories?: { name?: string; slug?: string } | null;
   product_variants: ProductVariantRecord[];
@@ -48,6 +50,7 @@ function sanitizeRecentlyViewedProduct(input: RecentlyViewedProductInput, viewed
     sales_count: Number(input.sales_count ?? 0),
     rating_average: Number(input.rating_average ?? 0),
     second_hand: input.second_hand ?? null,
+    case_details: input.case_details ?? null,
     specs: input.specs ?? null,
     categories: input.categories ?? null,
     product_variants: normalizeProductVariants(input.product_variants || []),

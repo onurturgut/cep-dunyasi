@@ -1,4 +1,5 @@
 import { getDefaultProductVariant, normalizeProductVariants, type ProductVariantRecord } from "@/lib/product-variants";
+import type { CaseDetails } from "@/lib/case-models";
 import { getProductVariantCategoryConfig, getProductVariantFilterAxes } from "@/lib/product-variant-config";
 import { type SecondHandDetails, normalizeSecondHandDetails } from "@/lib/second-hand";
 import { toPriceNumber } from "@/lib/utils";
@@ -16,6 +17,7 @@ export type CatalogProductRecord = {
   rating_count?: number;
   type?: string | null;
   second_hand?: SecondHandDetails | null;
+  case_details?: CaseDetails | null;
   categories?: { id?: string; name?: string; slug?: string } | null;
   subcategory?: { id?: string; name?: string; slug?: string; parent_category_id?: string | null } | null;
   product_variants?: ProductVariantRecord[];
