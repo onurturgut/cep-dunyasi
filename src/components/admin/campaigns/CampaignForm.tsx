@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { type ChangeEvent } from "react";
 import { ImagePlus } from "lucide-react";
@@ -62,15 +62,15 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="campaign-image">Ana Gorsel</Label>
+            <Label htmlFor="campaign-image">Ana Görsel</Label>
             <div className="rounded-2xl border border-dashed border-border/70 bg-muted/30 p-3">
               <Input id="campaign-image" type="file" accept="image/*" disabled={uploading} onChange={(event) => void handleFileChange(event, "imageUrl")} />
               {value.imageUrl ? (
-                <img src={value.imageUrl} alt="Kampanya ana gorseli" className="mt-3 h-32 w-full rounded-xl object-cover" />
+                <img src={value.imageUrl} alt="Kampanya ana görseli" className="mt-3 h-32 w-full rounded-xl object-cover" />
               ) : (
                 <div className="mt-3 flex h-32 items-center justify-center rounded-xl border border-border/60 bg-background text-sm text-muted-foreground">
                   <ImagePlus className="mr-2 h-4 w-4" />
-                  Ana gorsel secin
+                  Ana görsel secin
                 </div>
               )}
             </div>
@@ -80,19 +80,19 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="campaign-mobile-image">Mobil Gorsel</Label>
+            <Label htmlFor="campaign-mobile-image">Mobil Görsel</Label>
             <div className="rounded-2xl border border-dashed border-border/70 bg-muted/30 p-3">
               <Input id="campaign-mobile-image" type="file" accept="image/*" disabled={uploading} onChange={(event) => void handleFileChange(event, "mobileImageUrl")} />
               {value.mobileImageUrl ? (
-                <img src={value.mobileImageUrl} alt="Kampanya mobil gorseli" className="mt-3 h-32 w-full rounded-xl object-cover" />
+                <img src={value.mobileImageUrl} alt="Kampanya mobil görseli" className="mt-3 h-32 w-full rounded-xl object-cover" />
               ) : (
                 <div className="mt-3 flex h-32 items-center justify-center rounded-xl border border-border/60 bg-background text-sm text-muted-foreground">
-                  Mobil icin ayri gorsel opsiyonel
+                  Mobil icin ayri görsel opsiyonel
                 </div>
               )}
             </div>
             <p className="text-xs leading-5 text-muted-foreground">
-              Onerilen mobil olcu: 1080x1350 px veya 1080x1440 px. Mobil gorsel bos birakilirsa ana gorsel kullanilir.
+              Onerilen mobil olcu: 1080x1350 px veya 1080x1440 px. Mobil görsel bos birakilirsa ana görsel kullanilir.
             </p>
           </div>
         </div>
@@ -163,12 +163,13 @@ export function CampaignForm({ value, uploading, submitting, onChange, onSubmit,
           Ilk slide daha hizli yukecegi icin en guclu kampanyayi en ust siraya koymaniz onerilir.
         </div>
         <div className="rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm text-muted-foreground">
-          Gorsel gecersiz hatasi pikselden degil, gorsel adresinden gelir. Dosya yuklediginizde sistem otomatik gecerli URL olusturur.
+          Görsel gecersiz hatasi pikselden degil, görsel adresinden gelir. Dosya yuklediginizde sistem otomatik gecerli URL olusturur.
         </div>
         <Button type="button" className="w-full rounded-full" onClick={() => void onSubmit()} disabled={submitting || uploading}>
-          {value.id ? "Kampanyayi Guncelle" : "Kampanyayi Yayinla"}
+          {value.id ? "Kampanyayi Güncelle" : "Kampanyayi Yayinla"}
         </Button>
       </div>
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,7 +7,7 @@ import { formatCurrency } from "@/lib/utils";
 
 export function TopSellingProductsTable({
   items,
-  title = "En Cok Satan Urunler",
+  title = "En Çok Satan Ürünler",
 }: {
   items: TopSellingProductRow[];
   title?: string;
@@ -46,7 +46,7 @@ export function TopSellingProductsTable({
           <Table className="min-w-[680px]">
             <TableHeader>
               <TableRow>
-                <TableHead>Urun</TableHead>
+                <TableHead>Ürün</TableHead>
                 <TableHead>SKU</TableHead>
                 <TableHead>Adet</TableHead>
                 <TableHead>Stok</TableHead>
@@ -77,3 +77,4 @@ export function TopSellingProductsTable({
     </Card>
   );
 }
+

@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 import { Category } from "@/server/models";
 import type { AdminActor } from "@/lib/admin";
 import { sanitizeSlug } from "@/lib/utils";
@@ -22,7 +22,7 @@ const categoryInputSchema = z.object({
   parent_category_id: z.string().trim().optional().nullable(),
   icon: z.string().trim().max(80, "Ikon adi en fazla 80 karakter olabilir").optional().nullable(),
   description: z.string().trim().max(1000, "Aciklama en fazla 1000 karakter olabilir").optional().nullable(),
-  image_url: z.string().trim().max(2048, "Gorsel URL en fazla 2048 karakter olabilir").optional().nullable(),
+  image_url: z.string().trim().max(2048, "Görsel URL en fazla 2048 karakter olabilir").optional().nullable(),
 });
 
 function toIsoString(value: string | Date | null | undefined) {
@@ -169,3 +169,4 @@ export async function deleteAdminCategory(id: string, actor: AdminActor, ip?: st
 
   return { deleted: true };
 }
+

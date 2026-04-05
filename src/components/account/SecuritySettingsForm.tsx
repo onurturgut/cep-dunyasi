@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
@@ -29,9 +29,9 @@ export function SecuritySettingsForm() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      toast.success("Sifreniz basariyla degistirildi.");
+      toast.success("Şifreniz basariyla degistirildi.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Sifre degistirilemedi");
+      toast.error(error instanceof Error ? error.message : "Şifre degistirilemedi");
     }
   };
 
@@ -39,25 +39,25 @@ export function SecuritySettingsForm() {
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
       <Card className="rounded-[1.75rem] border-border/70 shadow-[0_18px_40px_-36px_rgba(15,23,42,0.45)]">
         <CardHeader>
-          <CardTitle className="text-xl">Sifreyi Yenile</CardTitle>
+          <CardTitle className="text-xl">Şifreyi Yenile</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <Label htmlFor="current-password">Mevcut Sifre</Label>
+              <Label htmlFor="current-password">Mevcut Şifre</Label>
               <Input id="current-password" type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="new-password">Yeni Sifre</Label>
+              <Label htmlFor="new-password">Yeni Şifre</Label>
               <Input id="new-password" type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
               <PasswordStrengthIndicator password={newPassword} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Yeni Sifre Tekrari</Label>
+              <Label htmlFor="confirm-password">Yeni Şifre Tekrari</Label>
               <Input id="confirm-password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} />
             </div>
             <Button type="submit" disabled={changePassword.isPending}>
-              {changePassword.isPending ? "Kaydediliyor" : "Sifreyi Guncelle"}
+              {changePassword.isPending ? "Kaydediliyor" : "Şifreyi Güncelle"}
             </Button>
           </form>
         </CardContent>
@@ -71,13 +71,13 @@ export function SecuritySettingsForm() {
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
             <div className="flex items-center gap-2 font-medium text-foreground">
               <ShieldCheck className="h-4 w-4 text-primary" />
-              Guclu sifre kullanin
+              Guclu şifre kullanin
             </div>
-            <p className="mt-2">Yeni sifrenizde buyuk harf, kucuk harf ve rakam bulundurun. Mumkunse ozel karakter de ekleyin.</p>
+            <p className="mt-2">Yeni şifrenizde buyuk harf, kucuk harf ve rakam bulundurun. Mumkunse ozel karakter de ekleyin.</p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
             <p className="font-medium text-foreground">Oturum guvenligi</p>
-            <p className="mt-2">Sifrenizi degistirdikten sonra mevcut oturumunuz yenilenir. Supheli bir durumda tekrar giris yapmaniz istenebilir.</p>
+            <p className="mt-2">Şifrenizi degistirdikten sonra mevcut oturumunuz yenilenir. Supheli bir durumda tekrar giris yapmaniz istenebilir.</p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
             <p className="font-medium text-foreground">Destek</p>
@@ -88,3 +88,4 @@ export function SecuritySettingsForm() {
     </div>
   );
 }
+

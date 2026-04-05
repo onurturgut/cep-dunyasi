@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { type ChangeEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -75,7 +75,7 @@ const placementHints: Record<BannerCampaignRecord["placement"], string> = {
 const triggerLabels: Record<BannerFormState["triggerType"], string> = {
   delay: "Gecikmeli",
   scroll: "Scroll sonrasi",
-  exit_intent: "Cikis niyeti",
+  exit_intent: "Çıkış niyeti",
 };
 
 async function uploadBannerImage(file: File) {
@@ -88,7 +88,7 @@ async function uploadBannerImage(file: File) {
   const payload = await response.json().catch(() => null);
 
   if (!response.ok || payload?.error) {
-    throw new Error(payload?.error?.message || "Banner gorseli yuklenemedi");
+    throw new Error(payload?.error?.message || "Banner görseli yuklenemedi");
   }
 
   return `${payload?.data?.url ?? ""}`;
@@ -276,9 +276,9 @@ function CampaignPreview({ form }: { form: BannerFormState }) {
         <div className="space-y-5 p-6 md:p-8">{commonCopy}</div>
         <div className="relative min-h-[220px] bg-black/10">
           {previewImage ? (
-            <img src={previewImage} alt={form.title || "Kampanya gorseli"} className="h-full w-full object-cover" />
+            <img src={previewImage} alt={form.title || "Kampanya görseli"} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full min-h-[220px] items-center justify-center text-sm text-white/60">Gorsel secildiginde burada onizleme gorunur</div>
+            <div className="flex h-full min-h-[220px] items-center justify-center text-sm text-white/60">Görsel secildiginde burada onizleme gorunur</div>
           )}
         </div>
       </div>
@@ -339,9 +339,9 @@ export default function AdminBanners() {
       setUploading(true);
       const url = await uploadBannerImage(file);
       setForm((current) => ({ ...current, [field]: url }));
-      toast.success("Banner gorseli yuklendi");
+      toast.success("Banner görseli yuklendi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Banner gorseli yuklenemedi");
+      toast.error(error instanceof Error ? error.message : "Banner görseli yuklenemedi");
     } finally {
       setUploading(false);
     }
@@ -389,7 +389,7 @@ export default function AdminBanners() {
     }
 
     if (!form.imageUrl.trim()) {
-      toast.error("En az bir ana gorsel secmelisin");
+      toast.error("En az bir ana görsel secmelisin");
       return;
     }
 
@@ -516,17 +516,17 @@ export default function AdminBanners() {
             </div>
 
             <div className="space-y-4 rounded-2xl border border-border/70 bg-muted/20 p-4">
-              <div><p className="font-medium">Gorseller</p><p className="text-sm text-muted-foreground">Desktop ve mobil yuzeyler icin gorselleri ayri yonet.</p></div>
+              <div><p className="font-medium">Görseller</p><p className="text-sm text-muted-foreground">Desktop ve mobil yuzeyler icin görselleri ayri yonet.</p></div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Ana gorsel</Label>
+                  <Label>Ana görsel</Label>
                   <Input type="file" accept="image/*" onChange={(event) => void handleImageUpload(event, "imageUrl")} disabled={uploading} />
-                  {form.imageUrl ? <img src={form.imageUrl} alt="Banner" className="h-36 w-full rounded-xl object-cover" /> : <div className="flex h-36 items-center justify-center rounded-xl border border-dashed border-border/70 text-sm text-muted-foreground">Desktop gorsel sec</div>}
+                  {form.imageUrl ? <img src={form.imageUrl} alt="Banner" className="h-36 w-full rounded-xl object-cover" /> : <div className="flex h-36 items-center justify-center rounded-xl border border-dashed border-border/70 text-sm text-muted-foreground">Desktop görsel sec</div>}
                 </div>
                 <div className="space-y-2">
-                  <Label>Mobil gorsel</Label>
+                  <Label>Mobil görsel</Label>
                   <Input type="file" accept="image/*" onChange={(event) => void handleImageUpload(event, "mobileImageUrl")} disabled={uploading} />
-                  {form.mobileImageUrl ? <img src={form.mobileImageUrl} alt="Mobil banner" className="h-36 w-full rounded-xl object-cover" /> : <div className="flex h-36 items-center justify-center rounded-xl border border-dashed border-border/70 text-sm text-muted-foreground">Istersen mobil icin ozel gorsel sec</div>}
+                  {form.mobileImageUrl ? <img src={form.mobileImageUrl} alt="Mobil banner" className="h-36 w-full rounded-xl object-cover" /> : <div className="flex h-36 items-center justify-center rounded-xl border border-dashed border-border/70 text-sm text-muted-foreground">Istersen mobil icin ozel görsel sec</div>}
                 </div>
               </div>
               <div className="space-y-2">
@@ -631,11 +631,11 @@ export default function AdminBanners() {
           </Card>
 
           <Card>
-            <CardHeader className="pb-4"><CardTitle className="text-base">Hizli notlar</CardTitle></CardHeader>
+            <CardHeader className="pb-4"><CardTitle className="text-base">Hızlı notlar</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
               <p>Hero kampanyalarda kisa baslik ve tek bir net CTA en iyi sonucu verir.</p>
               <p>Popup kullaniyorsan sadece gercekten guclu tekliflerde acik tutman daha saglikli olur.</p>
-              <p>Mobil gorseli ayrica yuklersen daha dengeli bir deneyim elde edersin.</p>
+              <p>Mobil görseli ayrica yuklersen daha dengeli bir deneyim elde edersin.</p>
             </CardContent>
           </Card>
         </div>
@@ -645,7 +645,7 @@ export default function AdminBanners() {
         <CardHeader className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1">
             <CardTitle className="text-base">Mevcut kampanyalar</CardTitle>
-            <p className="text-sm text-muted-foreground">{filteredBanners.length} kayit listeleniyor. Duzenle, kopyala veya hizlica yayina alip kapat.</p>
+            <p className="text-sm text-muted-foreground">{filteredBanners.length} kayit listeleniyor. Düzenle, kopyala veya hizlica yayina alip kapat.</p>
           </div>
         </CardHeader>
         <CardContent>
@@ -675,7 +675,7 @@ export default function AdminBanners() {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" className="flex-1" onClick={() => handleEdit(banner)}>Duzenle</Button>
+                      <Button variant="outline" className="flex-1" onClick={() => handleEdit(banner)}>Düzenle</Button>
                       <Button variant="outline" className="flex-1" onClick={() => handleCloneFromCard(banner)}>Kopyala</Button>
                     </div>
 
@@ -703,10 +703,11 @@ export default function AdminBanners() {
               );
             })}
 
-            {filteredBanners.length === 0 ? <div className="rounded-2xl border border-dashed border-border/70 px-6 py-14 text-center text-sm text-muted-foreground xl:col-span-2">Secili filtrelerle eslesen kampanya bulunamadi.</div> : null}
+            {filteredBanners.length === 0 ? <div className="rounded-2xl border border-dashed border-border/70 px-6 py-14 text-center text-sm text-muted-foreground xl:col-span-2">Seçili filtrelerle eslesen kampanya bulunamadi.</div> : null}
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
+

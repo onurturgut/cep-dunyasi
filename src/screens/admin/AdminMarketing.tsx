@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Mail, MessageCircleMore, Plus, Save, ShieldCheck, Trash2 } from "lucide-react";
@@ -273,7 +273,7 @@ export default function AdminMarketingScreen() {
 
               <Button onClick={() => void handleSaveSocialProof()} disabled={upsertSocialProof.isPending}>
                 <Plus className="mr-2 h-4 w-4" />
-                {socialProofForm.id ? "Guncelle" : "Ekle"}
+                {socialProofForm.id ? "Güncelle" : "Ekle"}
               </Button>
             </CardContent>
           </Card>
@@ -344,3 +344,4 @@ export default function AdminMarketingScreen() {
     </div>
   );
 }
+

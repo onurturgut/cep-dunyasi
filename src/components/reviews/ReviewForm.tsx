@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { ImagePlus, Loader2, Star, X } from "lucide-react";
@@ -58,13 +58,13 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
           submit: "Submit Review",
         }
       : {
-          uploadLimit: `En fazla ${REVIEW_IMAGE_LIMIT} gorsel yukleyebilirsiniz`,
-          imageOnly: "Sadece gorsel dosyasi yukleyebilirsiniz",
-          imageSize: "Her gorsel en fazla 6MB olabilir",
-          uploadFailed: "Gorsel yuklenemedi",
-          uploadError: "Gorsel yukleme hatasi",
+          uploadLimit: `En fazla ${REVIEW_IMAGE_LIMIT} görsel yukleyebilirsiniz`,
+          imageOnly: "Sadece görsel dosyasi yukleyebilirsiniz",
+          imageSize: "Her görsel en fazla 6MB olabilir",
+          uploadFailed: "Görsel yuklenemedi",
+          uploadError: "Görsel yukleme hatasi",
           submitError: "Yorum gonderilemedi",
-          alreadyReviewed: "Bu urun icin daha once yorum biraktiniz. Guncelleme gerekiyorsa destek ekibimizle iletisime gecebilirsiniz.",
+          alreadyReviewed: "Bu urun icin daha once yorum biraktiniz. Güncelleme gerekiyorsa destek ekibimizle iletisime gecebilirsiniz.",
           pendingReview: "Bu urun icin yorumunuz inceleme bekliyor. Onaylandiginda bu alanda yayina alinacaktir.",
           notDelivered: "Yorum birakmak icin siparisinizin teslim edilmesini beklemelisiniz.",
           notPurchased: "Yorum birakmak icin once bu urunu satin alip teslim almaniz gerekiyor.",
@@ -73,11 +73,11 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
           starLabel: (value: number) => `${value} yildiz`,
           title: "Baslik",
           titlePlaceholder: "Kisa bir baslik ekleyin",
-          images: "Yorum Gorselleri",
+          images: "Yorum Görselleri",
           comment: "Yorumunuz",
-          commentPlaceholder: "Urun hakkindaki deneyiminizi yazin",
-          uploadedImage: "Yuklenen yorum gorseli",
-          imageHint: `En fazla ${REVIEW_IMAGE_LIMIT} gorsel ekleyebilirsiniz.`,
+          commentPlaceholder: "Ürün hakkindaki deneyiminizi yazin",
+          uploadedImage: "Yuklenen yorum görseli",
+          imageHint: `En fazla ${REVIEW_IMAGE_LIMIT} görsel ekleyebilirsiniz.`,
           sending: "Gonderiliyor",
           submit: "Yorumu Gonder",
         };
@@ -248,3 +248,4 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
     </Card>
   );
 }
+

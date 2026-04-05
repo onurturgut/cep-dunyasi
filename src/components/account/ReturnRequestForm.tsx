@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { ImagePlus, Loader2, X } from "lucide-react";
@@ -15,7 +15,7 @@ const MAX_RETURN_IMAGE_SIZE_BYTES = 6 * 1024 * 1024;
 
 const reasonOptions = [
   { value: "wrong-product", label: "Yanlis urun geldi" },
-  { value: "defective", label: "Urun arizali / hasarli" },
+  { value: "defective", label: "Ürün arizali / hasarli" },
   { value: "changed-mind", label: "Vazgectim" },
   { value: "size-fit", label: "Uyumsuz / beklentiyi karsilamadi" },
   { value: "other", label: "Diger" },
@@ -47,18 +47,18 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
     }
 
     if (images.length + selectedFiles.length > 4) {
-      toast.error("En fazla 4 gorsel ekleyebilirsiniz.");
+      toast.error("En fazla 4 görsel ekleyebilirsiniz.");
       return;
     }
 
     for (const file of selectedFiles) {
       if (!file.type.startsWith("image/")) {
-        toast.error("Sadece gorsel dosyasi yukleyebilirsiniz.");
+        toast.error("Sadece görsel dosyasi yukleyebilirsiniz.");
         return;
       }
 
       if (file.size > MAX_RETURN_IMAGE_SIZE_BYTES) {
-        toast.error("Her gorsel en fazla 6MB olabilir.");
+        toast.error("Her görsel en fazla 6MB olabilir.");
         return;
       }
     }
@@ -79,7 +79,7 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
 
           const payload = await response.json().catch(() => null);
           if (!response.ok || payload?.error) {
-            throw new Error(payload?.error?.message || "Gorsel yuklenemedi");
+            throw new Error(payload?.error?.message || "Görsel yuklenemedi");
           }
 
           return `${payload?.data?.url ?? ""}`.trim();
@@ -88,7 +88,7 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
 
       setImages((current) => Array.from(new Set([...current, ...uploadedUrls.filter(Boolean)])));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Gorsel yukleme hatasi");
+      toast.error(error instanceof Error ? error.message : "Görsel yukleme hatasi");
     } finally {
       setUploading(false);
     }
@@ -122,10 +122,10 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-2">
-        <Label>Urun</Label>
+        <Label>Ürün</Label>
         <Select value={orderItemId} onValueChange={setOrderItemId}>
           <SelectTrigger className="rounded-2xl border-border/70">
-            <SelectValue placeholder="Urun secin" />
+            <SelectValue placeholder="Ürün secin" />
           </SelectTrigger>
           <SelectContent>
             {items.map((item) => (
@@ -146,8 +146,8 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="return">Iade</SelectItem>
-              <SelectItem value="exchange">Degisim</SelectItem>
+              <SelectItem value="return">İade</SelectItem>
+              <SelectItem value="exchange">Değişim</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -182,7 +182,7 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="return-images">Destekleyici Gorseller</Label>
+        <Label htmlFor="return-images">Destekleyici Görseller</Label>
         <Input id="return-images" type="file" accept="image/*" multiple disabled={uploading} onChange={(event) => void handleUpload(event.target.files)} />
       </div>
 
@@ -190,7 +190,7 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {images.map((imageUrl) => (
             <div key={imageUrl} className="relative overflow-hidden rounded-2xl border border-border/70">
-              <img src={imageUrl} alt="Talep gorseli" className="h-24 w-full object-cover" />
+              <img src={imageUrl} alt="Talep görseli" className="h-24 w-full object-cover" />
               <Button type="button" size="icon" variant="secondary" className="absolute right-2 top-2 h-7 w-7" onClick={() => setImages((current) => current.filter((url) => url !== imageUrl))}>
                 <X className="h-4 w-4" />
               </Button>
@@ -201,7 +201,7 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
         <div className="rounded-2xl border border-dashed border-border/70 bg-muted/15 p-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <ImagePlus className="h-4 w-4" />
-            Talebinizi desteklemek icin en fazla 4 gorsel ekleyebilirsiniz.
+            Talebinizi desteklemek icin en fazla 4 görsel ekleyebilirsiniz.
           </div>
         </div>
       )}
@@ -219,3 +219,4 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
     </form>
   );
 }
+

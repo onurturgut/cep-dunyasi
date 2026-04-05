@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@/lib/router";
@@ -46,7 +46,7 @@ export default function Cart() {
           quantity: "Adet",
           orderSummary: "Siparis Ozeti",
           subtotal: "Ara Toplam",
-          productDiscount: "Urun Indirimi",
+          productDiscount: "Ürün Indirimi",
           shipping: "Kargo",
           free: "Ucretsiz",
           freeShippingNote: `${FREE_SHIPPING_THRESHOLD} TL ve uzeri siparislerde kargo ucretsizdir.`,
@@ -185,3 +185,4 @@ export default function Cart() {
     </Layout>
   );
 }
+

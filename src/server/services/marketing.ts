@@ -1,4 +1,4 @@
-import { randomBytes, randomUUID } from "node:crypto";
+﻿import { randomBytes, randomUUID } from "node:crypto";
 import { z } from "zod";
 import type {
   FeaturedReviewRecord,
@@ -406,7 +406,7 @@ async function getDerivedSocialProofFallback() {
       label: "Teslim Edilen Siparis",
       value: `${deliveredOrdersCount.toLocaleString("tr-TR")}+`,
       icon: "PackageCheck",
-      description: "Odeme onayi sonrasinda hizli hazirlanan ve takipli gonderiler",
+      description: "Ödeme onayi sonrasinda hizli hazirlanan ve takipli gonderiler",
       isActive: true,
       order: 1,
       sourceType: "derived",
@@ -934,3 +934,4 @@ export async function getUserMarketingSummary(userId: string) {
     referrals,
   };
 }
+

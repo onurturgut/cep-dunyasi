@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
@@ -183,7 +183,7 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                         key={`${slide.id}-dot`}
                         type="button"
                         onClick={() => onSlideChange(index)}
-                        aria-label={`${slide.alt} gorseline git`}
+                        aria-label={`${slide.alt} görseline git`}
                         className={`h-2.5 w-2.5 rounded-full transition-all ${
                           index === activeSlide ? "bg-background" : "bg-background/45 hover:bg-background/70"
                         }`}
@@ -199,3 +199,4 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
     </section>
   );
 }
+

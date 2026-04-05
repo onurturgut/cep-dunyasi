@@ -1,4 +1,4 @@
-import { sanitizeSlug } from "@/lib/utils";
+﻿import { sanitizeSlug } from "@/lib/utils";
 
 export const IPHONE_CASE_MODELS = [
   "iPhone 11",
@@ -73,10 +73,10 @@ export const CASE_THEME_OPTIONS = [
 export const CASE_FEATURE_OPTIONS = [
   "Magsafe Uyumlu",
   "Kamera Koruma",
-  "Yuksek Kose Koruma",
+  "Yüksek Köşe Koruma",
   "Sok Emici",
   "Kaymaz Yuzey",
-  "Stand Ozellikli",
+  "Stand Özellikli",
   "Kartlikli",
   "Lisansli Tasarim",
 ] as const;
@@ -143,3 +143,4 @@ export function buildCaseVariantSku(input: { brand?: string | null; productName:
 export function getCaseCompatibilityValue(attributes: Record<string, string> | null | undefined) {
   return attributes?.uyumluluk || attributes?.compatibility || "";
 }
+

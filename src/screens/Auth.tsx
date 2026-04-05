@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "@/lib/router";
@@ -45,17 +45,17 @@ export default function Auth() {
         referralHint: "Referral code detected. Your welcome benefits will be linked after sign up.",
       }
       : {
-          loginTab: "Giris Yap",
+          loginTab: "Giriş Yap",
           signupTab: "Kayit Ol",
           email: "E-posta",
-          password: "Sifre",
+          password: "Şifre",
           fullName: "Ad Soyad",
-          signingIn: "Giris yapiliyor...",
-          signIn: "Giris Yap",
+          signingIn: "Giriş yapiliyor...",
+          signIn: "Giriş Yap",
           signingUp: "Kayit yapiliyor...",
           signUp: "Kayit Ol",
-          loginError: "Giris basarisiz",
-          loginSuccess: "Giris basarili!",
+          loginError: "Giriş basarisiz",
+          loginSuccess: "Giriş basarili!",
         signupError: "Kayit basarisiz",
         signupSuccess: "Kayit basarili!",
         signupSuccessDescription: "E-posta adresinizi dogrulayin.",
@@ -154,3 +154,4 @@ export default function Auth() {
     </Layout>
   );
 }
+

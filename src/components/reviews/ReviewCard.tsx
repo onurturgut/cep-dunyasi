@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +28,7 @@ export function ReviewCard({ review, onHelpful, helpfulLoading = false, canMarkH
       : {
           verified: "Dogrulanmis Satin Alma",
           helpful: "Faydali",
-          imageAlt: "Yorum gorseli",
+          imageAlt: "Yorum görseli",
           storeReply: "Magaza Cevabi",
           dateLocale: "tr-TR",
         };
@@ -89,3 +89,4 @@ export function ReviewCard({ review, onHelpful, helpfulLoading = false, canMarkH
     </Card>
   );
 }
+

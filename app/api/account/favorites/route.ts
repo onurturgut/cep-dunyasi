@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { z } from "zod";
 import { connectToDatabase } from "@/server/mongodb";
 import { getAccountSessionUser, handleAccountRouteError } from "@/server/account-api";
@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const toggleSchema = z.object({
-  productId: z.string().trim().min(1, "Urun secimi zorunludur"),
+  productId: z.string().trim().min(1, "Ürün secimi zorunludur"),
 });
 
 export async function GET(request: Request) {
@@ -31,3 +31,4 @@ export async function POST(request: Request) {
     return handleAccountRouteError(error, "Favori islemi tamamlanamadi");
   }
 }
+

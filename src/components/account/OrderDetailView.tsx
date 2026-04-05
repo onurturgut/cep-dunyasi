@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { RefreshCcw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,7 +60,7 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
                     {item.variant_image ? (
                       <img src={item.variant_image} alt={item.product_name} className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Urun</div>
+                      <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Ürün</div>
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -82,7 +82,7 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
                         ) : (
                           <Button type="button" variant="outline" size="sm" onClick={() => onCreateReturnRequest(item.id)}>
                             <RefreshCcw className="mr-2 h-4 w-4" />
-                            Iade / Degisim
+                            İade / Değişim
                           </Button>
                         )
                       ) : null}
@@ -125,7 +125,7 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
                 </div>
                 <div className="border-t border-border/70 pt-3">
                   <p>
-                    <span className="font-medium text-foreground">Odeme Yontemi:</span>{" "}
+                    <span className="font-medium text-foreground">Ödeme Yontemi:</span>{" "}
                     {order.payment_method ? PAYMENT_METHOD_LABELS[order.payment_method as keyof typeof PAYMENT_METHOD_LABELS] ?? order.payment_method : order.payment_provider.toUpperCase()}
                   </p>
                   {order.payment_failure_reason ? (
@@ -173,3 +173,4 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
     </div>
   );
 }
+

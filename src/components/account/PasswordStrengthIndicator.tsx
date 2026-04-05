@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Progress } from "@/components/ui/progress";
 import { getPasswordStrength } from "@/lib/account";
@@ -7,7 +7,7 @@ import { useI18n } from "@/i18n/provider";
 export function PasswordStrengthIndicator({ password }: { password: string }) {
   const { locale } = useI18n();
   const strength = getPasswordStrength(password, locale);
-  const label = locale === "en" ? "Password strength" : "Sifre gucu";
+  const label = locale === "en" ? "Password strength" : "Şifre gucu";
 
   return (
     <div className="space-y-2">
@@ -19,3 +19,4 @@ export function PasswordStrengthIndicator({ password }: { password: string }) {
     </div>
   );
 }
+

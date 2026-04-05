@@ -1,4 +1,4 @@
-import type { CampaignRecord } from "@/lib/campaigns";
+﻿import type { CampaignRecord } from "@/lib/campaigns";
 
 export type CampaignThemeVariant = "midnight" | "violet" | "graphite" | "emerald";
 
@@ -33,7 +33,7 @@ export const fallbackHeroCampaignSlides: HeroCampaignSlideData[] = [
   {
     id: "showcase-iphone",
     title: "iPhone 16 Pro ile yeni nesil hiz ve cekim deneyimi",
-    subtitle: "Premium Secim",
+    subtitle: "Premium Seçim",
     description: "Sinirli stok, zarif tasarim ve guclu performansi tek vitrinde birlestiren ozel kampanya secimi.",
     imageUrl: "/images/iphone15.png",
     mobileImageUrl: "/images/iphone15.png",
@@ -52,7 +52,7 @@ export const fallbackHeroCampaignSlides: HeroCampaignSlideData[] = [
     mobileImageUrl: "/images/airpods.png",
     badgeText: "Bundle Firsati",
     badgeSecondaryText: "Aksesuar Setleri",
-    ctaText: "Paketleri Gor",
+    ctaText: "Paketleri Gör",
     ctaLink: "/products?category=kilif",
     themeVariant: "violet",
   },
@@ -98,7 +98,7 @@ export const fallbackCampaignPromoCards: CampaignPromoCardData[] = [
     description: "Akilli saat, power bank ve tamamlayici urunleri birlikte one cikaran premium bundle vitrini.",
     imageUrl: "/images/akilli-saat.jpg",
     badgeText: "Bundle",
-    ctaText: "Paketleri Gor",
+    ctaText: "Paketleri Gör",
     ctaLink: "/products?category=akilli-saatler",
     themeVariant: "graphite",
   },
@@ -133,7 +133,7 @@ export function buildCampaignPromoCards(campaigns: CampaignRecord[]) {
     return campaigns.slice(0, 3).map((campaign, index) => ({
       id: `promo-${campaign.id}`,
       title: campaign.title,
-      description: campaign.description || "Secili kampanya urunlerini vitrinde gosteren premium promo karti.",
+      description: campaign.description || "Seçili kampanya urunlerini vitrinde gosteren premium promo karti.",
       imageUrl: campaign.mobileImageUrl || campaign.imageUrl,
       badgeText: campaign.badgeText,
       ctaText: campaign.ctaText || "Detayli Incele",
@@ -144,3 +144,4 @@ export function buildCampaignPromoCards(campaigns: CampaignRecord[]) {
 
   return fallbackCampaignPromoCards;
 }
+

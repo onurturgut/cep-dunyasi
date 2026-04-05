@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,13 +41,13 @@ export function CampaignPreviewCard({ value }: CampaignPreviewCardProps) {
               {value.imageUrl ? (
                 <img
                   src={value.mobileImageUrl || value.imageUrl}
-                  alt={value.title || "Kampanya gorseli"}
+                  alt={value.title || "Kampanya görseli"}
                   className="h-44 w-full object-cover"
                   loading="lazy"
                 />
               ) : (
                 <div className="flex h-44 items-center justify-center bg-muted/60 text-sm text-muted-foreground">
-                  Gorsel onizlemesi
+                  Görsel onizlemesi
                 </div>
               )}
             </div>
@@ -65,10 +65,11 @@ export function CampaignPreviewCard({ value }: CampaignPreviewCardProps) {
           </div>
           <div className="rounded-xl border border-border/60 px-3 py-2">
             <p className="font-medium text-foreground">Mobil</p>
-            <p>{value.mobileImageUrl ? "Ayrik gorsel var" : "Ana gorsel kullanilir"}</p>
+            <p>{value.mobileImageUrl ? "Ayrik görsel var" : "Ana görsel kullanilir"}</p>
           </div>
         </div>
       </CardContent>
     </Card>
   );
 }
+

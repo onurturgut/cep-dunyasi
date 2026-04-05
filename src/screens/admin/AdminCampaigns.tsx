@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { ImagePlus, Plus, RefreshCcw, WandSparkles } from "lucide-react";
@@ -23,7 +23,7 @@ async function uploadCampaignImage(file: File) {
   const payload = await response.json().catch(() => null);
 
   if (!response.ok || payload?.error) {
-    throw new Error(payload?.error?.message || "Kampanya gorseli yuklenemedi");
+    throw new Error(payload?.error?.message || "Kampanya görseli yuklenemedi");
   }
 
   return `${payload?.data?.url ?? ""}`;
@@ -92,9 +92,9 @@ export default function AdminCampaigns() {
       setUploading(true);
       const url = await uploadCampaignImage(file);
       setForm((current) => ({ ...current, [field]: url }));
-      toast.success("Gorsel yuklendi");
+      toast.success("Görsel yuklendi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Gorsel yuklenemedi");
+      toast.error(error instanceof Error ? error.message : "Görsel yuklenemedi");
     } finally {
       setUploading(false);
     }
@@ -165,10 +165,10 @@ export default function AdminCampaigns() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary/70">Hero Carousel</p>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">Campaign Slider Yonetimi</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">Campaign Slider Yönetimi</h1>
           <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
             Ana sayfanin en ustunde cikan premium hero slider kampanyalarini buradan yonetin. Surukle-birak ile sira degistirin,
-            tarih planlayin ve mobil gorsel atayin. Ilk 3 aktif kampanya ayni zamanda ana sayfadaki kampanya kartlarini da besler.
+            tarih planlayin ve mobil görsel atayin. Ilk 3 aktif kampanya ayni zamanda ana sayfadaki kampanya kartlarini da besler.
           </p>
         </div>
 
@@ -234,7 +234,7 @@ export default function AdminCampaigns() {
           <div className="rounded-[1.75rem] bg-background p-6">
             <DialogHeader className="mb-6">
               <DialogTitle className="font-display text-2xl">
-                {form.id ? "Kampanyayi Duzenle" : "Yeni Hero Kampanyasi"}
+                {form.id ? "Kampanyayi Düzenle" : "Yeni Hero Kampanyasi"}
               </DialogTitle>
             </DialogHeader>
             <CampaignForm
@@ -251,3 +251,4 @@ export default function AdminCampaigns() {
     </div>
   );
 }
+

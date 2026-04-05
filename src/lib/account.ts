@@ -1,4 +1,4 @@
-export type CommunicationPreferences = {
+﻿export type CommunicationPreferences = {
   email: boolean;
   sms: boolean;
 };
@@ -208,7 +208,7 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   shipped: "Kargoda",
   delivered: "Teslim Edildi",
   cancelled: "Iptal",
-  refunded: "Iade Edildi",
+  refunded: "İade Edildi",
   failed: "Basarisiz",
 };
 
@@ -219,7 +219,7 @@ export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   paid: "Odendi",
   failed: "Basarisiz",
   cancelled: "Iptal Edildi",
-  refunded: "Iade Edildi",
+  refunded: "İade Edildi",
 };
 
 export const RETURN_STATUS_LABELS: Record<ReturnRequestStatus, string> = {
@@ -289,3 +289,4 @@ export function sanitizePhone(value: string) {
   return value.replace(/[^\d+]/g, "").slice(0, 16);
 }
 import type { AppLocale } from "@/i18n/config";
+

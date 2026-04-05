@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Eye, Flame, Package2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +23,7 @@ export function ProductUrgencyInfo({
   if (salesCount >= 10) {
     items.push({
       id: "sales",
-      label: compact ? "Cok ilgi goruyor" : `Bu hafta ${salesCount}+ siparis ilgisi gordu`,
+      label: compact ? "Çok ilgi goruyor" : `Bu hafta ${salesCount}+ siparis ilgisi gordu`,
       icon: Flame,
     });
   }
@@ -59,3 +59,4 @@ export function ProductUrgencyInfo({
     </div>
   );
 }
+

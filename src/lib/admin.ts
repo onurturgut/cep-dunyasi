@@ -11,17 +11,17 @@ export const ADMIN_ROLES = [
 export type AdminRole = (typeof ADMIN_ROLES)[number];
 
 export const ADMIN_PERMISSION_LABELS = {
-  manage_products: "Urun Yonetimi",
-  manage_orders: "Siparis Yonetimi",
-  manage_shipments: "Kargo Yonetimi",
-  manage_users: "Kullanici Yonetimi",
-  manage_roles: "Rol ve Yetki Yonetimi",
-  manage_campaigns: "Kampanya ve Banner Yonetimi",
-  view_reports: "Raporlari Gorme",
-  manage_site_content: "Site Icerigi Yonetimi",
-  manage_technical_service: "Teknik Servis Yonetimi",
+  manage_products: "Ürün Yönetimi",
+  manage_orders: "Siparis Yönetimi",
+  manage_shipments: "Kargo Yönetimi",
+  manage_users: "Kullanici Yönetimi",
+  manage_roles: "Rol ve Yetki Yönetimi",
+  manage_campaigns: "Kampanya ve Banner Yönetimi",
+  view_reports: "Raporlari Görme",
+  manage_site_content: "Site Icerigi Yönetimi",
+  manage_technical_service: "Teknik Servis Yönetimi",
   manage_import_export: "Ice / Dise Aktarma",
-  view_logs: "Audit Loglarini Gorme",
+  view_logs: "Audit Loglarini Görme",
 } as const;
 
 export type AdminPermission = keyof typeof ADMIN_PERMISSION_LABELS;
@@ -60,7 +60,7 @@ export const ORDER_STATUS_LABELS: Record<AdminOrderStatus, string> = {
   shipped: "Kargoda",
   delivered: "Teslim Edildi",
   cancelled: "Iptal Edildi",
-  refunded: "Iade Edildi",
+  refunded: "İade Edildi",
   failed: "Basarisiz",
 };
 
@@ -70,7 +70,7 @@ export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   paid: "Odendi",
   failed: "Basarisiz",
   cancelled: "Iptal Edildi",
-  refunded: "Iade Edildi",
+  refunded: "İade Edildi",
 };
 
 export const LOW_STOCK_FILTERS = ["all", "critical", "out_of_stock"] as const;
@@ -469,3 +469,4 @@ export function getAdminRoleOptions(): RoleOption[] {
 export function formatAdminCurrency(value: number) {
   return `TL ${Math.round(value).toLocaleString("tr-TR")}`;
 }
+

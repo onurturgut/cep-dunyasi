@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -94,7 +94,7 @@ export default function AdminReports() {
         </Card>
       </div>
 
-      <TopSellingProductsTable items={data?.salesByProduct ?? []} title="Urun Bazli Satis" />
+      <TopSellingProductsTable items={data?.salesByProduct ?? []} title="Ürün Bazli Satis" />
 
       <Card>
         <CardHeader>
@@ -118,3 +118,4 @@ export default function AdminReports() {
     </div>
   );
 }
+

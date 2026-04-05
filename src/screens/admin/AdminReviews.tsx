@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { Eye, MessageSquareMore, ShieldCheck, Trash2 } from "lucide-react";
@@ -110,7 +110,7 @@ export default function AdminReviews() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">Yorumlar</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Urun yorumlarini onaylayin, yanitlayin ve yonetin.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Ürün yorumlarini onaylayin, yanitlayin ve yonetin.</p>
         </div>
       </div>
 
@@ -146,7 +146,7 @@ export default function AdminReviews() {
                 setPage(1);
                 setSearch(event.target.value);
               }}
-              placeholder="Urun, kullanici veya yorum ara"
+              placeholder="Ürün, kullanici veya yorum ara"
             />
           </div>
           <div className="space-y-2">
@@ -164,7 +164,7 @@ export default function AdminReviews() {
               <SelectContent>
                 <SelectItem value="pending">Onay Bekleyen</SelectItem>
                 <SelectItem value="approved">Onayli</SelectItem>
-                <SelectItem value="all">Tumu</SelectItem>
+                <SelectItem value="all">Tümü</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -182,7 +182,7 @@ export default function AdminReviews() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="newest">En Yeni</SelectItem>
-                <SelectItem value="highest">En Yuksek Puan</SelectItem>
+                <SelectItem value="highest">En Yüksek Puan</SelectItem>
                 <SelectItem value="lowest">En Dusuk Puan</SelectItem>
                 <SelectItem value="most_helpful">En Faydali</SelectItem>
               </SelectContent>
@@ -195,7 +195,7 @@ export default function AdminReviews() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Urun</TableHead>
+              <TableHead>Ürün</TableHead>
               <TableHead>Kullanici</TableHead>
               <TableHead>Puan</TableHead>
               <TableHead>Durum</TableHead>
@@ -209,7 +209,7 @@ export default function AdminReviews() {
               <TableRow key={review.id}>
                 <TableCell>
                   <div className="min-w-[180px]">
-                    <p className="font-medium">{review.product_name || "Urun"}</p>
+                    <p className="font-medium">{review.product_name || "Ürün"}</p>
                     <p className="line-clamp-1 text-xs text-muted-foreground">{review.title || review.comment}</p>
                   </div>
                 </TableCell>
@@ -308,7 +308,7 @@ export default function AdminReviews() {
 
                   <div className="mt-3 grid gap-3 md:grid-cols-2">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Urun</p>
+                      <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Ürün</p>
                       <p className="mt-1 font-medium">{selectedReview.product_name || "-"}</p>
                     </div>
                     <div>
@@ -374,3 +374,4 @@ export default function AdminReviews() {
     </div>
   );
 }
+

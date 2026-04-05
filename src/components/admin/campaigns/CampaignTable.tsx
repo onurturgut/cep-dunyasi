@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { GripVertical, PencilLine, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -100,7 +100,7 @@ export function CampaignTable({
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" size="sm" onClick={() => onEdit(campaign)}>
                     <PencilLine className="mr-2 h-4 w-4" />
-                    Duzenle
+                    Düzenle
                   </Button>
                   <Button type="button" variant="destructive" size="sm" onClick={() => onDelete(campaign)}>
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -115,3 +115,4 @@ export function CampaignTable({
     </div>
   );
 }
+

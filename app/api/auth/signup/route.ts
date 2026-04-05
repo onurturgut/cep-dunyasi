@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     const { email, password, fullName, referralCode } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: { message: "Email ve sifre zorunludur" } }, { status: 400 });
+      return NextResponse.json({ error: { message: "Email ve şifre zorunludur" } }, { status: 400 });
     }
 
     await connectToDatabase();
@@ -75,3 +75,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: { message } }, { status: 500 });
   }
 }
+

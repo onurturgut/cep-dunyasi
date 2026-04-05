@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Edit3, MapPin, Star, Trash2 } from "lucide-react";
 import type { AccountAddress } from "@/lib/account";
@@ -50,7 +50,7 @@ export function AddressCard({ address, onEdit, onDelete, onSetDefault, isDeletin
           ) : null}
           <Button type="button" variant="outline" size="sm" onClick={() => onEdit(address)}>
             <Edit3 className="mr-2 h-4 w-4" />
-            Duzenle
+            Düzenle
           </Button>
           <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive" disabled={isDeleting} onClick={() => onDelete(address.id)}>
             <Trash2 className="mr-2 h-4 w-4" />
@@ -61,3 +61,4 @@ export function AddressCard({ address, onEdit, onDelete, onSetDefault, isDeletin
     </Card>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState } from "react";
 import { Download, FileUp } from "lucide-react";
@@ -57,7 +57,7 @@ export default function AdminImportExport() {
             </Button>
             <Button variant="outline" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" />
-              Urunleri Disa Aktar
+              Ürünleri Disa Aktar
             </Button>
             <Button onClick={() => void handleImport(true)}>Dry Run</Button>
             <Button variant="secondary" onClick={() => void handleImport(false)}>
@@ -102,3 +102,4 @@ export default function AdminImportExport() {
     </div>
   );
 }
+

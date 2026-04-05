@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -40,7 +40,7 @@ export default function AdminUsers() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold">Kullanici Yonetimi</h1>
+        <h1 className="font-display text-2xl font-bold">Kullanici Yönetimi</h1>
         <p className="text-sm text-muted-foreground">Kullanicilari arayin, durumlarini izleyin ve erisim duzeylerini yonetin.</p>
       </div>
 
@@ -49,7 +49,7 @@ export default function AdminUsers() {
           <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Email, ad soyad veya telefon ile ara" />
           <div className="flex flex-wrap gap-2">
             <Button variant={status === "all" ? "default" : "outline"} onClick={() => setStatus("all")}>
-              Tumu
+              Tümü
             </Button>
             <Button variant={status === "active" ? "default" : "outline"} onClick={() => setStatus("active")}>
               Aktif
@@ -89,7 +89,7 @@ export default function AdminUsers() {
                   <p>{formatCurrency(user.totalSpend)}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs text-muted-foreground">Son Giris</p>
+                  <p className="text-xs text-muted-foreground">Son Giriş</p>
                   <p>{user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "-"}</p>
                 </div>
               </div>
@@ -108,7 +108,7 @@ export default function AdminUsers() {
                   })
                 }
               >
-                Duzenle
+                Düzenle
               </Button>
             </CardContent>
           </Card>
@@ -129,7 +129,7 @@ export default function AdminUsers() {
                 <TableHead>Roller</TableHead>
                 <TableHead>Siparis</TableHead>
                 <TableHead>Harcama</TableHead>
-                <TableHead>Son Giris</TableHead>
+                <TableHead>Son Giriş</TableHead>
                 <TableHead>Durum</TableHead>
                 <TableHead className="text-right">Islem</TableHead>
               </TableRow>
@@ -171,7 +171,7 @@ export default function AdminUsers() {
                         })
                       }
                     >
-                      Duzenle
+                      Düzenle
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -289,3 +289,4 @@ export default function AdminUsers() {
     </div>
   );
 }
+

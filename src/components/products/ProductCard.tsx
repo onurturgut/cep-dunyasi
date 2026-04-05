@@ -165,7 +165,7 @@ export function ProductCard({
           soldOut: "Tukendi",
           secondHand: "2. El",
           discount: `%${discountRate} Indirim`,
-          bestSeller: "Cok Satan",
+          bestSeller: "Çok Satan",
           new: "Yeni",
           lowStock: "Tukeniyor",
           favoriteAdd: "Favorilere ekle",
@@ -258,7 +258,7 @@ export function ProductCard({
   return (
     <div className="h-full">
       <Link to={`/product/${slug}`} className="block h-full">
-        <Card className="group flex h-full flex-col overflow-hidden rounded-[28px] border-border/70 bg-card shadow-[0_18px_50px_-36px_rgba(15,23,42,0.4)] transition-all duration-300 hover:-translate-y-1 hover:border-foreground/10 hover:shadow-[0_28px_70px_-38px_rgba(15,23,42,0.45)]">
+        <Card className="group flex h-full flex-col overflow-hidden rounded-[28px] border-border/70 bg-card shadow-[0_18px_50px_-36px_rgba(15,23,42,0.4)] transition-all duration-300 sm:hover:-translate-y-1 sm:hover:border-foreground/10 sm:hover:shadow-[0_28px_70px_-38px_rgba(15,23,42,0.45)]">
           <div className="relative aspect-[4/4.35] overflow-hidden bg-gradient-to-b from-transparent via-muted/10 to-transparent sm:aspect-[4/4.15]">
             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background/25 to-transparent" />
 
@@ -302,7 +302,7 @@ export function ProductCard({
                       sizes={getResponsiveImageSizes("product-card")}
                       className={cn(
                         "absolute inset-0 h-full w-full object-cover object-center transition-all duration-500",
-                        secondaryImage && isImageHovered ? "scale-[1.02] opacity-0" : "scale-100 opacity-100 group-hover:scale-[1.05]",
+                        secondaryImage && isImageHovered ? "opacity-0" : "opacity-100 sm:group-hover:scale-[1.05]",
                       )}
                       loading="lazy"
                       draggable={false}
@@ -311,13 +311,13 @@ export function ProductCard({
                     {secondaryImage ? (
                       <Image
                         src={getOptimizedImageUrl(secondaryImage, { kind: "product-card" })}
-                        alt={`${name} alternatif gorsel`}
+                        alt={`${name} alternatif görsel`}
                         width={720}
                         height={780}
                         sizes={getResponsiveImageSizes("product-card")}
                         className={cn(
                           "absolute inset-0 h-full w-full object-cover object-center transition-all duration-500",
-                          isImageHovered ? "scale-[1.03] opacity-100" : "scale-100 opacity-0",
+                          isImageHovered ? "opacity-100 sm:scale-[1.03]" : "opacity-0",
                         )}
                         loading="lazy"
                         draggable={false}
@@ -451,3 +451,4 @@ export function ProductCard({
     </div>
   );
 }
+

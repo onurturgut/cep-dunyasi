@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ExternalLink, PackageCheck, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ export function ShipmentTrackingCard({ shipment }: { shipment: ShipmentSummary |
               {shipment.tracking_number || "Henuz olusturulmadi"}
             </p>
             <p>
-              <span className="font-medium text-foreground">Son Guncelleme:</span> {formatDate(shipment.updated_at)}
+              <span className="font-medium text-foreground">Son Güncelleme:</span> {formatDate(shipment.updated_at)}
             </p>
             {shipment.tracking_url ? (
               <Button type="button" variant="outline" className="w-full sm:w-auto" asChild>
@@ -49,3 +49,4 @@ export function ShipmentTrackingCard({ shipment }: { shipment: ShipmentSummary |
     </Card>
   );
 }
+

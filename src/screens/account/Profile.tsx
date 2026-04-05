@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { AlertCircle } from "lucide-react";
 import { AccountLayout } from "@/components/account/AccountLayout";
@@ -12,7 +12,7 @@ export default function AccountProfileScreen() {
   const profileQuery = useAccountProfile();
 
   return (
-    <AccountLayout title="Profil Bilgileri" description="Kisisel bilgilerinizi, iletisim tercihlerinizi ve profil gorselinizi bu alandan guncelleyebilirsiniz.">
+    <AccountLayout title="Profil Bilgileri" description="Kisisel bilgilerinizi, iletisim tercihlerinizi ve profil görselinizi bu alandan guncelleyebilirsiniz.">
       {profileQuery.isLoading ? (
         <AccountSectionSkeleton cards={2} rows={4} />
       ) : profileQuery.error ? (
@@ -45,3 +45,4 @@ export default function AccountProfileScreen() {
     </AccountLayout>
   );
 }
+

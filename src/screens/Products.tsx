@@ -593,8 +593,14 @@ export default function Products({ initialCategories = defaultCategories }: Prod
                 <Input placeholder="Ürün ara..." className="pl-9" value={search} onChange={(event) => setSearch(event.target.value)} />
               </div>
 
-              <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-                <Button variant={!activeCategory ? "default" : "outline"} size="sm" className="shrink-0 rounded-full" onClick={() => setSearchParams({})}>
+              <div className="rounded-[24px] border border-border/60 bg-card/90 p-4 shadow-[0_16px_40px_-34px_rgba(15,23,42,0.28)]">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-foreground">Kategoriler</h3>
+                  <span className="text-xs text-muted-foreground">Hızlı geçiş</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <Button variant={!activeCategory ? "default" : "outline"} size="sm" className="h-10 justify-center rounded-2xl" onClick={() => setSearchParams({})}>
                   Tümü
                 </Button>
                 {categories.map((category) => (
@@ -602,7 +608,7 @@ export default function Products({ initialCategories = defaultCategories }: Prod
                     key={category.id}
                     variant={activeCategory === category.slug ? "default" : "outline"}
                     size="sm"
-                    className="shrink-0 rounded-full"
+                    className="h-10 justify-center rounded-2xl px-3 text-center"
                     onClick={() => {
                       if (category.slug === "teknik-servis") {
                         navigate("/technical-service");
@@ -615,6 +621,7 @@ export default function Products({ initialCategories = defaultCategories }: Prod
                     {category.name}
                   </Button>
                 ))}
+                </div>
               </div>
 
               <div className="flex items-center gap-3">
@@ -820,3 +827,4 @@ export default function Products({ initialCategories = defaultCategories }: Prod
     </Layout>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Layout } from "@/components/layout/Layout";
 import { FavoritesSection } from "@/components/account/FavoritesSection";
@@ -16,7 +16,7 @@ export default function Favorites() {
       : {
           title: "Favorilerim",
           description: "Begendiginiz urunleri buradan takip edebilirsiniz.",
-          savedProducts: "Kaydettigin Urunler",
+          savedProducts: "Kaydettigin Ürünler",
         };
 
   return (
@@ -32,3 +32,4 @@ export default function Favorites() {
     </Layout>
   );
 }
+

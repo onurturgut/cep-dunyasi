@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
 import { handleAdminRouteError, requireAdminAccess } from "@/server/admin-api";
 import { saveAdminProduct } from "@/server/services/admin-products";
@@ -22,12 +22,13 @@ export async function POST(request: Request) {
       actionType: body.productId ? "product.updated" : "product.created",
       entityType: "product",
       entityId: result.productId,
-      message: body.productId ? "Urun guncellendi" : "Urun olusturuldu",
+      message: body.productId ? "Ürün guncellendi" : "Ürün olusturuldu",
       metadata: { productId: result.productId },
       ip: request.headers.get("x-forwarded-for"),
     });
     return NextResponse.json({ data: result, error: null });
   } catch (error) {
-    return handleAdminRouteError(error, "Urun kaydi tamamlanamadi");
+    return handleAdminRouteError(error, "Ürün kaydi tamamlanamadi");
   }
 }
+

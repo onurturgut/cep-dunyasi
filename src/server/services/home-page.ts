@@ -1,4 +1,4 @@
-import type { HomeCategory, HomeProduct, HomeSiteContent } from "@/components/home/home-data";
+﻿import type { HomeCategory, HomeProduct, HomeSiteContent } from "@/components/home/home-data";
 import { defaultCategories, defaultSiteContent, mergeCategories } from "@/components/home/home-data";
 import type { MarketingHomeModules } from "@/lib/marketing";
 import { normalizeProductVariants, sortProductVariants } from "@/lib/product-variants";
@@ -60,7 +60,7 @@ function normalizeSiteContent(rawSiteContent: RawRecord | null): HomeSiteContent
           return {
             id: normalizeText(source.id) ?? `hero-slide-${index + 1}`,
             image_url: normalizeMediaUrl(normalizeText(source.image_url) ?? ""),
-            alt: normalizeText(source.alt) ?? `Hero gorseli ${index + 1}`,
+            alt: normalizeText(source.alt) ?? `Hero görseli ${index + 1}`,
           };
         })
       : defaultSiteContent.hero_slides,
@@ -292,3 +292,4 @@ export async function getTopLevelCategories(): Promise<HomeCategory[]> {
 
   return serializeForClient(categories);
 }
+

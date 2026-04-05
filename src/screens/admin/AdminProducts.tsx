@@ -459,7 +459,7 @@ export default function AdminProducts() {
     const product = data as AdminProductRecord | null;
 
     if (!product) {
-      throw new Error("Urun bulunamadi");
+      throw new Error("Ürün bulunamadi");
     }
 
     return {
@@ -834,7 +834,7 @@ export default function AdminProducts() {
   const removeVariant = (variantIndex: number) => {
     setForm((current) => {
       if (current.variants.length === 1) {
-        toast.error("Urun icin en az bir varyant kalmali");
+        toast.error("Ürün icin en az bir varyant kalmali");
         return current;
       }
 
@@ -953,7 +953,7 @@ export default function AdminProducts() {
 
     const result = await response.json().catch(() => null);
     if (!response.ok || result?.error) {
-      toast.error(result?.error?.message || "Urun kaydedilemedi");
+      toast.error(result?.error?.message || "Ürün kaydedilemedi");
       return;
     }
 
@@ -969,7 +969,7 @@ export default function AdminProducts() {
       }
     }
 
-    toast.success(editing ? "Urun guncellendi" : "Urun eklendi");
+    toast.success(editing ? "Ürün guncellendi" : "Ürün eklendi");
     setDialogOpen(false);
     setEditing(null);
     resetForm();
@@ -988,7 +988,7 @@ export default function AdminProducts() {
       setIsSlugManuallyEdited(hasCustomSlug(nextForm.name, nextForm.slug));
       setDialogOpen(true);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Urun detaylari yuklenemedi");
+      toast.error(error instanceof Error ? error.message : "Ürün detaylari yuklenemedi");
     }
   };
 
@@ -1005,7 +1005,7 @@ export default function AdminProducts() {
     try {
       product = await loadProductDetail(id);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Urun detaylari yuklenemedi");
+      toast.error(error instanceof Error ? error.message : "Ürün detaylari yuklenemedi");
       return;
     }
 
@@ -1020,11 +1020,11 @@ export default function AdminProducts() {
       try {
         await deleteMediaUrls(mediaUrls);
       } catch (cleanupError) {
-        toast.error(cleanupError instanceof Error ? cleanupError.message : "Urun medyasi silinemedi");
+        toast.error(cleanupError instanceof Error ? cleanupError.message : "Ürün medyasi silinemedi");
       }
     }
 
-    toast.success("Urun silindi");
+    toast.success("Ürün silindi");
     fetchProducts();
   };
 
@@ -1088,7 +1088,7 @@ export default function AdminProducts() {
   return (
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="font-display text-2xl font-bold">Urunler</h1>
+        <h1 className="font-display text-2xl font-bold">Ürünler</h1>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <Button variant="outline" className="w-full sm:w-auto" asChild>
             <Link to="/admin/import-export">Import / Export</Link>
@@ -1105,17 +1105,17 @@ export default function AdminProducts() {
           >
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto">
-                <Plus className="mr-1 h-4 w-4" /> Urun Ekle
+                <Plus className="mr-1 h-4 w-4" /> Ürün Ekle
               </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[90vh] w-[calc(100vw-1rem)] max-w-4xl overflow-y-auto p-4 sm:p-6">
               <DialogHeader>
-                <DialogTitle>{editing ? "Urun Duzenle" : "Yeni Urun"}</DialogTitle>
+                <DialogTitle>{editing ? "Ürün Düzenle" : "Yeni Ürün"}</DialogTitle>
               </DialogHeader>
               <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Urun Adi</Label>
+                  <Label>Ürün Adi</Label>
                   <Input value={form.name} onChange={handleNameChange} />
                 </div>
                 <div className="space-y-2">
@@ -1242,16 +1242,16 @@ export default function AdminProducts() {
               </div>
 
               <div className="space-y-2">
-                <Label>Urun Fotograflari</Label>
+                <Label>Ürün Fotoğrafları</Label>
                 <Input type="file" accept="image/*" multiple onChange={handleImageFilesChange} disabled={uploadingImages} />
                 <p className="text-xs text-muted-foreground">
-                  {uploadingImages ? "Fotograflar yukleniyor..." : "Bu galerideki gorseller varyantta gorsel yoksa fallback olarak kullanilir."}
+                  {uploadingImages ? "Fotograflar yukleniyor..." : "Bu galerideki görseller varyantta görsel yoksa fallback olarak kullanilir."}
                 </p>
                 {form.images.length > 0 && (
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {form.images.map((imageUrl) => (
                       <div key={imageUrl} className="relative overflow-hidden rounded-md border">
-                        <img src={imageUrl} alt="Urun fotografi" className="h-20 w-full object-cover" />
+                        <img src={imageUrl} alt="Ürün fotografi" className="h-20 w-full object-cover" />
                         <Button type="button" variant="destructive" size="icon" className="absolute right-1 top-1 h-6 w-6" onClick={() => handleRemoveImage(imageUrl)}>
                           <X className="h-3.5 w-3.5" />
                         </Button>
@@ -1268,7 +1268,7 @@ export default function AdminProducts() {
               
               <div className={"space-y-3 "+(form.type === "phone" ? "" : "hidden")}>
                 <div>
-                  <h3 className="text-sm font-semibold">Urun Ozellikleri</h3>
+                  <h3 className="text-sm font-semibold">Ürün Özellikleri</h3>
                   <p className="text-xs text-muted-foreground">Kartta gosterilecek teknik ozellikleri buradan girebilirsiniz.</p>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1372,7 +1372,7 @@ export default function AdminProducts() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Pil Sagligi (%)</Label>
+                      <Label>Pil Sağlığı (%)</Label>
                       <Input
                         type="number"
                         min="0"
@@ -1471,7 +1471,7 @@ export default function AdminProducts() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Batarya Degisimi</Label>
+                      <Label>Batarya Değişimi</Label>
                       <Select
                         value={
                           form.second_hand.battery_changed == null ? "unknown" : form.second_hand.battery_changed ? "yes" : "no"
@@ -1629,13 +1629,13 @@ export default function AdminProducts() {
                   <div>
                     <h3 className="text-sm font-semibold">Kılıf Bilgileri</h3>
                     <p className="text-xs text-muted-foreground">
-                      Urunun tarzini secin. Bunlar teknik ayar degil; urunu daha kolay ayirt etmek ve filtrelemek icin kullanilir.
+                      Ürünun tarzini secin. Bunlar teknik ayar degil; urunu daha kolay ayirt etmek ve filtrelemek icin kullanilir.
                     </p>
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label>Kilif Tipi</Label>
+                      <Label>Kılıf Tipi</Label>
                       <Select
                         value={form.case_details.case_type || "none"}
                         onValueChange={(value) =>
@@ -1692,7 +1692,7 @@ export default function AdminProducts() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Ek Ozellikler</Label>
+                    <Label>Ek Özellikler</Label>
                     <div className="flex flex-wrap gap-2">
                       {CASE_FEATURE_OPTIONS.map((feature) => (
                         <Button
@@ -1713,11 +1713,11 @@ export default function AdminProducts() {
               <div className="space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold">{isCaseCategory ? "Urun Secenekleri" : "Modeller"}</h3>
+                    <h3 className="text-sm font-semibold">{isCaseCategory ? "Ürün Seçenekleri" : "Modeller"}</h3>
                     <p className="text-xs text-muted-foreground">
                       {isCaseCategory
                         ? "Kılıf urunlerinde teknik varyant yerine uyumlu modelleri, renkleri ve ortak fiyat bilgisini secin."
-                        : `${variantAxes.map((axis) => axis.label).join(", ") || "Temel model bilgileri"} bazli secenekleri fiyat, stok ve gorsellerle birlikte yonetin.`}
+                        : `${variantAxes.map((axis) => axis.label).join(", ") || "Temel model bilgileri"} bazli secenekleri fiyat, stok ve görsellerle birlikte yonetin.`}
                     </p>
                   </div>
                   {isCaseCategory ? (
@@ -1728,7 +1728,7 @@ export default function AdminProducts() {
                       className="w-full sm:w-auto"
                       onClick={() => setShowCaseAdvancedEditor((current) => !current)}
                     >
-                      {showCaseAdvancedEditor ? "Kolay Moda Don" : "Gelismis Duzenleme"}
+                      {showCaseAdvancedEditor ? "Kolay Moda Don" : "Gelismis Düzenleme"}
                     </Button>
                   ) : (
                     <Button type="button" variant="outline" size="sm" className="w-full sm:w-auto" onClick={addVariant}>
@@ -1758,7 +1758,7 @@ export default function AdminProducts() {
                               </Button>
                             ))}
                             <Button type="button" variant="outline" size="sm" onClick={() => setCaseBuilder((current) => ({ ...current, selectedModels: [...IPHONE_CASE_MODELS] }))}>
-                              Tumunu Sec
+                              Tümünu Sec
                             </Button>
                             <Button type="button" variant="ghost" size="sm" onClick={handleClearCaseModels}>
                               Temizle
@@ -1979,7 +1979,7 @@ export default function AdminProducts() {
                             </div>
                           ) : null}
                           <div className="space-y-2">
-                            <Label className="text-xs">Model Gorselleri</Label>
+                            <Label className="text-xs">Model Görselleri</Label>
                             <Input type="file" accept="image/*" multiple onChange={(event) => handleVariantImageFilesChange(variantIndex, event)} disabled={uploadingImages} />
                             {variant.images.length > 0 && (
                               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -2008,7 +2008,7 @@ export default function AdminProducts() {
               </div>
 
               <Button className="w-full" onClick={handleSave}>
-                {editing ? "Guncelle" : "Kaydet"}
+                {editing ? "Güncelle" : "Kaydet"}
               </Button>
               </div>
             </DialogContent>
@@ -2018,7 +2018,7 @@ export default function AdminProducts() {
 
       <div className="mt-6 flex flex-wrap gap-2">
         <Button size="sm" variant={activeCategoryId === "all" ? "default" : "outline"} onClick={() => setActiveCategoryId("all")}>
-          Tumu
+          Tümü
           <span className="ml-2 rounded-full bg-background/20 px-2 py-0.5 text-xs">{products.length}</span>
         </Button>
         {categoryFilters.map((category) => (
@@ -2094,7 +2094,7 @@ export default function AdminProducts() {
               <div className="flex gap-2">
                 <Button variant="outline" className="flex-1" onClick={() => void handleEdit(product.id)}>
                   <Pencil className="mr-2 h-4 w-4" />
-                  Duzenle
+                  Düzenle
                 </Button>
                 <Button variant="outline" className="flex-1 text-destructive" onClick={() => void handleDelete(product.id)}>
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -2127,7 +2127,7 @@ export default function AdminProducts() {
                   }
                 />
               </TableHead>
-              <TableHead>Urun</TableHead>
+              <TableHead>Ürün</TableHead>
               <TableHead>Kategori</TableHead>
               <TableHead>Tur</TableHead>
               <TableHead>Varyantlar</TableHead>
@@ -2203,3 +2203,4 @@ export default function AdminProducts() {
     </div>
   );
 }
+

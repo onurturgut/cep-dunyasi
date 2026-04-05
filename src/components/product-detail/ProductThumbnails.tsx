@@ -17,14 +17,14 @@ export function ProductThumbnails({ images, productName, activeIndex, onSelect }
   }
 
   return (
-    <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
+    <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:grid-cols-5 sm:overflow-visible sm:px-0 sm:pb-0">
       {images.map((image, index) => (
         <button
           key={`${image}-${index}`}
           type="button"
           onClick={() => onSelect(index)}
           className={cn(
-            "relative aspect-square overflow-hidden rounded-[1.35rem] border transition-all duration-300",
+            "relative aspect-square w-20 shrink-0 overflow-hidden rounded-[1.35rem] border transition-all duration-300 sm:w-auto",
             index === activeIndex
               ? "border-white/30 bg-white/10 shadow-[0_18px_36px_-28px_rgba(255,255,255,0.45)]"
               : "border-white/8 bg-white/[0.03] hover:-translate-y-0.5 hover:border-white/20",

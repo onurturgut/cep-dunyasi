@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -223,30 +223,30 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
           overviewFallback: "A detailed product introduction has not been added yet. You can review all model-specific details from the section above.",
         }
       : {
-          productLoadError: "Urun detayi yuklenemedi",
-          productNotFound: "Urun bulunamadi",
+          productLoadError: "Ürün detayi yuklenemedi",
+          productNotFound: "Ürün bulunamadi",
           home: "Ana Sayfa",
-          products: "Urunler",
+          products: "Ürünler",
           chooseModel: "Lutfen gecerli bir model secin",
           outOfStockSelection: "Secilen model su an stokta yok",
           addedToCart: (count: number) => `${count} adet sepete eklendi`,
-          backToProducts: "Urunlere don",
+          backToProducts: "Ürünlere don",
           unavailableDescription: "Aradiginiz urun bulunamadi ya da gecici olarak erisilemiyor.",
           unavailableModel: "Bu model gecici olarak stokta bulunmuyor.",
-          lowStock: (count: number) => `Secili modelde son ${count} adet kaldi.`,
+          lowStock: (count: number) => `Seçili modelde son ${count} adet kaldi.`,
           readyStock: (count: number) => `${count} adet stokla siparise hazir.`,
           supportReport: "Durum raporu paylasilir",
           supportWarranty: "Cihaza ozel garanti bilgisi",
           supportStandard: "Apple standart destek",
           reviews: (count: number) => `${count} yorum`,
-          selectedModel: "Secili model",
+          selectedModel: "Seçili model",
           standardSelection: "Standart secim",
           savings: (rate: number) => `%${rate} fiyat avantaji`,
           secureShipping: "Guvenli odeme ve hizli kargo ile gonderilir.",
           delivery: "Teslimat",
           support: "Destek",
-          returns: "Iade",
-          fastShipping: "Hizli kargo uygun",
+          returns: "İade",
+          fastShipping: "Hızlı kargo uygun",
           warrantySpecified: "Garanti durumu belirtilmis",
           warrantyAvailable: "Cihaza ozel garanti bilgisi mevcut",
           supportYears: "2 yil destek",
@@ -256,11 +256,11 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
           freeShippingTitle: "Ucretsiz kargo secenegi",
           freeShippingDescription: "Uygun kampanyali tutarlarda ek teslimat bedeli yansimaz.",
           securePaymentTitle: "Guvenli odeme",
-          securePaymentDescription: "Tum odemeler sifrelenmis altyapi ve guvenli baglanti ile islenir.",
+          securePaymentDescription: "Tum odemeler şifrelenmis altyapi ve guvenli baglanti ile islenir.",
           easyReturnTitle: "Kolay iade",
           easyReturnDescription: "Siparisiniz size ulastiktan sonra iade surecini online olarak baslatabilirsiniz.",
-          overviewTitle: "Urune Genel Bakis",
-          overviewFallback: "Bu urun icin henuz detayli bir tanitim metni eklenmemis. Secili modele ait tum detaylari yukaridaki alandan inceleyebilirsiniz.",
+          overviewTitle: "Ürüne Genel Bakis",
+          overviewFallback: "Bu urun icin henuz detayli bir tanitim metni eklenmemis. Seçili modele ait tum detaylari yukaridaki alandan inceleyebilirsiniz.",
         };
 
   useEffect(() => {
@@ -752,7 +752,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                     </div>
 
                     <p className="text-sm leading-6 text-muted-foreground">
-                      Seçili model: <span className="font-medium text-foreground">{selectedVariantSummary || "Standart seçim"}</span>
+                    <p className="text-sm leading-6 text-muted-foreground">Seçili model: <span className="font-medium text-foreground">{selectedVariantSummary || "Standart seçim"}</span></p>
                     </p>
                     {discountRate ? <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">%{discountRate} fiyat avantaji</p> : null}
                       </div>
@@ -770,15 +770,15 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                   onClick={openReviewsSection}
                 >
                   <div className="space-y-1">
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">MÃ¼ÅŸteri DeÄŸerlendirmeleri</div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Müşteri Değerlendirmeleri</div>
                     <div className="flex items-center gap-2">
                       <ReviewStars rating={reviewAverage} showValue={reviewAverage > 0} />
                       <span className="text-sm text-foreground">
-                        {reviewCount > 0 ? `${reviewCount} yorum mevcut` : "HenÃ¼z yorum yok"}
+                        {reviewCount > 0 ? `${reviewCount} yorum mevcut` : "Henüz yorum yok"}
                       </span>
                     </div>
                   </div>
-                  <span className="text-sm font-medium text-foreground">TÃ¼mÃ¼nÃ¼ gÃ¶r</span>
+                  <span className="text-sm font-medium text-foreground">Tümünü gör</span>
                 </button>
 
                 <ProductUrgencyInfo
@@ -939,14 +939,14 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
           <CardContent className="p-0">
             <Accordion type="single" collapsible value={detailSection} onValueChange={(value) => setDetailSection(value || "overview")} className="w-full">
               <AccordionItem value="overview" className="border-border/60 px-6">
-                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Urun Detayi</AccordionTrigger>
+                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Ürün Detayi</AccordionTrigger>
                 <AccordionContent className="pb-6 text-sm leading-7 text-muted-foreground">
-                  {product.description || "Bu urun icin henuz detayli bir tanitim metni eklenmemis. Secili modele ait tum detaylari yukaridaki alandan inceleyebilirsiniz."}
+                  {product.description || "Bu urun icin henuz detayli bir tanitim metni eklenmemis. Seçili modele ait tum detaylari yukaridaki alandan inceleyebilirsiniz."}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="specs" className="border-border/60 px-6">
-                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Teknik Ozellikler</AccordionTrigger>
+                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Teknik Özellikler</AccordionTrigger>
                 <AccordionContent className="space-y-6 pb-6">
                   <ProductSpecsTable
                     specs={product.specs}
@@ -966,7 +966,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
               </AccordionItem>
 
               <AccordionItem value="shipping" className="border-border/60 px-6">
-                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Teslimat, Odeme ve Iade</AccordionTrigger>
+                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Teslimat, Ödeme ve İade</AccordionTrigger>
                 <AccordionContent className="space-y-6 pb-6">
                   <DeliveryEstimate stock={selectedStock} />
                   <InstallmentCalculator price={selectedPrice} />
@@ -975,7 +975,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
               </AccordionItem>
 
               <AccordionItem value="reviews" className="border-border/60 px-6" id="product-reviews-section">
-                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Musteri Degerlendirmeleri ve Yorumlar</AccordionTrigger>
+                <AccordionTrigger className="py-5 text-left text-base font-semibold hover:no-underline">Musteri Değerlendirmeleri ve Yorumlar</AccordionTrigger>
                 <AccordionContent className="pb-6">
                   <ReviewsSection
                     embedded
@@ -1010,3 +1010,4 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
     </Layout>
   );
 }
+

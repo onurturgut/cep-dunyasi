@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -75,9 +75,10 @@ export function ProductMainImage({ image, alt, onOpenZoom, index, total }: Produ
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted/60">
             <ImageOff className="h-9 w-9 opacity-50" />
           </div>
-          <p className="text-sm">Bu urun icin gorsel bulunamadi.</p>
+          <p className="text-sm">Bu urun icin görsel bulunamadi.</p>
         </div>
       )}
     </div>
   );
 }
+

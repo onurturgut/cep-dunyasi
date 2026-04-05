@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
@@ -29,11 +29,11 @@ export function ProductImageZoomModal({ open, onOpenChange, images, activeIndex,
           missingImage: "Image not found",
         }
       : {
-          title: `${productName} gorsel galerisi`,
-          description: "Urun gorsellerini buyuk onizleme modunda inceleyin.",
+          title: `${productName} görsel galerisi`,
+          description: "Ürün görsellerini buyuk onizleme modunda inceleyin.",
           fullScreen: "Tam ekran inceleme",
           close: "Galeriyi kapat",
-          missingImage: "Gorsel bulunamadi",
+          missingImage: "Görsel bulunamadi",
         };
 
   useEffect(() => {
@@ -186,3 +186,4 @@ export function ProductImageZoomModal({ open, onOpenChange, images, activeIndex,
     </Dialog>
   );
 }
+

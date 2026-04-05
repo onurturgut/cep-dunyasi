@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 import { AuditLog, BannerCampaign } from "@/server/models";
 import type { SessionUser } from "@/server/auth-session";
 import type { CampaignRecord } from "@/lib/campaigns";
@@ -33,11 +33,11 @@ const campaignSchema = z.object({
   imageUrl: z
     .string()
     .trim()
-    .url("Kampanya gorseli gecersiz. Gorsel yukleyin veya https:// ile baslayan gecerli bir URL kullanin"),
+    .url("Kampanya görseli gecersiz. Görsel yukleyin veya https:// ile baslayan gecerli bir URL kullanin"),
   mobileImageUrl: z
     .string()
     .trim()
-    .url("Mobil gorsel gecersiz. https:// ile baslayan gecerli bir URL kullanin")
+    .url("Mobil görsel gecersiz. https:// ile baslayan gecerli bir URL kullanin")
     .optional()
     .nullable()
     .or(z.literal("")),
@@ -221,7 +221,7 @@ export async function createCampaign(input: z.input<typeof campaignSchema>, acto
 export async function updateCampaign(input: z.input<typeof campaignSchema>, actor: SessionUser, ip?: string | null) {
   const payload = campaignSchema.parse(input);
   if (!payload.id) {
-    throw new Error("Guncellenecek kampanya secilmedi");
+    throw new Error("Güncellenecek kampanya secilmedi");
   }
 
   const existing = await BannerCampaign.findOne({ id: payload.id, placement: homeHeroPlacement }).lean();
@@ -296,3 +296,4 @@ export async function reorderCampaigns(input: z.input<typeof reorderSchema>, act
 
   return listAdminCampaigns();
 }
+

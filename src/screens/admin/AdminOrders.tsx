@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -70,7 +70,7 @@ export default function AdminOrders() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tum Odemeler</SelectItem>
+              <SelectItem value="all">Tum Ödemeler</SelectItem>
               {paymentStatuses.filter((item) => item !== "all").map((item) => (
                 <SelectItem key={item} value={item}>
                   {PAYMENT_STATUS_LABELS[item] ?? item}
@@ -152,7 +152,7 @@ export default function AdminOrders() {
                 <TableHead>Musteri</TableHead>
                 <TableHead>Tarih</TableHead>
                 <TableHead>Tutar</TableHead>
-                <TableHead>Odeme</TableHead>
+                <TableHead>Ödeme</TableHead>
                 <TableHead>Durum</TableHead>
                 <TableHead>Kargo</TableHead>
                 <TableHead className="text-right">Islem</TableHead>
@@ -225,7 +225,7 @@ export default function AdminOrders() {
                   <p className="mt-2 text-xl font-semibold">{formatCurrency(currentDetail.finalPrice)}</p>
                 </div>
                 <div className="rounded-xl border border-border/70 p-4">
-                  <p className="text-sm text-muted-foreground">Odeme</p>
+                  <p className="text-sm text-muted-foreground">Ödeme</p>
                   <p className="mt-2 font-semibold">{PAYMENT_STATUS_LABELS[currentDetail.paymentStatus] ?? currentDetail.paymentStatus}</p>
                   {currentDetail.paymentMethod ? (
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -237,7 +237,7 @@ export default function AdminOrders() {
 
               <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
                 <div className="space-y-2">
-                  <Label>Durum Guncelle</Label>
+                  <Label>Durum Güncelle</Label>
                   <Select
                     value={currentOrderStatus}
                     onValueChange={async (value) => {
@@ -272,10 +272,10 @@ export default function AdminOrders() {
 
               <Card>
                 <CardContent className="space-y-4 p-4">
-                  <p className="font-semibold">Odeme ve Fatura</p>
+                  <p className="font-semibold">Ödeme ve Fatura</p>
                   <div className="grid gap-3 md:grid-cols-2">
                     <div className="rounded-xl border border-border/70 p-3 text-sm">
-                      <p className="text-muted-foreground">Odeme Yontemi</p>
+                      <p className="text-muted-foreground">Ödeme Yontemi</p>
                       <p className="mt-1 font-medium">
                         {currentDetail.paymentMethod
                           ? PAYMENT_METHOD_LABELS[currentDetail.paymentMethod as keyof typeof PAYMENT_METHOD_LABELS] ?? currentDetail.paymentMethod
@@ -379,3 +379,4 @@ export default function AdminOrders() {
     </div>
   );
 }
+

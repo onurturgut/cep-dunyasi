@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,7 +44,7 @@ export function LowStockTable({ items }: { items: LowStockProductRow[] }) {
           <Table className="min-w-[720px]">
             <TableHeader>
               <TableRow>
-                <TableHead>Urun</TableHead>
+                <TableHead>Ürün</TableHead>
                 <TableHead>Varyant</TableHead>
                 <TableHead>SKU</TableHead>
                 <TableHead>Esik</TableHead>
@@ -81,3 +81,4 @@ export function LowStockTable({ items }: { items: LowStockProductRow[] }) {
     </Card>
   );
 }
+

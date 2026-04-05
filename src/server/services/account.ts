@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+﻿import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import type { SessionUser } from "@/server/auth-session";
@@ -29,7 +29,7 @@ export const profileUpdateSchema = z.object({
   firstName: z.string().trim().min(1, "Ad zorunludur").max(60, "Ad en fazla 60 karakter olabilir"),
   lastName: z.string().trim().min(1, "Soyad zorunludur").max(60, "Soyad en fazla 60 karakter olabilir"),
   phone: z.string().trim().max(20, "Telefon en fazla 20 karakter olabilir").optional().default(""),
-  profileImageUrl: z.string().trim().url("Profil gorseli gecersiz").optional().or(z.literal("")).nullable(),
+  profileImageUrl: z.string().trim().url("Profil görseli gecersiz").optional().or(z.literal("")).nullable(),
   communicationPreferences: communicationPreferencesSchema.default({ email: true, sms: false }),
 });
 
@@ -52,28 +52,28 @@ export const setDefaultAddressSchema = z.object({
 
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, "Mevcut sifrenizi girin"),
+    currentPassword: z.string().min(1, "Mevcut şifrenizi girin"),
     newPassword: z
       .string()
-      .min(8, "Yeni sifre en az 8 karakter olmali")
-      .max(128, "Yeni sifre en fazla 128 karakter olabilir")
-      .regex(/[A-Z]/, "Yeni sifrede en az bir buyuk harf olmali")
-      .regex(/[a-z]/, "Yeni sifrede en az bir kucuk harf olmali")
-      .regex(/\d/, "Yeni sifrede en az bir rakam olmali"),
-    confirmPassword: z.string().min(1, "Yeni sifre tekrari zorunludur"),
+      .min(8, "Yeni şifre en az 8 karakter olmali")
+      .max(128, "Yeni şifre en fazla 128 karakter olabilir")
+      .regex(/[A-Z]/, "Yeni şifrede en az bir buyuk harf olmali")
+      .regex(/[a-z]/, "Yeni şifrede en az bir kucuk harf olmali")
+      .regex(/\d/, "Yeni şifrede en az bir rakam olmali"),
+    confirmPassword: z.string().min(1, "Yeni şifre tekrari zorunludur"),
   })
   .refine((value) => value.newPassword === value.confirmPassword, {
     path: ["confirmPassword"],
-    message: "Yeni sifreler eslesmiyor",
+    message: "Yeni şifreler eslesmiyor",
   });
 
 export const createReturnRequestSchema = z.object({
   orderId: z.string().trim().min(1, "Siparis secimi zorunludur"),
-  orderItemId: z.string().trim().min(1, "Urun secimi zorunludur"),
+  orderItemId: z.string().trim().min(1, "Ürün secimi zorunludur"),
   requestType: z.enum(["return", "exchange"]),
   reasonCode: z.string().trim().min(1, "Bir neden secin"),
   reasonText: z.string().trim().min(5, "Aciklama en az 5 karakter olmali").max(1500, "Aciklama en fazla 1500 karakter olabilir"),
-  images: z.array(z.string().trim().url("Gecersiz gorsel")).max(4, "En fazla 4 gorsel yukleyebilirsiniz").optional().default([]),
+  images: z.array(z.string().trim().url("Gecersiz görsel")).max(4, "En fazla 4 görsel yukleyebilirsiniz").optional().default([]),
 });
 
 type UserRecord = {
@@ -755,11 +755,11 @@ export async function changePassword(input: z.input<typeof changePasswordSchema>
   const isValidPassword = await bcrypt.compare(payload.currentPassword, user.password_hash);
 
   if (!isValidPassword) {
-    throw new Error("Mevcut sifreniz dogrulanamadi");
+    throw new Error("Mevcut şifreniz dogrulanamadi");
   }
 
   if (payload.currentPassword === payload.newPassword) {
-    throw new Error("Yeni sifre mevcut sifre ile ayni olamaz");
+    throw new Error("Yeni şifre mevcut şifre ile ayni olamaz");
   }
 
   const passwordHash = await bcrypt.hash(payload.newPassword, 10);
@@ -790,3 +790,4 @@ export async function getAddressUsageSummary(sessionUser: SessionUser | null) {
     })),
   };
 }
+

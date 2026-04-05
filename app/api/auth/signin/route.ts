@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/server/mongodb";
 import { User } from "@/server/models";
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: { message: "Email ve sifre zorunludur" } }, { status: 400 });
+      return NextResponse.json({ error: { message: "Email ve şifre zorunludur" } }, { status: 400 });
     }
 
     await connectToDatabase();
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     const valid = envAdminLogin ? true : await bcrypt.compare(password, user.password_hash);
 
     if (!valid) {
-      return NextResponse.json({ error: { message: "Email veya sifre hatali" } }, { status: 401 });
+      return NextResponse.json({ error: { message: "Email veya şifre hatali" } }, { status: 401 });
     }
 
     user.last_login_at = new Date();
@@ -79,10 +79,11 @@ export async function POST(request: Request) {
     setSessionCookie(response, sanitizeUser(user));
     return response;
   } catch (error) {
-    const rawMessage = error instanceof Error ? error.message : "Giris basarisiz";
+    const rawMessage = error instanceof Error ? error.message : "Giriş basarisiz";
     const message = rawMessage.toLowerCase().includes("querysrv") || rawMessage.toLowerCase().includes("econnrefused")
       ? "Veritabani baglantisi su anda kurulamiyor. Lutfen ag ayarlarinizi veya sunucu erisimini kontrol edip tekrar deneyin."
       : rawMessage;
     return NextResponse.json({ error: { message } }, { status: 500 });
   }
 }
+

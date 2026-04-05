@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
 import {
   Category,
@@ -289,7 +289,7 @@ export async function POST(request: Request) {
     timer.mark("resolve-auth");
 
     if (payload.action !== "select" && !canMutate(payload, sessionUser)) {
-      const response = jsonError("Bu iÅŸlem iÃ§in admin yetkisi gerekiyor", 403);
+      const response = jsonError("Bu işlem için admin yetkisi gerekiyor", 403);
       response.headers.set("Server-Timing", timer.toServerTimingValue());
       timer.log({ table: payload.table, action: payload.action, error: "forbidden" });
       return response;
@@ -318,7 +318,7 @@ export async function POST(request: Request) {
 
     if (payload.table === "orders" && payload.action === "select" && !admin) {
       if (!sessionUser?.id) {
-        const response = jsonError("SipariÅŸleri gÃ¶rmek iÃ§in giriÅŸ yapmanÄ±z gerekiyor", 401);
+        const response = jsonError("Siparişleri görmek için giriş yapmanız gerekiyor", 401);
         response.headers.set("Server-Timing", timer.toServerTimingValue());
         timer.log({ table: payload.table, action: payload.action, error: "unauthorized-orders" });
         return response;

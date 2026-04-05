@@ -311,7 +311,7 @@ const db = {
         const body = await response.json();
 
         if (!response.ok) {
-          return { data: { user: null }, error: body?.error ?? { message: "Giris basarisiz" } };
+          return { data: { user: null }, error: body?.error ?? { message: "Giriş basarisiz" } };
         }
 
         const user = body.user as AuthUser;
@@ -341,3 +341,4 @@ const db = {
 };
 
 export { db };
+

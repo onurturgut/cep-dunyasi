@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+﻿import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { Category, Product, ProductVariant } from "@/server/models";
 import {
@@ -141,7 +141,7 @@ const adminVariantSchema = z
   });
 
 const adminProductSchema = z.object({
-  name: z.string().trim().min(1, "Urun adi zorunlu"),
+  name: z.string().trim().min(1, "Ürün adi zorunlu"),
   slug: optionalTrimmedStringSchema,
   description: z.string().trim().default(""),
   brand: z.string().trim().default(""),
@@ -216,7 +216,7 @@ async function validateProductCategorySelection(payload: AdminProductPayload) {
   }
 
   if (matchedCategory?.parent_category_id) {
-    throw new Error("Urun icin ana kategori olarak ust seviye bir kategori secmelisiniz");
+    throw new Error("Ürün icin ana kategori olarak ust seviye bir kategori secmelisiniz");
   }
 
   let matchedSubcategory: CategoryMeta | null = null;
@@ -387,7 +387,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
 
   const slug = sanitizeSlug(payload.slug || payload.name);
   if (!slug) {
-    throw new Error("Urun icin gecerli bir slug olusturulamadi");
+    throw new Error("Ürün icin gecerli bir slug olusturulamadi");
   }
 
   await ensureUniqueProductSlug(slug, productId);
@@ -395,7 +395,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
 
   const existingProduct = productId ? await Product.findOne({ id: productId }).lean() : null;
   if (productId && !existingProduct) {
-    throw new Error("Urun bulunamadi");
+    throw new Error("Ürün bulunamadi");
   }
 
   const existingVariants = productId ? await ProductVariant.find({ product_id: productId }).lean() : [];
@@ -403,7 +403,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
 
   for (const variant of payload.variants) {
     if (variant.id && !existingVariantIds.has(variant.id)) {
-      throw new Error("Guncellenmek istenen varyant bulunamadi");
+      throw new Error("Güncellenmek istenen varyant bulunamadi");
     }
   }
 
@@ -451,7 +451,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
     }
 
     if (!resolvedProductId) {
-      throw new Error("Urun kaydi tamamlanamadi");
+      throw new Error("Ürün kaydi tamamlanamadi");
     }
 
     const preparedVariantsForSave = payload.variants.map((variant, index) =>
@@ -491,7 +491,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
       await Product.deleteOne({ id: resolvedProductId });
     }
 
-    const message = error instanceof Error ? error.message : "Urun kaydi tamamlanamadi";
+    const message = error instanceof Error ? error.message : "Ürün kaydi tamamlanamadi";
 
     if (message.includes("duplicate key")) {
       if (message.includes("sku")) {
@@ -510,3 +510,4 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
     throw error;
   }
 }
+

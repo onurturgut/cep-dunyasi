@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
 import { setSessionCookie } from "@/server/auth-session";
 import { getAccountSessionUser, handleAccountRouteError } from "@/server/account-api";
@@ -16,6 +16,7 @@ export async function POST(request: Request) {
     setSessionCookie(response, sanitizeSessionPayload({ ...profile }, sessionUser?.roles));
     return response;
   } catch (error) {
-    return handleAccountRouteError(error, "Sifre degistirilemedi");
+    return handleAccountRouteError(error, "Şifre degistirilemedi");
   }
 }
+

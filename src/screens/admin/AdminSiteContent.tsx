@@ -384,11 +384,11 @@ export default function AdminSiteContent() {
                   />
                   <Input type="file" accept="image/*" onChange={(e) => handleUpload(e, { slideIndex: index })} disabled={uploadingTarget === `slide-${index}`} />
                   <p className="text-xs text-muted-foreground">
-                    Seffaf arka planli hero gorselleri icin PNG veya WEBP kullanin. JPG/JPEG dosyalarinda beyaz fon kaybolmaz.
+                    Seffaf arka planli hero görselleri icin PNG veya WEBP kullanin. JPG/JPEG dosyalarinda beyaz fon kaybolmaz.
                   </p>
                   {isJpegLikeUrl(slide.image_url) ? (
                     <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                      Bu slayt su an JPG/JPEG kullaniyor. Beyaz arka plani kaldirmak icin gorseli PNG/WEBP olarak tekrar yuklemelisin.
+                      Bu slayt su an JPG/JPEG kullaniyor. Beyaz arka plani kaldirmak icin görseli PNG/WEBP olarak tekrar yuklemelisin.
                     </p>
                   ) : null}
                 </div>
@@ -676,3 +676,4 @@ export default function AdminSiteContent() {
     </div>
   );
 }
+

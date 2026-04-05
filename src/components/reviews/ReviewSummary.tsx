@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,7 @@ export function ReviewSummary({ summary }: ReviewSummaryProps) {
           verifiedRatio: `${summary.verified_purchase_ratio}% verified purchases`,
         }
       : {
-          title: "Musteri Degerlendirmeleri",
+          title: "Musteri Değerlendirmeleri",
           reviewCount: `${summary.count} yorum`,
           verifiedRatio: `%${summary.verified_purchase_ratio} dogrulanmis satin alim`,
         };
@@ -52,3 +52,4 @@ export function ReviewSummary({ summary }: ReviewSummaryProps) {
     </Card>
   );
 }
+

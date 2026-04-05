@@ -235,7 +235,7 @@ export default function AdminMission() {
           </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
             <DialogHeader>
-              <DialogTitle>{editing ? 'Misyon Kaydi Duzenle' : 'Yeni Misyon Kaydi'}</DialogTitle>
+              <DialogTitle>{editing ? 'Misyon Kaydi Düzenle' : 'Yeni Misyon Kaydi'}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -400,3 +400,4 @@ export default function AdminMission() {
     </div>
   );
 }
+

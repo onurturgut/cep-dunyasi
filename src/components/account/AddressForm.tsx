@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -161,7 +161,7 @@ export function AddressForm({ initialValue, onSubmit, onCancel, submitting }: Ad
               Kaydediliyor
             </>
           ) : initialValue?.id ? (
-            "Adresi Guncelle"
+            "Adresi Güncelle"
           ) : (
             "Adresi Kaydet"
           )}
@@ -170,3 +170,4 @@ export function AddressForm({ initialValue, onSubmit, onCancel, submitting }: Ad
     </form>
   );
 }
+

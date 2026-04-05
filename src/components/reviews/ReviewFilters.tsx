@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -39,7 +39,7 @@ export function ReviewFilters({ value, onChange }: ReviewFiltersProps) {
           verifiedOnly: "Sadece dogrulanmis satin alma",
           sort: {
             newest: "En Yeni",
-            highest: "En Yuksek Puan",
+            highest: "En Yüksek Puan",
             lowest: "En Dusuk Puan",
             most_helpful: "En Faydali",
           },
@@ -87,3 +87,4 @@ export function ReviewFilters({ value, onChange }: ReviewFiltersProps) {
     </div>
   );
 }
+

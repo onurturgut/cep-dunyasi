@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { CheckCircle2, FileImage, ShieldCheck, Smartphone, Wrench } from "lucide-react";
@@ -134,7 +134,7 @@ export default function TechnicalService() {
           heroDescription:
             "Cep telefonu arizalari icin hizli teknik servis kaydi olusturun. Ekran kirigi, batarya sorunu, sarj soketi arizasi, kamera problemi, ses problemi ve diger telefon arizalari icin cihaz modelinizi, yasadiginiz sorunu ve varsa fotografi iletin. Talebiniz teknik servis ekibimize ulastiktan sonra incelenir ve size en kisa surede geri donus saglanir.",
           sideTitle: "Telefon ariza kaydi icin gerekli bilgiler",
-          sideDescription: "Hizli teknik destek icin bu bilgileri paylasabilirsiniz.",
+          sideDescription: "Hızlı teknik destek icin bu bilgileri paylasabilirsiniz.",
           infoCards: [
             {
               title: "Telefon modeli",
@@ -151,7 +151,7 @@ export default function TechnicalService() {
           ],
           highlights: [
             {
-              title: "Hizli teknik servis bilgilendirmesi",
+              title: "Hızlı teknik servis bilgilendirmesi",
               description: "Telefon arizasi icin ilettiginiz bilgiler ilk inceleme surecini hizlandirir ve size daha net yonlendirme yapilmasini saglar.",
             },
             {
@@ -210,7 +210,7 @@ export default function TechnicalService() {
           descriptionLabel: "Aciklama",
           descriptionPlaceholder: "Telefonunuzdaki sorunu detayli olarak yazin.",
           photo: "Fotograf Yukle",
-          photoHint: "Fotograf eklemek opsiyoneldir. En fazla 8MB boyutunda gorsel yukleyebilirsiniz.",
+          photoHint: "Fotograf eklemek opsiyoneldir. En fazla 8MB boyutunda görsel yukleyebilirsiniz.",
           selectedFile: (fileName: string) => `Secilen dosya: ${fileName}`,
           submitting: "Gonderiliyor...",
           submit: "Formu Gonder",
@@ -431,3 +431,4 @@ export default function TechnicalService() {
     </Layout>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
@@ -35,7 +35,7 @@ export default function AccountAddressesScreen() {
   const [deletingAddressId, setDeletingAddressId] = useState<string | null>(null);
   const [settingDefaultAddressId, setSettingDefaultAddressId] = useState<string | null>(null);
 
-  const dialogTitle = useMemo(() => (editingAddress ? "Adresi Duzenle" : "Yeni Adres Ekle"), [editingAddress]);
+  const dialogTitle = useMemo(() => (editingAddress ? "Adresi Düzenle" : "Yeni Adres Ekle"), [editingAddress]);
 
   const handleCreateClick = () => {
     setEditingAddress(null);
@@ -129,3 +129,4 @@ export default function AccountAddressesScreen() {
     </AccountLayout>
   );
 }
+

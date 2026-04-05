@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import {
@@ -30,7 +30,7 @@ const sidebarItems: Array<{ label: string; href: string; icon: typeof LayoutDash
   { label: "Genel Bakis", href: "/admin", icon: LayoutDashboard, permission: "view_reports" },
   { label: "Raporlar", href: "/admin/reports", icon: ScrollText, permission: "view_reports" },
   { label: "Siparisler", href: "/admin/orders", icon: ShoppingCart, permission: "manage_orders" },
-  { label: "Urunler", href: "/admin/products", icon: Package, permission: "manage_products" },
+  { label: "Ürünler", href: "/admin/products", icon: Package, permission: "manage_products" },
   { label: "Stok", href: "/admin/inventory", icon: Warehouse, permission: "manage_products" },
   { label: "Icerik", href: "/admin/site-content", icon: MonitorSmartphone, permission: "manage_site_content" },
   { label: "Kampanyalar", href: "/admin/banners", icon: ImageIcon, permission: "manage_campaigns" },
@@ -96,7 +96,7 @@ export default function AdminDashboard({ children }: { children: ReactNode }) {
         <div className="border-t p-3">
           <Button variant="outline" className="w-full justify-start" onClick={handleSignOut}>
             <LogOut className="mr-2 h-4 w-4" />
-            Cikis Yap
+            Çıkış Yap
           </Button>
         </div>
       </aside>
@@ -114,7 +114,7 @@ export default function AdminDashboard({ children }: { children: ReactNode }) {
             </Button>
             <Button variant="outline" size="icon" onClick={handleSignOut}>
               <LogOut className="h-4 w-4" />
-              <span className="sr-only">Cikis yap</span>
+              <span className="sr-only">Çıkış yap</span>
             </Button>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function AdminDashboard({ children }: { children: ReactNode }) {
               <div className="border-t p-3">
                 <Button variant="outline" className="w-full justify-start" onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  Cikis Yap
+                  Çıkış Yap
                 </Button>
               </div>
             </div>
@@ -165,3 +165,4 @@ export default function AdminDashboard({ children }: { children: ReactNode }) {
     </div>
   );
 }
+

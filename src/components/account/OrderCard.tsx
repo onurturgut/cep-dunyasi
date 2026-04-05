@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ArrowRight, Clock3 } from "lucide-react";
 import { Link } from "@/lib/router";
@@ -32,7 +32,7 @@ export function OrderCard({ order }: { order: MyOrderSummary }) {
                 {item.variant_image ? (
                   <img src={item.variant_image} alt={item.product_name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Urun</div>
+                  <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Ürün</div>
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -64,3 +64,4 @@ export function OrderCard({ order }: { order: MyOrderSummary }) {
     </Card>
   );
 }
+

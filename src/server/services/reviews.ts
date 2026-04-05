@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 import { deleteFromR2ByUrl } from "@/server/storage/r2";
 import type { SessionUser } from "@/server/auth-session";
 import { Order, OrderItem, Product, ProductReview, ProductVariant, User } from "@/server/models";
@@ -17,7 +17,7 @@ import {
 } from "@/lib/reviews";
 
 const createReviewSchema = z.object({
-  productId: z.string().trim().min(1, "Urun secimi zorunlu"),
+  productId: z.string().trim().min(1, "Ürün secimi zorunlu"),
   rating: z.coerce.number().int().min(1).max(5),
   title: z
     .union([z.string(), z.null(), z.undefined()])
@@ -27,7 +27,7 @@ const createReviewSchema = z.object({
     })
     .pipe(z.string().max(120).nullable()),
   comment: z.string().trim().min(5, "Yorum en az 5 karakter olmali").max(2000, "Yorum cok uzun"),
-  images: z.array(z.string().trim().min(1)).max(4, "En fazla 4 gorsel yukleyebilirsiniz").default([]),
+  images: z.array(z.string().trim().min(1)).max(4, "En fazla 4 görsel yukleyebilirsiniz").default([]),
 });
 
 const listReviewsSchema = z.object({
@@ -659,3 +659,4 @@ export async function replyToReview(input: ReplyToReviewInput) {
 }
 
 export type { AdminReviewStatus, ReviewSort };
+

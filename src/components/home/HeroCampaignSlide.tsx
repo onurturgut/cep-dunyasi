@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
@@ -83,7 +83,7 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
             <CampaignCTAButton to={slide.ctaLink} label={slide.ctaText} campaignId={slide.id} />
-            <CampaignCTAButton to={slide.ctaLink} label="Detaylari Gor" variant="secondary" campaignId={slide.id} />
+            <CampaignCTAButton to={slide.ctaLink} label="Detaylari Gör" variant="secondary" campaignId={slide.id} />
           </div>
         </motion.div>
 
@@ -121,3 +121,4 @@ export function HeroCampaignSlide({ slide, priority = false }: HeroCampaignSlide
     </article>
   );
 }
+

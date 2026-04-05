@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -176,7 +176,7 @@ export default function AdminCategories() {
     const payload = await response.json();
 
     if (!response.ok || payload?.error) {
-      throw new Error(payload?.error?.message || "Gorsel yuklenemedi");
+      throw new Error(payload?.error?.message || "Görsel yuklenemedi");
     }
 
     const url = payload?.data?.url;
@@ -199,9 +199,9 @@ export default function AdminCategories() {
       setUploadingImage(true);
       const url = await uploadImage(file);
       setForm((current) => ({ ...current, image_url: url }));
-      toast.success("Kategori gorseli yuklendi");
+      toast.success("Kategori görseli yuklendi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Gorsel yukleme hatasi");
+      toast.error(error instanceof Error ? error.message : "Görsel yukleme hatasi");
     } finally {
       setUploadingImage(false);
     }
@@ -259,7 +259,7 @@ export default function AdminCategories() {
         try {
           await deleteMediaUrls(removedUrls);
         } catch (error) {
-          toast.error(error instanceof Error ? error.message : "Eski kategori gorseli silinemedi");
+          toast.error(error instanceof Error ? error.message : "Eski kategori görseli silinemedi");
         }
       }
       toast.success("Kategori guncellendi");
@@ -308,7 +308,7 @@ export default function AdminCategories() {
       try {
         await deleteMediaUrls([category.image_url]);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Kategori gorseli silinemedi");
+        toast.error(error instanceof Error ? error.message : "Kategori görseli silinemedi");
       }
     }
     toast.success("Kategori silindi");
@@ -345,7 +345,7 @@ export default function AdminCategories() {
           </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
             <DialogHeader>
-              <DialogTitle>{editing ? "Kategori Duzenle" : "Yeni Kategori"}</DialogTitle>
+              <DialogTitle>{editing ? "Kategori Düzenle" : "Yeni Kategori"}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -419,24 +419,24 @@ export default function AdminCategories() {
               </div>
 
               <div className="space-y-2">
-                <Label>Gorsel URL</Label>
+                <Label>Görsel URL</Label>
                 <Input
                   value={form.image_url}
                   onChange={(event) => setForm((current) => ({ ...current, image_url: event.target.value }))}
                   placeholder="https://..."
                 />
                 <Input type="file" accept="image/*" onChange={handleImageChange} disabled={uploadingImage} />
-                {uploadingImage ? <p className="text-xs text-muted-foreground">Gorsel yukleniyor...</p> : null}
+                {uploadingImage ? <p className="text-xs text-muted-foreground">Görsel yukleniyor...</p> : null}
               </div>
 
               {form.image_url ? (
                 <Card className="overflow-hidden">
-                  <img src={form.image_url} alt={form.name || "Kategori gorseli"} className="h-40 w-full object-cover" />
+                  <img src={form.image_url} alt={form.name || "Kategori görseli"} className="h-40 w-full object-cover" />
                 </Card>
               ) : null}
 
               <Button className="w-full" onClick={handleSave} disabled={uploadingImage}>
-                {editing ? "Guncelle" : "Kaydet"}
+                {editing ? "Güncelle" : "Kaydet"}
               </Button>
             </div>
           </DialogContent>
@@ -451,7 +451,7 @@ export default function AdminCategories() {
               <TableHead>Tip</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Ikon</TableHead>
-              <TableHead>Gorsel</TableHead>
+              <TableHead>Görsel</TableHead>
               <TableHead className="w-[160px] text-right">Islem</TableHead>
             </TableRow>
           </TableHeader>
@@ -524,3 +524,4 @@ export default function AdminCategories() {
     </div>
   );
 }
+

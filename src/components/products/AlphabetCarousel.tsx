@@ -159,7 +159,7 @@ export function AlphabetCarousel({
         <div className="mission-carousel-note">
           <strong>NOTE:</strong>
           <br />
-          Sol ve sag ok tuslari ile secenekler arasinda gecis yapabilirsiniz.
+          Sol ve sag ok tuslari ile secenekler arasinda geçiş yapabilirsiniz.
         </div>
       )}
 
@@ -194,7 +194,7 @@ export function AlphabetCarousel({
                   setSelectedIndex(index);
                 }}
                 aria-current={index === selectedIndex}
-                aria-label={`Secenek sec ${index + 1}`}
+                aria-label={`Seçenek sec ${index + 1}`}
               >
                 <span className="mission-item-label">{showItemLabels ? item.label : ''}</span>
               </button>
@@ -225,3 +225,4 @@ export function AlphabetCarousel({
     </section>
   );
 }
+

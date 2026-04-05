@@ -1,11 +1,11 @@
-import type { AppLocale } from "@/i18n/config";
+﻿import type { AppLocale } from "@/i18n/config";
 
 const categoryLabels = {
   tr: {
     telefon: "Telefonlar",
     "ikinci-el-telefon": "2. El Telefonlar",
     "akilli-saatler": "Saatler",
-    kilif: "Kiliflar",
+    kilif: "Kılıflar",
     "sarj-aleti": "Sarj Aleti",
     "power-bank": "Power Bank",
     "teknik-servis": "Teknik Servis",
@@ -28,3 +28,4 @@ export function getLocalizedCategoryLabel(locale: AppLocale, slug?: string | nul
 
   return categoryLabels[locale][slug as keyof (typeof categoryLabels)[typeof locale]] || fallback || slug;
 }
+

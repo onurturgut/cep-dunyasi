@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Mail } from "lucide-react";
@@ -161,7 +161,7 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
         <CardContent className="space-y-4 text-sm text-muted-foreground">
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
             <p className="font-medium text-foreground">Guvenli oturum</p>
-            <p className="mt-1">Sifre veya iletisim bilgilerinizi guncellediginizde aktif oturumunuz otomatik olarak yenilenir.</p>
+            <p className="mt-1">Şifre veya iletisim bilgilerinizi guncellediginizde aktif oturumunuz otomatik olarak yenilenir.</p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
             <p className="font-medium text-foreground">Teslimat hazirligi</p>
@@ -176,3 +176,4 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
     </div>
   );
 }
+
