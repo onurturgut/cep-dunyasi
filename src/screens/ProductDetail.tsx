@@ -173,6 +173,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
   const { mutate: trackMarketingEvent } = useTrackMarketingEvent();
   const purchasePanelRef = useRef<HTMLDivElement | null>(null);
   const selectedSelectionRef = useRef<VariantSelection>(initialResolvedState.selectedSelection);
+  const currentSlugRef = useRef(slug);
   const trackedProductViewIdsRef = useRef<Set<string>>(new Set());
   const stickyVisible = useStickyBuyBarVisibility(purchasePanelRef, Boolean(product));
   const { locale } = useI18n();
@@ -264,10 +265,14 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
 
     const fetchProduct = async () => {
       try {
+        const isNewProductSlug = currentSlugRef.current !== slug;
+
         if (initialProduct) {
           setProduct(initialResolvedState.product);
           setVariants(initialResolvedState.variants);
-          setSelectedSelection(initialResolvedState.selectedSelection);
+          if (isNewProductSlug) {
+            setSelectedSelection(initialResolvedState.selectedSelection);
+          }
           setLoading(false);
           setError(null);
         } else {
@@ -322,7 +327,11 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
         const nextVariants = nextProduct.product_variants;
         const currentSelection = selectedSelectionRef.current;
         const nextSelectedVariant =
-          resolveProductVariantBySelection(nextVariants, currentSelection, nextProduct.categories?.slug) ||
+          resolveProductVariantBySelection(
+            nextVariants,
+            isNewProductSlug ? initialResolvedState.selectedSelection : currentSelection,
+            nextProduct.categories?.slug,
+          ) ||
           resolveProductVariantBySelection(nextVariants, initialSelection, nextProduct.categories?.slug) ||
           getDefaultProductVariant(nextVariants);
 
@@ -333,6 +342,7 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
         setProduct(nextProduct);
         setVariants(nextVariants);
         setSelectedSelection(buildSelectionFromVariant(nextSelectedVariant, nextProduct.categories?.slug));
+        currentSlugRef.current = slug;
       } catch (fetchError) {
         if (!isMounted) {
           return;

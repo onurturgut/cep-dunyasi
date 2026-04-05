@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { SessionUser } from "@/server/auth-session";
 import { Product, ProductVariant, User } from "@/server/models";
+import type { CaseDetails } from "@/lib/case-models";
 import { normalizeProductVariants, sortProductVariants } from "@/lib/product-variants";
 import type { SecondHandDetails } from "@/lib/second-hand";
 
@@ -21,6 +22,7 @@ type WishlistProductRecord = {
   rating_average?: number;
   rating_count?: number;
   second_hand?: SecondHandDetails | null;
+  case_details?: CaseDetails | null;
   categories?: { name?: string; slug?: string } | null;
   product_variants: ReturnType<typeof normalizeProductVariants>;
 };

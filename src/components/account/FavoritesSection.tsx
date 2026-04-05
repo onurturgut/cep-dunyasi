@@ -71,6 +71,7 @@ export function FavoritesSection({ title, className }: FavoritesSectionProps) {
                 secondHand={product.second_hand}
                 caseDetails={product.case_details}
                 specs={product.specs}
+                productVariants={variants}
                 storage={variant?.storage}
                 ram={variant?.ram}
                 stock={variant?.stock || 0}

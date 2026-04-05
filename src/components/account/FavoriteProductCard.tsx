@@ -26,6 +26,7 @@ export function FavoriteProductCard({ product }: { product: FavoriteProductSumma
       secondHand={product.second_hand}
       caseDetails={product.case_details}
       specs={product.specs}
+      productVariants={variants}
       storage={variant?.storage}
       ram={variant?.ram}
       stock={variant?.stock || 0}

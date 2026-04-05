@@ -61,6 +61,7 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
                       ratingCount={product.rating_count}
                       caseDetails={product.case_details}
                       specs={product.specs}
+                      productVariants={normalizeProductVariants(product.product_variants || [])}
                       storage={variant?.storage}
                       ram={variant?.ram}
                       stock={variant?.stock || 0}

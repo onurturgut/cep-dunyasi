@@ -723,6 +723,7 @@ export default function Products({ initialCategories = defaultCategories }: Prod
                         secondHand={product.second_hand}
                         caseDetails={product.case_details}
                         specs={product.specs as Record<string, string | null> | null}
+                        productVariants={product.product_variants}
                         storage={variant?.storage}
                         ram={variant?.ram}
                         stock={variant?.stock || 0}
