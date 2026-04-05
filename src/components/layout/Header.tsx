@@ -386,10 +386,10 @@ export function Header() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 isolate w-full border-b border-border/70 bg-background/95 text-foreground shadow-[0_12px_30px_rgba(15,23,42,0.04)] dark:shadow-[0_14px_36px_rgba(0,0,0,0.28)]",
+          "sticky top-0 z-50 isolate w-full border-b border-border/70 bg-background text-foreground shadow-[0_12px_30px_rgba(15,23,42,0.04)] dark:shadow-[0_14px_36px_rgba(0,0,0,0.28)]",
           isMobile
-            ? "bg-background/98"
-            : "bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(249,250,251,0.96)_100%)] dark:bg-[linear-gradient(180deg,rgba(10,14,24,0.98)_0%,rgba(13,18,30,0.96)_100%)]",
+            ? "bg-background"
+            : "bg-background dark:bg-background",
         )}
         onMouseLeave={scheduleCloseMegaMenu}
       >
