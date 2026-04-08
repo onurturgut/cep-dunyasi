@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from '@/lib/router';
 import { Layout } from '@/components/layout/Layout';
 import { CategoriesSection } from '@/components/home/CategoriesSection';
+import { CampaignShowcaseSection } from '@/components/home/CampaignShowcaseSection';
 import { ExploreCategoriesSection } from '@/components/home/ExploreCategoriesSection';
 import { FeaturedReviewsSection } from '@/components/home/FeaturedReviewsSection';
 import { FeaturedProductsSection } from '@/components/home/FeaturedProductsSection';
@@ -18,14 +19,6 @@ import type { MarketingHomeModules } from '@/lib/marketing';
 const PromoVideoModal = dynamic(() => import('@/components/home/PromoVideoModal').then((module) => module.PromoVideoModal), {
   ssr: false,
 });
-
-const CampaignShowcaseSection = dynamic(
-  () => import('@/components/home/CampaignShowcaseSection').then((module) => module.CampaignShowcaseSection),
-  {
-    ssr: false,
-    loading: () => <section className="py-10 md:py-14" aria-hidden="true" />,
-  },
-);
 
 const RecentlyViewedSection = dynamic(
   () => import('@/components/home/RecentlyViewedSection').then((module) => module.RecentlyViewedSection),
