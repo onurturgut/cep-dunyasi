@@ -59,24 +59,27 @@ export function NewsletterInlineCard({ settings, source = "homepage-inline" }: N
   return (
     <section className="relative py-8 md:py-12" id="newsletter-inline">
       <div className="container">
-        <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_40%),linear-gradient(135deg,rgba(15,23,42,0.98),rgba(30,41,59,0.96))] p-6 text-white shadow-[0_30px_70px_-44px_rgba(15,23,42,0.72)] sm:p-8">
+        <div className="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.92),transparent_42%),linear-gradient(135deg,rgba(248,250,252,0.98),rgba(226,232,240,0.96))] p-6 text-slate-900 shadow-[0_30px_70px_-44px_rgba(148,163,184,0.55)] sm:p-8 dark:border-border/70 dark:bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_40%),linear-gradient(135deg,rgba(15,23,42,0.98),rgba(30,41,59,0.96))] dark:text-white dark:shadow-[0_30px_70px_-44px_rgba(15,23,42,0.72)]">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,440px)] lg:items-center">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80">
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-300/80 bg-white/75 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-slate-600 shadow-sm dark:border-white/15 dark:bg-white/10 dark:text-white/80">
                 <Sparkles className="h-3.5 w-3.5" />
                 Newsletter
               </div>
               <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{settings.newsletterTitle}</h2>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-white/72 sm:text-base">{settings.newsletterDescription}</p>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base dark:text-white/72">{settings.newsletterDescription}</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="rounded-[1.75rem] border border-white/12 bg-white/8 p-5 backdrop-blur-xl">
+            <form
+              onSubmit={handleSubmit}
+              className="rounded-[1.75rem] border border-slate-300/80 bg-white/78 p-5 shadow-[0_18px_40px_-28px_rgba(148,163,184,0.7)] backdrop-blur-xl dark:border-white/12 dark:bg-white/8 dark:shadow-none"
+            >
               <div className="space-y-3">
                 <Input
                   value={firstName}
                   onChange={(event) => setFirstName(event.target.value)}
                   placeholder="Adiniz"
-                  className="border-white/15 bg-white/10 text-white placeholder:text-white/50"
+                  className="border-slate-300/80 bg-white text-slate-900 placeholder:text-slate-500 dark:border-white/15 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50"
                 />
                 <Input
                   type="email"
@@ -84,10 +87,14 @@ export function NewsletterInlineCard({ settings, source = "homepage-inline" }: N
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="E-posta adresiniz"
                   required
-                  className="border-white/15 bg-white/10 text-white placeholder:text-white/50"
+                  className="border-slate-300/80 bg-white text-slate-900 placeholder:text-slate-500 dark:border-white/15 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50"
                 />
-                <label className="flex items-start gap-3 text-xs leading-5 text-white/70">
-                  <Checkbox checked={consent} onCheckedChange={(checked) => setConsent(Boolean(checked))} className="mt-0.5 border-white/30" />
+                <label className="flex items-start gap-3 text-xs leading-5 text-slate-600 dark:text-white/70">
+                  <Checkbox
+                    checked={consent}
+                    onCheckedChange={(checked) => setConsent(Boolean(checked))}
+                    className="mt-0.5 border-slate-400/80 data-[state=checked]:border-primary dark:border-white/30"
+                  />
                   <span>{settings.newsletterConsentLabel}</span>
                 </label>
                 <Button type="submit" className="w-full rounded-full" disabled={newsletterMutation.isPending}>
