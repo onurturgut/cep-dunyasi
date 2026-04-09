@@ -127,7 +127,7 @@ export function ProductCard({
   );
   const discountRate =
     normalizedOriginalPrice > normalizedPrice ? Math.round(((normalizedOriginalPrice - normalizedPrice) / normalizedOriginalPrice) * 100) : 0;
-  const overline = [brand, category].filter(Boolean).join(" â€¢ ");
+  const overline = [brand, category].filter(Boolean).join(" • ");
   const detailTokens = Array.from(
     new Set(
       [
@@ -337,7 +337,7 @@ export function ProductCard({
                     {secondaryImage ? (
                       <Image
                         src={getOptimizedImageUrl(secondaryImage, { kind: "product-card" })}
-                        alt={`${name} alternatif gÃ¶rsel`}
+                        alt={`${name} alternatif görsel`}
                         width={720}
                         height={780}
                         sizes={getResponsiveImageSizes("product-card")}
@@ -499,7 +499,7 @@ export function ProductCard({
                    {formatCurrency(normalizedPrice)}
                  </span>
                  <span className={cn("mt-1 block text-[11px] font-medium sm:text-xs", stock > 0 ? "text-emerald-700" : "text-muted-foreground")}>
-                  {stock > 0 ? (stock <= 5 ? "Son Ã¼rÃ¼nler, hÄ±zlÄ± gÃ¶nderim" : "Stokta, hÄ±zlÄ± gÃ¶nderim") : copy.outOfStock}
+                  {stock > 0 ? (stock <= 5 ? "Son ürünler, hızlı gönderim" : "Stokta, hızlı gönderim") : copy.outOfStock}
                 </span>
               </div>
 

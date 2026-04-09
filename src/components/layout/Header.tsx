@@ -22,7 +22,7 @@ const navLinks = [
   { label: "Telefonlar", href: "/products?category=telefon" },
   { label: "2. El Telefonlar", href: "/products?category=ikinci-el-telefon" },
   { label: "Saatler", href: "/products?category=akilli-saatler" },
-  { label: "KÄ±lÄ±flar", href: "/products?category=kilif" },
+  { label: "Kılıflar", href: "/products?category=kilif" },
   { label: "Sarj Aleti", href: "/products?category=sarj-aleti" },
   { label: "Power Bank", href: "/products?category=power-bank" },
   { label: "Teknik Servis", href: "/technical-service" },
@@ -43,12 +43,12 @@ const megaMenuData = {
         ],
       },
       {
-        title: "HÄ±zlÄ± Kesfet",
+        title: "Hızlı Keşfet",
         items: [
-          { label: "En Ã‡ok Satanlar", description: "En cok tercih edilen telefon secimleri", href: "/products?category=telefon" },
+          { label: "En Çok Satanlar", description: "En cok tercih edilen telefon secimleri", href: "/products?category=telefon" },
           { label: "Yeni Gelenler", description: "Son eklenen modelleri hizlica inceleyin", href: "/products?category=telefon" },
           { label: "Pro Modeller", description: "Kamera ve performans odakli ust segment", href: "/products?category=telefon" },
-          { label: "128 GB SeÃ§imleri", description: "Gunluk kullanim icin dengeli kapasite", href: "/products?category=telefon" },
+          { label: "128 GB Seçimleri", description: "Gunluk kullanim icin dengeli kapasite", href: "/products?category=telefon" },
         ],
       },
       {
@@ -76,21 +76,21 @@ const megaMenuData = {
         ],
       },
       {
-        title: "HÄ±zlÄ± Kesfet",
+        title: "Hızlı Keşfet",
         items: [
-          { label: "Ã‡ok Iyi Kondisyon", description: "Kozmetik olarak daha temiz ürünler", href: "/products?category=ikinci-el-telefon" },
-          { label: "Pil SaÄŸlÄ±ÄŸÄ± YÃ¼ksek", description: "Pil performansi daha guclu secimler", href: "/products?category=ikinci-el-telefon" },
-          { label: "Garantili SeÃ§imler", description: "Guven veren ikinci el cihazlar", href: "/products?category=ikinci-el-telefon" },
+          { label: "Çok İyi Kondisyon", description: "Kozmetik olarak daha temiz ürünler", href: "/products?category=ikinci-el-telefon" },
+          { label: "Pil Sağlığı Yüksek", description: "Pil performansi daha guclu secimler", href: "/products?category=ikinci-el-telefon" },
+          { label: "Garantili Seçimler", description: "Guven veren ikinci el cihazlar", href: "/products?category=ikinci-el-telefon" },
           { label: "Fiyat Avantajli", description: "Butce dostu iPhone firsatlari", href: "/products?category=ikinci-el-telefon" },
         ],
       },
       {
         title: "Durum",
         items: [
-          { label: "Ã‡ok Iyi", href: "/products?category=ikinci-el-telefon" },
+          { label: "Çok İyi", href: "/products?category=ikinci-el-telefon" },
           { label: "Iyi", href: "/products?category=ikinci-el-telefon" },
-          { label: "Pil SaÄŸlÄ±ÄŸÄ± YÃ¼ksek", href: "/products?category=ikinci-el-telefon" },
-          { label: "Garantili SeÃ§imler", href: "/products?category=ikinci-el-telefon" },
+          { label: "Pil Sağlığı Yüksek", href: "/products?category=ikinci-el-telefon" },
+          { label: "Garantili Seçimler", href: "/products?category=ikinci-el-telefon" },
         ],
       },
     ],
@@ -108,7 +108,7 @@ const megaMenuData = {
         ],
       },
       {
-        title: "HÄ±zlÄ± Kesfet",
+        title: "Hızlı Keşfet",
         items: [
           { label: "Spor Takip", description: "Aktif yasam icin one cikan saatler", href: "/products?category=akilli-saatler" },
           { label: "Premium Saatler", description: "Daha buyuk ekranli ve guclu modeller", href: "/products?category=akilli-saatler" },
@@ -126,33 +126,33 @@ const megaMenuData = {
     ],
   },
   kiliflar: {
-    label: "KÄ±lÄ±flar",
+    label: "Kılıflar",
     href: "/products?category=kilif",
     columns: [
       {
-        title: "KÄ±lÄ±f Tipleri",
+        title: "Kılıf Tipleri",
         items: [
-          { label: "Seffaf KÄ±lÄ±flar", description: "Temiz gorunum ve ince koruma", href: "/products?category=kilif" },
-          { label: "Silikon KÄ±lÄ±flar", description: "Gunluk kullanim icin yumusak koruma", href: "/products?category=kilif" },
+          { label: "Şeffaf Kılıflar", description: "Temiz gorunum ve ince koruma", href: "/products?category=kilif" },
+          { label: "Silikon Kılıflar", description: "Gunluk kullanim icin yumusak koruma", href: "/products?category=kilif" },
           { label: "Magsafe Uyumlu", description: "Magsafe aksesuarlarla tam uyum", href: "/products?category=kilif" },
           { label: "Guess Serisi", description: "Daha premium ve tasarim odakli secimler", href: "/products?category=kilif" },
         ],
       },
       {
-        title: "HÄ±zlÄ± Kesfet",
+        title: "Hızlı Keşfet",
         items: [
-          { label: "iPhone 15 Serisi", description: "En cok aranan kÄ±lÄ±f uyumluluklari", href: "/products?category=kilif" },
+          { label: "iPhone 15 Serisi", description: "En cok aranan kılıf uyumluluklari", href: "/products?category=kilif" },
           { label: "iPhone 16 Serisi", description: "Yeni nesil cihazlara uygun secimler", href: "/products?category=kilif" },
-          { label: "Ã‡ok Satan KÄ±lÄ±flar", description: "En cok tercih edilen modeller", href: "/products?category=kilif" },
+          { label: "Çok Satan Kılıflar", description: "En cok tercih edilen modeller", href: "/products?category=kilif" },
           { label: "Yeni Eklenenler", description: "Son eklenen tasarimlari kesfet", href: "/products?category=kilif" },
         ],
       },
       {
         title: "Filtreler",
         items: [
-          { label: "Seffaf KÄ±lÄ±flar", href: "/products?category=kilif" },
-          { label: "Deri KÄ±lÄ±flar", href: "/products?category=kilif" },
-          { label: "Silikon KÄ±lÄ±flar", href: "/products?category=kilif" },
+          { label: "Şeffaf Kılıflar", href: "/products?category=kilif" },
+          { label: "Deri Kılıflar", href: "/products?category=kilif" },
+          { label: "Silikon Kılıflar", href: "/products?category=kilif" },
         ],
       },
     ],
@@ -171,18 +171,18 @@ const megaMenuData = {
         ],
       },
       {
-        title: "HÄ±zlÄ± Kesfet",
+        title: "Hızlı Keşfet",
         items: [
           { label: "10000 mAh", description: "Cebinde tasinabilir kompakt guc", href: "/products?category=power-bank" },
           { label: "20000 mAh", description: "Gun boyu destek icin en dengeli secim", href: "/products?category=power-bank" },
-          { label: "PD HÄ±zlÄ± Sarj", description: "HÄ±zlÄ± dolum destekli modeller", href: "/products?category=power-bank" },
+          { label: "PD Hızlı Şarj", description: "Hızlı dolum destekli modeller", href: "/products?category=power-bank" },
           { label: "MagSafe Uyumlu", description: "Kablosuz ve hizli kullanim odakli", href: "/products?category=power-bank" },
         ],
       },
       {
-        title: "Ã–zellikler",
+        title: "Özellikler",
         items: [
-          { label: "PD HÄ±zlÄ± Sarj", href: "/products?category=power-bank" },
+          { label: "PD Hızlı Şarj", href: "/products?category=power-bank" },
           { label: "Kablosuz Sarj", href: "/products?category=power-bank" },
           { label: "MagSafe Uyumlu", href: "/products?category=power-bank" },
           { label: "Ince Tasarim", href: "/products?category=power-bank" },
@@ -198,25 +198,25 @@ const megaMenuData = {
         title: "Markalar",
         items: [
           { label: "Anker", description: "Guclu ve guvenilir sarj cozumleri", href: "/products?category=sarj-aleti" },
-          { label: "Baseus", description: "HÄ±zlÄ± sarj ve modern tasarim odakli", href: "/products?category=sarj-aleti" },
+          { label: "Baseus", description: "Hızlı sarj ve modern tasarim odakli", href: "/products?category=sarj-aleti" },
           { label: "Samsung", description: "Telefon ve tabletlerle uyumlu secimler", href: "/products?category=sarj-aleti" },
           { label: "Apple", description: "iPhone icin guvenli adapter secenekleri", href: "/products?category=sarj-aleti" },
         ],
       },
       {
-        title: "HÄ±zlÄ± Kesfet",
+        title: "Hızlı Keşfet",
         items: [
           { label: "20W Adapterler", description: "iPhone kullaniminda en yaygin tercih", href: "/products?category=sarj-aleti" },
           { label: "45W ve Ustu", description: "Tablet ve hizli sarj ihtiyaclari icin", href: "/products?category=sarj-aleti" },
           { label: "GaN Teknolojili", description: "Daha kompakt ve verimli adapterler", href: "/products?category=sarj-aleti" },
-          { label: "Ã‡oklu Port", description: "Birden fazla cihaz icin pratik kullanim", href: "/products?category=sarj-aleti" },
+          { label: "Çoklu Port", description: "Birden fazla cihaz icin pratik kullanim", href: "/products?category=sarj-aleti" },
         ],
       },
       {
         title: "Tipler",
         items: [
           { label: "USB-C Adapterli", href: "/products?category=sarj-aleti" },
-          { label: "Ã‡oklu Port", href: "/products?category=sarj-aleti" },
+          { label: "Çoklu Port", href: "/products?category=sarj-aleti" },
           { label: "GaN Teknolojili", href: "/products?category=sarj-aleti" },
           { label: "Arac Sarj Aleti", href: "/products?category=sarj-aleti" },
         ],
@@ -246,7 +246,7 @@ const megaMenuPromoContent: Partial<Record<MegaMenuKey, { title: string; descrip
   ikinciElTelefonlar: {
     title: "Kontrollu ikinci el iPhone secimleri",
     description: "Yalnizca Apple / iPhone modellerine odaklanan seckide pil sagligi, kondisyon ve guvenli alisveris avantajlarini hizlica inceleyin.",
-    cta: "iPhone'lari GÃ¶r",
+    cta: "iPhone'ları Gör",
   },
 };
 
@@ -604,7 +604,7 @@ export function Header() {
                       className="text-sm font-semibold text-primary/90 transition-colors hover:text-primary"
                       onClick={closeMegaMenu}
                     >
-                      TÃ¼mÃ¼nu GÃ¶r
+                      Tümünü Gör
                     </Link>
                   </div>
 
@@ -645,7 +645,7 @@ export function Header() {
 
                     {promoMegaColumn ? (
                       <div className="self-start rounded-[1.45rem] border border-border/65 bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(248,250,252,1)_100%)] p-3.5 shadow-[0_18px_36px_rgba(15,23,42,0.08)] dark:bg-[linear-gradient(180deg,rgba(15,20,31,1)_0%,rgba(17,24,39,1)_100%)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.28)]">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">Onerilen ÃœrÃ¼nler</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">Önerilen Ürünler</p>
                         <h4 className="mt-2.5 font-display text-xl font-semibold tracking-tight text-foreground">
                           {activePromoContent?.title || `${activeMegaData.label} icin one cikan secimler`}
                         </h4>
@@ -689,7 +689,7 @@ export function Header() {
                                     />
                                   ) : (
                                     <div className="flex h-full w-full items-center justify-center text-[11px] font-medium text-muted-foreground">
-                                      ÃœrÃ¼n
+                                      Ürün
                                     </div>
                                   )}
                                 </div>
@@ -732,7 +732,7 @@ export function Header() {
                           onClick={closeMegaMenu}
                           className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
                         >
-                          {activePromoContent?.cta || "TÃ¼mÃ¼nu GÃ¶r"}
+                          {activePromoContent?.cta || "Tümünü Gör"}
                           <ChevronRight className="h-4 w-4" />
                         </Link>
                       </div>
