@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "lib": [
       "dom",
@@ -22,8 +23,8 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".",
-    "paths": {
+    "baseUrl":  ".",
+        "paths": {
       "@/*": [
         "./src/*"
       ]
