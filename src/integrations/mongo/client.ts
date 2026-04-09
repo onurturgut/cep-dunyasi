@@ -1,4 +1,4 @@
-import type { AuthSession, AuthUser } from "@/types/auth";
+import type { AuthSession, AuthSignUpResult, AuthUser } from "@/types/auth";
 
 type QueryResult<T = any> = {
   data: T;
@@ -183,12 +183,12 @@ class MongoQueryBuilder<T = any> implements PromiseLike<QueryResult<T>> {
       const body = (await response.json()) as QueryResult<T>;
 
       if (!response.ok) {
-        return body?.error ? body : createErrorResult("Mongo sorgusu basarisiz");
+        return body?.error ? body : createErrorResult("Mongo sorgusu başarısız");
       }
 
       return body;
     } catch (error) {
-      return createErrorResult(error instanceof Error ? error.message : "Ağ hatası");
+      return createErrorResult(error instanceof Error ? error.message : "Ag hatasi");
     }
   }
 }
@@ -210,12 +210,12 @@ const db = {
       const body = await response.json();
 
       if (!response.ok) {
-        return { data: null, error: body?.error ?? { message: "RPC cagrisi basarisiz" } };
+        return { data: null, error: body?.error ?? { message: "RPC çağrısı başarısız" } };
       }
 
       return body;
     } catch (error) {
-      return { data: null, error: { message: error instanceof Error ? error.message : "RPC hatası" } };
+      return { data: null, error: { message: error instanceof Error ? error.message : "RPC hatasi" } };
     }
   },
   auth: {
@@ -282,36 +282,50 @@ const db = {
         const body = await response.json();
 
         if (!response.ok) {
-          return { data: { user: null }, error: body?.error ?? { message: "Kayit basarisiz" } };
+          return {
+            data: { user: null, session: null, verificationRequired: false },
+            error: body?.error ?? { message: "Kayıt başarısız" },
+          };
         }
 
-        const user = body.user as AuthUser;
-        const session: AuthSession = { user };
-        saveSession(session);
-        notifyAuthListeners("SIGNED_IN", session);
+        const result = {
+          user: (body.user ?? null) as AuthUser | null,
+          session: body.user ? ({ user: body.user as AuthUser } satisfies AuthSession) : null,
+          verificationRequired: body.verificationRequired === true,
+          email: typeof body.email === "string" ? body.email : undefined,
+          message: typeof body.message === "string" ? body.message : undefined,
+        } satisfies AuthSignUpResult;
 
-        return { data: { user, session }, error: null };
+        if (result.session) {
+          saveSession(result.session);
+          notifyAuthListeners("SIGNED_IN", result.session);
+        } else {
+          saveSession(null);
+          notifyAuthListeners("SIGNED_OUT", null);
+        }
+
+        return { data: result, error: null };
       } catch (error) {
         return {
-          data: { user: null },
-          error: { message: error instanceof Error ? error.message : "Kayıt hatası" },
+          data: { user: null, session: null, verificationRequired: false },
+          error: { message: error instanceof Error ? error.message : "Kayit hatasi" },
         };
       }
     },
-    async signInWithPassword({ email, password }: { email: string; password: string }) {
+    async signInWithPassword({ email, password, rememberMe = true }: { email: string; password: string; rememberMe?: boolean }) {
       try {
         const response = await fetch("/api/auth/signin", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, rememberMe }),
         });
 
         const body = await response.json();
 
         if (!response.ok) {
-          return { data: { user: null }, error: body?.error ?? { message: "Giriş basarisiz" } };
+          return { data: { user: null }, error: body?.error ?? { message: "Giriş başarısız" } };
         }
 
         const user = body.user as AuthUser;
@@ -323,7 +337,52 @@ const db = {
       } catch (error) {
         return {
           data: { user: null },
-          error: { message: error instanceof Error ? error.message : "Giriş hatası" },
+          error: { message: error instanceof Error ? error.message : "Giris hatasi" },
+        };
+      }
+    },
+    async verifyEmail({ email, code }: { email: string; code: string }) {
+      try {
+        const response = await fetch("/api/auth/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, code }),
+        });
+
+        const body = await response.json();
+
+        if (!response.ok) {
+          return { data: null, error: body?.error ?? { message: "Doğrulama başarısız" } };
+        }
+
+        return { data: body, error: null };
+      } catch (error) {
+        return { data: null, error: { message: error instanceof Error ? error.message : "Dogrulama hatasi" } };
+      }
+    },
+    async resendVerification({ email }: { email: string }) {
+      try {
+        const response = await fetch("/api/auth/resend-verification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        const body = await response.json();
+
+        if (!response.ok) {
+          return { data: null, error: body?.error ?? { message: "Doğrulama e-postası gönderilemedi" } };
+        }
+
+        return { data: body, error: null };
+      } catch (error) {
+        return {
+          data: null,
+          error: { message: error instanceof Error ? error.message : "Doğrulama e-postası gönderilemedi" },
         };
       }
     },

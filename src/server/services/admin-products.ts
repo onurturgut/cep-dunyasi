@@ -27,6 +27,22 @@ const specsSchema = z
     ram: optionalTrimmedStringSchema,
     frontCamera: optionalTrimmedStringSchema,
     rearCamera: optionalTrimmedStringSchema,
+    screenSize: optionalTrimmedStringSchema,
+    displayTechnology: optionalTrimmedStringSchema,
+    refreshRate: optionalTrimmedStringSchema,
+    resolution: optionalTrimmedStringSchema,
+    processor: optionalTrimmedStringSchema,
+    batteryCapacity: optionalTrimmedStringSchema,
+    fastCharging: optionalTrimmedStringSchema,
+    wirelessCharging: optionalTrimmedStringSchema,
+    network5g: optionalTrimmedStringSchema,
+    nfc: optionalTrimmedStringSchema,
+    esim: optionalTrimmedStringSchema,
+    dualSim: optionalTrimmedStringSchema,
+    bluetooth: optionalTrimmedStringSchema,
+    wifi: optionalTrimmedStringSchema,
+    waterResistance: optionalTrimmedStringSchema,
+    biometricSecurity: optionalTrimmedStringSchema,
   })
   .default({
     operatingSystem: null,
@@ -34,6 +50,22 @@ const specsSchema = z
     ram: null,
     frontCamera: null,
     rearCamera: null,
+    screenSize: null,
+    displayTechnology: null,
+    refreshRate: null,
+    resolution: null,
+    processor: null,
+    batteryCapacity: null,
+    fastCharging: null,
+    wirelessCharging: null,
+    network5g: null,
+    nfc: null,
+    esim: null,
+    dualSim: null,
+    bluetooth: null,
+    wifi: null,
+    waterResistance: null,
+    biometricSecurity: null,
   });
 
 const booleanOrNullSchema = z
@@ -143,6 +175,7 @@ const adminVariantSchema = z
 const adminProductSchema = z.object({
   name: z.string().trim().min(1, "Ürün adi zorunlu"),
   slug: optionalTrimmedStringSchema,
+  model: optionalTrimmedStringSchema,
   description: z.string().trim().default(""),
   brand: z.string().trim().default(""),
   type: z.enum(["phone", "accessory", "service"]),
@@ -175,7 +208,7 @@ const SECOND_HAND_IPHONE_CATEGORY_SLUG = "ikinci-el-telefon";
 const REQUIRED_SECOND_HAND_BRAND = "Apple";
 
 function getFirstIssueMessage(error: z.ZodError) {
-  return error.issues[0]?.message || "Gecersiz urun verisi";
+  return error.issues[0]?.message || "Geçersiz ürün verisi";
 }
 
 function normalizeBrandValue(value: string | null | undefined) {
@@ -192,11 +225,11 @@ async function validateSecondHandIphoneRules(payload: AdminProductPayload, categ
   }
 
   if (payload.type !== "phone") {
-    throw new Error("2. El Telefonlar kategorisinde sadece telefon turundeki urunler kaydedilebilir");
+    throw new Error("2. El Telefonlar kategorisinde sadece telefon türündeki ürünler kaydedilebilir");
   }
 
   if (normalizeBrandValue(payload.brand) !== normalizeBrandValue(REQUIRED_SECOND_HAND_BRAND)) {
-    throw new Error("2. El Telefonlar kategorisinde sadece Apple / iPhone urunleri yer alabilir");
+    throw new Error("2. El Telefonlar kategorisinde sadece Apple / iPhone ürünleri yer alabilir");
   }
 }
 
@@ -352,7 +385,7 @@ function buildVariantDocument(
 async function ensureUniqueProductSlug(slug: string, productId?: string | null) {
   const existingProduct = await Product.findOne({ slug }).lean();
   if (existingProduct && existingProduct.id !== productId) {
-    throw new Error("Bu urun slug'i zaten kullaniliyor");
+    throw new Error("Bu ürün slug'i zaten kullanılıyor");
   }
 }
 
@@ -415,6 +448,7 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
   const productPayload = {
     name: payload.name,
     slug,
+    model: payload.type === "phone" ? payload.model || payload.name : payload.model,
     description: payload.description,
     brand: payload.brand,
     type: payload.type,
@@ -499,11 +533,11 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
       }
 
       if (message.includes("option_signature")) {
-        throw new Error("Ayni urun icin ayni varyant kombinasyonu tekrar edemez");
+        throw new Error("Aynı ürün için aynı varyant kombinasyonu tekrar edemez");
       }
 
       if (message.includes("slug")) {
-        throw new Error("Bu urun slug'i zaten kullaniliyor");
+        throw new Error("Bu ürün slug'i zaten kullanılıyor");
       }
     }
 

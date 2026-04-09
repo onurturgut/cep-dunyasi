@@ -22,15 +22,15 @@ export function OrdersList({ orders, page, totalPages, isLoading, error, onPageC
   }
 
   if (error) {
-    return <AccountEmptyState icon={Package2} title="Siparisler yuklenemedi" description={error} />;
+    return <AccountEmptyState icon={Package2} title="Siparişler yüklenemedi" description={error} />;
   }
 
   if (orders.length === 0) {
     return (
       <AccountEmptyState
         icon={Package2}
-        title="Henuz siparisiniz yok"
-        description="Verdiginiz siparisler burada listelenecek. Ilk siparisinizden sonra kargo durumu ve siparis detaylarini bu alandan takip edebilirsiniz."
+        title="Henüz siparişiniz yok"
+        description="Verdiğiniz siparişler burada listelenecek. İlk siparişinizden sonra kargo durumu ve sipariş detaylarını bu alandan takip edebilirsiniz."
       />
     );
   }
@@ -48,7 +48,7 @@ export function OrdersList({ orders, page, totalPages, isLoading, error, onPageC
           </p>
           <div className="flex gap-2">
             <Button type="button" variant="outline" size="sm" disabled={page <= 1} onClick={() => onPageChange?.(page - 1)}>
-              Onceki
+              Önceki
             </Button>
             <Button type="button" variant="outline" size="sm" disabled={page >= totalPages} onClick={() => onPageChange?.(page + 1)}>
               Sonraki

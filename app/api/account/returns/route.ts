@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const data = await listMyReturnRequests(getAccountSessionUser(request));
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handleAccountRouteError(error, "İade talepleri getirilemedi");
+    return handleAccountRouteError(error, "aade talepleri getirilemedi");
   }
 }
 
@@ -22,7 +22,8 @@ export async function POST(request: Request) {
     const data = await createReturnRequest(await request.json(), getAccountSessionUser(request));
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handleAccountRouteError(error, "İade talebi olusturulamadi");
+    return handleAccountRouteError(error, "aade talebi olusturulamadi");
   }
 }
+
 

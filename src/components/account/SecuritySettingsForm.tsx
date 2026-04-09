@@ -73,19 +73,20 @@ export function SecuritySettingsForm() {
               <ShieldCheck className="h-4 w-4 text-primary" />
               Guclu şifre kullanin
             </div>
-            <p className="mt-2">Yeni şifrenizde buyuk harf, kucuk harf ve rakam bulundurun. Mumkunse ozel karakter de ekleyin.</p>
+            <p className="mt-2">Yeni şifrenizde büyük harf, küçük harf ve rakam bulundurun. Mümkünse özel karakter de ekleyin.</p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
-            <p className="font-medium text-foreground">Oturum guvenligi</p>
-            <p className="mt-2">Şifrenizi degistirdikten sonra mevcut oturumunuz yenilenir. Supheli bir durumda tekrar giris yapmaniz istenebilir.</p>
+            <p className="font-medium text-foreground">Oturum güvenliği</p>
+            <p className="mt-2">Şifrenizi değiştirdikten sonra mevcut oturumunuz yenilenir. Şüpheli bir durumda tekrar giriş yapmanız istenebilir.</p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
             <p className="font-medium text-foreground">Destek</p>
-            <p className="mt-2">Hesabiniza erisimle ilgili yardim gerekiyorsa destek ekibimizle iletisime gecebilirsiniz.</p>
+            <p className="mt-2">Hesabınıza erişimle ilgili yardım gerekiyorsa destek ekibimizle iletişime geçebilirsiniz.</p>
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
+
 

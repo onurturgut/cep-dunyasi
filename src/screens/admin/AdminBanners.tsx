@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { type ChangeEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -65,8 +65,8 @@ const defaultForm: BannerFormState = {
 };
 
 const placementHints: Record<BannerCampaignRecord["placement"], string> = {
-  home_hero: "Ust vitrinde buyuk etki icin kullan.",
-  home_campaign: "Hero altindaki destek kampanyalari icin idealdir.",
+  home_hero: "Üst vitrinde büyük etki için kullan.",
+  home_campaign: "Hero altındaki destek kampanyaları için idealdir.",
   category: "Kategoriye ozel mesaj veya marka vurgusu icin kullan.",
   popup: "Nazik bir popup akisi icin tetikleyiciyi dikkatli sec.",
   promo_badge: "Kisa, vurucu rozet tipi mesajlar icin uygundur.",
@@ -88,7 +88,7 @@ async function uploadBannerImage(file: File) {
   const payload = await response.json().catch(() => null);
 
   if (!response.ok || payload?.error) {
-    throw new Error(payload?.error?.message || "Banner görseli yuklenemedi");
+    throw new Error(payload?.error?.message || "Banner görseli yüklenemedi");
   }
 
   return `${payload?.data?.url ?? ""}`;
@@ -211,7 +211,7 @@ function CampaignPreview({ form }: { form: BannerFormState }) {
       <div className="space-y-2">
         <h3 className="max-w-md text-xl font-semibold text-white">{form.title || "Kampanya basligi burada gorunur"}</h3>
         {form.subtitle ? <p className="text-sm font-medium text-white/80">{form.subtitle}</p> : null}
-        <p className="max-w-md text-sm leading-6 text-white/70">{form.description || "Aciklama alani bos ise burada kampanya metni icin temiz bir alan kalir."}</p>
+        <p className="max-w-md text-sm leading-6 text-white/70">{form.description || "Açıklama alanı boş ise burada kampanya metni için temiz bir alan kalır."}</p>
       </div>
       <div className="flex flex-wrap gap-2">
         <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-950">{form.ctaLabel || "Kampanyayi Incele"}</span>
@@ -263,7 +263,7 @@ function CampaignPreview({ form }: { form: BannerFormState }) {
           <div className="space-y-3">{commonCopy}</div>
           <div className="hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-right text-xs text-white/80 md:block">
             <div>Siralama #{form.sortOrder}</div>
-            <div>{form.isActive ? "Yayina hazir" : "Taslak"}</div>
+            <div>{form.isActive ? "Yayına hazır" : "Taslak"}</div>
           </div>
         </div>
       </div>
@@ -341,7 +341,7 @@ export default function AdminBanners() {
       setForm((current) => ({ ...current, [field]: url }));
       toast.success("Banner görseli yuklendi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Banner görseli yuklenemedi");
+      toast.error(error instanceof Error ? error.message : "Banner görseli yüklenemedi");
     } finally {
       setUploading(false);
     }
@@ -357,7 +357,7 @@ export default function AdminBanners() {
       id: undefined,
       title: current.title.trim() ? `${current.title} Kopya` : current.title,
     }));
-    toast.success("Mevcut kampanya kopya taslagi olarak hazirlandi");
+    toast.success("Mevcut kampanya kopya taslağı olarak hazırlandı");
   };
 
   const handleEdit = (banner: BannerCampaignRecord) => {
@@ -370,7 +370,7 @@ export default function AdminBanners() {
       id: undefined,
       title: banner.title.trim() ? `${banner.title} Kopya` : banner.title,
     });
-    toast.success("Kopya kampanya taslagi acildi");
+    toast.success("Kopya kampanya taslağı açıldı");
   };
 
   const handleQuickToggle = async (banner: BannerCampaignRecord) => {
@@ -379,7 +379,7 @@ export default function AdminBanners() {
         isActive: !banner.isActive,
       }),
     );
-    toast.success(banner.isActive ? "Kampanya pasife alindi" : "Kampanya yayina alindi");
+    toast.success(banner.isActive ? "Kampanya pasife alındı" : "Kampanya yayına alındı");
   };
 
   const handleSubmit = async () => {
@@ -394,7 +394,7 @@ export default function AdminBanners() {
     }
 
     await saveBanner.mutateAsync(formToPayload(form));
-    toast.success(form.id ? "Kampanya guncellendi" : "Kampanya olusturuldu");
+    toast.success(form.id ? "Kampanya güncellendi" : "Kampanya oluşturuldu");
     setForm(defaultForm);
   };
 
@@ -403,7 +403,7 @@ export default function AdminBanners() {
       <div className="space-y-2">
         <h1 className="font-display text-2xl font-bold">Banner ve Kampanyalar</h1>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Kampanyalari teknik tablo yerine editoryal bir akisla yonet. Icerigi duzenle, canli onizlemede gor, sonra yayina al.
+          Kampanyaları teknik tablo yerine editoryal bir akışla yönet. İçeriği düzenle, canlı önizlemede gör, sonra yayına al.
         </p>
       </div>
 
@@ -411,7 +411,7 @@ export default function AdminBanners() {
         <Card><CardContent className="space-y-1 p-4"><p className="text-sm text-muted-foreground">Toplam kampanya</p><p className="text-2xl font-semibold">{stats.total}</p></CardContent></Card>
         <Card><CardContent className="space-y-1 p-4"><p className="text-sm text-muted-foreground">Yayinda olan</p><p className="text-2xl font-semibold">{stats.activeCount}</p></CardContent></Card>
         <Card><CardContent className="space-y-1 p-4"><p className="text-sm text-muted-foreground">Popup kampanyalar</p><p className="text-2xl font-semibold">{stats.popupCount}</p></CardContent></Card>
-        <Card><CardContent className="space-y-1 p-4"><p className="text-sm text-muted-foreground">Planli yayin</p><p className="text-2xl font-semibold">{stats.scheduledCount}</p></CardContent></Card>
+        <Card><CardContent className="space-y-1 p-4"><p className="text-sm text-muted-foreground">Planlı yayın</p><p className="text-2xl font-semibold">{stats.scheduledCount}</p></CardContent></Card>
       </div>
 
       <Card>
@@ -425,7 +425,7 @@ export default function AdminBanners() {
             <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as BannerStatusFilter)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tum kampanyalar</SelectItem>
+                <SelectItem value="all">Tüm kampanyalar</SelectItem>
                 <SelectItem value="active">Yayinda</SelectItem>
                 <SelectItem value="inactive">Pasif</SelectItem>
                 <SelectItem value="scheduled">Planli</SelectItem>
@@ -446,7 +446,7 @@ export default function AdminBanners() {
             </Select>
           </div>
           <div className="flex items-end">
-            <Button className="w-full" variant="outline" onClick={handleReset}>Yeni kampanya ac</Button>
+            <Button className="w-full" variant="outline" onClick={handleReset}>Yeni kampanya aç</Button>
           </div>
         </CardContent>
       </Card>
@@ -455,11 +455,11 @@ export default function AdminBanners() {
         <Card>
           <CardHeader className="flex flex-col gap-3 border-b border-border/70 pb-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-base">{form.id ? "Kampanya editoru" : "Yeni kampanya olustur"}</CardTitle>
+              <CardTitle className="text-base">{form.id ? "Kampanya editörü" : "Yeni kampanya oluştur"}</CardTitle>
               <p className="text-sm text-muted-foreground">{placementHints[form.placement]}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {form.id ? <Button variant="outline" onClick={handleDuplicateDraft}>Kopyalayarak yeni olustur</Button> : null}
+              {form.id ? <Button variant="outline" onClick={handleDuplicateDraft}>Kopyalayarak yeni oluştur</Button> : null}
               <Button variant="outline" onClick={handleReset}>Formu temizle</Button>
             </div>
           </CardHeader>
@@ -483,7 +483,7 @@ export default function AdminBanners() {
                   <SelectContent>
                     <SelectItem value="all">Tum kullanici</SelectItem>
                     <SelectItem value="guest">Sadece misafir</SelectItem>
-                    <SelectItem value="authenticated">Sadece giris yapmis</SelectItem>
+                    <SelectItem value="authenticated">Sadece giriş yapmış</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -588,7 +588,7 @@ export default function AdminBanners() {
             ) : null}
 
             <div className="space-y-4 rounded-2xl border border-border/70 bg-muted/20 p-4">
-              <div><p className="font-medium">Yayinlama</p><p className="text-sm text-muted-foreground">Planli kampanyalar icin tarih araligi ve durumunu belirle.</p></div>
+              <div><p className="font-medium">Yayınlama</p><p className="text-sm text-muted-foreground">Planlı kampanyalar için tarih aralığı ve durumunu belirle.</p></div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Baslangic tarihi</Label>
@@ -602,7 +602,7 @@ export default function AdminBanners() {
               <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background px-4 py-3">
                 <div>
                   <p className="font-medium">Yayinda</p>
-                  <p className="text-sm text-muted-foreground">Pasif oldugunda tarih araliginda olsa bile yayinlanmaz.</p>
+                  <p className="text-sm text-muted-foreground">Pasif olduğunda tarih aralığında olsa bile yayınlanmaz.</p>
                 </div>
                 <Switch checked={form.isActive} onCheckedChange={(checked) => setForm((current) => ({ ...current, isActive: checked }))} />
               </div>
@@ -612,7 +612,7 @@ export default function AdminBanners() {
               <Button className="sm:flex-1" onClick={() => void handleSubmit()} disabled={saveBanner.isPending || uploading}>
                 {form.id ? "Degisiklikleri kaydet" : "Kampanyayi kaydet"}
               </Button>
-              {form.id ? <Button className="sm:flex-1" variant="outline" onClick={handleDuplicateDraft} disabled={saveBanner.isPending}>Kopyalayarak yeni olustur</Button> : null}
+              {form.id ? <Button className="sm:flex-1" variant="outline" onClick={handleDuplicateDraft} disabled={saveBanner.isPending}>Kopyalayarak yeni oluştur</Button> : null}
             </div>
           </CardContent>
         </Card>
@@ -624,7 +624,7 @@ export default function AdminBanners() {
               <CampaignPreview form={form} />
               <div className="grid gap-2 text-sm text-muted-foreground">
                 <div className="flex items-center justify-between rounded-xl border border-border/70 px-3 py-2"><span>Yerlesim</span><span className="font-medium text-foreground">{BANNER_PLACEMENT_LABELS[form.placement]}</span></div>
-                <div className="flex items-center justify-between rounded-xl border border-border/70 px-3 py-2"><span>Durum</span><span className="font-medium text-foreground">{form.isActive ? "Yayina hazir" : "Taslak"}</span></div>
+                <div className="flex items-center justify-between rounded-xl border border-border/70 px-3 py-2"><span>Durum</span><span className="font-medium text-foreground">{form.isActive ? "Yayına hazır" : "Taslak"}</span></div>
                 <div className="flex items-center justify-between rounded-xl border border-border/70 px-3 py-2"><span>Tarih</span><span className="font-medium text-foreground">{formatCampaignWindow(form.startAt || null, form.endAt || null)}</span></div>
               </div>
             </CardContent>
@@ -633,7 +633,7 @@ export default function AdminBanners() {
           <Card>
             <CardHeader className="pb-4"><CardTitle className="text-base">Hızlı notlar</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>Hero kampanyalarda kisa baslik ve tek bir net CTA en iyi sonucu verir.</p>
+              <p>Hero kampanyalarda kısa başlık ve tek bir net CTA en iyi sonucu verir.</p>
               <p>Popup kullaniyorsan sadece gercekten guclu tekliflerde acik tutman daha saglikli olur.</p>
               <p>Mobil görseli ayrica yuklersen daha dengeli bir deneyim elde edersin.</p>
             </CardContent>
@@ -645,7 +645,7 @@ export default function AdminBanners() {
         <CardHeader className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1">
             <CardTitle className="text-base">Mevcut kampanyalar</CardTitle>
-            <p className="text-sm text-muted-foreground">{filteredBanners.length} kayit listeleniyor. Düzenle, kopyala veya hizlica yayina alip kapat.</p>
+            <p className="text-sm text-muted-foreground">{filteredBanners.length} kayıt listeleniyor. Düzenle, kopyala veya hızlıca yayına alıp kapat.</p>
           </div>
         </CardHeader>
         <CardContent>
@@ -703,7 +703,7 @@ export default function AdminBanners() {
               );
             })}
 
-            {filteredBanners.length === 0 ? <div className="rounded-2xl border border-dashed border-border/70 px-6 py-14 text-center text-sm text-muted-foreground xl:col-span-2">Seçili filtrelerle eslesen kampanya bulunamadi.</div> : null}
+            {filteredBanners.length === 0 ? <div className="rounded-2xl border border-dashed border-border/70 px-6 py-14 text-center text-sm text-muted-foreground xl:col-span-2">Seçili filtrelerle eşleşen kampanya bulunamadı.</div> : null}
           </div>
         </CardContent>
       </Card>

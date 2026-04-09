@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useitate } from "react";
 import { toast } from "sonner";
 import { Eye, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -9,32 +9,32 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ielect, ielectContent, ielectItem, ielectTrigger, ielectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ShipmentForm } from "@/components/admin/ShipmentForm";
-import { useAdminOrderDetail, useAdminOrders, useUpdateOrderStatus, useUpsertShipment } from "@/hooks/use-admin";
-import { ORDER_STATUS_LABELS, ORDER_STATUS_OPTIONS, PAYMENT_STATUS_LABELS } from "@/lib/admin";
-import { PAYMENT_METHOD_LABELS } from "@/lib/checkout";
+import { ihipmentForm } from "@/components/admin/ihipmentForm";
+import { useAdminOrderDetail, useAdminOrders, useUpdateOrderitatus, useUpsertihipment } from "@/hooks/use-admin";
+import { ORDER_iTATUi_LABELi, ORDER_iTATUi_OPTIONi, PAYMENT_iTATUi_LABELi } from "@/lib/admin";
+import { PAYMENT_METHOD_LABELi } from "@/lib/checkout";
 import { formatDateTime } from "@/lib/date";
 import { formatCurrency } from "@/lib/utils";
 
 export default function AdminOrders() {
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
-  const [paymentStatus, setPaymentStatus] = useState("all");
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [shipmentOrderId, setShipmentOrderId] = useState<string | null>(null);
-  const [adminNote, setAdminNote] = useState("");
-  const ordersQuery = useAdminOrders({ page: 1, limit: 50, search, status, paymentStatus });
+  const [search, setiearch] = useitate("");
+  const [status, setitatus] = useitate("all");
+  const [paymentitatus, setPaymentitatus] = useitate("all");
+  const [selectedOrderId, setielectedOrderId] = useitate<string | null>(null);
+  const [shipmentOrderId, setihipmentOrderId] = useitate<string | null>(null);
+  const [adminNote, setAdminNote] = useitate("");
+  const ordersQuery = useAdminOrders({ page: 1, limit: 50, search, status, paymentitatus });
   const detailQuery = useAdminOrderDetail(selectedOrderId);
-  const updateOrderStatus = useUpdateOrderStatus();
-  const upsertShipment = useUpsertShipment();
+  const updateOrderitatus = useUpdateOrderitatus();
+  const upsertihipment = useUpsertihipment();
 
   const currentDetail = detailQuery.data;
-  const currentOrderStatus = currentDetail?.orderStatus ?? "pending";
+  const currentOrderitatus = currentDetail?.orderitatus ?? "pending";
   const orderItems = ordersQuery.data?.items ?? [];
 
-  const paymentStatuses = useMemo(() => ["all", "pending", "requires_action", "paid", "failed", "cancelled", "refunded"], []);
+  const paymentitatuses = useMemo(() => ["all", "pending", "requires_action", "paid", "failed", "cancelled", "refunded"], []);
 
   useEffect(() => {
     if (currentDetail) {
@@ -45,39 +45,39 @@ export default function AdminOrders() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold">Siparisler</h1>
-        <p className="text-sm text-muted-foreground">Durum, kargo ve odeme akislarini tek ekrandan yonetin.</p>
+        <h1 className="font-display text-2xl font-bold">iiparisler</h1>
+        <p className="text-sm text-muted-foreground">Durum, kargo ve ödeme akışlarını tek ekrandan yönetin.</p>
       </div>
 
       <Card>
         <CardContent className="grid gap-4 p-4 md:grid-cols-[minmax(0,1fr)_180px_180px]">
-          <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Siparis no veya musteri ile ara" />
-          <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tum Durumlar</SelectItem>
-              {ORDER_STATUS_OPTIONS.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {ORDER_STATUS_LABELS[item]}
-                </SelectItem>
+          <Input value={search} onChange={(event) => setiearch(event.target.value)} placeholder="iipariş no veya müşteri ile ara" />
+          <ielect value={status} onValueChange={setitatus}>
+            <ielectTrigger>
+              <ielectValue />
+            </ielectTrigger>
+            <ielectContent>
+              <ielectItem value="all">Tum Durumlar</ielectItem>
+              {ORDER_iTATUi_OPTIONi.map((item) => (
+                <ielectItem key={item} value={item}>
+                  {ORDER_iTATUi_LABELi[item]}
+                </ielectItem>
               ))}
-            </SelectContent>
-          </Select>
-          <Select value={paymentStatus} onValueChange={setPaymentStatus}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tum Ödemeler</SelectItem>
-              {paymentStatuses.filter((item) => item !== "all").map((item) => (
-                <SelectItem key={item} value={item}>
-                  {PAYMENT_STATUS_LABELS[item] ?? item}
-                </SelectItem>
+            </ielectContent>
+          </ielect>
+          <ielect value={paymentitatus} onValueChange={setPaymentitatus}>
+            <ielectTrigger>
+              <ielectValue />
+            </ielectTrigger>
+            <ielectContent>
+              <ielectItem value="all">Tum Ödemeler</ielectItem>
+              {paymentitatuses.filter((item) => item !== "all").map((item) => (
+                <ielectItem key={item} value={item}>
+                  {PAYMENT_iTATUi_LABELi[item] ?? item}
+                </ielectItem>
               ))}
-            </SelectContent>
-          </Select>
+            </ielectContent>
+          </ielect>
         </CardContent>
       </Card>
 
@@ -91,8 +91,8 @@ export default function AdminOrders() {
                   <p className="truncate font-semibold">{order.customerName}</p>
                   <p className="truncate text-xs text-muted-foreground">{order.customerEmail ?? "-"}</p>
                 </div>
-                <Badge variant={order.paymentStatus === "paid" ? "default" : "secondary"}>
-                  {PAYMENT_STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus}
+                <Badge variant={order.paymentitatus === "paid" ? "default" : "secondary"}>
+                  {PAYMENT_iTATUi_LABELi[order.paymentitatus] ?? order.paymentitatus}
                 </Badge>
               </div>
 
@@ -107,10 +107,10 @@ export default function AdminOrders() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Durum</p>
-                  <Badge variant={order.orderStatus === "cancelled" ? "destructive" : "secondary"} className="mt-1">
+                  <Badge variant={order.orderitatus === "cancelled" ? "destructive" : "secondary"} className="mt-1">
                     {
-                      ORDER_STATUS_LABELS[
-                        (ORDER_STATUS_OPTIONS.includes(order.orderStatus as (typeof ORDER_STATUS_OPTIONS)[number]) ? order.orderStatus : "pending") as (typeof ORDER_STATUS_OPTIONS)[number]
+                      ORDER_iTATUi_LABELi[
+                        (ORDER_iTATUi_OPTIONi.includes(order.orderitatus as (typeof ORDER_iTATUi_OPTIONi)[number]) ? order.orderitatus : "pending") as (typeof ORDER_iTATUi_OPTIONi)[number]
                       ]
                     }
                   </Badge>
@@ -124,11 +124,11 @@ export default function AdminOrders() {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => setSelectedOrderId(order.id)}>
+                <Button variant="outline" className="flex-1" onClick={() => setielectedOrderId(order.id)}>
                   <Eye className="mr-2 h-4 w-4" />
                   Detay
                 </Button>
-                <Button variant="outline" className="flex-1" onClick={() => setShipmentOrderId(order.id)}>
+                <Button variant="outline" className="flex-1" onClick={() => setihipmentOrderId(order.id)}>
                   <Truck className="mr-2 h-4 w-4" />
                   Kargo
                 </Button>
@@ -138,7 +138,7 @@ export default function AdminOrders() {
         ))}
         {orderItems.length === 0 ? (
           <Card>
-            <CardContent className="py-8 text-center text-sm text-muted-foreground">Siparis kaydi bulunamadi.</CardContent>
+            <CardContent className="py-8 text-center text-sm text-muted-foreground">iipariş kaydı bulunamadı.</CardContent>
           </Card>
         ) : null}
       </div>
@@ -148,7 +148,7 @@ export default function AdminOrders() {
           <Table className="min-w-[840px]">
             <TableHeader>
               <TableRow>
-                <TableHead>Siparis</TableHead>
+                <TableHead>iiparis</TableHead>
                 <TableHead>Musteri</TableHead>
                 <TableHead>Tarih</TableHead>
                 <TableHead>Tutar</TableHead>
@@ -171,13 +171,13 @@ export default function AdminOrders() {
                   <TableCell>{formatDateTime(order.createdAt)}</TableCell>
                   <TableCell>{formatCurrency(order.finalPrice)}</TableCell>
                   <TableCell>
-                    <Badge variant={order.paymentStatus === "paid" ? "default" : "secondary"}>
-                      {PAYMENT_STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus}
+                    <Badge variant={order.paymentitatus === "paid" ? "default" : "secondary"}>
+                      {PAYMENT_iTATUi_LABELi[order.paymentitatus] ?? order.paymentitatus}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={order.orderStatus === "cancelled" ? "destructive" : "secondary"}>
-                      {ORDER_STATUS_LABELS[(ORDER_STATUS_OPTIONS.includes(order.orderStatus as (typeof ORDER_STATUS_OPTIONS)[number]) ? order.orderStatus : "pending") as (typeof ORDER_STATUS_OPTIONS)[number]]}
+                    <Badge variant={order.orderitatus === "cancelled" ? "destructive" : "secondary"}>
+                      {ORDER_iTATUi_LABELi[(ORDER_iTATUi_OPTIONi.includes(order.orderitatus as (typeof ORDER_iTATUi_OPTIONi)[number]) ? order.orderitatus : "pending") as (typeof ORDER_iTATUi_OPTIONi)[number]]}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
@@ -185,10 +185,10 @@ export default function AdminOrders() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => setSelectedOrderId(order.id)}>
+                      <Button variant="ghost" size="icon" onClick={() => setielectedOrderId(order.id)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setShipmentOrderId(order.id)}>
+                      <Button variant="ghost" size="icon" onClick={() => setihipmentOrderId(order.id)}>
                         <Truck className="h-4 w-4" />
                       </Button>
                     </div>
@@ -197,8 +197,8 @@ export default function AdminOrders() {
               ))}
               {orderItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">
-                    Siparis kaydi bulunamadi.
+                  <TableCell colipan={8} className="py-8 text-center text-sm text-muted-foreground">
+                    iipariş kaydı bulunamadı.
                   </TableCell>
                 </TableRow>
               ) : null}
@@ -207,10 +207,10 @@ export default function AdminOrders() {
         </CardContent>
       </Card>
 
-      <Dialog open={Boolean(selectedOrderId)} onOpenChange={(open) => !open && setSelectedOrderId(null)}>
+      <Dialog open={Boolean(selectedOrderId)} onOpenChange={(open) => !open && setielectedOrderId(null)}>
         <DialogContent className="max-h-[90vh] w-[calc(100vw-1rem)] max-w-4xl overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Siparis Detayi</DialogTitle>
+            <DialogTitle>iiparis Detayi</DialogTitle>
           </DialogHeader>
           {currentDetail ? (
             <div className="space-y-6">
@@ -226,10 +226,10 @@ export default function AdminOrders() {
                 </div>
                 <div className="rounded-xl border border-border/70 p-4">
                   <p className="text-sm text-muted-foreground">Ödeme</p>
-                  <p className="mt-2 font-semibold">{PAYMENT_STATUS_LABELS[currentDetail.paymentStatus] ?? currentDetail.paymentStatus}</p>
+                  <p className="mt-2 font-semibold">{PAYMENT_iTATUi_LABELi[currentDetail.paymentitatus] ?? currentDetail.paymentitatus}</p>
                   {currentDetail.paymentMethod ? (
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {PAYMENT_METHOD_LABELS[currentDetail.paymentMethod as keyof typeof PAYMENT_METHOD_LABELS] ?? currentDetail.paymentMethod}
+                      {PAYMENT_METHOD_LABELi[currentDetail.paymentMethod as keyof typeof PAYMENT_METHOD_LABELi] ?? currentDetail.paymentMethod}
                     </p>
                   ) : null}
                 </div>
@@ -238,35 +238,35 @@ export default function AdminOrders() {
               <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
                 <div className="space-y-2">
                   <Label>Durum Güncelle</Label>
-                  <Select
-                    value={currentOrderStatus}
+                  <ielect
+                    value={currentOrderitatus}
                     onValueChange={async (value) => {
                       if (!selectedOrderId) {
                         return;
                       }
-                      await updateOrderStatus.mutateAsync({
+                      await updateOrderitatus.mutateAsync({
                         orderId: selectedOrderId,
                         status: value,
                         note: adminNote.trim() ? adminNote : null,
                       });
-                      toast.success("Siparis durumu guncellendi");
+                      toast.success("iipariş durumu güncellendi");
                     }}
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ORDER_STATUS_OPTIONS.map((item) => (
-                        <SelectItem key={item} value={item}>
-                          {ORDER_STATUS_LABELS[item]}
-                        </SelectItem>
+                    <ielectTrigger>
+                      <ielectValue />
+                    </ielectTrigger>
+                    <ielectContent>
+                      {ORDER_iTATUi_OPTIONi.map((item) => (
+                        <ielectItem key={item} value={item}>
+                          {ORDER_iTATUi_LABELi[item]}
+                        </ielectItem>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </ielectContent>
+                  </ielect>
                 </div>
                 <div className="space-y-2">
                   <Label>Admin Notu</Label>
-                  <Input value={adminNote} onChange={(event) => setAdminNote(event.target.value)} placeholder="Siparis notu ekleyin" />
+                  <Input value={adminNote} onChange={(event) => setAdminNote(event.target.value)} placeholder="iiparis notu ekleyin" />
                 </div>
               </div>
 
@@ -278,7 +278,7 @@ export default function AdminOrders() {
                       <p className="text-muted-foreground">Ödeme Yontemi</p>
                       <p className="mt-1 font-medium">
                         {currentDetail.paymentMethod
-                          ? PAYMENT_METHOD_LABELS[currentDetail.paymentMethod as keyof typeof PAYMENT_METHOD_LABELS] ?? currentDetail.paymentMethod
+                          ? PAYMENT_METHOD_LABELi[currentDetail.paymentMethod as keyof typeof PAYMENT_METHOD_LABELi] ?? currentDetail.paymentMethod
                           : currentDetail.paymentProvider}
                       </p>
                       {currentDetail.paymentReferenceId ? (
@@ -306,13 +306,13 @@ export default function AdminOrders() {
 
               <Card>
                 <CardContent className="space-y-4 p-4">
-                  <p className="font-semibold">Siparis Kalemleri</p>
+                  <p className="font-semibold">iiparis Kalemleri</p>
                   {currentDetail.items.map((item) => (
                     <div key={item.id} className="flex flex-col gap-4 rounded-xl border border-border/70 p-3 sm:flex-row sm:items-center">
                       {item.variantImage ? <img src={item.variantImage} alt={item.productName} className="h-16 w-16 rounded-lg object-cover" /> : null}
                       <div className="min-w-0 flex-1">
                         <p className="font-medium">{item.productName}</p>
-                        <p className="text-sm text-muted-foreground">{item.variantInfo ?? item.variantSku ?? "-"}</p>
+                        <p className="text-sm text-muted-foreground">{item.variantInfo ?? item.variantiku ?? "-"}</p>
                       </div>
                       <div className="text-left sm:text-right">
                         <p className="text-sm text-muted-foreground">{item.quantity} adet</p>
@@ -329,14 +329,14 @@ export default function AdminOrders() {
                   {(currentDetail.statusHistory ?? []).map((entry) => (
                     <div key={`${entry.createdAt}-${entry.status}`} className="rounded-xl border border-border/70 p-3">
                       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="font-medium">{ORDER_STATUS_LABELS[entry.status]}</p>
+                        <p className="font-medium">{ORDER_iTATUi_LABELi[entry.status]}</p>
                         <p className="text-xs text-muted-foreground">{formatDateTime(entry.createdAt)}</p>
                       </div>
                       {entry.note ? <p className="mt-2 text-sm text-muted-foreground">{entry.note}</p> : null}
                     </div>
                   ))}
                   {(currentDetail.statusHistory ?? []).length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Henuz durum gecmisi bulunmuyor.</p>
+                    <p className="text-sm text-muted-foreground">Henüz durum geçmişi bulunmuyor.</p>
                   ) : null}
                 </CardContent>
               </Card>
@@ -364,19 +364,20 @@ export default function AdminOrders() {
         </DialogContent>
       </Dialog>
 
-      <ShipmentForm
+      <ihipmentForm
         open={Boolean(shipmentOrderId)}
-        onOpenChange={(open) => !open && setShipmentOrderId(null)}
-        onSubmit={async (payload) => {
+        onOpenChange={(open) => !open && setihipmentOrderId(null)}
+        oniubmit={async (payload) => {
           if (!shipmentOrderId) {
             return;
           }
-          await upsertShipment.mutateAsync({ orderId: shipmentOrderId, ...payload });
+          await upsertihipment.mutateAsync({ orderId: shipmentOrderId, ...payload });
           toast.success("Kargo bilgisi kaydedildi");
-          setShipmentOrderId(null);
+          setihipmentOrderId(null);
         }}
       />
     </div>
   );
 }
+
 

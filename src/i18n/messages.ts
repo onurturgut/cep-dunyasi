@@ -1,4 +1,4 @@
-﻿export type LocaleMessages = {
+export type LocaleMessages = {
   common: {
     language: string;
     locales: {
@@ -111,7 +111,7 @@ export const trMessages: LocaleMessages = {
     },
   },
   header: {
-    brandAlt: "Cep Dunyasi",
+    brandAlt: "Cep Dünyası",
     mobileNavLinks: [
       { label: "Ana Sayfa", href: "/" },
       { label: "Telefonlar", href: "/products?category=telefon" },
@@ -140,8 +140,8 @@ export const trMessages: LocaleMessages = {
     },
   },
   footer: {
-    brandName: "Cep Dunyasi",
-    description: "Premium telefonlar, aksesuarlar ve teknik servis cozumleriyle her ekranda hizli ve guvenilir alisveris deneyimi.",
+    brandName: "Cep Dünyası",
+    description: "Premium telefonlar, aksesuarlar ve teknik servis çözümleriyle her ekranda hızlı ve güvenilir alışveriş deneyimi.",
     sections: {
       categories: "Kategoriler",
       services: "Hizmetler",
@@ -157,43 +157,43 @@ export const trMessages: LocaleMessages = {
       powerBanks: "Power Bank",
       technicalService: "Teknik Servis",
       createAccount: "Hesap Olustur",
-      about: "Hakkimizda",
-      contact: "Iletisim",
-      faq: "Sik Sorulan Sorular",
+      about: "Hakkımızda",
+      contact: "İletişim",
+      faq: "Sık Sorulan Sorular",
       kvkk: "KVKK",
-      privacy: "Gizlilik Politikasi",
-      distanceSales: "Mesafeli Satis Sozlesmesi",
-      returnPolicy: "İade ve Değişim Politikasi",
+      privacy: "Gizlilik Politikası",
+      distanceSales: "Mesafeli Satış Sözleşmesi",
+      returnPolicy: "İade ve Değişim Politikası",
       deliveryTerms: "Teslimat Koşulları",
     },
     contact: {
       viewLocation: "Konumu Gör",
-      rightsReserved: "Tum haklari saklidir.",
+      rightsReserved: "Tüm hakları saklıdır.",
     },
   },
   account: {
     nav: {
       profile: "Profil Bilgileri",
       addresses: "Adreslerim",
-      orders: "Siparislerim",
+      orders: "Siparişlerim",
       favorites: "Favorilerim",
       returns: "İade / Değişim",
       technicalService: "Teknik Servis",
-      security: "Guvenlik",
+      security: "Güvenlik",
     },
-    mobileNavPlaceholder: "Hesap bolumu secin",
+    mobileNavPlaceholder: "Hesap bölümü seçin",
     technicalService: {
-      title: "Teknik Servis Gecmisim",
-      description: "Başvurularinizin durumlarini, servis notlarini ve onceki kayitlarinizi buradan takip edin.",
+      title: "Teknik Servis Geçmişim",
+      description: "Başvurularınızın durumlarını, servis notlarını ve önceki kayıtlarınızı buradan takip edin.",
       newRequest: "Yeni Başvuru",
-      loadError: "Servis gecmisi yuklenemedi",
-      emptyTitle: "Henuz teknik servis kaydiniz yok",
-      emptyDescription: "Olusturdugunuz teknik servis basvurulari ve durum guncellemeleri burada listelenecek.",
+      loadError: "Servis geçmişi yüklenemedi",
+      emptyTitle: "Henüz teknik servis kaydınız yok",
+      emptyDescription: "Oluşturduğunuz teknik servis başvuruları ve durum güncellemeleri burada listelenecek.",
       requestCard: {
-        recordLabel: "Servis Kaydi",
-        issueSummary: "Ariza Ozeti",
+        recordLabel: "Servis Kaydı",
+        issueSummary: "Arıza Özeti",
         image: "Görsel",
-        uploaded: "Yuklendi",
+        uploaded: "Yüklendi",
         none: "Yok",
         serviceNote: "Servis Notu",
         available: "Mevcut",
@@ -201,16 +201,16 @@ export const trMessages: LocaleMessages = {
         latestNote: "Son Not",
       },
       statuses: {
-        new: "Alindi",
-        reviewing: "Inceleniyor",
+        new: "Alındı",
+        reviewing: "İnceleniyor",
         repairing: "Tamirde",
-        ready: "Hazir",
+        ready: "Hazır",
         delivered: "Teslim Edildi",
       },
     },
   },
   notFound: {
-    title: "Sayfa bulunamadi",
+    title: "Sayfa bulunamadı",
     backHome: "Ana sayfaya don",
   },
 };
@@ -224,7 +224,7 @@ export const enMessages: LocaleMessages = {
     },
   },
   header: {
-    brandAlt: "Cep Dunyasi",
+    brandAlt: "Cep Dünyası",
     mobileNavLinks: [
       { label: "Home", href: "/" },
       { label: "Phones", href: "/products?category=telefon" },
@@ -253,7 +253,7 @@ export const enMessages: LocaleMessages = {
     },
   },
   footer: {
-    brandName: "Cep Dunyasi",
+    brandName: "Cep Dünyası",
     description: "A fast and reliable shopping experience for premium phones, accessories, and technical service solutions.",
     sections: {
       categories: "Categories",

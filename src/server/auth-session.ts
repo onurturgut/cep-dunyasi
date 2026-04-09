@@ -5,6 +5,7 @@ import { hasAdminAccess, hasPermission as userHasPermission, type AdminPermissio
 export type SessionUser = {
   id: string;
   email: string;
+  email_verified?: boolean;
   full_name?: string;
   first_name?: string;
   last_name?: string;
@@ -128,7 +129,7 @@ export function getSessionUserFromRequest(request: Request) {
   return verifySessionToken(token);
 }
 
-export function setSessionCookie(response: Response, user: SessionUser) {
+export function setSessionCookie(response: Response, user: SessionUser, options?: { rememberMe?: boolean }) {
   const token = createSessionToken(user);
   const secure = process.env.NODE_ENV === "production";
   const cookieParts = [
@@ -136,8 +137,11 @@ export function setSessionCookie(response: Response, user: SessionUser) {
     "Path=/",
     "HttpOnly",
     "SameSite=Lax",
-    `Max-Age=${SESSION_TTL_SECONDS}`,
   ];
+
+  if (options?.rememberMe !== false) {
+    cookieParts.push(`Max-Age=${SESSION_TTL_SECONDS}`);
+  }
 
   if (secure) {
     cookieParts.push("Secure");

@@ -115,7 +115,7 @@ export default function AdminUsers() {
         ))}
         {users.length === 0 ? (
           <Card>
-            <CardContent className="py-8 text-center text-sm text-muted-foreground">Kullanici bulunamadi.</CardContent>
+            <CardContent className="py-8 text-center text-sm text-muted-foreground">Kullanıcı bulunamadı.</CardContent>
           </Card>
         ) : null}
       </div>
@@ -179,7 +179,7 @@ export default function AdminUsers() {
               {users.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
-                    Kullanici bulunamadi.
+                    Kullanıcı bulunamadı.
                   </TableCell>
                 </TableRow>
               ) : null}
@@ -257,7 +257,7 @@ export default function AdminUsers() {
               <div className="flex flex-col gap-4 rounded-xl border border-border/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-medium">Hesap Durumu</p>
-                  <p className="text-sm text-muted-foreground">Pasif hesaplar giris yapamaz ve admin alanina erisemez.</p>
+                  <p className="text-sm text-muted-foreground">Pasif hesaplar giriş yapamaz ve admin alanına erişemez.</p>
                 </div>
                 <Switch
                   checked={editingUser.isActive}
@@ -276,7 +276,7 @@ export default function AdminUsers() {
                     permissions: editingUser.permissions,
                     isActive: editingUser.isActive,
                   });
-                  toast.success("Kullanici yetkileri guncellendi");
+                  toast.success("Kullanıcı yetkileri güncellendi");
                   setEditingUser(null);
                 }}
               >
@@ -289,4 +289,5 @@ export default function AdminUsers() {
     </div>
   );
 }
+
 

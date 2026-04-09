@@ -1,5 +1,6 @@
 import type { BillingInfoInput, CheckoutNotificationEvent } from "@/lib/checkout";
 import { Notification } from "@/server/models";
+import { isSmtpEmailConfigured, sendSmtpEmail } from "@/server/services/smtp-email";
 
 type NotificationChannel = "email" | "sms";
 
@@ -81,34 +82,23 @@ export function buildShipmentMessage(company?: string | null, trackingNumber?: s
 }
 
 async function sendEmailNotification(subject: string, message: string, recipient: string) {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const resendFromEmail = process.env.RESEND_FROM_EMAIL;
-
-  if (!resendApiKey || !resendFromEmail) {
+  if (!isSmtpEmailConfigured()) {
     return {
       status: "skipped" as const,
       summary: { reason: "email_provider_not_configured" },
     };
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: resendFromEmail,
-      to: [recipient],
-      subject,
-      text: message,
-      html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827"><p>${message}</p></div>`,
-    }),
+  await sendSmtpEmail({
+    to: recipient,
+    subject,
+    text: message,
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827"><p>${message}</p></div>`,
   });
 
-  const payload = (await response.json().catch(() => null)) as Record<string, unknown> | null;
+  const payload = { provider: "smtp" } as Record<string, unknown>;
 
-  if (!response.ok) {
+  if (!payload) {
     throw new Error(`${payload?.message ?? "E-posta gönderilemedi"}`);
   }
 

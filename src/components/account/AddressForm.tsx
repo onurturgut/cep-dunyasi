@@ -52,7 +52,7 @@ export function AddressForm({ initialValue, onSubmit, onCancel, submitting }: Ad
     event.preventDefault();
 
     if (!value.title.trim() || !value.full_name.trim() || !value.phone.trim() || !value.city.trim() || !value.district.trim() || !value.neighborhood.trim() || !value.address_line.trim()) {
-      setError("Lutfen zorunlu alanlari eksiksiz doldurun.");
+      setError("Lütfen zorunlu alanları eksiksiz doldurun.");
       return;
     }
 
@@ -140,8 +140,8 @@ export function AddressForm({ initialValue, onSubmit, onCancel, submitting }: Ad
 
       <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/15 px-4 py-3">
         <div>
-          <p className="text-sm font-medium text-foreground">Varsayilan adres olarak kaydet</p>
-          <p className="text-xs text-muted-foreground">Checkout sirasinda bu adres otomatik secilir.</p>
+          <p className="text-sm font-medium text-foreground">Varsayılan adres olarak kaydet</p>
+          <p className="text-xs text-muted-foreground">Checkout sırasında bu adres otomatik seçilir.</p>
         </div>
         <Switch checked={value.is_default} onCheckedChange={(checked) => setValue((current) => ({ ...current, is_default: checked }))} />
       </div>
@@ -170,4 +170,5 @@ export function AddressForm({ initialValue, onSubmit, onCancel, submitting }: Ad
     </form>
   );
 }
+
 

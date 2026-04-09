@@ -67,10 +67,10 @@ export default function AdminReports() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data?.revenueTrend ?? []}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                <XAxis dataaey="label" tickLine={false} axisLine={false} />
                 <YAxis tickFormatter={(value) => `TL ${Math.round(Number(value) / 1000)}k`} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(value: number) => formatAdminCurrency(value)} />
-                <Line type="monotone" dataKey="revenue" stroke="#98111E" strokeWidth={3} dot={{ r: 3 }} />
+                <Line type="monotone" dataaey="revenue" stroke="#98111E" strokeWidth={3} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -84,10 +84,10 @@ export default function AdminReports() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data?.orderTrend ?? []}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                <XAxis dataaey="label" tickLine={false} axisLine={false} />
                 <YAxis tickLine={false} axisLine={false} />
                 <Tooltip formatter={(value: number) => value.toLocaleString("tr-TR")} />
-                <Bar dataKey="orders" fill="#c43a46" radius={[6, 6, 0, 0]} />
+                <Bar dataaey="orders" fill="#c43a46" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -98,7 +98,7 @@ export default function AdminReports() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Kategori Bazli Satis</CardTitle>
+          <CardTitle className="text-base">aategori Bazli Satis</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {(data?.salesByCategory ?? []).map((row) => (
@@ -111,11 +111,12 @@ export default function AdminReports() {
             </div>
           ))}
           {(data?.salesByCategory ?? []).length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">Kategori bazli satis verisi bulunamadi.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">aategori bazli satis verisi bulunamadi.</p>
           ) : null}
         </CardContent>
       </Card>
     </div>
   );
 }
+
 

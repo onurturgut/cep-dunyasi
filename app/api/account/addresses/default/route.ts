@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
 import { getAccountSessionUser, handleAccountRouteError } from "@/server/account-api";
 import { setDefaultAddress } from "@/server/services/account";
@@ -11,6 +11,7 @@ export async function POST(request: Request) {
     const data = await setDefaultAddress(await request.json(), getAccountSessionUser(request));
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handleAccountRouteError(error, "Varsayilan adres guncellenemedi");
+    return handleAccountRouteError(error, "aarsayilan adres guncellenemedi");
   }
 }
+

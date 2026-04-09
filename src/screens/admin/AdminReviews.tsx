@@ -60,12 +60,12 @@ export default function AdminReviews() {
   const handleApprove = async (reviewId: string, isApproved = true) => {
     try {
       await approveReview.mutateAsync({ reviewId, isApproved });
-      toast.success(isApproved ? "Yorum onaylandi" : "Yorum yayindan kaldirildi");
+      toast.success(isApproved ? "Yorum onaylandı" : "Yorum yayından kaldırıldı");
       if (selectedReview?.id === reviewId) {
         setSelectedReview((current) => (current ? { ...current, is_approved: isApproved } : current));
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Yorum durumu guncellenemedi");
+      toast.error(error instanceof Error ? error.message : "Yorum durumu güncellenemedi");
     }
   };
 
@@ -261,7 +261,7 @@ export default function AdminReviews() {
             {!reviewsQuery.isLoading && reviews.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
-                  Filtrelere uygun yorum bulunamadi.
+                  Filtrelere uygun yorum bulunamadı.
                 </TableCell>
               </TableRow>
             ) : null}
@@ -374,4 +374,5 @@ export default function AdminReviews() {
     </div>
   );
 }
+
 

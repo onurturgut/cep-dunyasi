@@ -85,7 +85,7 @@ export default function AdminCategories() {
       const data = await requestJson<AdminCategoryRecord[]>("/api/admin/categories");
       setCategories(data);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Kategoriler yuklenemedi");
+      toast.error(error instanceof Error ? error.message : "Kategoriler yüklenemedi");
     }
   };
 
@@ -176,7 +176,7 @@ export default function AdminCategories() {
     const payload = await response.json();
 
     if (!response.ok || payload?.error) {
-      throw new Error(payload?.error?.message || "Görsel yuklenemedi");
+      throw new Error(payload?.error?.message || "Görsel yüklenemedi");
     }
 
     const url = payload?.data?.url;
@@ -216,7 +216,7 @@ export default function AdminCategories() {
     }
 
     if (!slug) {
-      toast.error("Kategori icin gecerli bir slug olusturulamadi");
+      toast.error("Kategori için geçerli bir slug oluşturulamadı");
       return;
     }
 
@@ -224,7 +224,7 @@ export default function AdminCategories() {
       const parentCategory = categoryById.get(form.parent_category_id);
 
       if (!parentCategory) {
-        toast.error("Secilen ana kategori bulunamadi");
+        toast.error("Seçilen ana kategori bulunamadı");
         return;
       }
 
@@ -262,7 +262,7 @@ export default function AdminCategories() {
           toast.error(error instanceof Error ? error.message : "Eski kategori görseli silinemedi");
         }
       }
-      toast.success("Kategori guncellendi");
+      toast.success("Kategori güncellendi");
     } else {
       await requestJson<AdminCategoryRecord[]>("/api/admin/categories", {
         method: "POST",
@@ -364,7 +364,7 @@ export default function AdminCategories() {
                   spellCheck={false}
                   inputMode="url"
                 />
-                <p className="text-xs text-muted-foreground">Bosluk, buyuk harf ve Turkce karakterler otomatik duzeltilir.</p>
+                <p className="text-xs text-muted-foreground">Boşluk, büyük harf ve Türkçe karakterler otomatik düzeltilir.</p>
               </div>
 
               <div className="space-y-2">
@@ -389,7 +389,7 @@ export default function AdminCategories() {
                 <p className="text-xs text-muted-foreground">
                   {editingHasChildCategories
                     ? "Bu kategorinin alt kategorileri oldugu icin ana kategoriye baglanamaz."
-                    : "Alt kategori olusturmak icin buradan bagli olacagi ana kategoriyi secin."}
+                    : "Alt kategori oluşturmak için buradan bağlı olacağı ana kategoriyi seçin."}
                 </p>
               </div>
 
@@ -524,4 +524,5 @@ export default function AdminCategories() {
     </div>
   );
 }
+
 

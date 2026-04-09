@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -39,7 +39,7 @@ export function TopSellingProductsTable({
               </div>
             </div>
           ))}
-          {items.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">Satis verisi bulunamadi.</p> : null}
+          {items.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">Satış verisi bulunamadı.</p> : null}
         </div>
 
         <div className="hidden md:block">
@@ -66,7 +66,7 @@ export function TopSellingProductsTable({
               {items.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
-                    Satis verisi bulunamadi.
+                    Satış verisi bulunamadı.
                   </TableCell>
                 </TableRow>
               ) : null}
@@ -77,4 +77,3 @@ export function TopSellingProductsTable({
     </Card>
   );
 }
-

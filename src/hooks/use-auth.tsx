@@ -1,15 +1,17 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { db } from '@/integrations/mongo/client';
 import { hasAdminAccess } from '@/lib/admin';
-import type { AuthSession, AuthUser } from '@/types/auth';
+import type { AuthSession, AuthSignUpResult, AuthUser } from '@/types/auth';
 
 interface AuthContextType {
   user: AuthUser | null;
   session: AuthSession | null;
   isAdmin: boolean;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, referralCode?: string | null) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, referralCode?: string | null) => Promise<{ data: AuthSignUpResult; error: any }>;
+  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: any }>;
+  verifyEmail: (email: string, code: string) => Promise<{ data: any; error: any }>;
+  resendVerification: (email: string) => Promise<{ data: any; error: any }>;
   signOut: () => Promise<void>;
 } 
 
@@ -50,20 +52,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, referralCode?: string | null) => {
-    const { error } = await db.auth.signUp({
+    return db.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName, referral_code: referralCode ?? undefined },
       },
     });
+  };
 
+  const signIn = async (email: string, password: string, rememberMe = true) => {
+    const { error } = await db.auth.signInWithPassword({ email, password, rememberMe });
     return { error };
   };
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await db.auth.signInWithPassword({ email, password });
-    return { error };
+  const verifyEmail = async (email: string, code: string) => {
+    return db.auth.verifyEmail({ email, code });
+  };
+
+  const resendVerification = async (email: string) => {
+    return db.auth.resendVerification({ email });
   };
 
   const signOut = async () => {
@@ -73,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAdmin(false);
   };
 
-  return <AuthContext.Provider value={{ user, session, isAdmin, loading, signUp, signIn, signOut }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, session, isAdmin, loading, signUp, signIn, verifyEmail, resendVerification, signOut }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

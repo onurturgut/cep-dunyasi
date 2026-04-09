@@ -12,6 +12,6 @@ export async function GET(request: Request) {
     const data = await listMyTechnicalServiceRequests(getAccountSessionUser(request));
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handleAccountRouteError(error, "Teknik servis kayitlari getirilemedi");
+    return handleAccountRouteError(error, "Teknik servis kayıtları getirilemedi");
   }
 }

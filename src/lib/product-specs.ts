@@ -6,6 +6,22 @@ export type ProductSpecs = {
   ram?: string | null;
   frontCamera?: string | null;
   rearCamera?: string | null;
+  screenSize?: string | null;
+  displayTechnology?: string | null;
+  refreshRate?: string | null;
+  resolution?: string | null;
+  processor?: string | null;
+  batteryCapacity?: string | null;
+  fastCharging?: string | null;
+  wirelessCharging?: string | null;
+  network5g?: string | null;
+  nfc?: string | null;
+  esim?: string | null;
+  dualSim?: string | null;
+  bluetooth?: string | null;
+  wifi?: string | null;
+  waterResistance?: string | null;
+  biometricSecurity?: string | null;
 };
 
 type ProductSpecsLike = Partial<ProductSpecs> & Record<string, unknown>;
@@ -121,6 +137,64 @@ export function normalizeProductSpecs(raw: unknown): ProductSpecs {
       normalizeText(specs.rear_camera) ||
       normalizeText(specs.mainCamera) ||
       null,
+    screenSize:
+      normalizeText(specs.screenSize) ||
+      normalizeText(specs.screen_size) ||
+      normalizeText(specs.displaySize) ||
+      null,
+    displayTechnology:
+      normalizeText(specs.displayTechnology) ||
+      normalizeText(specs.display_technology) ||
+      normalizeText(specs.displayType) ||
+      normalizeText(specs.screenTechnology) ||
+      null,
+    refreshRate:
+      normalizeText(specs.refreshRate) ||
+      normalizeText(specs.refresh_rate) ||
+      normalizeText(specs.screenRefreshRate) ||
+      null,
+    resolution: normalizeText(specs.resolution) || normalizeText(specs.screenResolution) || null,
+    processor:
+      normalizeText(specs.processor) ||
+      normalizeText(specs.chipset) ||
+      normalizeText(specs.cpu) ||
+      null,
+    batteryCapacity:
+      normalizeText(specs.batteryCapacity) ||
+      normalizeText(specs.battery_capacity) ||
+      normalizeText(specs.battery) ||
+      null,
+    fastCharging:
+      normalizeText(specs.fastCharging) ||
+      normalizeText(specs.fast_charging) ||
+      null,
+    wirelessCharging:
+      normalizeText(specs.wirelessCharging) ||
+      normalizeText(specs.wireless_charging) ||
+      null,
+    network5g:
+      normalizeText(specs.network5g) ||
+      normalizeText(specs.network_5g) ||
+      normalizeText(specs.fiveG) ||
+      null,
+    nfc: normalizeText(specs.nfc) || null,
+    esim: normalizeText(specs.esim) || normalizeText(specs.e_sim) || null,
+    dualSim:
+      normalizeText(specs.dualSim) ||
+      normalizeText(specs.dual_sim) ||
+      null,
+    bluetooth: normalizeText(specs.bluetooth) || null,
+    wifi: normalizeText(specs.wifi) || normalizeText(specs.wi_fi) || null,
+    waterResistance:
+      normalizeText(specs.waterResistance) ||
+      normalizeText(specs.water_resistance) ||
+      normalizeText(specs.ipRating) ||
+      null,
+    biometricSecurity:
+      normalizeText(specs.biometricSecurity) ||
+      normalizeText(specs.biometric_security) ||
+      normalizeText(specs.security) ||
+      null,
   };
 }
 
@@ -134,6 +208,8 @@ export function getProductSpecsEntries(raw: unknown, variant?: ProductVariantRec
     { key: "ram", label: "RAM Kapasitesi", value: ram || "" },
     { key: "frontCamera", label: "Ön Kamera", value: specs.frontCamera || "" },
     { key: "rearCamera", label: "Arka Kamera", value: specs.rearCamera || "" },
+    { key: "screenSize", label: "Ekran Boyutu", value: specs.screenSize || "" },
+    { key: "processor", label: "İşlemci", value: specs.processor || "" },
   ];
 
   return entries.filter((entry) => entry.value);
@@ -155,6 +231,7 @@ function buildPhoneSections(raw: ProductSpecsLike, variant: ProductVariantRecord
         createSpecsTableItem("SKU", context?.sku || variant?.sku),
         createSpecsTableItem("Renk", context?.color || variant?.color_name),
         createSpecsTableItem("İşletim Sistemi", specs.operatingSystem),
+        createSpecsTableItem("İşlemci", specs.processor),
       ].filter(Boolean) as ProductSpecsTableItem[],
     },
     {
@@ -166,11 +243,50 @@ function buildPhoneSections(raw: ProductSpecsLike, variant: ProductVariantRecord
       ].filter(Boolean) as ProductSpecsTableItem[],
     },
     {
+      id: "ekran",
+      title: "Ekran",
+      items: [
+        createSpecsTableItem("Ekran Boyutu", specs.screenSize),
+        createSpecsTableItem("Ekran Teknolojisi", specs.displayTechnology),
+        createSpecsTableItem("Yenileme Hızı", specs.refreshRate),
+        createSpecsTableItem("Çözünürlük", specs.resolution),
+      ].filter(Boolean) as ProductSpecsTableItem[],
+    },
+    {
       id: "kamera",
       title: "Kamera",
       items: [
         createSpecsTableItem("Ön Kamera", specs.frontCamera),
         createSpecsTableItem("Arka Kamera", specs.rearCamera),
+      ].filter(Boolean) as ProductSpecsTableItem[],
+    },
+    {
+      id: "batarya",
+      title: "Batarya ve Şarj",
+      items: [
+        createSpecsTableItem("Batarya Kapasitesi", specs.batteryCapacity),
+        createSpecsTableItem("Hızlı Şarj", specs.fastCharging),
+        createSpecsTableItem("Kablosuz Şarj", specs.wirelessCharging),
+      ].filter(Boolean) as ProductSpecsTableItem[],
+    },
+    {
+      id: "baglanti",
+      title: "Bağlantı",
+      items: [
+        createSpecsTableItem("5G", specs.network5g),
+        createSpecsTableItem("NFC", specs.nfc),
+        createSpecsTableItem("eSIM", specs.esim),
+        createSpecsTableItem("Çift Hat", specs.dualSim),
+        createSpecsTableItem("Bluetooth", specs.bluetooth),
+        createSpecsTableItem("Wi‑Fi", specs.wifi),
+      ].filter(Boolean) as ProductSpecsTableItem[],
+    },
+    {
+      id: "dayaniklilik",
+      title: "Dayanıklılık ve Güvenlik",
+      items: [
+        createSpecsTableItem("Suya Dayanıklılık", specs.waterResistance),
+        createSpecsTableItem("Biyometrik Güvenlik", specs.biometricSecurity),
       ].filter(Boolean) as ProductSpecsTableItem[],
     },
   ];
@@ -284,7 +400,7 @@ function buildFallbackSections(raw: ProductSpecsLike, variant: ProductVariantRec
   const genericEntries = Object.entries(raw)
     .filter(([key, value]) => {
       const normalizedKey = normalizeKey(key);
-      if (["operatingsystem", "operating_system", "os", "internalstorage", "internal_storage", "storage", "ram", "memory", "frontcamera", "front_camera", "selfiecamera", "rearcamera", "rear_camera", "maincamera"].includes(normalizedKey)) {
+      if (["operatingsystem", "operating_system", "os", "internalstorage", "internal_storage", "storage", "ram", "memory", "frontcamera", "front_camera", "selfiecamera", "rearcamera", "rear_camera", "maincamera", "screensize", "screen_size", "displaysize", "displaytechnology", "display_technology", "displaytype", "screentechnology", "refreshrate", "refresh_rate", "screenrefreshrate", "resolution", "screenresolution", "processor", "chipset", "cpu", "batterycapacity", "battery_capacity", "battery", "fastcharging", "fast_charging", "wirelesscharging", "wireless_charging", "network5g", "network_5g", "fiveg", "nfc", "esim", "e_sim", "dualsim", "dual_sim", "bluetooth", "wifi", "wi_fi", "waterresistance", "water_resistance", "iprating", "biometricsecurity", "biometric_security", "security"].includes(normalizedKey)) {
         return false;
       }
 

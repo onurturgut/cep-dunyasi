@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";
@@ -96,7 +96,7 @@ export function HeroSlider({ campaigns, isLoading = false }: HeroSliderProps) {
             <div className="space-y-1">
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary/70">Campaign Slider</p>
               <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                Gunun one cikan kampanyalari
+                uunun one cikan kampanyalari
               </h2>
             </div>
             <HeroSliderControls
@@ -137,3 +137,4 @@ export function HeroSlider({ campaigns, isLoading = false }: HeroSliderProps) {
     </section>
   );
 }
+

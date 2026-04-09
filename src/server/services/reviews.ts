@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 import { deleteFromR2ByUrl } from "@/server/storage/r2";
 import type { SessionUser } from "@/server/auth-session";
 import { Order, OrderItem, Product, ProductReview, ProductVariant, User } from "@/server/models";
@@ -26,7 +26,7 @@ const createReviewSchema = z.object({
       return normalized || null;
     })
     .pipe(z.string().max(120).nullable()),
-  comment: z.string().trim().min(5, "Yorum en az 5 karakter olmali").max(2000, "Yorum cok uzun"),
+  comment: z.string().trim().min(5, "Yorum en az 5 karakter olmalı").max(2000, "Yorum çok uzun"),
   images: z.array(z.string().trim().min(1)).max(4, "En fazla 4 görsel yukleyebilirsiniz").default([]),
 });
 
@@ -134,7 +134,7 @@ function escapeRegex(value: string) {
 
 function ensureAuthenticatedUser(sessionUser: SessionUser | null) {
   if (!sessionUser?.id) {
-    throw new Error("Yorum yapmak icin giris yapmaniz gerekiyor");
+    throw new Error("Yorum yapmak için giriş yapmanız gerekiyor");
   }
 }
 
@@ -356,7 +356,7 @@ export async function createReview(input: CreateReviewInput, sessionUser: Sessio
   ).lean()) as RawProductRecord | null;
 
   if (!product) {
-    throw new Error("Yorum yapilacak urun bulunamadi");
+    throw new Error("Yorum yapılacak ürün bulunamadı");
   }
 
   const existingReview = await ProductReview.findOne({
@@ -365,7 +365,7 @@ export async function createReview(input: CreateReviewInput, sessionUser: Sessio
   }).lean();
 
   if (existingReview) {
-    throw new Error("Bu urun icin zaten yorum biraktiniz");
+    throw new Error("Bu ürün için zaten yorum bıraktınız");
   }
 
   const reviewEligibility = await resolveReviewEligibility(sessionUser.id, payload.productId);
@@ -374,7 +374,7 @@ export async function createReview(input: CreateReviewInput, sessionUser: Sessio
       throw new Error("Yorum birakmak icin siparisinizin teslim edilmis olmasi gerekiyor");
     }
 
-    throw new Error("Yorum birakmak icin once bu urunu satin alip teslim almaniz gerekiyor");
+    throw new Error("Yorum bırakmak için önce bu ürünü satın alıp teslim almanız gerekiyor");
   }
   const now = new Date();
 
@@ -399,13 +399,13 @@ export async function createReview(input: CreateReviewInput, sessionUser: Sessio
 
     return {
       review: hydrated,
-      moderationMessage: "Yorumunuz inceleme sonrasi yayinlanacaktir",
+      moderationMessage: "Yorumunuz inceleme sonrası yayınlanacaktır",
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Yorum kaydedilemedi";
 
     if (message.includes("duplicate key")) {
-      throw new Error("Bu urun icin zaten yorum biraktiniz");
+      throw new Error("Bu ürün için zaten yorum bıraktınız");
     }
 
     throw error;
@@ -416,7 +416,7 @@ export async function listReviews(input: ListReviewsInput, sessionUser?: Session
   const params = listReviewsSchema.parse(input);
 
   if (!params.admin && !params.productId) {
-    throw new Error("Yorumlari listelemek icin urun secmelisiniz");
+    throw new Error("Yorumları listelemek için ürün seçmelisiniz");
   }
 
   const query: Record<string, unknown> = {};
@@ -553,7 +553,7 @@ export async function approveReview(input: ApproveReviewInput) {
     | null;
 
   if (!review) {
-    throw new Error("Yorum bulunamadi");
+    throw new Error("Yorum bulunamadı");
   }
 
   await ProductReview.updateOne(
@@ -581,7 +581,7 @@ export async function deleteReview(input: DeleteReviewInput) {
   const review = (await ProductReview.findOne({ id: payload.reviewId }).lean()) as RawReviewRecord | null;
 
   if (!review) {
-    throw new Error("Yorum bulunamadi");
+    throw new Error("Yorum bulunamadı");
   }
 
   await ProductReview.deleteOne({ id: payload.reviewId });
@@ -623,7 +623,7 @@ export async function replyToReview(input: ReplyToReviewInput) {
     | null;
 
   if (!review) {
-    throw new Error("Yorum bulunamadi");
+    throw new Error("Yorum bulunamadı");
   }
 
   const now = new Date();
@@ -659,4 +659,5 @@ export async function replyToReview(input: ReplyToReviewInput) {
 }
 
 export type { AdminReviewStatus, ReviewSort };
+
 

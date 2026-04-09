@@ -1,25 +1,24 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { connectToDatabase } from "@/server/mongodb";
 import { User } from "@/server/models";
-import { setSessionCookie } from "@/server/auth-session";
 import { ensureUserMarketingProfile, registerReferralForNewUser } from "@/server/services/marketing";
+import {
+  isVerificationEmailConfigured,
+} from "@/server/services/auth-verification";
 
 export const runtime = "nodejs";
 
-function sanitizeUser(user: any) {
-  return {
-    id: user.id,
-    email: user.email,
-    full_name: user.full_name,
-    first_name: user.first_name ?? "",
-    last_name: user.last_name ?? "",
-    phone: user.phone ?? "",
-    roles: user.roles ?? [],
-    permissions: user.permissions ?? [],
-    is_active: user.is_active !== false,
-  };
-}
+const signUpSchema = z.object({
+  email: z.string().trim().email("Gecerli bir e-posta adresi girin"),
+  password: z
+    .string()
+    .min(8, "Sifre en az 8 karakter olmali")
+    .max(72, "Sifre en fazla 72 karakter olabilir"),
+  fullName: z.string().trim().min(2, "Ad soyad zorunludur").max(120, "Ad soyad en fazla 120 karakter olabilir"),
+  referralCode: z.string().trim().max(64).optional().nullable(),
+});
 
 function splitFullName(fullName: string) {
   const pieces = fullName.trim().split(/\s+/).filter(Boolean);
@@ -32,46 +31,73 @@ function splitFullName(fullName: string) {
 
 export async function POST(request: Request) {
   try {
-    const { email, password, fullName, referralCode } = await request.json();
+    if (!isVerificationEmailConfigured()) {
+      return NextResponse.json(
+        { error: { message: "Doğrulama e-postası servisi şu anda hazır değil. Lütfen daha sonra tekrar deneyin." } },
+        { status: 503 }
+      );
+    }
 
-    if (!email || !password) {
-      return NextResponse.json({ error: { message: "Email ve şifre zorunludur" } }, { status: 400 });
+    const payload = signUpSchema.safeParse(await request.json());
+
+    if (!payload.success) {
+      return NextResponse.json(
+        { error: { message: payload.error.issues[0]?.message ?? "Kayıt bilgileri geçersiz" } },
+        { status: 400 }
+      );
     }
 
     await connectToDatabase();
 
-    const normalizedEmail = String(email).trim().toLowerCase();
-    const existing = await User.findOne({ email: normalizedEmail }).lean();
+    const normalizedEmail = payload.data.email.toLowerCase();
+    const existing = await User.findOne({ email: normalizedEmail });
 
     if (existing) {
-      return NextResponse.json({ error: { message: "Bu e-posta zaten kayıtli" } }, { status: 409 });
+      if (existing.email_verified === false) {
+        return NextResponse.json(
+          {
+            error: {
+              code: "EMAIL_NOT_VERIFIED",
+              message: "Bu e-posta ile oluşturulmuş fakat henüz doğrulanmamış bir hesap var. Giriş ekranından kod alarak hesabınızı doğrulayabilirsiniz.",
+              email: normalizedEmail,
+            },
+          },
+          { status: 409 }
+        );
+      }
+
+      return NextResponse.json({ error: { message: "Bu e-posta zaten kayıtlı" } }, { status: 409 });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    const roles = ["customer"];
-    const names = splitFullName(`${fullName ?? ""}`);
-
+    const passwordHash = await bcrypt.hash(payload.data.password, 10);
+    const names = splitFullName(payload.data.fullName);
     const user = await User.create({
       email: normalizedEmail,
       password_hash: passwordHash,
-      full_name: fullName ?? "",
+      full_name: payload.data.fullName,
       first_name: names.firstName,
       last_name: names.lastName,
-      roles,
+      roles: ["customer"],
       permissions: [],
       is_active: true,
+      email_verified: false,
+      email_verified_at: null,
+      email_verification_token_hash: null,
+      email_verification_expires_at: null,
+      email_verification_sent_at: null,
       created_at: new Date(),
       updated_at: new Date(),
     });
 
     await ensureUserMarketingProfile(user.id as string);
-    await registerReferralForNewUser(typeof referralCode === "string" ? referralCode : null, user.id as string);
-
-    const response = NextResponse.json({ user: sanitizeUser(user) });
-    setSessionCookie(response, sanitizeUser(user));
-    return response;
+    await registerReferralForNewUser(typeof payload.data.referralCode === "string" ? payload.data.referralCode : null, user.id as string);
+    return NextResponse.json({
+      verificationRequired: true,
+      email: normalizedEmail,
+      message: "Kaydınız tamamlandı. İlk girişte e-posta adresinize gönderilen kod ile hesabınızı doğrulayabilirsiniz.",
+    });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Kayit basarisiz";
+    const message = error instanceof Error ? error.message : "Kayıt başarısız";
     return NextResponse.json({ error: { message } }, { status: 500 });
   }
 }

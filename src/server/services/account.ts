@@ -1,4 +1,4 @@
-﻿import { randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import type { SessionUser } from "@/server/auth-session";
@@ -29,7 +29,7 @@ export const profileUpdateSchema = z.object({
   firstName: z.string().trim().min(1, "Ad zorunludur").max(60, "Ad en fazla 60 karakter olabilir"),
   lastName: z.string().trim().min(1, "Soyad zorunludur").max(60, "Soyad en fazla 60 karakter olabilir"),
   phone: z.string().trim().max(20, "Telefon en fazla 20 karakter olabilir").optional().default(""),
-  profileImageUrl: z.string().trim().url("Profil görseli gecersiz").optional().or(z.literal("")).nullable(),
+  profileImageUrl: z.string().trim().url("Profil görseli geçersiz").optional().or(z.literal("")).nullable(),
   communicationPreferences: communicationPreferencesSchema.default({ email: true, sms: false }),
 });
 
@@ -57,8 +57,8 @@ export const changePasswordSchema = z
       .string()
       .min(8, "Yeni şifre en az 8 karakter olmali")
       .max(128, "Yeni şifre en fazla 128 karakter olabilir")
-      .regex(/[A-Z]/, "Yeni şifrede en az bir buyuk harf olmali")
-      .regex(/[a-z]/, "Yeni şifrede en az bir kucuk harf olmali")
+      .regex(/[A-Z]/, "Yeni şifrede en az bir büyük harf olmalı")
+      .regex(/[a-z]/, "Yeni şifrede en az bir küçük harf olmalı")
       .regex(/\d/, "Yeni şifrede en az bir rakam olmali"),
     confirmPassword: z.string().min(1, "Yeni şifre tekrari zorunludur"),
   })
@@ -177,7 +177,7 @@ type TechnicalServiceRecord = {
 
 function requireSessionUser(sessionUser: SessionUser | null) {
   if (!sessionUser?.id) {
-    throw new Error("Bu islem icin giris yapmaniz gerekiyor");
+    throw new Error("Bu işlem için giriş yapmanız gerekiyor");
   }
 
   return sessionUser;
@@ -293,7 +293,7 @@ async function findUserBySession(sessionUser: SessionUser) {
   const user = (await User.findOne({ id: sessionUser.id }).lean()) as UserRecord | null;
 
   if (!user) {
-    throw new Error("Kullanici bulunamadi");
+    throw new Error("Kullanıcı bulunamadı");
   }
 
   return user;
@@ -456,7 +456,7 @@ export async function updateAddress(input: z.input<typeof addressInputSchema>, s
   const existingAddresses = sortAddresses((user.addresses ?? []).map((address) => normalizeAddress(address)));
 
   if (!existingAddresses.some((address) => address.id === payload.id)) {
-    throw new Error("Adres bulunamadi");
+    throw new Error("Adres bulunamadı");
   }
 
   const updatedAddresses = existingAddresses.map((address) =>
@@ -481,7 +481,7 @@ export async function deleteAddress(addressId: string, sessionUser: SessionUser 
   const existingAddresses = sortAddresses((user.addresses ?? []).map((address) => normalizeAddress(address)));
 
   if (!existingAddresses.some((address) => address.id === addressId)) {
-    throw new Error("Adres bulunamadi");
+    throw new Error("Adres bulunamadı");
   }
 
   const remainingAddresses = existingAddresses.filter((address) => address.id !== addressId);
@@ -495,7 +495,7 @@ export async function setDefaultAddress(input: z.input<typeof setDefaultAddressS
   const existingAddresses = sortAddresses((user.addresses ?? []).map((address) => normalizeAddress(address)));
 
   if (!existingAddresses.some((address) => address.id === payload.addressId)) {
-    throw new Error("Adres bulunamadi");
+    throw new Error("Adres bulunamadı");
   }
 
   const updatedAddresses = existingAddresses.map((address) => ({
@@ -586,7 +586,7 @@ export async function getMyOrderDetail(orderId: string, sessionUser: SessionUser
   const order = (await Order.findOne({ id: orderId, user_id: currentUser.id }).lean()) as OrderRecord | null;
 
   if (!order) {
-    throw new Error("Siparis bulunamadi");
+    throw new Error("Sipariş bulunamadı");
   }
 
   const [items, shipment, returnRequests] = await Promise.all([
@@ -665,25 +665,25 @@ export async function createReturnRequest(input: z.input<typeof createReturnRequ
   const order = (await Order.findOne({ id: payload.orderId, user_id: currentUser.id }).lean()) as OrderRecord | null;
 
   if (!order) {
-    throw new Error("Siparis bulunamadi");
+    throw new Error("Sipariş bulunamadı");
   }
 
   const shipment = (await Shipment.findOne({ order_id: order.id }).sort({ updated_at: -1 }).lean()) as ShipmentRecord | null;
 
   if (!canCreateReturnRequest(`${order.order_status ?? "pending"}`, shipment?.status)) {
-    throw new Error("Bu siparis icin iade veya degisim talebi olusturulamiyor");
+    throw new Error("Bu sipariş için iade veya değişim talebi oluşturulamıyor");
   }
 
   const orderItem = (await OrderItem.findOne({ id: payload.orderItemId, order_id: order.id }).lean()) as OrderItemRecord | null;
 
   if (!orderItem) {
-    throw new Error("Siparis kalemi bulunamadi");
+    throw new Error("Sipariş kalemi bulunamadı");
   }
 
   const existing = await ReturnRequest.findOne({ user_id: currentUser.id, order_item_id: orderItem.id }).lean();
 
   if (existing) {
-    throw new Error("Bu urun icin zaten bir iade veya degisim talebi olusturuldu");
+    throw new Error("Bu ürün için zaten bir iade veya değişim talebi oluşturuldu");
   }
 
   const now = new Date();
@@ -755,7 +755,7 @@ export async function changePassword(input: z.input<typeof changePasswordSchema>
   const isValidPassword = await bcrypt.compare(payload.currentPassword, user.password_hash);
 
   if (!isValidPassword) {
-    throw new Error("Mevcut şifreniz dogrulanamadi");
+    throw new Error("Mevcut şifreniz doğrulanamadı");
   }
 
   if (payload.currentPassword === payload.newPassword) {
@@ -790,4 +790,5 @@ export async function getAddressUsageSummary(sessionUser: SessionUser | null) {
     })),
   };
 }
+
 

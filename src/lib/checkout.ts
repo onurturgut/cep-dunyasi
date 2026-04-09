@@ -36,7 +36,7 @@ export const ORDER_STATUS_VALUES = [
 export type CheckoutOrderStatus = (typeof ORDER_STATUS_VALUES)[number];
 
 export const PAYMENT_METHOD_LABELS: Record<CheckoutPaymentMethod, string> = {
-  credit_card_3ds: "Kredi / Banka Kartı (3D Secure)",
+  credit_card_3ds: "Kredi / Banka Karti (3D Secure)",
   bank_transfer: "Havale / EFT",
   cash_on_delivery: "Kapıda Ödeme",
   pay_at_store: "Mağazada Ödeme",
@@ -46,7 +46,7 @@ export const PAYMENT_METHOD_DESCRIPTIONS: Record<CheckoutPaymentMethod, string> 
   credit_card_3ds: "iyzico güvenli ödeme sayfasına yönlendirilerek 3D Secure ile tahsil edilir.",
   bank_transfer: "Sipariş alınır, havale bilgileri gösterilir ve ödeme sonrası operasyon ekibi onaylar.",
   cash_on_delivery: "Sipariş teslim edilirken ödeme alınır. Bölge ve ürün uygunluğuna göre açılır.",
-  pay_at_store: "Siparişiniz hazırlanır, mağazada teslim alırken ödeme tamamlarsınız.",
+  pay_at_store: "Siparişiniz hazırlanır, mağazada teslim alırken ödemeyi tamamlarsınız.",
 };
 
 export const PAYMENT_STATUS_LABELS: Record<OrderPaymentStatus, string> = {
@@ -88,10 +88,30 @@ export type CheckoutInstallmentOption = InstallmentOption & {
 const trimmedString = (min: number, max: number, message: string) =>
   z.string().trim().min(min, message).max(max, message);
 
+export function sanitizeCheckoutPhone(value: string) {
+  return `${value ?? ""}`.replace(/\D/g, "").slice(0, 11);
+}
+
+export function sanitizeIdentityNumber(value: string) {
+  return `${value ?? ""}`.replace(/\D/g, "").slice(0, 11);
+}
+
+const phoneStringSchema = z
+  .string()
+  .trim()
+  .transform((value) => sanitizeCheckoutPhone(value))
+  .refine((value) => value.length >= 10 && value.length <= 11, "Telefon 10 veya 11 haneli olmalıdır");
+
+const identityNumberSchema = z
+  .string()
+  .trim()
+  .transform((value) => sanitizeIdentityNumber(value))
+  .refine((value) => value === "" || value.length === 11, "TC kimlik numarası 11 haneli olmalıdır");
+
 export const shippingAddressSchema = z.object({
   fullName: trimmedString(3, 120, "Ad soyad zorunludur"),
   email: z.string().trim().email("Geçerli bir e-posta girin"),
-  phone: trimmedString(10, 20, "Telefon zorunludur"),
+  phone: phoneStringSchema,
   addressTitle: z.string().trim().max(40, "Adres başlığı en fazla 40 karakter olabilir").optional().default(""),
   city: trimmedString(2, 80, "Şehir zorunludur"),
   district: trimmedString(2, 80, "İlçe zorunludur"),
@@ -103,7 +123,7 @@ export const shippingAddressSchema = z.object({
 const commonBillingShape = {
   useShippingAddressAsBilling: z.boolean().default(true),
   billingFullName: trimmedString(3, 120, "Fatura adı zorunludur"),
-  billingPhone: trimmedString(10, 20, "Fatura telefonu zorunludur"),
+  billingPhone: phoneStringSchema,
   billingEmail: z.string().trim().email("Geçerli bir fatura e-postası girin"),
   billingAddressTitle: z.string().trim().max(40, "Fatura adres başlığı en fazla 40 karakter olabilir").optional().default(""),
   billingCity: trimmedString(2, 80, "Fatura şehri zorunludur"),
@@ -116,25 +136,20 @@ const commonBillingShape = {
 export const individualBillingInfoSchema = z.object({
   invoiceType: z.literal("individual"),
   ...commonBillingShape,
-  identityNumber: z
-    .string()
-    .trim()
-    .max(11, "TC kimlik numarası en fazla 11 karakter olabilir")
-    .optional()
-    .default(""),
+  identityNumber: identityNumberSchema.optional().default(""),
 });
 
 export const corporateBillingInfoSchema = z.object({
   invoiceType: z.literal("corporate"),
   ...commonBillingShape,
-  companyName: trimmedString(2, 160, "Firma adı zorunludur"),
+  companyName: trimmedString(2, 160, "Firma adi zorunludur"),
   taxOffice: trimmedString(2, 120, "Vergi dairesi zorunludur"),
   taxNumber: z
     .string()
     .trim()
-    .min(10, "Vergi numarası en az 10 karakter olmalıdır")
-    .max(14, "Vergi numarası en fazla 14 karakter olabilir"),
-  authorizedPerson: z.string().trim().max(120, "Yetkili kişi en fazla 120 karakter olabilir").optional().default(""),
+    .min(10, "Vergi numarasi en az 10 karakter olmali")
+    .max(14, "Vergi numarasi en fazla 14 karakter olabilir"),
+  authorizedPerson: z.string().trim().max(120, "Yetkili kisi en fazla 120 karakter olabilir").optional().default(""),
 });
 
 export const billingInfoSchema = z.discriminatedUnion("invoiceType", [
@@ -146,12 +161,12 @@ export type ShippingAddressInput = z.infer<typeof shippingAddressSchema>;
 export type BillingInfoInput = z.infer<typeof billingInfoSchema>;
 
 export const checkoutItemSchema = z.object({
-  variantId: z.string().trim().min(1, "Varyant seçimi zorunludur"),
-  quantity: z.coerce.number().int().min(1, "Adet en az 1 olmalıdır").max(99, "Adet en fazla 99 olabilir"),
+  variantId: z.string().trim().min(1, "Varyant secimi zorunludur"),
+  quantity: z.coerce.number().int().min(1, "Adet en az 1 olmalidir").max(99, "Adet en fazla 99 olabilir"),
 });
 
 export const checkoutStartSchema = z.object({
-  items: z.array(checkoutItemSchema).min(1, "Sepet boş"),
+  items: z.array(checkoutItemSchema).min(1, "Sepet bos"),
   shippingAddress: shippingAddressSchema,
   billingInfo: billingInfoSchema,
   couponCode: z.string().trim().max(40, "Kupon kodu en fazla 40 karakter olabilir").optional().default(""),
@@ -161,14 +176,14 @@ export const checkoutStartSchema = z.object({
 });
 
 export const retryPaymentSchema = z.object({
-  orderId: z.string().trim().min(1, "Sipariş seçimi zorunludur"),
+  orderId: z.string().trim().min(1, "Siparis secimi zorunludur"),
   retryToken: z.string().trim().optional(),
   paymentMethod: z.enum(CHECKOUT_PAYMENT_METHODS).optional().default("credit_card_3ds"),
   installmentMonths: z.coerce.number().int().min(1).max(12).optional().default(1),
 });
 
 export const installmentPreviewSchema = z.object({
-  amount: z.coerce.number().positive("Tutar sıfırdan büyük olmalıdır"),
+  amount: z.coerce.number().positive("Tutar sifirdan buyuk olmalidir"),
   paymentMethod: z.enum(CHECKOUT_PAYMENT_METHODS).default("credit_card_3ds"),
 });
 
@@ -274,7 +289,7 @@ export function getEnabledCheckoutPaymentMethods(): CheckoutPaymentMethodConfig[
       enabled: true,
       requiresAction: true,
       supportsInstallments: true,
-      badge: "Önerilen",
+      badge: "Onerilen",
     },
     {
       method: "bank_transfer",

@@ -386,6 +386,7 @@ export default function Products({ initialCategories = defaultCategories }: Prod
     return (
       (draftFilters.subcategory?.length ?? 0) +
       (isSecondHandIphoneCategory ? 0 : draftFilters.brand?.length ?? 0) +
+      (draftFilters.model?.length ?? 0) +
       (draftFilters.color?.length ?? 0) +
       (draftFilters.storage?.length ?? 0) +
       (draftFilters.ram?.length ?? 0) +
@@ -447,6 +448,10 @@ export default function Products({ initialCategories = defaultCategories }: Prod
 
       if (sectionId === "brand") {
         return (value: string) => setDraftFilters((current) => ({ ...current, brand: toggleStringValue(current.brand, value) }));
+      }
+
+      if (sectionId === "model") {
+        return (value: string) => setDraftFilters((current) => ({ ...current, model: toggleStringValue(current.model, value) }));
       }
 
       if (sectionId === "condition") {

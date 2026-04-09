@@ -19,8 +19,8 @@ export function BulkActionsToolbar({ selectedCount, onApply }: BulkActionsToolba
     <Card className="mt-4">
       <CardContent className="flex flex-col gap-3 p-4 md:flex-row md:items-center">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">{selectedCount} urun secili</p>
-          <p className="text-xs text-muted-foreground">Toplu aktif/pasif, kategori, fiyat, stok ve esik islemleri.</p>
+          <p className="text-sm font-medium">{selectedCount} ürün seçili</p>
+          <p className="text-xs text-muted-foreground">Toplu aktif/pasif, kategori, fiyat, stok ve eşik işlemleri.</p>
         </div>
         <Select value={action} onValueChange={setAction}>
           <SelectTrigger className="w-full md:w-56">
@@ -30,14 +30,14 @@ export function BulkActionsToolbar({ selectedCount, onApply }: BulkActionsToolba
             <SelectItem value="set_active">Toplu aktif yap</SelectItem>
             <SelectItem value="set_inactive">Toplu pasif yap</SelectItem>
             <SelectItem value="set_category">Kategori ata</SelectItem>
-            <SelectItem value="adjust_price_percentage">Fiyati yuzde degistir</SelectItem>
-            <SelectItem value="set_discount_percentage">Indirim uygula</SelectItem>
+            <SelectItem value="adjust_price_percentage">Fiyatı yüzde değiştir</SelectItem>
+            <SelectItem value="set_discount_percentage">İndirim uygula</SelectItem>
             <SelectItem value="set_stock">Stok belirle</SelectItem>
-            <SelectItem value="set_variant_threshold">Stok esigi belirle</SelectItem>
+            <SelectItem value="set_variant_threshold">Stok eşiği belirle</SelectItem>
           </SelectContent>
         </Select>
         {["set_category", "adjust_price_percentage", "set_discount_percentage", "set_stock", "set_variant_threshold"].includes(action) ? (
-          <Input className="w-full md:w-44" value={value} onChange={(event) => setValue(event.target.value)} placeholder="Deger" />
+          <Input className="w-full md:w-44" value={value} onChange={(event) => setValue(event.target.value)} placeholder="Değer" />
         ) : null}
         <Button disabled={selectedCount === 0} onClick={() => onApply({ action, value: value || null })}>
           Uygula

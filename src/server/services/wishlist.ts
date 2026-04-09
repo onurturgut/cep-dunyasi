@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 import type { SessionUser } from "@/server/auth-session";
 import { Product, ProductVariant, User } from "@/server/models";
 import type { CaseDetails } from "@/lib/case-models";
@@ -87,7 +87,7 @@ async function buildWishlistResponse(wishlistIds: string[]) {
 
 function ensureAuthenticated(sessionUser: SessionUser | null) {
   if (!sessionUser?.id) {
-    throw new Error("Favorilere eklemek icin giris yapmaniz gerekiyor");
+    throw new Error("Favorilere eklemek için giriş yapmanız gerekiyor");
   }
 }
 
@@ -106,7 +106,7 @@ export async function toggleWishlist(input: WishlistToggleInput, sessionUser: Se
   const product = await Product.findOne({ id: payload.productId, is_active: true }, { id: 1 }).lean();
 
   if (!product) {
-    throw new Error("Ürün bulunamadi");
+    throw new Error("Ürün bulunamadı");
   }
 
   const user = await getWishlistUserRecord(sessionUser.id);
@@ -137,4 +137,5 @@ export async function toggleWishlist(input: WishlistToggleInput, sessionUser: Se
     count: wishlist.productIds.length,
   };
 }
+
 

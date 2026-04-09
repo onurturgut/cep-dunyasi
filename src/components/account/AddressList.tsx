@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { MapPinPlus } from "lucide-react";
 import type { AccountAddress } from "@/lib/account";
@@ -35,15 +35,15 @@ export function AddressList({
   }
 
   if (error) {
-    return <AccountEmptyState icon={MapPinPlus} title="Adresler yuklenemedi" description={error} action={<Button onClick={onCreate}>Yeni Adres</Button>} />;
+    return <AccountEmptyState icon={MapPinPlus} title="Adresler yüklenemedi" description={error} action={<Button onClick={onCreate}>Yeni Adres</Button>} />;
   }
 
   if (addresses.length === 0) {
     return (
       <AccountEmptyState
         icon={MapPinPlus}
-        title="Henuz kayitli adresiniz yok"
-        description="Siparislerinizi daha hizli tamamlamak icin teslimat adreslerinizi buradan ekleyebilirsiniz."
+        title="Henüz kayıtlı adresiniz yok"
+        description="Siparişlerinizi daha hızlı tamamlamak için teslimat adreslerinizi buradan ekleyebilirsiniz."
         action={<Button onClick={onCreate}>Ilk Adresi Ekle</Button>}
       />
     );
@@ -73,3 +73,4 @@ export function AddressList({
     </div>
   );
 }
+

@@ -14,7 +14,7 @@ import { useCreateReturnRequest } from "@/hooks/use-account";
 const MAX_RETURN_IMAGE_SIZE_BYTES = 6 * 1024 * 1024;
 
 const reasonOptions = [
-  { value: "wrong-product", label: "Yanlis urun geldi" },
+  { value: "wrong-product", label: "Yanlış ürün geldi" },
   { value: "defective", label: "Ürün arizali / hasarli" },
   { value: "changed-mind", label: "Vazgectim" },
   { value: "size-fit", label: "Uyumsuz / beklentiyi karsilamadi" },
@@ -79,7 +79,7 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
 
           const payload = await response.json().catch(() => null);
           if (!response.ok || payload?.error) {
-            throw new Error(payload?.error?.message || "Görsel yuklenemedi");
+            throw new Error(payload?.error?.message || "Görsel yüklenemedi");
           }
 
           return `${payload?.data?.url ?? ""}`.trim();
@@ -98,7 +98,7 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
     event.preventDefault();
 
     if (!selectedItem) {
-      toast.error("Talep olusturmak icin uygun urun bulunamadi.");
+      toast.error("Talep oluşturmak için uygun ürün bulunamadı.");
       return;
     }
 
@@ -115,7 +115,7 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
       toast.success("Talebiniz alindi. Inceleme tamamlandiginda hesabiniz uzerinden bilgilendirileceksiniz.");
       onSuccess?.();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Talep olusturulamadi");
+      toast.error(error instanceof Error ? error.message : "Talep oluşturulamadı");
     }
   };
 
@@ -219,4 +219,5 @@ export function ReturnRequestForm({ orderId, items, initialOrderItemId, onSucces
     </form>
   );
 }
+
 

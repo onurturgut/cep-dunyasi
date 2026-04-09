@@ -61,13 +61,13 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
           uploadLimit: `En fazla ${REVIEW_IMAGE_LIMIT} görsel yukleyebilirsiniz`,
           imageOnly: "Sadece görsel dosyasi yukleyebilirsiniz",
           imageSize: "Her görsel en fazla 6MB olabilir",
-          uploadFailed: "Görsel yuklenemedi",
+          uploadFailed: "Görsel yüklenemedi",
           uploadError: "Görsel yukleme hatasi",
-          submitError: "Yorum gonderilemedi",
-          alreadyReviewed: "Bu urun icin daha once yorum biraktiniz. Güncelleme gerekiyorsa destek ekibimizle iletisime gecebilirsiniz.",
-          pendingReview: "Bu urun icin yorumunuz inceleme bekliyor. Onaylandiginda bu alanda yayina alinacaktir.",
+          submitError: "Yorum gönderilemedi",
+          alreadyReviewed: "Bu ürün için daha önce yorum bıraktınız. Güncelleme gerekiyorsa destek ekibimizle iletişime geçebilirsiniz.",
+          pendingReview: "Bu ürün için yorumunuz inceleme bekliyor. Onaylandığında bu alanda yayına alınacaktır.",
           notDelivered: "Yorum birakmak icin siparisinizin teslim edilmesini beklemelisiniz.",
-          notPurchased: "Yorum birakmak icin once bu urunu satin alip teslim almaniz gerekiyor.",
+          notPurchased: "Yorum bırakmak için önce bu ürünü satın alıp teslim almanız gerekiyor.",
           leaveReview: "Yorum Birak",
           yourRating: "Puaniniz",
           starLabel: (value: number) => `${value} yildiz`,
@@ -248,4 +248,5 @@ export function ReviewForm({ productId, viewerReviewStatus, canReview, reviewRea
     </Card>
   );
 }
+
 

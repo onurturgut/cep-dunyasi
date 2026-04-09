@@ -57,9 +57,9 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
         },
       });
 
-      toast.success("Profil bilgileriniz guncellendi.");
+      toast.success("Profil bilgileriniz güncellendi.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Profil guncellenemedi");
+      toast.error(error instanceof Error ? error.message : "Profil güncellenemedi");
     }
   };
 
@@ -96,14 +96,14 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
 
             <div className="space-y-4 rounded-[1.5rem] border border-border/70 bg-muted/10 p-4">
                 <div>
-                  <p className="text-sm font-medium text-foreground">Iletisim Tercihleri</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Siparis ve kampanya bildirimlerinizi hangi kanallardan almak istediginizi secin.</p>
+                  <p className="text-sm font-medium text-foreground">İletişim Tercihleri</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Sipariş ve kampanya bildirimlerinizi hangi kanallardan almak istediğinizi seçin.</p>
                 </div>
 
                 <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/80 px-4 py-3">
                   <div className="pr-4">
                     <p className="text-sm font-medium text-foreground">E-posta Bildirimleri</p>
-                    <p className="text-xs text-muted-foreground">Siparis guncellemeleri ve bilgilendirmeler</p>
+                    <p className="text-xs text-muted-foreground">Sipariş güncellemeleri ve bilgilendirmeler</p>
                   </div>
                   <Switch checked={prefersEmail} onCheckedChange={setPrefersEmail} />
                 </div>
@@ -161,19 +161,20 @@ export function AccountProfileForm({ profile }: AccountProfileFormProps) {
         <CardContent className="space-y-4 text-sm text-muted-foreground">
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
             <p className="font-medium text-foreground">Guvenli oturum</p>
-            <p className="mt-1">Şifre veya iletisim bilgilerinizi guncellediginizde aktif oturumunuz otomatik olarak yenilenir.</p>
+            <p className="mt-1">Şifre veya iletişim bilgilerinizi güncellediğinizde aktif oturumunuz otomatik olarak yenilenir.</p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
             <p className="font-medium text-foreground">Teslimat hazirligi</p>
-            <p className="mt-1">Varsayilan adres ve telefon bilgilerinizi guncel tutmaniz checkout surecini hizlandirir.</p>
+            <p className="mt-1">Varsayılan adres ve telefon bilgilerinizi güncel tutmanız checkout sürecini hızlandırır.</p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-muted/15 p-4">
             <p className="font-medium text-foreground">Kampanya izinleri</p>
-            <p className="mt-1">Iletisim tercihlerinizi istediginiz zaman bu ekran uzerinden degistirebilirsiniz.</p>
+            <p className="mt-1">İletişim tercihlerinizi istediğiniz zaman bu ekran üzerinden değiştirebilirsiniz.</p>
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
+
 

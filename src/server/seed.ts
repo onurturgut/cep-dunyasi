@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { Category, Coupon, MissionItem, Order, OrderItem, Product, ProductVariant, SiteContent } from "@/server/models";
+import { Category, Coupon, Order, OrderItem, Product, ProductVariant, SiteContent } from "@/server/models";
 import { getObjectKeyFromMediaUrl, normalizeMediaUrl, uploadToR2 } from "@/server/storage/r2";
 import { normalizeProductVariant } from "@/lib/product-variants";
 
@@ -353,7 +353,7 @@ const additionalVariantSeeds: ProductVariantSeed[] = [
 ];
 
 // Keep the overall seed footprint at 100 records total:
-// 7 categories + 42 products + 46 variants + 2 coupons + 2 mission items + 1 site content = 100
+// 7 categories + 42 products + 46 variants + 2 coupons + 1 site content = 98
 const TOTAL_PRODUCT_SEED_COUNT = 42;
 const TOTAL_FAKE_SALES_COUNT = 0;
 
@@ -821,7 +821,7 @@ const couponSeeds: CouponSample[] = [
   },
 ];
 
-const missionItemSeeds = [
+/* const retiredPromoSeeds: never[] = [];
   {
     label: "B",
     title: "Hızlı Teknik Servis",
@@ -846,6 +846,7 @@ const missionItemSeeds = [
   },
 ];
 
+*/
 function isR2Url(value: string) {
   return Boolean(getObjectKeyFromMediaUrl(value));
 }
@@ -1254,14 +1255,6 @@ export async function ensureSeedData() {
 
       if (couponsToInsert.length > 0) {
         await Coupon.insertMany(couponsToInsert);
-      }
-
-      const existingMissionItems = await MissionItem.find({ label: { $in: missionItemSeeds.map((item) => item.label) } }).lean();
-      const existingMissionLabelSet = new Set(existingMissionItems.map((item: any) => item.label));
-      const missionItemsToInsert = missionItemSeeds.filter((item) => !existingMissionLabelSet.has(item.label));
-
-      if (missionItemsToInsert.length > 0) {
-        await MissionItem.insertMany(missionItemsToInsert);
       }
 
       seeded = true;

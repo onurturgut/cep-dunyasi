@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { getSessionUserFromRequest, isAdmin } from "@/server/auth-session";
 import { deleteFromR2ByObjectKey, deleteFromR2ByUrl, uploadToR2 } from "@/server/storage/r2";
 
@@ -15,19 +15,19 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get("file");
     const kind = `${formData.get("kind") ?? ""}`.toLowerCase();
-    const scope = `${formData.get("scope") ?? "mission"}`.toLowerCase();
+    const scope = `${formData.get("scope") ?? "site-content"}`.toLowerCase();
     const sessionUser = getSessionUserFromRequest(request);
 
     if (["reviews", "returns", "avatars"].includes(scope)) {
       if (!sessionUser?.id) {
-        return jsonError("Bu islem icin giris yapmaniz gerekiyor", 403);
+        return jsonError("Bu işlem için giriş yapmanız gerekiyor", 403);
       }
     } else if (!isAdmin(sessionUser)) {
       return jsonError("Bu islem icin admin yetkisi gerekiyor", 403);
     }
 
     if (!(file instanceof File)) {
-      return jsonError("Yuklenecek dosya bulunamadi", 400);
+      return jsonError("Yüklenecek dosya bulunamadı", 400);
     }
 
     if (file.size <= 0) {
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       return jsonError("Bu alan icin video yuklemelisiniz", 400);
     }
 
-    if (!["mission", "products", "categories", "site-content", "reviews", "returns", "avatars"].includes(scope)) {
+    if (!["products", "categories", "site-content", "reviews", "returns", "avatars"].includes(scope)) {
       return jsonError("Gecersiz yukleme alani", 400);
     }
 
@@ -97,7 +97,7 @@ export async function DELETE(request: Request) {
       : [];
 
     if (urls.length === 0 && objectKeys.length === 0) {
-      return jsonError("Silinecek medya bulunamadi", 400);
+      return jsonError("Silinecek medya bulunamadı", 400);
     }
 
     for (const objectKey of objectKeys) {
@@ -114,3 +114,4 @@ export async function DELETE(request: Request) {
     return jsonError(message, 500);
   }
 }
+

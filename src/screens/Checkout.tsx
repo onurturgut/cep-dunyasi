@@ -24,7 +24,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCartStore } from "@/lib/cart-store";
 import type { AccountAddress } from "@/lib/account";
 import type { BillingInfoInput, CheckoutPaymentMethod, ShippingAddressInput } from "@/lib/checkout";
-import { copyShippingAddressToBilling } from "@/lib/checkout";
+import { copyShippingAddressToBilling, sanitizeCheckoutPhone, sanitizeIdentityNumber } from "@/lib/checkout";
 import { calculateOrderTotals, DEFAULT_SHIPPING_FEE, FREE_SHIPPING_THRESHOLD, resolveShippingFee } from "@/lib/shipping";
 import { formatCurrency, toPriceNumber } from "@/lib/utils";
 
@@ -88,7 +88,7 @@ function createEmptyShippingAddress(email: string, fullName: string, phone: stri
   return {
     fullName,
     email,
-    phone,
+    phone: sanitizeCheckoutPhone(phone),
     addressTitle: "",
     city: "",
     district: "",
@@ -119,7 +119,7 @@ function mapSavedAddress(address: AccountAddress, email: string): ShippingAddres
   return {
     fullName: address.full_name,
     email,
-    phone: address.phone,
+    phone: sanitizeCheckoutPhone(address.phone),
     addressTitle: address.title,
     city: address.city,
     district: address.district,
@@ -202,13 +202,13 @@ export default function Checkout() {
   useEffect(() => {
     setForm((current) => ({
       ...current,
-      shippingAddress: {
-        ...current.shippingAddress,
-        email: user?.email || current.shippingAddress.email,
-        fullName: current.shippingAddress.fullName || (user ? buildUserFullName(user) : ""),
-        phone: current.shippingAddress.phone || `${user?.phone ?? ""}`.trim(),
-      },
-    }));
+        shippingAddress: {
+          ...current.shippingAddress,
+          email: user?.email || current.shippingAddress.email,
+          fullName: current.shippingAddress.fullName || (user ? buildUserFullName(user) : ""),
+          phone: current.shippingAddress.phone || sanitizeCheckoutPhone(`${user?.phone ?? ""}`.trim()),
+        },
+      }));
   }, [user]);
 
   useEffect(() => {
@@ -272,9 +272,10 @@ export default function Checkout() {
 
   const handleShippingChange = (field: keyof ShippingAddressInput, value: string) => {
     setForm((current) => {
+      const nextValue = field === "phone" ? sanitizeCheckoutPhone(value) : value;
       const shippingAddress = {
         ...current.shippingAddress,
-        [field]: value,
+        [field]: nextValue,
       };
 
       return {
@@ -288,11 +289,20 @@ export default function Checkout() {
   };
 
   const handleBillingChange = (field: BillingFieldKey, value: string | boolean) => {
+    const nextValue =
+      typeof value === "boolean"
+        ? value
+        : field === "billingPhone"
+          ? sanitizeCheckoutPhone(value)
+          : field === "identityNumber"
+            ? sanitizeIdentityNumber(value)
+            : value;
+
     setForm((current) => ({
       ...current,
       billingInfo: {
         ...current.billingInfo,
-        [field]: value,
+        [field]: nextValue,
       } as BillingInfoInput,
     }));
   };
@@ -497,7 +507,13 @@ export default function Checkout() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Telefon</Label>
-                    <Input required value={form.shippingAddress.phone} onChange={(event) => handleShippingChange("phone", event.target.value)} />
+                    <Input
+                      required
+                      inputMode="numeric"
+                      maxLength={11}
+                      value={form.shippingAddress.phone}
+                      onChange={(event) => handleShippingChange("phone", event.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Adres Başlığı</Label>
@@ -607,7 +623,12 @@ export default function Checkout() {
                       </div>
                       <div className="space-y-2">
                         <Label>TC Kimlik No</Label>
-                        <Input value={form.billingInfo.invoiceType === "individual" ? form.billingInfo.identityNumber : ""} onChange={(event) => form.billingInfo.invoiceType === "individual" && handleBillingChange("identityNumber", event.target.value)} />
+                        <Input
+                          inputMode="numeric"
+                          maxLength={11}
+                          value={form.billingInfo.invoiceType === "individual" ? form.billingInfo.identityNumber : ""}
+                          onChange={(event) => form.billingInfo.invoiceType === "individual" && handleBillingChange("identityNumber", event.target.value)}
+                        />
                       </div>
                     </div>
                   </TabsContent>
@@ -639,7 +660,12 @@ export default function Checkout() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Fatura Telefonu</Label>
-                    <Input value={form.billingInfo.billingPhone} onChange={(event) => handleBillingChange("billingPhone", event.target.value)} />
+                    <Input
+                      inputMode="numeric"
+                      maxLength={11}
+                      value={form.billingInfo.billingPhone}
+                      onChange={(event) => handleBillingChange("billingPhone", event.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Fatura E-postası</Label>

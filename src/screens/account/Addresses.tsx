@@ -51,7 +51,7 @@ export default function AccountAddressesScreen() {
     try {
       if (editingAddress?.id) {
         await updateAddress.mutateAsync({ ...value, id: editingAddress.id });
-        toast.success("Adres guncellendi.");
+        toast.success("Adres güncellendi.");
       } else {
         await createAddress.mutateAsync(value);
         toast.success("Adres eklendi.");
@@ -80,9 +80,9 @@ export default function AccountAddressesScreen() {
     try {
       setSettingDefaultAddressId(addressId);
       await setDefaultAddress.mutateAsync(addressId);
-      toast.success("Varsayilan adres guncellendi.");
+      toast.success("Varsayılan adres güncellendi.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Varsayilan adres degistirilemedi");
+      toast.error(error instanceof Error ? error.message : "Varsayılan adres değiştirilemedi");
     } finally {
       setSettingDefaultAddressId(null);
     }
@@ -91,7 +91,7 @@ export default function AccountAddressesScreen() {
   return (
     <AccountLayout
       title="Adreslerim"
-      description="Teslimat adreslerinizi kaydedin, duzenleyin ve varsayilan adresinizi belirleyin."
+      description="Teslimat adreslerinizi kaydedin, düzenleyin ve varsayılan adresinizi belirleyin."
       actions={
         <Button type="button" onClick={handleCreateClick}>
           <Plus className="mr-2 h-4 w-4" />
@@ -115,7 +115,7 @@ export default function AccountAddressesScreen() {
         <DialogContent className="max-w-2xl rounded-[1.75rem]">
           <DialogHeader>
             <DialogTitle>{dialogTitle}</DialogTitle>
-            <DialogDescription>Teslimat ve fatura sureclerinde kullanilacak adres bilgilerini eksiksiz girin.</DialogDescription>
+            <DialogDescription>Teslimat ve fatura süreçlerinde kullanılacak adres bilgilerini eksiksiz girin.</DialogDescription>
           </DialogHeader>
           <AddressForm
             key={editingAddress?.id ?? "new-address"}
@@ -129,4 +129,5 @@ export default function AccountAddressesScreen() {
     </AccountLayout>
   );
 }
+
 

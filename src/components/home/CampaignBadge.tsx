@@ -10,7 +10,7 @@ type CampaignBadgeProps = {
 };
 
 const badgeThemeClasses: Record<CampaignThemeVariant, string> = {
-  midnight: "border-border/70 bg-background/80 text-foreground dark:border-white/15 dark:bg-white/10 dark:text-white",
+  midnight: "border-border/70 bg-background/80 text-foreground dark:border-white/[0.1] dark:bg-white/[0.08] dark:text-slate-100",
   violet: "border-violet-300/30 bg-violet-100/70 text-violet-950 dark:border-violet-300/20 dark:bg-violet-300/15 dark:text-violet-50",
   graphite: "border-slate-300/35 bg-slate-100/80 text-slate-900 dark:border-slate-200/15 dark:bg-slate-200/10 dark:text-slate-50",
   emerald: "border-emerald-300/35 bg-emerald-100/75 text-emerald-950 dark:border-emerald-200/20 dark:bg-emerald-300/15 dark:text-emerald-50",

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Heart } from "lucide-react";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -25,8 +25,8 @@ export function FavoritesSection({ title, className }: FavoritesSectionProps) {
       : {
           title: "Favorilerim",
           loading: "Favoriler yukleniyor...",
-          loadError: "Favoriler su anda yuklenemedi",
-          empty: "Henuz favori urun eklemediniz.",
+          loadError: "Favoriler şu anda yüklenemedi",
+          empty: "Henüz favori ürün eklemediniz.",
         };
 
   return (
@@ -85,3 +85,4 @@ export function FavoritesSection({ title, className }: FavoritesSectionProps) {
     </section>
   );
 }
+

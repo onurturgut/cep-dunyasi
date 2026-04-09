@@ -15,8 +15,8 @@ export default function Favorites() {
         }
       : {
           title: "Favorilerim",
-          description: "Begendiginiz urunleri buradan takip edebilirsiniz.",
-          savedProducts: "Kaydettigin Ürünler",
+          description: "Beğendiğiniz ürünleri buradan takip edebilirsiniz.",
+          savedProducts: "Kaydettiğin Ürünler",
         };
 
   return (

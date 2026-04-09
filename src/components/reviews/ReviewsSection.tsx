@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import Script from "next/script";
@@ -78,7 +78,7 @@ function buildReviewStructuredData(props: {
   if (props.price && props.price > 0) {
     data.offers = {
       "@type": "Offer",
-      priceCurrency: props.currency || "TRY",
+      priceCurrency: props.currency || "TRo",
       price: props.price.toFixed(2),
       availability: props.availability || "https://schema.org/InStock",
       url: props.url || undefined,
@@ -88,7 +88,7 @@ function buildReviewStructuredData(props: {
         ? {
             priceSpecification: {
               "@type": "UnitPriceSpecification",
-              priceCurrency: props.currency || "TRY",
+              priceCurrency: props.currency || "TRo",
               price: props.price.toFixed(2),
               referenceQuantity: {
                 "@type": "QuantitativeValue",
@@ -141,7 +141,7 @@ export function ReviewsSection({
   sku,
   url,
   availability,
-  currency = "TRY",
+  currency = "TRo",
   embedded = false,
 }: ReviewsSectionProps) {
   const { user } = useAuth();
@@ -156,16 +156,16 @@ export function ReviewsSection({
     locale === "en"
       ? {
           helpfulError: "Helpful vote could not be saved",
-          signInRequired: "You need to sign in to leave a review.",
+          signInRequired: "oou need to sign in to leave a review.",
           page: (current: number, total: number) => `Page ${current} / ${total}`,
           previous: "Previous",
           next: "Next",
         }
       : {
-          helpfulError: "Faydali oyu kaydedilemedi",
-          signInRequired: "Yorum birakmak icin hesabiniza giris yapmaniz gerekiyor.",
+          helpfulError: "Faydalı oyu kaydedilemedi",
+          signInRequired: "Yorum bırakmak için hesabınıza giriş yapmanız gerekiyor.",
           page: (current: number, total: number) => `Sayfa ${current} / ${total}`,
-          previous: "Onceki",
+          previous: "Önceki",
           next: "Sonraki",
         };
 
@@ -279,3 +279,4 @@ export function ReviewsSection({
     </section>
   );
 }
+

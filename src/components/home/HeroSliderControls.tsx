@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export function HeroSliderControls({ onPrevious, onNext, disabled = false }: Her
         disabled={disabled}
       >
         <ArrowLeft className="h-4 w-4" />
-        <span className="sr-only">Onceki kampanya</span>
+        <span className="sr-only">Önceki kampanya</span>
       </Button>
       <Button
         type="button"
@@ -37,3 +37,4 @@ export function HeroSliderControls({ onPrevious, onNext, disabled = false }: Her
     </div>
   );
 }
+

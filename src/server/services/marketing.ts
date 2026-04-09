@@ -1,4 +1,4 @@
-﻿import { randomBytes, randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { z } from "zod";
 import type {
   FeaturedReviewRecord,
@@ -91,6 +91,11 @@ const marketingEventSchema = z.object({
     "order_completed",
     "referral_link_open",
     "referral_registered",
+    "login_started",
+    "login_success",
+    "register_started",
+    "register_success",
+    "auth_error",
   ]),
   entityType: z.string().trim().max(80).optional().nullable(),
   entityId: z.string().trim().max(120).optional().nullable(),
@@ -394,7 +399,7 @@ async function getDerivedSocialProofFallback() {
       label: "Mutlu Musteri",
       value: `${customerCount.toLocaleString("tr-TR")}+`,
       icon: "Users",
-      description: "Tekrar gelen musteri ve tavsiyelerle buyuyen topluluk",
+      description: "Tekrar gelen müşteri ve tavsiyelerle büyüyen topluluk",
       isActive: true,
       order: 0,
       sourceType: "derived",
@@ -406,7 +411,7 @@ async function getDerivedSocialProofFallback() {
       label: "Teslim Edilen Siparis",
       value: `${deliveredOrdersCount.toLocaleString("tr-TR")}+`,
       icon: "PackageCheck",
-      description: "Ödeme onayi sonrasinda hizli hazirlanan ve takipli gonderiler",
+      description: "Ödeme onayı sonrasında hızlı hazırlanan ve takipli gönderiler",
       isActive: true,
       order: 1,
       sourceType: "derived",
@@ -430,7 +435,7 @@ async function getDerivedSocialProofFallback() {
       label: "Hazir Koleksiyon",
       value: `${activeProducts.toLocaleString("tr-TR")}+`,
       icon: "Sparkles",
-      description: "Telefon, aksesuar ve servis paketlerinde secilmis urun vitrini",
+      description: "Telefon, aksesuar ve servis paketlerinde seçilmiş ürün vitrini",
       isActive: true,
       order: 3,
       sourceType: "derived",
@@ -627,7 +632,7 @@ export async function upsertSocialProofItem(input: z.input<typeof socialProofSch
     actionType: payload.id ? "marketing.social_proof.updated" : "marketing.social_proof.created",
     entityType: "social_proof_item",
     entityId,
-    message: payload.id ? "Sosyal kanit ogesi guncellendi" : "Sosyal kanit ogesi olusturuldu",
+    message: payload.id ? "Sosyal kanıt öğesi güncellendi" : "Sosyal kanıt öğesi oluşturuldu",
     metadata: { label: payload.label, sourceType: payload.sourceType, isActive: payload.isActive },
     ip,
   });
@@ -638,7 +643,7 @@ export async function upsertSocialProofItem(input: z.input<typeof socialProofSch
 export async function deleteSocialProofItem(id: string, actor: SessionUser, ip?: string | null) {
   const existing = (await SocialProofItem.findOne({ id }).lean()) as SocialProofDoc | null;
   if (!existing) {
-    throw new Error("Sosyal kanit ogesi bulunamadi");
+    throw new Error("Sosyal kanıt öğesi bulunamadı");
   }
 
   await SocialProofItem.deleteOne({ id });
@@ -700,7 +705,7 @@ export async function updateMarketingSettings(input: z.input<typeof marketingSet
     actionType: "marketing.settings.updated",
     entityType: "marketing_setting",
     entityId: "global",
-    message: "Marketing ayarlari guncellendi",
+    message: "Marketing ayarları güncellendi",
     metadata: {
       whatsappEnabled: payload.whatsappEnabled,
       liveSupportEnabled: payload.liveSupportEnabled,
@@ -750,7 +755,7 @@ function generateReferralCodeBase() {
 export async function ensureUserMarketingProfile(userId: string) {
   const user = (await User.findOne({ id: userId }).lean()) as UserMarketingDoc | null;
   if (!user) {
-    throw new Error("Kullanici bulunamadi");
+    throw new Error("Kullanıcı bulunamadı");
   }
 
   if (typeof user.loyalty_points_balance !== "number") {
@@ -828,7 +833,7 @@ export async function resolveReferralCode(input: z.input<typeof referralRegistra
     | null;
 
   if (!user) {
-    throw new Error("Referans kodu bulunamadi");
+    throw new Error("Referans kodu bulunamadı");
   }
 
   return {
@@ -840,13 +845,13 @@ export async function resolveReferralCode(input: z.input<typeof referralRegistra
 
 export async function registerReferralForUser(referralCode: string, sessionUser: SessionUser | null) {
   if (!sessionUser?.id) {
-    throw new Error("Referans baglamak icin giris yapmaniz gerekiyor");
+    throw new Error("Referans bağlamak için giriş yapmanız gerekiyor");
   }
 
   const payload = referralRegistrationSchema.parse({ referralCode });
   const user = (await User.findOne({ id: sessionUser.id }).lean()) as UserMarketingDoc | null;
   if (!user) {
-    throw new Error("Kullanici bulunamadi");
+    throw new Error("Kullanıcı bulunamadı");
   }
 
   if (user.referral_code && user.referral_code === payload.referralCode) {
@@ -859,7 +864,7 @@ export async function registerReferralForUser(referralCode: string, sessionUser:
 
   const referrer = (await User.findOne({ referral_code: payload.referralCode }).select("id").lean()) as { id: string } | null;
   if (!referrer) {
-    throw new Error("Referans kodu bulunamadi");
+    throw new Error("Referans kodu bulunamadı");
   }
 
   if (referrer.id === user.id) {
@@ -934,4 +939,5 @@ export async function getUserMarketingSummary(userId: string) {
     referrals,
   };
 }
+
 

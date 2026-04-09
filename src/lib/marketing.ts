@@ -17,6 +17,11 @@ export const MARKETING_EVENT_TYPES = [
   "order_completed",
   "referral_link_open",
   "referral_registered",
+  "login_started",
+  "login_success",
+  "register_started",
+  "register_success",
+  "auth_error",
 ] as const;
 export type MarketingEventType = (typeof MARKETING_EVENT_TYPES)[number];
 
@@ -153,14 +158,14 @@ export type MarketingHomeModules = {
 export function getDefaultMarketingSettings(): MarketingSettingsRecord {
   return {
     newsletterEnabled: true,
-    newsletterTitle: "Kampanyalari ilk sen ogren",
-    newsletterDescription: "Yeni urunler, premium koleksiyonlar ve sessizce gelen indirimler icin e-posta listemize katil.",
-    newsletterSuccessMessage: "Kaydin tamamlandi. Yeni kampanyalari sana e-posta ile haber verecegiz.",
-    newsletterConsentLabel: "Kampanya ve urun bilgilendirmelerini almak istiyorum.",
+    newsletterTitle: "Kampanyaları ilk sen öğren",
+    newsletterDescription: "Yeni ürünler, premium koleksiyonlar ve sessizce gelen indirimler için e-posta listemize katıl.",
+    newsletterSuccessMessage: "Kaydın tamamlandı. Yeni kampanyaları sana e-posta ile haber vereceğiz.",
+    newsletterConsentLabel: "Kampanya ve ürün bilgilendirmelerini almak istiyorum.",
     whatsappEnabled: true,
     whatsappPhone: "",
-    whatsappMessage: "Merhaba, Cep Dunyasi urunleri hakkinda bilgi almak istiyorum.",
-    whatsappHelpText: "Yardim ister misin?",
+    whatsappMessage: "Merhaba, Cep Dünyası ürünleri hakkında bilgi almak istiyorum.",
+    whatsappHelpText: "Yardım ister misin?",
     whatsappShowOnMobile: true,
     whatsappShowOnDesktop: true,
     liveSupportEnabled: false,

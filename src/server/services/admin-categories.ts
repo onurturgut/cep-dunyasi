@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 import { Category } from "@/server/models";
 import type { AdminActor } from "@/lib/admin";
 import { sanitizeSlug } from "@/lib/utils";
@@ -65,7 +65,7 @@ export async function upsertAdminCategory(
   const now = new Date();
 
   if (!normalizedSlug) {
-    throw new Error("Kategori icin gecerli bir slug olusturulamadi");
+    throw new Error("Kategori için geçerli bir slug oluşturulamadı");
   }
 
   if (categoryId && parentCategoryId === categoryId) {
@@ -74,7 +74,7 @@ export async function upsertAdminCategory(
 
   const existingCategory = categoryId ? ((await Category.findOne({ id: categoryId }).lean()) as CategoryRecord | null) : null;
   if (categoryId && !existingCategory) {
-    throw new Error("Kategori bulunamadi");
+    throw new Error("Kategori bulunamadı");
   }
 
   const conflictingCategory = (await Category.findOne({
@@ -90,7 +90,7 @@ export async function upsertAdminCategory(
     const parentCategory = (await Category.findOne({ id: parentCategoryId }).lean()) as CategoryRecord | null;
 
     if (!parentCategory) {
-      throw new Error("Secilen ana kategori bulunamadi");
+      throw new Error("Seçilen ana kategori bulunamadı");
     }
 
     if (parentCategory.parent_category_id) {
@@ -128,7 +128,7 @@ export async function upsertAdminCategory(
     actionType: categoryId ? "category.updated" : "category.created",
     entityType: "category",
     entityId,
-    message: categoryId ? "Kategori guncellendi" : "Kategori olusturuldu",
+    message: categoryId ? "Kategori güncellendi" : "Kategori oluşturuldu",
     metadata: {
       name: updatePayload.name,
       slug: updatePayload.slug,
@@ -144,7 +144,7 @@ export async function deleteAdminCategory(id: string, actor: AdminActor, ip?: st
   const category = (await Category.findOne({ id }).lean()) as CategoryRecord | null;
 
   if (!category) {
-    throw new Error("Kategori bulunamadi");
+    throw new Error("Kategori bulunamadı");
   }
 
   const hasChildren = await Category.exists({ parent_category_id: id });
@@ -169,4 +169,5 @@ export async function deleteAdminCategory(id: string, actor: AdminActor, ip?: st
 
   return { deleted: true };
 }
+
 

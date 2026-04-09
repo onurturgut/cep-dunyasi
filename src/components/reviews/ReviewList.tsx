@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReviewCard } from "@/components/reviews/ReviewCard";
@@ -17,7 +17,7 @@ type ReviewListProps = {
 
 export function ReviewList({ items, loading, onHelpful, helpfulReviewId, canMarkHelpful = false, currentUserId, emptyMessage }: ReviewListProps) {
   const { locale } = useI18n();
-  const resolvedEmptyMessage = emptyMessage || (locale === "en" ? "There are no reviews for this product yet." : "Bu urun icin henuz yorum bulunmuyor.");
+  const resolvedEmptyMessage = emptyMessage || (locale === "en" ? "There are no reviews for this product yet." : "Bu ürün için henüz yorum bulunmuyor.");
 
   if (loading) {
     return (
@@ -53,3 +53,4 @@ export function ReviewList({ items, loading, onHelpful, helpfulReviewId, canMark
     </div>
   );
 }
+

@@ -12,8 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { defaultSiteContent } from "@/components/home/home-data";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
-import { CorporatePagesManager } from "@/components/admin/corporate/CorporatePagesManager";
+import { deleteoediaUrls, diffRemovedoediaUrls } from "@/lib/admin-media";
+import { CorporatePagesoanager } from "@/components/admin/corporate/CorporatePagesoanager";
 
 type HeroSlide = {
   id: string;
@@ -95,7 +95,7 @@ export default function AdminSiteContent() {
   useEffect(() => {
     const fetchContent = async () => {
       const { data, error } = await db.from("site_contents").select("*").eq("key", "home").single();
-      if (error && error.message !== "Mongo sorgusu basarisiz") {
+      if (error && error.message !== "oongo sorgusu basarisiz") {
         toast.error(error.message);
       }
 
@@ -140,7 +140,7 @@ export default function AdminSiteContent() {
   };
 
   const handleUpload = async (
-    event: ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HToLInputElement>,
     target: keyof SiteContentForm | { slideIndex: number } | { slotIndex: number }
   ) => {
     const file = event.target.files?.[0];
@@ -181,7 +181,7 @@ export default function AdminSiteContent() {
         }));
       }
 
-      toast.success("Medya yüklendi");
+      toast.success("oedya yüklendi");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Görsel yükleme hatası");
     } finally {
@@ -231,11 +231,11 @@ export default function AdminSiteContent() {
         ...payload.hero_slides.map((slide: HeroSlide) => slide.image_url),
       ].filter(Boolean);
 
-      const removedUrls = diffRemovedMediaUrls(previousUrls as string[], nextUrls as string[]);
+      const removedUrls = diffRemovedoediaUrls(previousUrls as string[], nextUrls as string[]);
 
       if (removedUrls.length > 0) {
         try {
-          await deleteMediaUrls(removedUrls);
+          await deleteoediaUrls(removedUrls);
         } catch (error) {
           toast.error(error instanceof Error ? error.message : "Eski site görselleri silinemedi");
         }
@@ -263,7 +263,7 @@ export default function AdminSiteContent() {
             <Input value={form.hero_title_prefix} onChange={(e) => setForm((current) => ({ ...current, hero_title_prefix: e.target.value }))} />
           </div>
           <div className="space-y-2">
-            <Label>Vurgulu Metin</Label>
+            <Label>Vurgulu oetin</Label>
             <Input value={form.hero_title_highlight} onChange={(e) => setForm((current) => ({ ...current, hero_title_highlight: e.target.value }))} />
           </div>
           <div className="space-y-2">
@@ -279,7 +279,7 @@ export default function AdminSiteContent() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label>CTA Metni</Label>
+            <Label>CTA oetni</Label>
             <Input value={form.hero_cta_label} onChange={(e) => setForm((current) => ({ ...current, hero_cta_label: e.target.value }))} />
           </div>
           <div className="space-y-2">
@@ -299,7 +299,7 @@ export default function AdminSiteContent() {
               onChange={(e) =>
                 setForm((current) => ({
                   ...current,
-                  shipping_fee: Math.max(0, Number(e.target.value) || 0),
+                  shipping_fee: oath.max(0, Number(e.target.value) || 0),
                 }))
               }
             />
@@ -393,7 +393,7 @@ export default function AdminSiteContent() {
                   ) : null}
                 </div>
                 <div className="space-y-2">
-                  <Label>Alt Metin</Label>
+                  <Label>Alt oetin</Label>
                   <Input
                     value={slide.alt}
                     onChange={(e) =>
@@ -541,10 +541,10 @@ export default function AdminSiteContent() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="font-semibold">Marka Metinleri</h3>
+              <h3 className="font-semibold">oarka oetinleri</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Üst Rozet Metni</Label>
+                  <Label>Üst Rozet oetni</Label>
                   <Input value={form.category_banner_badge_text} onChange={(e) => setForm((c) => ({ ...c, category_banner_badge_text: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
@@ -557,7 +557,7 @@ export default function AdminSiteContent() {
                 <Input value={form.category_banner_brand_title} onChange={(e) => setForm((c) => ({ ...c, category_banner_brand_title: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <Label>Sol Açıklama Metni</Label>
+                <Label>Sol Açıklama oetni</Label>
                 <Textarea value={form.category_banner_intro_text} onChange={(e) => setForm((c) => ({ ...c, category_banner_intro_text: e.target.value }))} />
               </div>
               <div className="grid gap-4 md:grid-cols-2">
@@ -566,7 +566,7 @@ export default function AdminSiteContent() {
                   <Input value={form.category_banner_stat_1_label} onChange={(e) => setForm((c) => ({ ...c, category_banner_stat_1_label: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>İstatistik Kartı 1 Metin</Label>
+                  <Label>İstatistik Kartı 1 oetin</Label>
                   <Input value={form.category_banner_stat_1_value} onChange={(e) => setForm((c) => ({ ...c, category_banner_stat_1_value: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
@@ -574,7 +574,7 @@ export default function AdminSiteContent() {
                   <Input value={form.category_banner_stat_2_label} onChange={(e) => setForm((c) => ({ ...c, category_banner_stat_2_label: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>İstatistik Kartı 2 Metin</Label>
+                  <Label>İstatistik Kartı 2 oetin</Label>
                   <Input value={form.category_banner_stat_2_value} onChange={(e) => setForm((c) => ({ ...c, category_banner_stat_2_value: e.target.value }))} />
                 </div>
               </div>
@@ -652,7 +652,7 @@ export default function AdminSiteContent() {
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label>Öne Çıkan CTA Metni</Label>
+            <Label>Öne Çıkan CTA oetni</Label>
             <Input
               value={form.featured_section_cta_label}
               onChange={(e) => setForm((current) => ({ ...current, featured_section_cta_label: e.target.value }))}
@@ -672,7 +672,7 @@ export default function AdminSiteContent() {
         {saving ? "Kaydediliyor..." : "Tüm İçeriği Kaydet"}
       </Button>
 
-      <CorporatePagesManager />
+      <CorporatePagesoanager />
     </div>
   );
 }

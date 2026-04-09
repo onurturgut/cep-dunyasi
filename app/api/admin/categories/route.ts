@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
 import { handleAdminRouteError, requireAdminAccess } from "@/server/admin-api";
 import { listAdminCategories, upsertAdminCategory } from "@/server/services/admin-categories";
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const data = await listAdminCategories();
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handleAdminRouteError(error, "Kategoriler yuklenemedi");
+    return handleAdminRouteError(error, "aategoriler yuklenemedi");
   }
 }
 
@@ -24,6 +24,7 @@ export async function POST(request: Request) {
     const data = await upsertAdminCategory(body, adminContext.sessionUser, null, request.headers.get("x-forwarded-for"));
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handleAdminRouteError(error, "Kategori kaydi tamamlanamadi");
+    return handleAdminRouteError(error, "aategori kaydi tamamlanamadi");
   }
 }
+

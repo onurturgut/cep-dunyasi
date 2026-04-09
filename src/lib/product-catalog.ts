@@ -8,6 +8,7 @@ export type CatalogProductRecord = {
   id: string;
   name: string;
   slug: string;
+  model?: string | null;
   brand?: string | null;
   description?: string | null;
   images?: string[];
@@ -35,6 +36,7 @@ export type ProductSortOption = "newest" | "best_selling" | "price_asc" | "price
 export type CatalogFilters = {
   subcategory?: string[];
   brand?: string[];
+  model?: string[];
   color?: string[];
   storage?: string[];
   ram?: string[];
@@ -71,6 +73,7 @@ export type CatalogFilterProfile = {
 
 type CatalogVariantOptions = {
   brands: string[];
+  models: string[];
   colors: string[];
   storages: string[];
   ramOptions: string[];
@@ -104,6 +107,10 @@ function buildFilterProfile(activeCategory?: string | null): CatalogFilterProfil
 function normalizeText(value: unknown) {
   const normalized = `${value ?? ""}`.trim();
   return normalized || null;
+}
+
+function getCatalogProductModel(product: CatalogProductRecord) {
+  return normalizeText(product.model) || (product.type === "phone" ? normalizeText(product.name) : null);
 }
 
 function normalizeDateValue(value: string | Date | undefined) {
@@ -143,6 +150,7 @@ export function createEmptyCatalogFilters(): CatalogFilters {
   return {
     subcategory: [],
     brand: [],
+    model: [],
     color: [],
     storage: [],
     ram: [],
@@ -168,6 +176,7 @@ export function getCatalogFilterProfile(activeCategory: string | null | undefine
 
 export function getCatalogVariantOptions(products: CatalogProductRecord[], profile: CatalogFilterProfile): CatalogVariantOptions {
   const brands = new Set<string>();
+  const models = new Set<string>();
   const colors = new Set<string>();
   const storages = new Set<string>();
   const ramOptions = new Set<string>();
@@ -184,6 +193,11 @@ export function getCatalogVariantOptions(products: CatalogProductRecord[], profi
     const brand = normalizeText(product.brand);
     if (brand) {
       brands.add(brand);
+    }
+
+    const model = getCatalogProductModel(product);
+    if (model) {
+      models.add(model);
     }
 
     if (profile.showCaseDetails) {
@@ -229,6 +243,7 @@ export function getCatalogVariantOptions(products: CatalogProductRecord[], profi
 
   return {
     brands: Array.from(brands).sort((a, b) => a.localeCompare(b, "tr")),
+    models: Array.from(models).sort((a, b) => a.localeCompare(b, "tr")),
     colors: Array.from(colors).sort((a, b) => a.localeCompare(b, "tr")),
     storages: Array.from(storages).sort((a, b) => a.localeCompare(b, "tr")),
     ramOptions: Array.from(ramOptions).sort((a, b) => a.localeCompare(b, "tr")),
@@ -306,9 +321,14 @@ export function matchesCatalogFilters(
   profile: CatalogFilterProfile = buildFilterProfile()
 ) {
   const brand = normalizeText(product.brand);
+  const model = getCatalogProductModel(product);
   const secondHand = normalizeSecondHandDetails(product.second_hand);
 
   if (hasSelections(filters.brand) && (!brand || !filters.brand?.includes(brand))) {
+    return false;
+  }
+
+  if (hasSelections(filters.model) && (!model || !filters.model?.includes(model))) {
     return false;
   }
 

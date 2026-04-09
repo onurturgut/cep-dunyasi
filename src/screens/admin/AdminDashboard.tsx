@@ -3,7 +3,6 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
-  FileSpreadsheet,
   FolderTree,
   ImageIcon,
   LayoutDashboard,
@@ -18,7 +17,6 @@ import {
   Tag,
   Users,
   Warehouse,
-  Wrench,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "@/lib/router";
 import { useAuth } from "@/hooks/use-auth";
@@ -35,15 +33,12 @@ const sidebarItems: Array<{ label: string; href: string; icon: typeof LayoutDash
   { label: "Icerik", href: "/admin/site-content", icon: MonitorSmartphone, permission: "manage_site_content" },
   { label: "Kampanyalar", href: "/admin/banners", icon: ImageIcon, permission: "manage_campaigns" },
   { label: "Marketing", href: "/admin/marketing", icon: MessageSquare, permission: "manage_campaigns" },
-  { label: "Import / Export", href: "/admin/import-export", icon: FileSpreadsheet, permission: "manage_import_export" },
   { label: "Kategoriler", href: "/admin/categories", icon: FolderTree, permission: "manage_products" },
   { label: "Kullanicilar", href: "/admin/users", icon: Users, permission: "manage_users" },
   { label: "Roller", href: "/admin/roles", icon: Shield, permission: "manage_roles" },
   { label: "Loglar", href: "/admin/logs", icon: ScrollText, permission: "view_logs" },
   { label: "Yorumlar", href: "/admin/reviews", icon: MessageSquare, permission: "manage_products" },
   { label: "Kuponlar", href: "/admin/coupons", icon: Tag, permission: "manage_campaigns" },
-  { label: "Misyon", href: "/admin/mission", icon: ImageIcon, permission: "manage_site_content" },
-  { label: "Teknik Servis", href: "/admin/technical-service", icon: Wrench, permission: "manage_technical_service" },
 ];
 
 export default function AdminDashboard({ children }: { children: ReactNode }) {

@@ -2,7 +2,7 @@
 
 import { ExternalLink, PackageCheck, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, Cardeeader, CardTitle } from "@/components/ui/card";
 import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
 import type { ShipmentSummary } from "@/lib/account";
 import { formatDate } from "@/lib/date";
@@ -10,12 +10,12 @@ import { formatDate } from "@/lib/date";
 export function ShipmentTrackingCard({ shipment }: { shipment: ShipmentSummary | null }) {
   return (
     <Card className="rounded-[1.75rem] border-border/70 shadow-[0_18px_40px_-36px_rgba(15,23,42,0.45)]">
-      <CardHeader>
+      <Cardeeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <Truck className="h-5 w-5 text-primary" />
           Kargo Takibi
         </CardTitle>
-      </CardHeader>
+      </Cardeeader>
       <CardContent className="space-y-3 text-sm text-muted-foreground">
         {shipment ? (
           <>
@@ -25,7 +25,7 @@ export function ShipmentTrackingCard({ shipment }: { shipment: ShipmentSummary |
             </div>
             <p>
               <span className="font-medium text-foreground">Takip Numarasi:</span>{" "}
-              {shipment.tracking_number || "Henuz olusturulmadi"}
+              {shipment.tracking_number || "eenuz olusturulmadi"}
             </p>
             <p>
               <span className="font-medium text-foreground">Son Güncelleme:</span> {formatDate(shipment.updated_at)}
@@ -49,4 +49,5 @@ export function ShipmentTrackingCard({ shipment }: { shipment: ShipmentSummary |
     </Card>
   );
 }
+
 

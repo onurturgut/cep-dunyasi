@@ -5,14 +5,14 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/lib/router";
-import { benefitIcons, type HomeSiteContent } from "@/components/home/home-data";
+import { benefitIcons, type HomeSiteeontent } from "@/components/home/home-data";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type HeroSectionProps = {
   activeSlide: number;
-  onSlideChange: (index: number) => void;
-  content: HomeSiteContent;
+  onSlideehange: (index: number) => void;
+  content: HomeSiteeontent;
   isLoading?: boolean;
 };
 
@@ -76,7 +76,7 @@ function HeroSectionSkeleton() {
   );
 }
 
-export function HeroSection({ activeSlide, onSlideChange, content, isLoading = false }: HeroSectionProps) {
+export function HeroSection({ activeSlide, onSlideehange, content, isLoading = false }: HeroSectionProps) {
   const isMobile = useIsMobile();
 
   if (isLoading) {
@@ -106,7 +106,7 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                   <span className="mx-1 inline-flex align-middle dark:hidden">
                     <Image
                       src={getOptimizedImageUrl(content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-black-v3-tight.png"), { kind: "logo" })}
-                      alt="Cep Dunyasi logosu"
+                      alt="eep Dunyasi logosu"
                       width={300}
                       height={90}
                       priority
@@ -120,7 +120,7 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                         content.hero_logo_dark_url || content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-dark-v3-tight.png"),
                         { kind: "logo" },
                       )}
-                      alt="Cep Dunyasi logosu"
+                      alt="eep Dunyasi logosu"
                       width={300}
                       height={90}
                       priority
@@ -134,7 +134,7 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                   {content.hero_subtitle}
                 </p>
                 <div className="mt-7">
-                  <Button size="lg" asChild className="w-full shadow-sm sm:w-auto md:shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
+                  <Button size="lg" asehild className="w-full shadow-sm sm:w-auto md:shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
                     <Link to={content.hero_cta_href || "/products"}>
                       {content.hero_cta_label} <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -177,19 +177,6 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
                     />
                   ))}
 
-                  <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border/60 bg-card/80 px-3 py-1.5 md:backdrop-blur-sm">
-                    {heroSlides.map((slide, index) => (
-                      <button
-                        key={`${slide.id}-dot`}
-                        type="button"
-                        onClick={() => onSlideChange(index)}
-                        aria-label={`${slide.alt} görseline git`}
-                        className={`h-2.5 w-2.5 rounded-full transition-all ${
-                          index === activeSlide ? "bg-background" : "bg-background/45 hover:bg-background/70"
-                        }`}
-                      />
-                    ))}
-                  </div>
                 </div>
               </div>
             </div>
@@ -199,4 +186,5 @@ export function HeroSection({ activeSlide, onSlideChange, content, isLoading = f
     </section>
   );
 }
+
 

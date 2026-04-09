@@ -227,40 +227,40 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
           productNotFound: "Ürün bulunamadi",
           home: "Ana Sayfa",
           products: "Ürünler",
-          chooseModel: "Lutfen gecerli bir model secin",
-          outOfStockSelection: "Secilen model su an stokta yok",
+          chooseModel: "Lütfen geçerli bir model seçin",
+          outOfStockSelection: "Seçilen model şu an stokta yok",
           addedToCart: (count: number) => `${count} adet sepete eklendi`,
-          backToProducts: "Ürünlere don",
-          unavailableDescription: "Aradiginiz urun bulunamadi ya da gecici olarak erisilemiyor.",
-          unavailableModel: "Bu model gecici olarak stokta bulunmuyor.",
-          lowStock: (count: number) => `Seçili modelde son ${count} adet kaldi.`,
-          readyStock: (count: number) => `${count} adet stokla siparise hazir.`,
-          supportReport: "Durum raporu paylasilir",
-          supportWarranty: "Cihaza ozel garanti bilgisi",
+          backToProducts: "Ürünlere dön",
+          unavailableDescription: "Aradığınız ürün bulunamadı ya da geçici olarak erişilemiyor.",
+          unavailableModel: "Bu model geçici olarak stokta bulunmuyor.",
+          lowStock: (count: number) => `Seçili modelde son ${count} adet kaldı.`,
+          readyStock: (count: number) => `${count} adet stokla siparişe hazır.`,
+          supportReport: "Durum raporu paylaşılır",
+          supportWarranty: "Cihaza özel garanti bilgisi",
           supportStandard: "Apple standart destek",
           reviews: (count: number) => `${count} yorum`,
           selectedModel: "Seçili model",
-          standardSelection: "Standart secim",
-          savings: (rate: number) => `%${rate} fiyat avantaji`,
-          secureShipping: "Guvenli odeme ve hizli kargo ile gonderilir.",
+          standardSelection: "Standart seçim",
+          savings: (rate: number) => `%${rate} fiyat avantajı`,
+          secureShipping: "Güvenli ödeme ve hızlı kargo ile gönderilir.",
           delivery: "Teslimat",
           support: "Destek",
           returns: "İade",
           fastShipping: "Hızlı kargo uygun",
-          warrantySpecified: "Garanti durumu belirtilmis",
-          warrantyAvailable: "Cihaza ozel garanti bilgisi mevcut",
-          supportYears: "2 yil destek",
-          easyReturn: "14 gun kosulsuz",
+          warrantySpecified: "Garanti durumu belirtilmiş",
+          warrantyAvailable: "Cihaza özel garanti bilgisi mevcut",
+          supportYears: "2 yıl destek",
+          easyReturn: "14 gün koşulsuz",
           addToCart: "Sepete Ekle",
           noStock: "Stokta Yok",
-          freeShippingTitle: "Ucretsiz kargo secenegi",
-          freeShippingDescription: "Uygun kampanyali tutarlarda ek teslimat bedeli yansimaz.",
-          securePaymentTitle: "Guvenli odeme",
-          securePaymentDescription: "Tum odemeler şifrelenmis altyapi ve guvenli baglanti ile islenir.",
+          freeShippingTitle: "Ücretsiz kargo seçeneği",
+          freeShippingDescription: "Uygun kampanyalı tutarlarda ek teslimat bedeli yansımaz.",
+          securePaymentTitle: "Güvenli ödeme",
+          securePaymentDescription: "Tüm ödemeler şifrelenmiş altyapı ve güvenli bağlantı ile işlenir.",
           easyReturnTitle: "Kolay iade",
-          easyReturnDescription: "Siparisiniz size ulastiktan sonra iade surecini online olarak baslatabilirsiniz.",
-          overviewTitle: "Ürüne Genel Bakis",
-          overviewFallback: "Bu urun icin henuz detayli bir tanitim metni eklenmemis. Seçili modele ait tum detaylari yukaridaki alandan inceleyebilirsiniz.",
+          easyReturnDescription: "Siparişiniz size ulaştıktan sonra iade sürecini online olarak başlatabilirsiniz.",
+          overviewTitle: "Ürüne Genel Bakış",
+          overviewFallback: "Bu ürün için henüz detaylı bir tanıtım metni eklenmemiş. Seçili modele ait tüm detayları yukarıdaki alandan inceleyebilirsiniz.",
         };
 
   useEffect(() => {
@@ -727,8 +727,8 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
             >
               <CardContent className="space-y-7 p-6 sm:p-8">
                 <div className="space-y-6">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="space-y-3">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1 space-y-3">
                       <div className="flex flex-wrap items-center gap-2.5">
                         <StockStatusBadge stock={selectedStock} />
                         {secondHandConditionLabel ? (
@@ -744,21 +744,21 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
                     </div>
 
                       <div className="space-y-2">
-                    <div className="flex flex-wrap items-end gap-3">
-                      <span className="text-[2.4rem] font-semibold tracking-[-0.04em] text-foreground sm:text-[3rem]">{formatCurrency(selectedPrice)}</span>
-                      {selectedComparePrice ? (
-                        <span className="pb-2 text-sm text-muted-foreground line-through">{formatCurrency(selectedComparePrice)}</span>
-                      ) : null}
+                        <div className="flex flex-wrap items-end gap-3">
+                          <span className="text-[2.15rem] font-semibold tracking-[-0.04em] text-foreground sm:text-[3rem]">{formatCurrency(selectedPrice)}</span>
+                          {selectedComparePrice ? (
+                            <span className="pb-2 text-sm text-muted-foreground line-through">{formatCurrency(selectedComparePrice)}</span>
+                          ) : null}
+                        </div>
+
+                        <p className="text-sm leading-6 text-muted-foreground">
+                          Seçili model: <span className="font-medium break-words text-foreground">{selectedVariantSummary || "Standart seçim"}</span>
+                        </p>
+                        {discountRate ? <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">%{discountRate} fiyat avantaji</p> : null}
+                      </div>
                     </div>
 
-                    <p className="text-sm leading-6 text-muted-foreground">
-                    <p className="text-sm leading-6 text-muted-foreground">Seçili model: <span className="font-medium text-foreground">{selectedVariantSummary || "Standart seçim"}</span></p>
-                    </p>
-                    {discountRate ? <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">%{discountRate} fiyat avantaji</p> : null}
-                      </div>
-                  </div>
-
-                  <div className="min-w-[220px] rounded-[1.4rem] border border-border/70 bg-muted/20 px-5 py-4 shadow-[0_18px_35px_-28px_rgba(15,23,42,0.24)]">
+                  <div className="w-full min-w-0 rounded-[1.4rem] border border-border/70 bg-muted/20 px-5 py-4 shadow-[0_18px_35px_-28px_rgba(15,23,42,0.24)] sm:w-auto sm:min-w-[220px]">
                     <p className="text-sm font-medium text-foreground">{lowStockMessage}</p>
                     <div className="mt-1 text-sm text-muted-foreground">Güvenli ödeme ve hızlı kargo ile gönderilir.</div>
                   </div>
@@ -766,12 +766,12 @@ export default function ProductDetail({ slug, initialProduct = null }: ProductDe
 
                 <button
                   type="button"
-                  className="flex w-full items-center justify-between rounded-[1.65rem] border border-border/70 bg-muted/20 p-4 text-left transition-colors hover:border-foreground/20 hover:bg-muted/25"
+                  className="flex w-full flex-col items-start gap-3 rounded-[1.65rem] border border-border/70 bg-muted/20 p-4 text-left transition-colors hover:border-foreground/20 hover:bg-muted/25 sm:flex-row sm:items-center sm:justify-between"
                   onClick={openReviewsSection}
                 >
-                  <div className="space-y-1">
+                  <div className="min-w-0 space-y-1">
                     <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Müşteri Değerlendirmeleri</div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <ReviewStars rating={reviewAverage} showValue={reviewAverage > 0} />
                       <span className="text-sm text-foreground">
                         {reviewCount > 0 ? `${reviewCount} yorum mevcut` : "Henüz yorum yok"}

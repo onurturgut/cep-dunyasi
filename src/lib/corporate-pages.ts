@@ -54,7 +54,6 @@ export const CORPORATE_PAGE_DEFINITIONS: Record<CorporatePageKey, CorporatePageD
     content:
       "## Marka yaklaşımımız\nCep Dünyası, telefon, aksesuar ve teknik servis alanlarında güven veren bir alışveriş deneyimi sunmak için kurulmuştur.\n\n## Hizmet anlayışımız\nDoğru ürün, doğru fiyat, şeffaf bilgilendirme ve satış sonrası destek ilkeleriyle ilerleriz.\n\n## Müşteri odağımız\nHem online hem mağaza deneyiminde sade, hızlı ve çözüm odaklı bir yapı kurmayı hedefleriz.",
     sections: [
-      createSection("mission", "Misyon", "Doğru ürünü, anlaşılır bilgi ve güvenilir hizmetle müşteriye ulaştırmak."),
       createSection("vision", "Vizyon", "Mobil teknoloji perakendesinde güven veren ve tavsiye edilen markalardan biri olmak."),
       createSection("why-us", "Neden Bizi Tercih Etmelisiniz?", "Seçili ürün gamı, şeffaf satış süreci ve teknik servis desteğini tek noktada sunuyoruz."),
     ],
@@ -364,4 +363,3 @@ export function toCorporatePageListItem(page: CorporatePageRecord): CorporatePag
     updatedAt: page.updatedAt,
   };
 }
-

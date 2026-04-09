@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { ImagePlus, Plus, RefreshCcw, WandSparkles } from "lucide-react";
@@ -23,7 +23,7 @@ async function uploadCampaignImage(file: File) {
   const payload = await response.json().catch(() => null);
 
   if (!response.ok || payload?.error) {
-    throw new Error(payload?.error?.message || "Kampanya görseli yuklenemedi");
+    throw new Error(payload?.error?.message || "Kampanya görseli yüklenemedi");
   }
 
   return `${payload?.data?.url ?? ""}`;
@@ -75,10 +75,10 @@ export default function AdminCampaigns() {
     try {
       if (form.id) {
         await updateCampaign.mutateAsync(form);
-        toast.success("Kampanya guncellendi");
+        toast.success("Kampanya güncellendi");
       } else {
         await createCampaign.mutateAsync(form);
-        toast.success("Kampanya olusturuldu");
+        toast.success("Kampanya oluşturuldu");
       }
       setDialogOpen(false);
       setForm(defaultCampaignFormValues);
@@ -92,9 +92,9 @@ export default function AdminCampaigns() {
       setUploading(true);
       const url = await uploadCampaignImage(file);
       setForm((current) => ({ ...current, [field]: url }));
-      toast.success("Görsel yuklendi");
+      toast.success("öörsel yuklendi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Görsel yuklenemedi");
+      toast.error(error instanceof Error ? error.message : "öörsel yuklenemedi");
     } finally {
       setUploading(false);
     }
@@ -131,14 +131,14 @@ export default function AdminCampaigns() {
       });
       toast.success(!campaign.isActive ? "Kampanya aktif edildi" : "Kampanya pasife alindi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Kampanya durumu guncellenemedi");
+      toast.error(error instanceof Error ? error.message : "Kampanya durumu güncellenemedi");
     } finally {
       setTogglingId(null);
     }
   };
 
   const handleDelete = async (campaign: CampaignRecord) => {
-    const confirmed = window.confirm(`"${campaign.title}" kampanyasini silmek istiyor musunuz?`);
+    const confirmed = window.confirm(`"${campaign.title}" kampanyasını silmek istiyor musunuz?`);
     if (!confirmed) {
       return;
     }
@@ -167,8 +167,8 @@ export default function AdminCampaigns() {
           <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary/70">Hero Carousel</p>
           <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">Campaign Slider Yönetimi</h1>
           <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-            Ana sayfanin en ustunde cikan premium hero slider kampanyalarini buradan yonetin. Surukle-birak ile sira degistirin,
-            tarih planlayin ve mobil görsel atayin. Ilk 3 aktif kampanya ayni zamanda ana sayfadaki kampanya kartlarini da besler.
+            Ana sayfanın en üstünde çıkan premium hero slider kampanyalarını buradan yönetin. Sürükle-bırak ile sıra değiştirin,
+            tarih planlayın ve mobil görsel atayın. İlk 3 aktif kampanya aynı zamanda ana sayfadaki kampanya kartlarını da besler.
           </p>
         </div>
 
@@ -213,13 +213,13 @@ export default function AdminCampaigns() {
             ) : (
               <div className="flex min-h-[18rem] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-muted/20 px-6 text-center">
                 <ImagePlus className="h-10 w-10 text-muted-foreground" />
-                <h2 className="mt-4 text-lg font-semibold text-foreground">Hero slider henuz bos</h2>
+                <h2 className="mt-4 text-lg font-semibold text-foreground">Hero slider henüz boş</h2>
                 <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-                  Ilk kampanyayi eklediginde ana sayfa hero alani otomatik olarak slider formatina gececek.
+                  İlk kampanyayı eklediğinde ana sayfa hero alanı otomatik olarak slider formatına geçecek.
                 </p>
                 <Button className="mt-5" onClick={openCreateDialog}>
                   <WandSparkles className="mr-2 h-4 w-4" />
-                  Ilk kampanyayi olustur
+                  İlk kampanyayı oluştur
                 </Button>
               </div>
             )}
@@ -251,4 +251,5 @@ export default function AdminCampaigns() {
     </div>
   );
 }
+
 

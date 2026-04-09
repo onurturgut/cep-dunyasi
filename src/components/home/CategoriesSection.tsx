@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import {
   sectionReveal,
   type HomeCategory,
   type HomeSiteContent,
-} from '@/components/home/home-data';
+} from "@/components/home/home-data";
 import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type CategoriesSectionProps = {
@@ -58,7 +58,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
                     {(content.hero_logo_light_url || content.hero_logo_dark_url) && (
                       <Image
                         src={getOptimizedImageUrl(content.hero_logo_light_url || content.hero_logo_dark_url, { kind: "logo" })}
-                        alt="Cep Dunyasi"
+                        alt="Cep Dünyası"
                         width={240}
                         height={72}
                         sizes={getResponsiveImageSizes("logo")}
@@ -68,7 +68,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
                     {(content.hero_logo_dark_url || content.hero_logo_light_url) && (
                       <Image
                         src={getOptimizedImageUrl(content.hero_logo_dark_url || content.hero_logo_light_url, { kind: "logo" })}
-                        alt="Cep Dunyasi"
+                        alt="Cep Dünyası"
                         width={240}
                         height={72}
                         sizes={getResponsiveImageSizes("logo")}

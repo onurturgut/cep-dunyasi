@@ -54,7 +54,6 @@ const TABLE_PERMISSION_MAP: Partial<Record<DbTableName, AdminPermission>> = {
   orders: "manage_orders",
   order_items: "manage_orders",
   shipments: "manage_shipments",
-  mission_items: "manage_site_content",
   site_contents: "manage_site_content",
   technical_service_requests: "manage_technical_service",
   users: "manage_users",
@@ -241,7 +240,6 @@ function withDefaults(table: DbTableName, data: Record<string, any>) {
     table === "products" ||
     table === "product_variants" ||
     table === "shipments" ||
-    table === "mission_items" ||
     table === "site_contents" ||
     table === "categories" ||
     table === "technical_service_requests"
@@ -260,7 +258,7 @@ function withDefaults(table: DbTableName, data: Record<string, any>) {
 }
 
 function withUpdatedAt(table: DbTableName, data: Record<string, any>) {
-  if (["products", "product_variants", "orders", "shipments", "mission_items", "site_contents", "categories", "technical_service_requests"].includes(table)) {
+  if (["products", "product_variants", "orders", "shipments", "site_contents", "categories", "technical_service_requests"].includes(table)) {
     return {
       ...data,
       updated_at: new Date(),

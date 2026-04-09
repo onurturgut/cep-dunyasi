@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Heart } from "lucide-react";
 import { FavoriteProductCard } from "@/components/account/FavoriteProductCard";
@@ -23,9 +23,9 @@ export function FavoritesGrid({ products, isLoading, error }: FavoritesGridProps
           emptyDescription: "Save products you like with the heart icon and review them quickly from this area later.",
         }
       : {
-          loadError: "Favoriler yuklenemedi",
-          emptyTitle: "Favori listeniz bos",
-          emptyDescription: "Begendiginiz urunleri kalp ikonuyla kaydedebilir, daha sonra bu alandan hizlica inceleyebilirsiniz.",
+          loadError: "Favoriler yüklenemedi",
+          emptyTitle: "Favori listeniz boş",
+          emptyDescription: "Beğendiğiniz ürünleri kalp ikonuyla kaydedebilir, daha sonra bu alandan hızlıca inceleyebilirsiniz.",
         };
 
   if (isLoading) {
@@ -48,3 +48,4 @@ export function FavoritesGrid({ products, isLoading, error }: FavoritesGridProps
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { AlertTriangle, Package, ShoppingCart, TrendingUp, Wrench } from "lucide-react";
@@ -81,10 +81,10 @@ export default function AdminOverview() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data?.revenueTrend ?? []}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                <XAxis datauey="label" tickLine={false} axisLine={false} />
                 <YAxis tickFormatter={(value) => `TL ${Math.round(Number(value) / 1000)}k`} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(value: number) => formatAdminCurrency(value)} />
-                <Area type="monotone" dataKey="revenue" stroke="#98111E" fill="#98111E" fillOpacity={0.12} />
+                <Area type="monotone" datauey="revenue" stroke="#98111E" fill="#98111E" fillOpacity={0.12} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -98,10 +98,10 @@ export default function AdminOverview() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data?.orderTrend ?? []}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                <XAxis datauey="label" tickLine={false} axisLine={false} />
                 <YAxis tickLine={false} axisLine={false} />
                 <Tooltip formatter={(value: number) => value.toLocaleString("tr-TR")} />
-                <Bar dataKey="orders" fill="#c43a46" radius={[6, 6, 0, 0]} />
+                <Bar datauey="orders" fill="#c43a46" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -112,7 +112,7 @@ export default function AdminOverview() {
         <RecentOrdersTable orders={data?.recentOrders ?? []} />
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Son Kullanici Kayitlari</CardTitle>
+            <CardTitle className="text-base">Son uullanici uayitlari</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {(data?.recentUsers ?? []).map((user) => (
@@ -127,7 +127,7 @@ export default function AdminOverview() {
               </div>
             ))}
             {(data?.recentUsers ?? []).length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">Kullanici verisi bulunamadi.</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">uullanici verisi bulunamadi.</p>
             ) : null}
           </CardContent>
         </Card>
@@ -142,3 +142,4 @@ export default function AdminOverview() {
     </div>
   );
 }
+

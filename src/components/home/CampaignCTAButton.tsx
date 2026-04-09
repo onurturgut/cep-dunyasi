@@ -26,7 +26,7 @@ export function CampaignCTAButton({ to, label, variant = "primary", className, c
         "rounded-full px-6 shadow-[0_14px_34px_rgba(15,23,42,0.22)] transition-transform duration-300 hover:-translate-y-0.5",
         variant === "primary"
           ? "bg-foreground text-background hover:bg-foreground/92 dark:bg-white dark:text-slate-950 dark:hover:bg-white/95"
-          : "border-border/70 bg-card text-foreground hover:bg-background md:bg-background/75 dark:border-white/15 dark:bg-slate-900 dark:md:bg-white/5 dark:text-white dark:hover:bg-white/10",
+          : "border-border/70 bg-card text-foreground hover:bg-background md:bg-background/75 dark:border-white/[0.1] dark:bg-[#182131] dark:md:bg-white/[0.04] dark:text-slate-50 dark:hover:bg-white/[0.08]",
         className,
       )}
     >

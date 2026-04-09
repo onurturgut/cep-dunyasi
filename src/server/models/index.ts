@@ -21,6 +21,7 @@ const productSchema = new Schema(
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true, index: true },
+    model: { type: String, default: "", index: true },
     description: { type: String, default: "" },
     category_id: { type: String, default: null, index: true },
     subcategory_id: { type: String, default: null, index: true },
@@ -35,6 +36,22 @@ const productSchema = new Schema(
           ram: { type: String, default: null },
           frontCamera: { type: String, default: null },
           rearCamera: { type: String, default: null },
+          screenSize: { type: String, default: null },
+          displayTechnology: { type: String, default: null },
+          refreshRate: { type: String, default: null },
+          resolution: { type: String, default: null },
+          processor: { type: String, default: null },
+          batteryCapacity: { type: String, default: null },
+          fastCharging: { type: String, default: null },
+          wirelessCharging: { type: String, default: null },
+          network5g: { type: String, default: null },
+          nfc: { type: String, default: null },
+          esim: { type: String, default: null },
+          dualSim: { type: String, default: null },
+          bluetooth: { type: String, default: null },
+          wifi: { type: String, default: null },
+          waterResistance: { type: String, default: null },
+          biometricSecurity: { type: String, default: null },
         },
         { _id: false }
       ),
@@ -110,6 +127,7 @@ productSchema.index({ is_active: 1, category_id: 1, created_at: -1 });
 productSchema.index({ is_active: 1, subcategory_id: 1, created_at: -1 });
 productSchema.index({ is_active: 1, is_featured: 1, created_at: -1 });
 productSchema.index({ is_active: 1, brand: 1, created_at: -1 });
+productSchema.index({ is_active: 1, model: 1, created_at: -1 });
 productSchema.index({ category_id: 1, subcategory_id: 1, is_active: 1 });
 
 const productVariantSchema = new Schema(
@@ -316,20 +334,20 @@ const marketingSettingSchema = new Schema(
     id: { type: String, default: () => randomUUID(), unique: true, index: true },
     key: { type: String, required: true, unique: true, index: true },
     newsletter_enabled: { type: Boolean, default: true },
-    newsletter_title: { type: String, default: "Kampanyalari ilk sen ogren" },
+    newsletter_title: { type: String, default: "Kampanyaları ilk sen öğren" },
     newsletter_description: {
       type: String,
-      default: "Yeni urunler, premium koleksiyonlar ve sessizce gelen indirimler icin e-posta listemize katil.",
+      default: "Yeni ürünler, premium koleksiyonlar ve sessizce gelen indirimler için e-posta listemize katıl.",
     },
     newsletter_success_message: {
       type: String,
-      default: "Kaydin tamamlandi. Yeni kampanyalari sana e-posta ile haber verecegiz.",
+      default: "Kaydın tamamlandı. Yeni kampanyaları sana e-posta ile haber vereceğiz.",
     },
-    newsletter_consent_label: { type: String, default: "Kampanya ve urun bilgilendirmelerini almak istiyorum." },
+    newsletter_consent_label: { type: String, default: "Kampanya ve ürün bilgilendirmelerini almak istiyorum." },
     whatsapp_enabled: { type: Boolean, default: true },
     whatsapp_phone: { type: String, default: "" },
-    whatsapp_message: { type: String, default: "Merhaba, Cep Dunyasi urunleri hakkinda bilgi almak istiyorum." },
-    whatsapp_help_text: { type: String, default: "Yardim ister misin?" },
+    whatsapp_message: { type: String, default: "Merhaba, Cep Dünyası ürünleri hakkında bilgi almak istiyorum." },
+    whatsapp_help_text: { type: String, default: "Yardım ister misin?" },
     whatsapp_show_on_mobile: { type: Boolean, default: true },
     whatsapp_show_on_desktop: { type: Boolean, default: true },
     live_support_enabled: { type: Boolean, default: false },
@@ -468,24 +486,6 @@ const shipmentSchema = new Schema(
 
 shipmentSchema.index({ order_id: 1, created_at: -1 });
 shipmentSchema.index({ tracking_number: 1 }, { sparse: true });
-
-const missionItemSchema = new Schema(
-  {
-    id: { type: String, default: () => randomUUID(), unique: true, index: true },
-    label: { type: String, required: true },
-    title: { type: String, default: "" },
-    description: { type: String, default: "" },
-    media_type: { type: String, enum: ["image", "video"], default: "image" },
-    media_url: { type: String, default: "" },
-    media_poster: { type: String, default: "" },
-    list_items: { type: [String], default: [] },
-    sort_order: { type: Number, default: 0, index: true },
-    is_active: { type: Boolean, default: true, index: true },
-    created_at: { type: Date, default: Date.now },
-    updated_at: { type: Date, default: Date.now },
-  },
-  { versionKey: false }
-);
 
 const siteContentSchema = new Schema(
   {
@@ -665,6 +665,14 @@ const userSchema = new Schema(
     roles: { type: [String], default: ["customer"] },
     permissions: { type: [String], default: [] },
     is_active: { type: Boolean, default: true, index: true },
+    email_verified: { type: Boolean, default: false, index: true },
+    email_verified_at: { type: Date, default: null },
+    email_verification_token_hash: { type: String, default: null, index: true },
+    email_verification_expires_at: { type: Date, default: null, index: true },
+    email_verification_sent_at: { type: Date, default: null },
+    password_reset_code_hash: { type: String, default: null, index: true },
+    password_reset_expires_at: { type: Date, default: null, index: true },
+    password_reset_sent_at: { type: Date, default: null },
     last_login_at: { type: Date, default: null },
     wishlist_product_ids: { type: [String], default: [] },
     loyalty_points_balance: { type: Number, default: 0, index: true },
@@ -771,7 +779,7 @@ function ensureModelSchema(modelName: string, schema: Schema, requiredPaths: str
 }
 
 export const Category: any = ensureModelSchema("Category", categorySchema, ["parent_category_id"]);
-export const Product: any = ensureModelSchema("Product", productSchema, ["subcategory_id", "case_details"]);
+export const Product: any = ensureModelSchema("Product", productSchema, ["subcategory_id", "case_details", "model", "specs.screenSize"]);
 export const ProductVariant: any = models.ProductVariant || model("ProductVariant", productVariantSchema);
 export const Coupon: any = models.Coupon || model("Coupon", couponSchema);
 export const Order: any = ensureModelSchema("Order", orderSchema, [
@@ -832,11 +840,19 @@ export const Referral: any = ensureModelSchema("Referral", referralSchema, [
 ]);
 export const ProductReview: any = models.ProductReview || model("ProductReview", productReviewSchema);
 export const Shipment: any = models.Shipment || model("Shipment", shipmentSchema);
-export const MissionItem: any = models.MissionItem || model("MissionItem", missionItemSchema);
 export const SiteContent: any = models.SiteContent || model("SiteContent", siteContentSchema);
 export const TechnicalServiceRequest: any =
   models.TechnicalServiceRequest || model("TechnicalServiceRequest", technicalServiceRequestSchema);
-export const User: any = ensureModelSchema("User", userSchema, ["loyalty_points_balance", "referral_code", "referred_by"]);
+export const User: any = ensureModelSchema("User", userSchema, [
+  "loyalty_points_balance",
+  "referral_code",
+  "referred_by",
+  "email_verified",
+  "email_verification_token_hash",
+  "email_verification_sent_at",
+  "password_reset_code_hash",
+  "password_reset_sent_at",
+]);
 export const ReturnRequest: any = models.ReturnRequest || model("ReturnRequest", returnRequestSchema);
 export const BannerCampaign: any = ensureModelSchema("BannerCampaign", bannerCampaignSchema, [
   "theme_variant",
@@ -858,7 +874,6 @@ export type DbTableName =
   | "payment_attempts"
   | "order_items"
   | "shipments"
-  | "mission_items"
   | "site_contents"
   | "technical_service_requests"
   | "return_requests"
@@ -883,7 +898,6 @@ export const tableModelMap: Record<DbTableName, any> = {
   payment_attempts: PaymentAttempt,
   order_items: OrderItem,
   shipments: Shipment,
-  mission_items: MissionItem,
   site_contents: SiteContent,
   technical_service_requests: TechnicalServiceRequest,
   return_requests: ReturnRequest,

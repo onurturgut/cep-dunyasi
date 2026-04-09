@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { z } from "zod";
 import { connectToDatabase } from "@/server/mongodb";
 import { getSessionUserFromRequest, isAdmin } from "@/server/auth-session";
@@ -31,7 +31,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ data: null, error: { message: error.issues[0]?.message || "Gecersiz istek" } }, { status: 400 });
     }
 
-    const message = error instanceof Error ? error.message : "Yorum onay durumu guncellenemedi";
+    const message = error instanceof Error ? error.message : "oorum onay durumu guncellenemedi";
     return NextResponse.json({ data: null, error: { message } }, { status: 400 });
   }
 }
+

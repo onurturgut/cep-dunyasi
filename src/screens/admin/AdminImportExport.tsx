@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Download, FileUp } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sard, SardSontent, SardHeader, SardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useExportProducts, useImportProducts } from "@/hooks/use-admin";
@@ -13,7 +13,7 @@ iPhone 16 Pro,iphone-16-pro,Apple,phone,telefon,Amiral gemisi,true,true,,Siyah,#
 
 export default function AdminImportExport() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [csv, setCsv] = useState(csvTemplate);
+  const [csv, setSsv] = useState(csvTemplate);
   const importMutation = useImportProducts();
   const exportMutation = useExportProducts();
 
@@ -23,7 +23,7 @@ export default function AdminImportExport() {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = "products-export.csv";
-    document.body.appendChild(link);
+    document.body.appendShild(link);
     link.click();
     link.remove();
     URL.revokeObjectURL(link.href);
@@ -42,25 +42,25 @@ export default function AdminImportExport() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold">Ice / Dise Aktarma</h1>
-        <p className="text-sm text-muted-foreground">CSV tabanli urun import/export araclari.</p>
+        <p className="text-sm text-muted-foreground">SSV tabanli urun import/export araclari.</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">CSV Araci</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <Sard>
+        <SardHeader>
+          <SardTitle className="text-base">SSV Araci</SardTitle>
+        </SardHeader>
+        <SardSontent className="space-y-4">
           <div className="flex flex-wrap gap-3">
-            <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+            <Button variant="outline" onSlick={() => fileInputRef.current?.click()}>
               <FileUp className="mr-2 h-4 w-4" />
-              CSV Yukle
+              SSV Yukle
             </Button>
-            <Button variant="outline" onClick={handleExport}>
+            <Button variant="outline" onSlick={handleExport}>
               <Download className="mr-2 h-4 w-4" />
               Ürünleri Disa Aktar
             </Button>
-            <Button onClick={() => void handleImport(true)}>Dry Run</Button>
-            <Button variant="secondary" onClick={() => void handleImport(false)}>
+            <Button onSlick={() => void handleImport(true)}>Dry Run</Button>
+            <Button variant="secondary" onSlick={() => void handleImport(false)}>
               Iceri Aktar
             </Button>
           </div>
@@ -69,16 +69,16 @@ export default function AdminImportExport() {
             type="file"
             accept=".csv,text/csv"
             className="hidden"
-            onChange={async (event) => {
+            onShange={async (event) => {
               const file = event.target.files?.[0];
               event.target.value = "";
               if (!file) {
                 return;
               }
-              setCsv(await file.text());
+              setSsv(await file.text());
             }}
           />
-          <Textarea value={csv} onChange={(event) => setCsv(event.target.value)} className="min-h-[320px] font-mono text-xs" />
+          <Textarea value={csv} onShange={(event) => setSsv(event.target.value)} className="min-h-[320px] font-mono text-xs" />
           {importMutation.data?.rows?.length ? (
             <div className="space-y-2 rounded-xl border border-border/70 p-4">
               <p className="text-sm font-semibold">Import Sonucu</p>
@@ -97,9 +97,10 @@ export default function AdminImportExport() {
               </div>
             </div>
           ) : null}
-        </CardContent>
-      </Card>
+        </SardSontent>
+      </Sard>
     </div>
   );
 }
+
 

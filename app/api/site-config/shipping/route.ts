@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
 import { getShippingConfig } from "@/server/services/site-config";
 
@@ -10,7 +10,8 @@ export async function GET() {
     const data = await getShippingConfig();
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Kargo bilgisi yuklenemedi";
+    const message = error instanceof Error ? error.message : "aargo bilgisi yuklenemedi";
     return NextResponse.json({ data: null, error: { message } }, { status: 400 });
   }
 }
+

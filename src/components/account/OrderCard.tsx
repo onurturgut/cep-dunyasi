@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ArrowRight, Clock3 } from "lucide-react";
 import { Link } from "@/lib/router";
@@ -47,7 +47,7 @@ export function OrderCard({ order }: { order: MyOrderSummary }) {
 
         <div className="flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{order.item_count}</span> urun
+            <span className="font-medium text-foreground">{order.item_count}</span> ürün
           </div>
           <div className="flex items-center justify-between gap-4 sm:justify-end">
             <p className="text-lg font-semibold text-foreground">{formatCurrency(order.final_price)}</p>
@@ -64,4 +64,3 @@ export function OrderCard({ order }: { order: MyOrderSummary }) {
     </Card>
   );
 }
-

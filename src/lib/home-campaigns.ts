@@ -1,4 +1,4 @@
-﻿import type { CampaignRecord } from "@/lib/campaigns";
+import type { CampaignRecord } from "@/lib/campaigns";
 
 export type CampaignThemeVariant = "midnight" | "violet" | "graphite" | "emerald";
 
@@ -34,7 +34,7 @@ export const fallbackHeroCampaignSlides: HeroCampaignSlideData[] = [
     id: "showcase-iphone",
     title: "iPhone 16 Pro ile yeni nesil hiz ve cekim deneyimi",
     subtitle: "Premium Seçim",
-    description: "Sinirli stok, zarif tasarim ve guclu performansi tek vitrinde birlestiren ozel kampanya secimi.",
+    description: "Sınırlı stok, zarif tasarım ve güçlü performansı tek vitrinde birleştiren özel kampanya seçimi.",
     imageUrl: "/images/iphone15.png",
     mobileImageUrl: "/images/iphone15.png",
     badgeText: "4 Taksit",
@@ -85,7 +85,7 @@ export const fallbackCampaignPromoCards: CampaignPromoCardData[] = [
   {
     id: "promo-audio",
     title: "AirPods ve Aksesuar Seckisi",
-    description: "Kulaklik, kilif ve sarj urunlerini tek bakista gosteren temiz ve yuksek donusumlu promo karti.",
+    description: "Kulaklık, kılıf ve şarj ürünlerini tek bakışta gösteren temiz ve yüksek dönüşümlü promo kartı.",
     imageUrl: "/images/airpods.png",
     badgeText: "Aksesuar",
     ctaText: "Detayli Incele",
@@ -95,7 +95,7 @@ export const fallbackCampaignPromoCards: CampaignPromoCardData[] = [
   {
     id: "promo-watch",
     title: "Watch ve Bundle Firsatlari",
-    description: "Akilli saat, power bank ve tamamlayici urunleri birlikte one cikaran premium bundle vitrini.",
+    description: "Akıllı saat, power bank ve tamamlayıcı ürünleri birlikte öne çıkaran premium bundle vitrini.",
     imageUrl: "/images/akilli-saat.jpg",
     badgeText: "Bundle",
     ctaText: "Paketleri Gör",
@@ -117,7 +117,7 @@ export function buildHeroCampaignSlides(campaigns: CampaignRecord[]) {
     id: campaign.id,
     title: campaign.title,
     subtitle: campaign.subtitle || "Premium Campaign",
-    description: campaign.description || "Modern teknoloji urunlerini one cikaracak premium vitrin alani.",
+    description: campaign.description || "Modern teknoloji ürünlerini öne çıkaracak premium vitrin alanı.",
     imageUrl: campaign.imageUrl,
     mobileImageUrl: campaign.mobileImageUrl ?? campaign.imageUrl,
     badgeText: campaign.badgeText,
@@ -133,7 +133,7 @@ export function buildCampaignPromoCards(campaigns: CampaignRecord[]) {
     return campaigns.slice(0, 3).map((campaign, index) => ({
       id: `promo-${campaign.id}`,
       title: campaign.title,
-      description: campaign.description || "Seçili kampanya urunlerini vitrinde gosteren premium promo karti.",
+      description: campaign.description || "Seçili kampanya ürünlerini vitrinde gösteren premium promo kartı.",
       imageUrl: campaign.mobileImageUrl || campaign.imageUrl,
       badgeText: campaign.badgeText,
       ctaText: campaign.ctaText || "Detayli Incele",

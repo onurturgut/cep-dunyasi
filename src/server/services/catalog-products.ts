@@ -56,7 +56,7 @@ function matchesSearch(product: CatalogProductRecord, normalizedSearch: string) 
     return true;
   }
 
-  const searchable = [product.name, product.brand, product.description]
+  const searchable = [product.name, product.model, product.brand, product.description]
     .filter(Boolean)
     .join(" ")
     .toLocaleLowerCase("tr-TR");
@@ -96,6 +96,7 @@ export function normalizeCatalogFilters(input: unknown): CatalogFilters {
   return {
     subcategory: normalizeStringList(source.subcategory),
     brand: normalizeStringList(source.brand),
+    model: normalizeStringList(source.model),
     color: normalizeStringList(source.color),
     storage: normalizeStringList(source.storage),
     ram: normalizeStringList(source.ram),
@@ -150,7 +151,7 @@ async function loadCatalogProducts(activeCategory: string | null): Promise<Catal
   }
 
   const rawProducts = (await Product.find(productQuery)
-    .select("id name slug description category_id subcategory_id brand images created_at sales_count rating_average second_hand specs case_details")
+    .select("id name slug model description category_id subcategory_id brand type images created_at sales_count rating_average second_hand specs case_details")
     .sort({ created_at: -1 })
     .lean()) as Array<Record<string, unknown>>;
 
@@ -215,8 +216,10 @@ async function loadCatalogProducts(activeCategory: string | null): Promise<Catal
     id: `${product.id ?? ""}`,
     name: `${product.name ?? ""}`,
     slug: `${product.slug ?? ""}`,
+    model: normalizeText(product.model),
     description: normalizeText(product.description),
     brand: normalizeText(product.brand),
+    type: normalizeText(product.type),
     images: normalizeStringArray(product.images),
     created_at: product.created_at as string | Date | undefined,
     sales_count: Number(product.sales_count ?? 0),

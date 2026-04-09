@@ -100,6 +100,24 @@ export function buildCatalogFacetSectionsData({
     });
   }
 
+  {
+    const selectedValues = filters.model ?? [];
+    const options = buildFacetOptions(
+      catalogOptions.models.map((model) => ({ value: model, label: model })),
+      (value) => ({ ...filters, model: [value] }),
+      selectedValues,
+    );
+
+    if (options.length > 0 || selectedValues.length > 0) {
+      sections.push({
+        id: "model",
+        title: "Telefon Modeli",
+        options,
+        selectedValues,
+      });
+    }
+  }
+
   if (filterProfile.showCaseDetails) {
     const selectedCaseTypes = filters.caseType ?? [];
     const selectedCaseThemes = filters.caseTheme ?? [];

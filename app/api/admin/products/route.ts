@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       actionType: body.productId ? "product.updated" : "product.created",
       entityType: "product",
       entityId: result.productId,
-      message: body.productId ? "Ürün guncellendi" : "Ürün olusturuldu",
+      message: body.productId ? "Ürün güncellendi" : "Ürün oluşturuldu",
       metadata: { productId: result.productId },
       ip: request.headers.get("x-forwarded-for"),
     });
@@ -31,4 +31,5 @@ export async function POST(request: Request) {
     return handleAdminRouteError(error, "Ürün kaydi tamamlanamadi");
   }
 }
+
 
