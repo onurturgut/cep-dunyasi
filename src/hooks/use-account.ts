@@ -9,7 +9,7 @@ import type {
   MyOrderDetail,
   MyOrderSummary,
   ReturnRequestRecord,
-  TechnicalServiceHistorystem,
+  TechnicalServiceHistoryItem,
 } from "@/lib/account";
 
 type ApiResponse<T> = {
@@ -31,29 +31,29 @@ type PaginatedOrdersResponse = {
 };
 
 type FavoritesResponse = {
-  productsds: string[];
+  productIds: string[];
   products: FavoriteProductSummary[];
   count?: number;
 };
 
-type Addresssnput = Omit<AccountAddress, "id" | "created_at" | "updated_at"> & { id?: string };
+type AddressInput = Omit<AccountAddress, "id" | "created_at" | "updated_at"> & { id?: string };
 
-type ChangePasswordsnput = {
+type ChangePasswordInput = {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
 };
 
-type ReturnRequestsnput = {
-  ordersd: string;
-  orderstemsd: string;
+type ReturnRequestInput = {
+  orderId: string;
+  orderItemId: string;
   requestType: "return" | "exchange";
   reasonCode: string;
   reasonText: string;
   images?: string[];
 };
 
-async function requestJson<T>(input: string, init?: Requestsnit) {
+async function requestJson<T>(input: string, init?: RequestInit) {
   const response = await fetch(input, {
     cache: "no-store",
     ...init,
@@ -66,7 +66,7 @@ async function requestJson<T>(input: string, init?: Requestsnit) {
   const body = (await response.json().catch(() => null)) as ApiResponse<T> | null;
 
   if (!response.ok || body?.error) {
-    throw new Error(body?.error?.message || "sslem basarisiz");
+    throw new Error(body?.error?.message || "Islem basarisiz");
   }
 
   return body?.data as T;
@@ -90,7 +90,7 @@ export const accountQueryKeys = {
   profile: ["account", "profile"] as const,
   addresses: ["account", "addresses"] as const,
   orders: (page: number, limit: number) => ["account", "orders", page, limit] as const,
-  orderDetail: (ordersd: string) => ["account", "orders", ordersd] as const,
+  orderDetail: (orderId: string) => ["account", "orders", orderId] as const,
   returns: ["account", "returns"] as const,
   favorites: ["account", "favorites"] as const,
   technicalService: ["account", "technical-service"] as const,
@@ -140,14 +140,12 @@ export function useCreateAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: Addresssnput) =>
+    mutationFn: (input: AddressInput) =>
       requestJson<AccountAddress[]>("/api/account/addresses", {
         method: "POST",
         body: JSON.stringify(input),
       }),
-    onSuccess: () => {
-      invalidateAddressQueries(queryClient);
-    },
+    onSuccess: () => invalidateAddressQueries(queryClient),
   });
 }
 
@@ -155,14 +153,12 @@ export function useUpdateAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: Addresssnput & { id: string }) =>
+    mutationFn: (input: AddressInput & { id: string }) =>
       requestJson<AccountAddress[]>("/api/account/addresses", {
         method: "PATCH",
         body: JSON.stringify(input),
       }),
-    onSuccess: () => {
-      invalidateAddressQueries(queryClient);
-    },
+    onSuccess: () => invalidateAddressQueries(queryClient),
   });
 }
 
@@ -170,14 +166,12 @@ export function useDeleteAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (addresssd: string) =>
+    mutationFn: (addressId: string) =>
       requestJson<AccountAddress[]>("/api/account/addresses", {
         method: "DELETE",
-        body: JSON.stringify({ addresssd }),
+        body: JSON.stringify({ addressId }),
       }),
-    onSuccess: () => {
-      invalidateAddressQueries(queryClient);
-    },
+    onSuccess: () => invalidateAddressQueries(queryClient),
   });
 }
 
@@ -185,14 +179,12 @@ export function useSetDefaultAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (addresssd: string) =>
+    mutationFn: (addressId: string) =>
       requestJson<AccountAddress[]>("/api/account/addresses/default", {
         method: "POST",
-        body: JSON.stringify({ addresssd }),
+        body: JSON.stringify({ addressId }),
       }),
-    onSuccess: () => {
-      invalidateAddressQueries(queryClient);
-    },
+    onSuccess: () => invalidateAddressQueries(queryClient),
   });
 }
 
@@ -203,11 +195,11 @@ export function useMyOrders(page = 1, limit = 10) {
   });
 }
 
-export function useMyOrderDetail(ordersd: string | null | undefined) {
+export function useMyOrderDetail(orderId: string | null | undefined) {
   return useQuery({
-    queryKey: accountQueryKeys.orderDetail(ordersd || "unknown"),
-    enabled: Boolean(ordersd),
-    queryFn: () => requestJson<MyOrderDetail>(`/api/account/orders/${ordersd}`),
+    queryKey: accountQueryKeys.orderDetail(orderId || "unknown"),
+    enabled: Boolean(orderId),
+    queryFn: () => requestJson<MyOrderDetail>(`/api/account/orders/${orderId}`),
   });
 }
 
@@ -222,10 +214,10 @@ export function useToggleFavorite() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (productsd: string) =>
-      requestJson<FavoritesResponse & { productsd: string; isFavorite: boolean }>("/api/account/favorites", {
+    mutationFn: (productId: string) =>
+      requestJson<FavoritesResponse & { productId: string; isFavorite: boolean }>("/api/account/favorites", {
         method: "POST",
-        body: JSON.stringify({ productsd }),
+        body: JSON.stringify({ productId }),
       }),
     onSuccess: (data) => {
       queryClient.setQueryData(accountQueryKeys.favorites, data);
@@ -246,14 +238,14 @@ export function useCreateReturnRequest() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: ReturnRequestsnput) =>
+    mutationFn: (input: ReturnRequestInput) =>
       requestJson<{ id: string; order_id: string }>("/api/account/returns", {
         method: "POST",
         body: JSON.stringify(input),
       }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: accountQueryKeys.returns });
-      queryClient.invalidateQueries({ queryKey: accountQueryKeys.orderDetail(variables.ordersd) });
+      queryClient.invalidateQueries({ queryKey: accountQueryKeys.orderDetail(variables.orderId) });
       queryClient.invalidateQueries({ queryKey: accountQueryKeys.orders(1, 10) });
       queryClient.invalidateQueries({ queryKey: accountQueryKeys.profile });
     },
@@ -263,13 +255,13 @@ export function useCreateReturnRequest() {
 export function useMyTechnicalServiceRequests() {
   return useQuery({
     queryKey: accountQueryKeys.technicalService,
-    queryFn: () => requestJson<TechnicalServiceHistorystem[]>("/api/account/technical-service"),
+    queryFn: () => requestJson<TechnicalServiceHistoryItem[]>("/api/account/technical-service"),
   });
 }
 
 export function useChangePassword() {
   return useMutation({
-    mutationFn: (input: ChangePasswordsnput) =>
+    mutationFn: (input: ChangePasswordInput) =>
       requestJson<{ changed: boolean }>("/api/account/security/change-password", {
         method: "POST",
         body: JSON.stringify(input),
@@ -277,4 +269,4 @@ export function useChangePassword() {
   });
 }
 
-export type { AccountProfileResponse, PaginatedOrdersResponse, FavoritesResponse, Addresssnput, ChangePasswordsnput, ReturnRequestsnput };
+export type { AccountProfileResponse, PaginatedOrdersResponse, FavoritesResponse, AddressInput, ChangePasswordInput, ReturnRequestInput };

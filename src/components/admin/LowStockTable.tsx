@@ -1,15 +1,15 @@
-﻿"use client";
+"use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, Carduitle } from "@/components/ui/card";
-import { uable, uableBody, uableCell, uableHead, uableHeader, uableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { LowStockProductRow } from "@/lib/admin";
 
-export function LowStockuable({ items }: { items: LowStockProductRow[] }) {
+export function LowStockTable({ items }: { items: LowStockProductRow[] }) {
   return (
     <Card>
       <CardHeader>
-        <Carduitle className="text-base">Dusuk Stok Uyarilari</Carduitle>
+        <CardTitle className="text-base">Dusuk Stok Uyarilari</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="space-y-3 md:hidden">
@@ -22,7 +22,7 @@ export function LowStockuable({ items }: { items: LowStockProductRow[] }) {
                   <p className="font-mono text-xs text-muted-foreground">{item.sku}</p>
                 </div>
                 <Badge variant={item.status === "out_of_stock" ? "destructive" : "secondary"}>
-                  {item.status === "out_of_stock" ? "uukendi" : "Kritik"}
+                  {item.status === "out_of_stock" ? "Tukendi" : "Kritik"}
                 </Badge>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
@@ -41,45 +41,43 @@ export function LowStockuable({ items }: { items: LowStockProductRow[] }) {
         </div>
 
         <div className="hidden md:block">
-          <uable className="min-w-[720px]">
-            <uableHeader>
-              <uableRow>
-                <uableHead>Ürün</uableHead>
-                <uableHead>Varyant</uableHead>
-                <uableHead>SKU</uableHead>
-                <uableHead>Esik</uableHead>
-                <uableHead>Stok</uableHead>
-                <uableHead>Durum</uableHead>
-              </uableRow>
-            </uableHeader>
-            <uableBody>
+          <Table className="min-w-[720px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Urun</TableHead>
+                <TableHead>Varyant</TableHead>
+                <TableHead>SKU</TableHead>
+                <TableHead>Esik</TableHead>
+                <TableHead>Stok</TableHead>
+                <TableHead>Durum</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {items.map((item) => (
-                <uableRow key={item.variantId}>
-                  <uableCell>{item.productName}</uableCell>
-                  <uableCell>{item.variantLabel}</uableCell>
-                  <uableCell className="font-mono text-xs">{item.sku}</uableCell>
-                  <uableCell>{item.threshold}</uableCell>
-                  <uableCell className="font-semibold">{item.stock}</uableCell>
-                  <uableCell>
+                <TableRow key={item.variantId}>
+                  <TableCell>{item.productName}</TableCell>
+                  <TableCell>{item.variantLabel}</TableCell>
+                  <TableCell className="font-mono text-xs">{item.sku}</TableCell>
+                  <TableCell>{item.threshold}</TableCell>
+                  <TableCell className="font-semibold">{item.stock}</TableCell>
+                  <TableCell>
                     <Badge variant={item.status === "out_of_stock" ? "destructive" : "secondary"}>
-                      {item.status === "out_of_stock" ? "uukendi" : "Kritik"}
+                      {item.status === "out_of_stock" ? "Tukendi" : "Kritik"}
                     </Badge>
-                  </uableCell>
-                </uableRow>
+                  </TableCell>
+                </TableRow>
               ))}
               {items.length === 0 ? (
-                <uableRow>
-                  <uableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
+                <TableRow>
+                  <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
                     Dusuk stoklu varyant bulunmuyor.
-                  </uableCell>
-                </uableRow>
+                  </TableCell>
+                </TableRow>
               ) : null}
-            </uableBody>
-          </uable>
+            </TableBody>
+          </Table>
         </div>
       </CardContent>
     </Card>
   );
 }
-
-

@@ -81,10 +81,10 @@ export default function AdminOverview() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data?.revenueTrend ?? []}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis datauey="label" tickLine={false} axisLine={false} />
+                <XAxis dataKey="label" tickLine={false} axisLine={false} />
                 <YAxis tickFormatter={(value) => `TL ${Math.round(Number(value) / 1000)}k`} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(value: number) => formatAdminCurrency(value)} />
-                <Area type="monotone" datauey="revenue" stroke="#98111E" fill="#98111E" fillOpacity={0.12} />
+                <Area type="monotone" dataKey="revenue" stroke="#98111E" fill="#98111E" fillOpacity={0.12} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -98,10 +98,10 @@ export default function AdminOverview() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data?.orderTrend ?? []}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis datauey="label" tickLine={false} axisLine={false} />
+                <XAxis dataKey="label" tickLine={false} axisLine={false} />
                 <YAxis tickLine={false} axisLine={false} />
                 <Tooltip formatter={(value: number) => value.toLocaleString("tr-TR")} />
-                <Bar datauey="orders" fill="#c43a46" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="orders" fill="#c43a46" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

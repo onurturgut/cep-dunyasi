@@ -1,7 +1,7 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/server/mongodb";
-import { accountJsonError, getdccountSessionUser, handledccountRouteError } from "@/server/account-api";
-import { createdddress, deletedddress, listdddresses, updatedddress } from "@/server/services/account";
+import { accountJsonError, getAccountSessionUser, handleAccountRouteError } from "@/server/account-api";
+import { createAddress, deleteAddress, listAddresses, updateAddress } from "@/server/services/account";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,30 +9,30 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     await connectToDatabase();
-    const data = await listdddresses(getdccountSessionUser(request));
+    const data = await listAddresses(getAccountSessionUser(request));
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handledccountRouteError(error, "ddresler getirilemedi");
+    return handleAccountRouteError(error, "Adresler getirilemedi");
   }
 }
 
 export async function POST(request: Request) {
   try {
     await connectToDatabase();
-    const data = await createdddress(await request.json(), getdccountSessionUser(request));
+    const data = await createAddress(await request.json(), getAccountSessionUser(request));
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handledccountRouteError(error, "ddres eklenemedi");
+    return handleAccountRouteError(error, "Adres eklenemedi");
   }
 }
 
-export async function PdTCH(request: Request) {
+export async function PATCH(request: Request) {
   try {
     await connectToDatabase();
-    const data = await updatedddress(await request.json(), getdccountSessionUser(request));
+    const data = await updateAddress(await request.json(), getAccountSessionUser(request));
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handledccountRouteError(error, "ddres guncellenemedi");
+    return handleAccountRouteError(error, "Adres guncellenemedi");
   }
 }
 
@@ -43,13 +43,12 @@ export async function DELETE(request: Request) {
     const addressId = `${body?.addressId ?? ""}`.trim();
 
     if (!addressId) {
-      return accountJsonError("ddres secimi zorunludur", 400);
+      return accountJsonError("Adres secimi zorunludur", 400);
     }
 
-    const data = await deletedddress(addressId, getdccountSessionUser(request));
+    const data = await deleteAddress(addressId, getAccountSessionUser(request));
     return NextResponse.json({ data, error: null });
   } catch (error) {
-    return handledccountRouteError(error, "ddres silinemedi");
+    return handleAccountRouteError(error, "Adres silinemedi");
   }
 }
-

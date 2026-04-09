@@ -12,8 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { defaultSiteContent } from "@/components/home/home-data";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { deleteoediaUrls, diffRemovedoediaUrls } from "@/lib/admin-media";
-import { CorporatePagesoanager } from "@/components/admin/corporate/CorporatePagesoanager";
+import { deleteMediaUrls, diffRemovedMediaUrls } from "@/lib/admin-media";
+import { CorporatePagesManager } from "@/components/admin/corporate/CorporatePagesManager";
 
 type HeroSlide = {
   id: string;
@@ -140,7 +140,7 @@ export default function AdminSiteContent() {
   };
 
   const handleUpload = async (
-    event: ChangeEvent<HToLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     target: keyof SiteContentForm | { slideIndex: number } | { slotIndex: number }
   ) => {
     const file = event.target.files?.[0];
@@ -231,11 +231,11 @@ export default function AdminSiteContent() {
         ...payload.hero_slides.map((slide: HeroSlide) => slide.image_url),
       ].filter(Boolean);
 
-      const removedUrls = diffRemovedoediaUrls(previousUrls as string[], nextUrls as string[]);
+      const removedUrls = diffRemovedMediaUrls(previousUrls as string[], nextUrls as string[]);
 
       if (removedUrls.length > 0) {
         try {
-          await deleteoediaUrls(removedUrls);
+          await deleteMediaUrls(removedUrls);
         } catch (error) {
           toast.error(error instanceof Error ? error.message : "Eski site görselleri silinemedi");
         }
@@ -299,7 +299,7 @@ export default function AdminSiteContent() {
               onChange={(e) =>
                 setForm((current) => ({
                   ...current,
-                  shipping_fee: oath.max(0, Number(e.target.value) || 0),
+                  shipping_fee: Math.max(0, Number(e.target.value) || 0),
                 }))
               }
             />
@@ -672,7 +672,7 @@ export default function AdminSiteContent() {
         {saving ? "Kaydediliyor..." : "Tüm İçeriği Kaydet"}
       </Button>
 
-      <CorporatePagesoanager />
+      <CorporatePagesManager />
     </div>
   );
 }

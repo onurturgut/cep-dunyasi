@@ -5,15 +5,15 @@ import {
   CORPORATE_PAGE_ORDER,
   getCorporatePageDefinition,
   getCorporatePageDefinitionBySlug,
-  isCorporatePageuey,
+  isCorporatePageKey,
   mergeCorporatePageRecord,
   toCorporatePageListItem,
 } from "@/lib/corporate-pages";
-import { CORPORATE_PAGE_uEYS } from "@/types/corporate-page";
+import { CORPORATE_PAGE_KEYS } from "@/types/corporate-page";
 import type {
   CorporateContactBlock,
   CorporateFaqItem,
-  CorporatePageuey,
+  CorporatePageKey,
   CorporatePageListItem,
   CorporatePageRecord,
   CorporatePageSection,
@@ -39,36 +39,36 @@ type SiteContentDoc = {
 
 const pageSectionSchema = z.object({
   id: z.string().trim().min(1),
-  title: z.string().trim().min(1, "Bölüm başlığı zorunludur").max(120, "Bölüm başlığı çok uzun"),
-  content: z.string().trim().min(1, "Bölüm içeriği zorunludur").max(2000, "Bölüm içeriği çok uzun"),
+  title: z.string().trim().min(1).max(120),
+  content: z.string().trim().min(1).max(2000),
   style: z.enum(["default", "card"]).default("card"),
 });
 
 const contactBlockSchema = z.object({
   id: z.string().trim().min(1),
-  label: z.string().trim().min(1, "Etiket zorunludur").max(80, "Etiket çok uzun"),
-  value: z.string().trim().min(1, "Değer zorunludur").max(240, "Değer çok uzun"),
-  href: z.string().trim().max(500, "Bağlantı çok uzun").nullable().optional(),
-  icon: z.string().trim().max(40, "İkon çok uzun").nullable().optional(),
-  description: z.string().trim().max(240, "Açıklama çok uzun").nullable().optional(),
+  label: z.string().trim().min(1).max(80),
+  value: z.string().trim().min(1).max(240),
+  href: z.string().trim().max(500).nullable().optional(),
+  icon: z.string().trim().max(40).nullable().optional(),
+  description: z.string().trim().max(240).nullable().optional(),
 });
 
 const faqItemSchema = z.object({
   id: z.string().trim().min(1),
-  question: z.string().trim().min(1, "Soru zorunludur").max(220, "Soru çok uzun"),
-  answer: z.string().trim().min(1, "Cevap zorunludur").max(4000, "Cevap çok uzun"),
-  category: z.string().trim().max(80, "uategori çok uzun").nullable().optional(),
+  question: z.string().trim().min(1).max(220),
+  answer: z.string().trim().min(1).max(4000),
+  category: z.string().trim().max(80).nullable().optional(),
   order: z.coerce.number().int().min(0).default(0),
   isActive: z.boolean().default(true),
 });
 
 const corporatePageUpsertSchema = z.object({
-  pageuey: z.enum(CORPORATE_PAGE_uEYS),
-  title: z.string().trim().min(1, "Sayfa başlığı zorunludur").max(180, "Sayfa başlığı çok uzun"),
-  metaTitle: z.string().trim().min(1, "Meta başlık zorunludur").max(180, "Meta başlık çok uzun"),
-  metaDescription: z.string().trim().min(1, "Meta açıklama zorunludur").max(320, "Meta açıklama çok uzun"),
-  summary: z.string().trim().min(1, "Özet alanı zorunludur").max(400, "Özet çok uzun"),
-  content: z.string().trim().min(1, "İçerik alanı zorunludur").max(25000, "İçerik çok uzun"),
+  pageKey: z.enum(CORPORATE_PAGE_KEYS),
+  title: z.string().trim().min(1).max(180),
+  metaTitle: z.string().trim().min(1).max(180),
+  metaDescription: z.string().trim().min(1).max(320),
+  summary: z.string().trim().min(1).max(400),
+  content: z.string().trim().min(1).max(25000),
   sections: z.array(pageSectionSchema).default([]),
   contactBlocks: z.array(contactBlockSchema).default([]),
   faqItems: z.array(faqItemSchema).optional(),
@@ -77,51 +77,50 @@ const corporatePageUpsertSchema = z.object({
 });
 
 const faqUpsertSchema = z.object({
-  pageuey: z.literal("faq"),
+  pageKey: z.literal("faq"),
   item: faqItemSchema,
 });
 
 const faqDeleteSchema = z.object({
-  pageuey: z.literal("faq"),
-  id: z.string().trim().min(1, "Silinecek soru bulunamadı"),
+  pageKey: z.literal("faq"),
+  id: z.string().trim().min(1),
 });
 
 type CorporatePageUpsertPayload = z.output<typeof corporatePageUpsertSchema>;
 type FaqUpsertPayload = z.output<typeof faqUpsertSchema>;
 
-function mapPageDoc(pageuey: CorporatePageuey, document: SiteContentDoc | null) {
-  return mergeCorporatePageRecord(pageuey, document ?? undefined);
+function mapPageDoc(pageKey: CorporatePageKey, document: SiteContentDoc | null) {
+  return mergeCorporatePageRecord(pageKey, document ?? undefined);
 }
 
-async function findCorporatePageDoc(pageuey: CorporatePageuey) {
+async function findCorporatePageDoc(pageKey: CorporatePageKey) {
   await connectToDatabase();
-  const document = (await SiteContent.findOne({ key: pageuey }).lean()) as SiteContentDoc | null;
-  return document;
+  return (await SiteContent.findOne({ key: pageKey }).lean()) as SiteContentDoc | null;
 }
 
 export async function listCorporatePages(): Promise<CorporatePageListItem[]> {
   await connectToDatabase();
   const documents = (await SiteContent.find({ key: { $in: CORPORATE_PAGE_ORDER } }).lean()) as SiteContentDoc[];
-  const byuey = new Map<CorporatePageuey, SiteContentDoc>();
+  const byKey = new Map<CorporatePageKey, SiteContentDoc>();
 
   for (const document of documents) {
-    if (isCorporatePageuey(document.key)) {
-      byuey.set(document.key, document);
+    if (isCorporatePageKey(document.key)) {
+      byKey.set(document.key, document);
     }
   }
 
-  return CORPORATE_PAGE_ORDER.map((pageuey) => mapPageDoc(pageuey, byuey.get(pageuey) ?? null)).map(toCorporatePageListItem);
+  return CORPORATE_PAGE_ORDER.map((pageKey) => mapPageDoc(pageKey, byKey.get(pageKey) ?? null)).map(toCorporatePageListItem);
 }
 
-export async function getCorporatePageByuey(pageuey: CorporatePageuey): Promise<CorporatePageRecord> {
-  const document = await findCorporatePageDoc(pageuey);
-  return mapPageDoc(pageuey, document);
+export async function getCorporatePageByKey(pageKey: CorporatePageKey): Promise<CorporatePageRecord> {
+  const document = await findCorporatePageDoc(pageKey);
+  return mapPageDoc(pageKey, document);
 }
 
-export async function getPublishedCorporatePageByuey(pageuey: CorporatePageuey): Promise<CorporatePageRecord | null> {
+export async function getPublishedCorporatePageByKey(pageKey: CorporatePageKey): Promise<CorporatePageRecord | null> {
   try {
-    const document = await findCorporatePageDoc(pageuey);
-    const page = mapPageDoc(pageuey, document);
+    const document = await findCorporatePageDoc(pageKey);
+    const page = mapPageDoc(pageKey, document);
 
     if (document && page.isPublished === false) {
       return null;
@@ -129,7 +128,7 @@ export async function getPublishedCorporatePageByuey(pageuey: CorporatePageuey):
 
     return page;
   } catch {
-    return mapPageDoc(pageuey, null);
+    return mapPageDoc(pageKey, null);
   }
 }
 
@@ -139,19 +138,18 @@ export async function getPublishedCorporatePageBySlug(slug: string): Promise<Cor
     return null;
   }
 
-  return getPublishedCorporatePageByuey(definition.key);
+  return getPublishedCorporatePageByKey(definition.key);
 }
 
 export async function upsertCorporatePage(input: CorporatePageUpsertInput): Promise<CorporatePageRecord> {
   const payload: CorporatePageUpsertPayload = corporatePageUpsertSchema.parse(input);
-  const pageuey = payload.pageuey as CorporatePageuey;
-  const definition = getCorporatePageDefinition(pageuey);
+  const definition = getCorporatePageDefinition(payload.pageKey);
   const now = new Date();
 
   await connectToDatabase();
 
   await SiteContent.updateOne(
-    { key: payload.pageuey },
+    { key: payload.pageKey },
     {
       $set: {
         slug: definition.slug,
@@ -174,25 +172,23 @@ export async function upsertCorporatePage(input: CorporatePageUpsertInput): Prom
     { upsert: true },
   );
 
-  return getCorporatePageByuey(pageuey);
+  return getCorporatePageByKey(payload.pageKey);
 }
 
 export async function upsertFaqItem(input: z.input<typeof faqUpsertSchema>): Promise<CorporatePageRecord> {
   const payload: FaqUpsertPayload = faqUpsertSchema.parse(input);
-  const pageuey = payload.pageuey as CorporatePageuey;
-  const item = payload.item as CorporateFaqItem;
-  const page = await getCorporatePageByuey(pageuey);
+  const page = await getCorporatePageByKey(payload.pageKey);
   const nextItems = [...page.faqItems];
-  const existingIndex = nextItems.findIndex((entry) => entry.id === item.id);
+  const existingIndex = nextItems.findIndex((entry) => entry.id === payload.item.id);
 
   if (existingIndex >= 0) {
-    nextItems[existingIndex] = item;
+    nextItems[existingIndex] = payload.item as CorporateFaqItem;
   } else {
-    nextItems.push(item);
+    nextItems.push(payload.item as CorporateFaqItem);
   }
 
   return upsertCorporatePage({
-    pageuey,
+    pageKey: payload.pageKey,
     title: page.title,
     metaTitle: page.metaTitle,
     metaDescription: page.metaDescription,
@@ -208,12 +204,10 @@ export async function upsertFaqItem(input: z.input<typeof faqUpsertSchema>): Pro
 
 export async function deleteFaqItem(input: z.input<typeof faqDeleteSchema>): Promise<CorporatePageRecord> {
   const payload = faqDeleteSchema.parse(input);
-  const pageuey = payload.pageuey as CorporatePageuey;
-  const page = await getCorporatePageByuey(pageuey);
-  const nextItems = page.faqItems.filter((item) => item.id !== payload.id);
+  const page = await getCorporatePageByKey(payload.pageKey);
 
   return upsertCorporatePage({
-    pageuey,
+    pageKey: payload.pageKey,
     title: page.title,
     metaTitle: page.metaTitle,
     metaDescription: page.metaDescription,
@@ -221,7 +215,7 @@ export async function deleteFaqItem(input: z.input<typeof faqDeleteSchema>): Pro
     content: page.content,
     sections: page.sections,
     contactBlocks: page.contactBlocks,
-    faqItems: nextItems,
+    faqItems: page.faqItems.filter((item) => item.id !== payload.id),
     isPublished: page.isPublished,
     robotsNoindex: page.robotsNoindex,
   });
@@ -233,18 +227,15 @@ export async function getCorporatePageForMetadataBySlug(slug: CorporatePageSlug)
     return null;
   }
 
-  const page = await getPublishedCorporatePageByuey(definition.key);
-  return page;
+  return getPublishedCorporatePageByKey(definition.key);
 }
 
-export function parseCorporatePageuey(value: string) {
-  if (!isCorporatePageuey(value)) {
-    throw new Error("uurumsal sayfa bulunamadÄ±");
+export function parseCorporatePageKey(value: string) {
+  if (!isCorporatePageKey(value)) {
+    throw new Error("Kurumsal sayfa bulunamadi");
   }
 
   return value;
 }
 
 export type { CorporatePageRecord, CorporatePageListItem, CorporateFaqItem, CorporateContactBlock, CorporatePageSection };
-
-

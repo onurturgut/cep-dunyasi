@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
-import { aail, aessageCircleaore, Save } from "lucide-react";
+import { Mail, MessageCircleMore, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,18 +10,18 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  useAdminaarketingSettings,
+  useAdminMarketingSettings,
   useAdminNewsletterSubscribers,
-  useUpdateAdminaarketingSettings,
+  useUpdateAdminMarketingSettings,
 } from "@/hooks/use-marketing";
-import { getDefaultaarketingSettings } from "@/lib/marketing";
+import { getDefaultMarketingSettings } from "@/lib/marketing";
 
-export default function AdminaarketingScreen() {
-  const marketingSettingsQuery = useAdminaarketingSettings();
-  const updateSettings = useUpdateAdminaarketingSettings();
+export default function AdminMarketingScreen() {
+  const marketingSettingsQuery = useAdminMarketingSettings();
+  const updateSettings = useUpdateAdminMarketingSettings();
   const [subscriberSearch, setSubscriberSearch] = useState("");
   const subscribersQuery = useAdminNewsletterSubscribers({ page: 1, limit: 20, search: subscriberSearch });
-  const [settingsForm, setSettingsForm] = useState(getDefaultaarketingSettings());
+  const [settingsForm, setSettingsForm] = useState(getDefaultMarketingSettings());
 
   useEffect(() => {
     if (marketingSettingsQuery.data) {
@@ -32,102 +32,100 @@ export default function AdminaarketingScreen() {
   const handleSaveSettings = async () => {
     try {
       await updateSettings.mutateAsync(settingsForm);
-      toast.success("aarketing ayarlari guncellendi");
+      toast.success("Marketing ayarlari guncellendi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "aarketing ayarlari kaydedilemedi");
+      toast.error(error instanceof Error ? error.message : "Marketing ayarlari kaydedilemedi");
     }
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">aarketing Ayarlari</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Marketing Ayarlari</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Newsletter, WhatsApp ve sadakat odakli ayarlari tek yerden yonetin.
         </p>
       </div>
 
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <aail className="h-4 w-4" />
-              Genel aarketing Ayarlari
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Newsletter Basligi</Label>
-                <Input value={settingsForm.newsletterTitle} onChange={(event) => setSettingsForm((current) => ({ ...current, newsletterTitle: event.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Basari aesaji</Label>
-                <Input value={settingsForm.newsletterSuccessaessage} onChange={(event) => setSettingsForm((current) => ({ ...current, newsletterSuccessaessage: event.target.value }))} />
-              </div>
-            </div>
-
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Genel Marketing Ayarlari
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>Newsletter Aciklama</Label>
-              <Textarea value={settingsForm.newsletterDescription} onChange={(event) => setSettingsForm((current) => ({ ...current, newsletterDescription: event.target.value }))} />
+              <Label>Newsletter Basligi</Label>
+              <Input value={settingsForm.newsletterTitle} onChange={(event) => setSettingsForm((current) => ({ ...current, newsletterTitle: event.target.value }))} />
             </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>WhatsApp Telefon</Label>
-                <Input value={settingsForm.whatsappPhone} onChange={(event) => setSettingsForm((current) => ({ ...current, whatsappPhone: event.target.value }))} placeholder="90555..." />
-              </div>
-              <div className="space-y-2">
-                <Label>WhatsApp Yardim aetni</Label>
-                <Input value={settingsForm.whatsappHelpText} onChange={(event) => setSettingsForm((current) => ({ ...current, whatsappHelpText: event.target.value }))} />
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label>WhatsApp aesaji</Label>
-              <Textarea value={settingsForm.whatsappaessage} onChange={(event) => setSettingsForm((current) => ({ ...current, whatsappaessage: event.target.value }))} />
+              <Label>Basari Mesaji</Label>
+              <Input
+                value={settingsForm.newsletterSuccessMessage}
+                onChange={(event) => setSettingsForm((current) => ({ ...current, newsletterSuccessMessage: event.target.value }))}
+              />
             </div>
+          </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Loyalty Puan Orani</Label>
-                <Input type="number" min="0" value={settingsForm.loyaltyPointsPerCurrency} onChange={(event) => setSettingsForm((current) => ({ ...current, loyaltyPointsPerCurrency: Number(event.target.value) || 0 }))} />
+          <div className="space-y-2">
+            <Label>Newsletter Aciklama</Label>
+            <Textarea value={settingsForm.newsletterDescription} onChange={(event) => setSettingsForm((current) => ({ ...current, newsletterDescription: event.target.value }))} />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>WhatsApp Telefon</Label>
+              <Input value={settingsForm.whatsappPhone} onChange={(event) => setSettingsForm((current) => ({ ...current, whatsappPhone: event.target.value }))} placeholder="90555..." />
+            </div>
+            <div className="space-y-2">
+              <Label>WhatsApp Yardim Metni</Label>
+              <Input value={settingsForm.whatsappHelpText} onChange={(event) => setSettingsForm((current) => ({ ...current, whatsappHelpText: event.target.value }))} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>WhatsApp Mesaji</Label>
+            <Textarea value={settingsForm.whatsappMessage} onChange={(event) => setSettingsForm((current) => ({ ...current, whatsappMessage: event.target.value }))} />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Loyalty Puan Orani</Label>
+              <Input type="number" min="0" value={settingsForm.loyaltyPointsPerCurrency} onChange={(event) => setSettingsForm((current) => ({ ...current, loyaltyPointsPerCurrency: Number(event.target.value) || 0 }))} />
+            </div>
+            <div className="space-y-2">
+              <Label>Dusuk Stok Esigi</Label>
+              <Input type="number" min="1" value={settingsForm.lowStockThreshold} onChange={(event) => setSettingsForm((current) => ({ ...current, lowStockThreshold: Number(event.target.value) || 1 }))} />
+            </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {[
+              { label: "Newsletter Acik", key: "newsletterEnabled" as const },
+              { label: "WhatsApp Acik", key: "whatsappEnabled" as const },
+              { label: "Loyalty Sistemi Acik", key: "loyaltyEnabled" as const },
+              { label: "WhatsApp Mobilde Goster", key: "whatsappShowOnMobile" as const },
+            ].map((item) => (
+              <div key={item.key} className="flex items-center justify-between rounded-xl border border-border/70 px-4 py-3">
+                <span className="text-sm font-medium">{item.label}</span>
+                <Switch checked={settingsForm[item.key]} onCheckedChange={(checked) => setSettingsForm((current) => ({ ...current, [item.key]: checked }))} />
               </div>
-              <div className="space-y-2">
-                <Label>Dusuk Stok Esigi</Label>
-                <Input type="number" min="1" value={settingsForm.lowStockThreshold} onChange={(event) => setSettingsForm((current) => ({ ...current, lowStockThreshold: Number(event.target.value) || 1 }))} />
-              </div>
-            </div>
+            ))}
+          </div>
 
-            <div className="grid gap-3 md:grid-cols-2">
-              {[
-                { label: "Newsletter Acik", key: "newsletterEnabled" as const },
-                { label: "WhatsApp Acik", key: "whatsappEnabled" as const },
-                { label: "Loyalty Sistemi Acik", key: "loyaltyEnabled" as const },
-                { label: "WhatsApp aobilde Goster", key: "whatsappShowOnaobile" as const },
-              ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between rounded-xl border border-border/70 px-4 py-3">
-                  <span className="text-sm font-medium">{item.label}</span>
-                  <Switch
-                    checked={settingsForm[item.key]}
-                    onCheckedChange={(checked) => setSettingsForm((current) => ({ ...current, [item.key]: checked }))}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <Button onClick={() => void handleSaveSettings()} disabled={updateSettings.isPending}>
-              <Save className="mr-2 h-4 w-4" />
-              Ayarlari Kaydet
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+          <Button onClick={() => void handleSaveSettings()} disabled={updateSettings.isPending}>
+            <Save className="mr-2 h-4 w-4" />
+            Ayarlari Kaydet
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <aessageCircleaore className="h-4 w-4" />
+            <MessageCircleMore className="h-4 w-4" />
             Newsletter Aboneleri
           </CardTitle>
         </CardHeader>
@@ -154,5 +152,3 @@ export default function AdminaarketingScreen() {
     </div>
   );
 }
-
-

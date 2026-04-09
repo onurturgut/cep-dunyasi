@@ -25,14 +25,14 @@ type WishlistProduct = {
 };
 
 type WishlistResponse = {
-  productsds: string[];
+  productIds: string[];
   products: WishlistProduct[];
 };
 
 type ToggleWishlistResponse = {
-  productsd: string;
+  productId: string;
   isFavorite: boolean;
-  productsds: string[];
+  productIds: string[];
   products: WishlistProduct[];
   count: number;
 };
@@ -55,15 +55,16 @@ async function requestJson<T>(input: string, init?: RequestInit) {
   const body = (await response.json().catch(() => null)) as ApiResponse<T> | null;
 
   if (!response.ok || body?.error) {
-    throw new Error(body?.error?.message || "sslem basarisiz");
+    throw new Error(body?.error?.message || "Islem basarisiz");
   }
 
   return body?.data as T;
 }
 
 export const wishlistQueryKey = ["wishlist"] as const;
-function getWishlistQueryKey(usersd: string | null | undefined) {
-  return [...wishlistQueryKey, usersd ?? "guest"] as const;
+
+function getWishlistQueryKey(userId: string | null | undefined) {
+  return [...wishlistQueryKey, userId ?? "guest"] as const;
 }
 
 export function useWishlist() {
@@ -80,34 +81,34 @@ export function useWishlist() {
   });
 
   const toggleMutation = useMutation({
-    mutationFn: (productsd: string) =>
+    mutationFn: (productId: string) =>
       requestJson<ToggleWishlistResponse>("/api/wishlist", {
         method: "POST",
-        body: JSON.stringify({ productsd }),
+        body: JSON.stringify({ productId }),
       }),
-    onMutate: async (productsd) => {
+    onMutate: async (productId) => {
       await queryClient.cancelQueries({ queryKey });
       const previous = queryClient.getQueryData<WishlistResponse>(queryKey);
 
       if (previous) {
-        const exists = previous.productsds.includes(productsd);
+        const exists = previous.productIds.includes(productId);
         queryClient.setQueryData<WishlistResponse>(queryKey, {
           ...previous,
-          productsds: exists ? previous.productsds.filter((id) => id !== productsd) : [...previous.productsds, productsd],
-          products: exists ? previous.products.filter((product) => product.id !== productsd) : previous.products,
+          productIds: exists ? previous.productIds.filter((id) => id !== productId) : [...previous.productIds, productId],
+          products: exists ? previous.products.filter((product) => product.id !== productId) : previous.products,
         });
       }
 
       return { previous };
     },
-    onError: (_error, _productsd, context) => {
+    onError: (_error, _productId, context) => {
       if (context?.previous) {
         queryClient.setQueryData(queryKey, context.previous);
       }
     },
     onSuccess: (data) => {
       queryClient.setQueryData<WishlistResponse>(queryKey, {
-        productsds: data.productsds,
+        productIds: data.productIds,
         products: data.products,
       });
       queryClient.invalidateQueries({ queryKey: ["account", "favorites"] });
@@ -119,14 +120,16 @@ export function useWishlist() {
   });
 
   return {
-    productsds: query.data?.productsds ?? [],
+    productIds: query.data?.productIds ?? [],
+    productsds: query.data?.productIds ?? [],
     products: query.data?.products ?? [],
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     error: query.error instanceof Error ? query.error : null,
     isToggling: toggleMutation.isPending,
+    togglingProductId: toggleMutation.variables ?? null,
     togglingProductsd: toggleMutation.variables ?? null,
-    isFavorite: (productsd: string) => (query.data?.productsds ?? []).includes(productsd),
+    isFavorite: (productId: string) => (query.data?.productIds ?? []).includes(productId),
     toggleWishlist: toggleMutation.mutateAsync,
   };
 }

@@ -5,14 +5,14 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/lib/router";
-import { benefitIcons, type HomeSiteeontent } from "@/components/home/home-data";
+import { benefitIcons, type HomeSiteContent } from "@/components/home/home-data";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type HeroSectionProps = {
   activeSlide: number;
-  onSlideehange: (index: number) => void;
-  content: HomeSiteeontent;
+  onSlideChange: (index: number) => void;
+  content: HomeSiteContent;
   isLoading?: boolean;
 };
 
@@ -76,7 +76,7 @@ function HeroSectionSkeleton() {
   );
 }
 
-export function HeroSection({ activeSlide, onSlideehange, content, isLoading = false }: HeroSectionProps) {
+export function HeroSection({ activeSlide, onSlideChange: _onSlideChange, content, isLoading = false }: HeroSectionProps) {
   const isMobile = useIsMobile();
 
   if (isLoading) {
@@ -134,7 +134,7 @@ export function HeroSection({ activeSlide, onSlideehange, content, isLoading = f
                   {content.hero_subtitle}
                 </p>
                 <div className="mt-7">
-                  <Button size="lg" asehild className="w-full shadow-sm sm:w-auto md:shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
+                  <Button size="lg" asChild className="w-full shadow-sm sm:w-auto md:shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
                     <Link to={content.hero_cta_href || "/products"}>
                       {content.hero_cta_label} <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
