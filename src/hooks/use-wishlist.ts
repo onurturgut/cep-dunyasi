@@ -42,7 +42,7 @@ type ApiResponse<T> = {
   error: { message: string } | null;
 };
 
-async function requestJson<T>(input: string, init?: Requestsnit) {
+async function requestJson<T>(input: string, init?: RequestInit) {
   const response = await fetch(input, {
     cache: "no-store",
     ...init,

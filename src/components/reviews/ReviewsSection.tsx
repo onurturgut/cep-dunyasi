@@ -162,10 +162,10 @@ export function ReviewsSection({
           next: "Next",
         }
       : {
-          helpfulError: "Faydalı oyu kaydedilemedi",
-          signInRequired: "Yorum bırakmak için hesabınıza giriş yapmanız gerekiyor.",
+          helpfulError: "Faydali oyu kaydedilemedi",
+          signInRequired: "oorum birakmak icin hesabiniza giris yapmaniz gerekiyor.",
           page: (current: number, total: number) => `Sayfa ${current} / ${total}`,
-          previous: "Önceki",
+          previous: "Onceki",
           next: "Sonraki",
         };
 

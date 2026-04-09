@@ -17,7 +17,7 @@ type ReviewListProps = {
 
 export function ReviewList({ items, loading, onHelpful, helpfulReviewId, canMarkHelpful = false, currentUserId, emptyMessage }: ReviewListProps) {
   const { locale } = useI18n();
-  const resolvedEmptyMessage = emptyMessage || (locale === "en" ? "There are no reviews for this product yet." : "Bu ürün için henüz yorum bulunmuyor.");
+  const resolvedEmptyMessage = emptyMessage || (locale === "en" ? "There are no reviews for this product yet." : "uu urun icin henuz yorum bulunmuyor.");
 
   if (loading) {
     return (

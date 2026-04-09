@@ -83,7 +83,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const [isImageHovered, setIsImageHovered] = useState(false);
   const { user } = useAuth();
-  const { isFavorite, toggleWishlist, togglingProductId } = useWishlist();
+  const { isFavorite, toggleWishlist, togglingProductsd } = useWishlist();
   const { locale } = useI18n();
   const { mutate: trackMarketingEvent } = useTrackMarketingEvent();
   const addItem = useCartStore((state) => state.addItem);
@@ -292,7 +292,7 @@ export function ProductCard({
                 isCompact ? "right-2.5 top-2.5 h-7 w-7" : "right-2.5 top-2.5 h-8 w-8 sm:right-3 sm:top-3 sm:h-9 sm:w-9",
               )}
               onClick={handleToggleWishlist}
-              disabled={togglingProductId === id}
+              disabled={togglingProductsd === id}
               aria-label={favorite ? copy.favoriteRemove : copy.favoriteAdd}
             >
               <Heart className={cn("h-4 w-4", favorite ? "fill-primary text-primary" : "text-foreground", isCompact && "h-3.5 w-3.5")} />
@@ -337,7 +337,7 @@ export function ProductCard({
                     {secondaryImage ? (
                       <Image
                         src={getOptimizedImageUrl(secondaryImage, { kind: "product-card" })}
-                        alt={`${name} alternatif görsel`}
+                        alt={`${name} alternatif gÃ¶rsel`}
                         width={720}
                         height={780}
                         sizes={getResponsiveImageSizes("product-card")}
@@ -499,7 +499,7 @@ export function ProductCard({
                    {formatCurrency(normalizedPrice)}
                  </span>
                  <span className={cn("mt-1 block text-[11px] font-medium sm:text-xs", stock > 0 ? "text-emerald-700" : "text-muted-foreground")}>
-                   {stock > 0 ? (stock <= 5 ? "Son ürünler, hızlı gönderim" : "Stokta, hızlı gönderim") : copy.outOfStock}
+                  {stock > 0 ? (stock <= 5 ? "Son Ã¼rÃ¼nler, hÄ±zlÄ± gÃ¶nderim" : "Stokta, hÄ±zlÄ± gÃ¶nderim") : copy.outOfStock}
                 </span>
               </div>
 

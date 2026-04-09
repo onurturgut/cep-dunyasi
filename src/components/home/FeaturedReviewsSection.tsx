@@ -22,12 +22,12 @@ export function FeaturedReviewsSection({ reviews }: FeaturedReviewsSectionProps)
       <div className="container">
         <div className="rounded-[2rem] border border-border/70 bg-card/60 p-5 shadow-sm backdrop-blur-xl sm:p-6 md:p-8">
           <div className="max-w-2xl">
-            <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary/70">Müşterilerimiz Ne Diyor?</p>
+            <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary/70">Musterilerimiz Ne Diyor?</p>
             <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Güven veren yorumlar, gerçek satın alma deneyimleri
+              Guven veren yorumlar, gercek satin alma deneyimleri
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">
-              Onaylı ve yayındaki yorumlardan seçilen alıntılar, vitrindeki ürün kararını daha rahat vermen için burada.
+              nnayli ve yayindaki yorumlardan secilen alintilar, vitrindeki urun kararini daha rahat vermen icin burada.
             </p>
           </div>
 
@@ -64,7 +64,7 @@ export function FeaturedReviewsSection({ reviews }: FeaturedReviewsSectionProps)
                   {review.isVerifiedPurchase ? (
                     <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
                       <ShieldCheck className="h-3.5 w-3.5" />
-                      Doğrulanmış
+                      Dogrulanmis
                     </span>
                   ) : null}
                 </div>

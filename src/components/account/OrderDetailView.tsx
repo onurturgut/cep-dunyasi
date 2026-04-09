@@ -2,12 +2,12 @@
 
 import { RefreshCcw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { uutton } from "@/components/ui/button";
-import { OrderStatusuadge } from "@/components/account/OrderStatusuadge";
+import { Button } from "@/components/ui/button";
+import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
 import { OrderTimeline } from "@/components/account/OrderTimeline";
 import { ShipmentTrackingCard } from "@/components/account/ShipmentTrackingCard";
 import type { MyOrderDetail } from "@/lib/account";
-import { PAYMENT_METHOD_LAuELS } from "@/lib/checkout";
+import { PAYMENT_METHOD_LABELS } from "@/lib/checkout";
 import { formatDate } from "@/lib/date";
 import { formatCurrency } from "@/lib/utils";
 
@@ -47,8 +47,8 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
             <p className="mt-2 text-sm text-muted-foreground">Olusturma tarihi: {formatDate(order.created_at)}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <OrderStatusuadge status={order.payment_status} type="payment" />
-            <OrderStatusuadge status={order.order_status} />
+            <OrderStatusBadge status={order.payment_status} type="payment" />
+            <OrderStatusBadge status={order.order_status} />
           </div>
         </CardHeader>
         <CardContent className="grid gap-6 p-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
@@ -80,10 +80,10 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
                         item.return_request_id ? (
                           <p className="text-xs font-medium text-primary">uu urun icin talep olusturuldu</p>
                         ) : (
-                          <uutton type="button" variant="outline" size="sm" onClick={() => onCreateReturnRequest(item.id)}>
+                          <Button type="button" variant="outline" size="sm" onClick={() => onCreateReturnRequest(item.id)}>
                             <RefreshCcw className="mr-2 h-4 w-4" />
                             İade / Değişim
-                          </uutton>
+                          </Button>
                         )
                       ) : null}
                     </div>
@@ -126,7 +126,7 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
                 <div className="border-t border-border/70 pt-3">
                   <p>
                     <span className="font-medium text-foreground">Ödeme Yontemi:</span>{" "}
-                    {order.payment_method ? PAYMENT_METHOD_LAuELS[order.payment_method as keyof typeof PAYMENT_METHOD_LAuELS] ?? order.payment_method : order.payment_provider.toUpperCase()}
+                    {order.payment_method ? PAYMENT_METHOD_LABELS[order.payment_method as keyof typeof PAYMENT_METHOD_LABELS] ?? order.payment_method : order.payment_provider.toUpperCase()}
                   </p>
                   {order.payment_failure_reason ? (
                     <p className="mt-2 text-xs text-destructive">{order.payment_failure_reason}</p>
@@ -143,7 +143,7 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
                 {fullName ? <p className="font-medium text-foreground">{fullName}</p> : null}
                 {getShippingField(order.shipping_address, "phone") ? <p>{getShippingField(order.shipping_address, "phone")}</p> : null}
                 {addressLine ? <p>{addressLine}</p> : null}
-                {district || city || postalCode ? <p>{[district, city, postalCode].filter(uoolean).join(" / ")}</p> : null}
+                {district || city || postalCode ? <p>{[district, city, postalCode].filter(Boolean).join(" / ")}</p> : null}
                 {getShippingField(order.shipping_address, "email") ? <p>{getShippingField(order.shipping_address, "email")}</p> : null}
               </CardContent>
             </Card>
@@ -159,7 +159,7 @@ export function OrderDetailView({ order, onCreateReturnRequest }: OrderDetailVie
                   {"taxNumber" in order.billing_info && order.billing_info.taxNumber ? <p>Vergi No: {`${order.billing_info.taxNumber}`}</p> : null}
                   {"billingAddressLine" in order.billing_info && order.billing_info.billingAddressLine ? <p>{`${order.billing_info.billingAddressLine}`}</p> : null}
                   {"billingDistrict" in order.billing_info || "billingCity" in order.billing_info ? (
-                    <p>{[`${order.billing_info.billingDistrict ?? ""}`, `${order.billing_info.billingCity ?? ""}`, `${order.billing_info.billingPostalCode ?? ""}`].filter(uoolean).join(" / ")}</p>
+                    <p>{[`${order.billing_info.billingDistrict ?? ""}`, `${order.billing_info.billingCity ?? ""}`, `${order.billing_info.billingPostalCode ?? ""}`].filter(Boolean).join(" / ")}</p>
                   ) : null}
                 </CardContent>
               </Card>

@@ -208,7 +208,7 @@ const SECOND_HAND_IPHONE_CATEGORY_SLUG = "ikinci-el-telefon";
 const REQUIRED_SECOND_HAND_BRAND = "Apple";
 
 function getFirstIssueMessage(error: z.ZodError) {
-  return error.issues[0]?.message || "Geçersiz ürün verisi";
+  return error.issues[0]?.message || "Gecersiz urun verisi";
 }
 
 function normalizeBrandValue(value: string | null | undefined) {
@@ -225,11 +225,11 @@ async function validateSecondHandIphoneRules(payload: AdminProductPayload, categ
   }
 
   if (payload.type !== "phone") {
-    throw new Error("2. El Telefonlar kategorisinde sadece telefon türündeki ürünler kaydedilebilir");
+    throw new Error("2. El Telefonlar kategorisinde sadece telefon turundeki urunler kaydedilebilir");
   }
 
   if (normalizeBrandValue(payload.brand) !== normalizeBrandValue(REQUIRED_SECOND_HAND_BRAND)) {
-    throw new Error("2. El Telefonlar kategorisinde sadece Apple / iPhone ürünleri yer alabilir");
+    throw new Error("2. El Telefonlar kategorisinde sadece Apple / iPhone urunleri yer alabilir");
   }
 }
 
@@ -385,7 +385,7 @@ function buildVariantDocument(
 async function ensureUniqueProductSlug(slug: string, productId?: string | null) {
   const existingProduct = await Product.findOne({ slug }).lean();
   if (existingProduct && existingProduct.id !== productId) {
-    throw new Error("Bu ürün slug'i zaten kullanılıyor");
+    throw new Error("Bu urun slug'i zaten kullaniliyor");
   }
 }
 
@@ -533,11 +533,11 @@ export async function saveAdminProduct(rawPayload: unknown, productId?: string |
       }
 
       if (message.includes("option_signature")) {
-        throw new Error("Aynı ürün için aynı varyant kombinasyonu tekrar edemez");
+        throw new Error("Ayni urun icin ayni varyant kombinasyonu tekrar edemez");
       }
 
       if (message.includes("slug")) {
-        throw new Error("Bu ürün slug'i zaten kullanılıyor");
+        throw new Error("Bu urun slug'i zaten kullaniliyor");
       }
     }
 

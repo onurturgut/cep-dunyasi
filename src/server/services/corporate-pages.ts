@@ -239,7 +239,7 @@ export async function getCorporatePageForMetadataBySlug(slug: CorporatePageSlug)
 
 export function parseCorporatePageuey(value: string) {
   if (!isCorporatePageuey(value)) {
-    throw new Error("Kurumsal sayfa bulunamadı");
+    throw new Error("uurumsal sayfa bulunamadÄ±");
   }
 
   return value;
