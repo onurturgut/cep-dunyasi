@@ -25,6 +25,19 @@ type BannerCampaignDoc = {
 
 const homeHeroPlacement = "home_hero";
 
+function isSupportedAssetUrl(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return false;
+  }
+
+  if (trimmed.startsWith("/")) {
+    return true;
+  }
+
+  return /^https?:\/\//i.test(trimmed);
+}
+
 const campaignSchema = z.object({
   id: z.string().trim().optional(),
   title: z.string().trim().min(1, "Kampanya basligi zorunludur").max(120, "Baslik en fazla 120 karakter olabilir"),
@@ -33,11 +46,17 @@ const campaignSchema = z.object({
   imageUrl: z
     .string()
     .trim()
-    .url("Kampanya görseli gecersiz. Görsel yukleyin veya https:// ile baslayan gecerli bir URL kullanin"),
+    .refine(
+      isSupportedAssetUrl,
+      "Kampanya görseli gecersiz. Görsel yukleyin veya /media/... ya da https:// ile baslayan gecerli bir URL kullanin",
+    ),
   mobileImageUrl: z
     .string()
     .trim()
-    .url("Mobil görsel gecersiz. https:// ile baslayan gecerli bir URL kullanin")
+    .refine(
+      isSupportedAssetUrl,
+      "Mobil görsel gecersiz. /media/... ya da https:// ile baslayan gecerli bir URL kullanin",
+    )
     .optional()
     .nullable()
     .or(z.literal("")),

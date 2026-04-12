@@ -29,95 +29,20 @@ export type CampaignPromoCardData = {
 
 const heroThemeSequence: CampaignThemeVariant[] = ["midnight", "violet", "graphite", "emerald"];
 
-export const fallbackHeroCampaignSlides: HeroCampaignSlideData[] = [
-  {
-    id: "showcase-iphone",
-    title: "iPhone 16 Pro ile yeni nesil hiz ve cekim deneyimi",
-    subtitle: "Premium Seçim",
-    description: "Sınırlı stok, zarif tasarım ve güçlü performansı tek vitrinde birleştiren özel kampanya seçimi.",
-    imageUrl: "/images/iphone15.png",
-    mobileImageUrl: "/images/iphone15.png",
-    badgeText: "4 Taksit",
-    badgeSecondaryText: "Apple Koleksiyonu",
-    ctaText: "Kampanyayi Incele",
-    ctaLink: "/products?category=telefon",
-    themeVariant: "midnight",
-  },
-  {
-    id: "showcase-airpods",
-    title: "AirPods ve gunluk aksesuarlar icin premium paketler",
-    subtitle: "Ses ve Konfor",
-    description: "Kablosuz kulaklik, sarj ve tasima aksesuarlariyla kurulan sade ama yuksek donusumlu bundle vitrini.",
-    imageUrl: "/images/airpods.png",
-    mobileImageUrl: "/images/airpods.png",
-    badgeText: "Bundle Firsati",
-    badgeSecondaryText: "Aksesuar Setleri",
-    ctaText: "Paketleri Gör",
-    ctaLink: "/products?category=kilif",
-    themeVariant: "violet",
-  },
-  {
-    id: "showcase-watch",
-    title: "Akilli saat ve gunluk mobil yasam kombinleri",
-    subtitle: "Giyilebilir Teknoloji",
-    description: "Saat, power bank ve gunluk mobil ihtiyaclari tek bakista gosteren modern vitrin yapisi.",
-    imageUrl: "/images/akilli-saat.jpg",
-    mobileImageUrl: "/images/akilli-saat.jpg",
-    badgeText: "Yeni Sezon",
-    badgeSecondaryText: "Watch Edit",
-    ctaText: "Detayli Incele",
-    ctaLink: "/products?category=akilli-saatler",
-    themeVariant: "graphite",
-  },
-];
-
-export const fallbackCampaignPromoCards: CampaignPromoCardData[] = [
-  {
-    id: "promo-phone",
-    title: "Telefon Kampanyalari",
-    description: "Yeni nesil iPhone ve Android modellerde premium secimler, taksit avantajlari ve dikkat ceken vitrin kurgusu.",
-    imageUrl: "/images/iphone15.png",
-    badgeText: "Yeni",
-    ctaText: "Hemen Al",
-    ctaLink: "/products?category=telefon",
-    themeVariant: "midnight",
-  },
-  {
-    id: "promo-audio",
-    title: "AirPods ve Aksesuar Seckisi",
-    description: "Kulaklık, kılıf ve şarj ürünlerini tek bakışta gösteren temiz ve yüksek dönüşümlü promo kartı.",
-    imageUrl: "/images/airpods.png",
-    badgeText: "Aksesuar",
-    ctaText: "Detayli Incele",
-    ctaLink: "/products?category=kilif",
-    themeVariant: "violet",
-  },
-  {
-    id: "promo-watch",
-    title: "Watch ve Bundle Firsatlari",
-    description: "Akıllı saat, power bank ve tamamlayıcı ürünleri birlikte öne çıkaran premium bundle vitrini.",
-    imageUrl: "/images/akilli-saat.jpg",
-    badgeText: "Bundle",
-    ctaText: "Paketleri Gör",
-    ctaLink: "/products?category=akilli-saatler",
-    themeVariant: "graphite",
-  },
-];
-
 function getThemeVariant(index: number): CampaignThemeVariant {
   return heroThemeSequence[index % heroThemeSequence.length] ?? "midnight";
 }
 
 export function buildHeroCampaignSlides(campaigns: CampaignRecord[]) {
   if (campaigns.length === 0) {
-    return fallbackHeroCampaignSlides;
+    return [];
   }
 
   return campaigns.map((campaign, index) => ({
     id: campaign.id,
     title: campaign.title,
     subtitle: campaign.subtitle || "Premium Campaign",
-    description: campaign.description || "Modern teknoloji ürünlerini öne çıkaracak premium vitrin alanı.",
+    description: campaign.description || "Modern teknoloji urunlerini one cikaracak premium vitrin alani.",
     imageUrl: campaign.imageUrl,
     mobileImageUrl: campaign.mobileImageUrl ?? campaign.imageUrl,
     badgeText: campaign.badgeText,
@@ -129,19 +54,18 @@ export function buildHeroCampaignSlides(campaigns: CampaignRecord[]) {
 }
 
 export function buildCampaignPromoCards(campaigns: CampaignRecord[]) {
-  if (campaigns.length > 0) {
-    return campaigns.slice(0, 3).map((campaign, index) => ({
-      id: `promo-${campaign.id}`,
-      title: campaign.title,
-      description: campaign.description || "Seçili kampanya ürünlerini vitrinde gösteren premium promo kartı.",
-      imageUrl: campaign.mobileImageUrl || campaign.imageUrl,
-      badgeText: campaign.badgeText,
-      ctaText: campaign.ctaText || "Detayli Incele",
-      ctaLink: campaign.ctaLink || "/products",
-      themeVariant: getThemeVariant(index),
-    })) satisfies CampaignPromoCardData[];
+  if (campaigns.length === 0) {
+    return [];
   }
 
-  return fallbackCampaignPromoCards;
+  return campaigns.slice(0, 3).map((campaign, index) => ({
+    id: `promo-${campaign.id}`,
+    title: campaign.title,
+    description: campaign.description || "Secili kampanya urunlerini vitrinde gosteren promo karti.",
+    imageUrl: campaign.mobileImageUrl || campaign.imageUrl,
+    badgeText: campaign.badgeText,
+    ctaText: campaign.ctaText || "Detayli Incele",
+    ctaLink: campaign.ctaLink || "/products",
+    themeVariant: getThemeVariant(index),
+  })) satisfies CampaignPromoCardData[];
 }
-

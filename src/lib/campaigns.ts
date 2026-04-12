@@ -34,6 +34,20 @@ export type CampaignFormValues = {
   endDate: string;
 };
 
+export type CampaignCategoryOption = {
+  id: string;
+  name: string;
+  slug: string;
+  parentCategoryId?: string | null;
+};
+
+export type CampaignCtaOption = {
+  value: string;
+  label: string;
+  href: string;
+  kind: "none" | "preset" | "category" | "custom";
+};
+
 export const defaultCampaignFormValues: CampaignFormValues = {
   title: "",
   subtitle: "",
@@ -57,6 +71,56 @@ export const campaignBadgePresets = [
   { label: "Zumrut", value: "#047857" },
   { label: "Altin", value: "#b45309" },
 ] as const;
+
+function buildCategoryTrail(category: CampaignCategoryOption, categoryById: Map<string, CampaignCategoryOption>) {
+  const visited = new Set<string>();
+  const parts = [category.name];
+  let currentParentId = category.parentCategoryId ?? null;
+
+  while (currentParentId && !visited.has(currentParentId)) {
+    visited.add(currentParentId);
+    const parent = categoryById.get(currentParentId);
+    if (!parent) {
+      break;
+    }
+    parts.unshift(parent.name);
+    currentParentId = parent.parentCategoryId ?? null;
+  }
+
+  return parts.join(" / ");
+}
+
+export function buildCampaignCtaOptions(categories: CampaignCategoryOption[]): CampaignCtaOption[] {
+  const categoryById = new Map(categories.map((category) => [category.id, category]));
+
+  const categoryOptions = [...categories]
+    .sort((left, right) => buildCategoryTrail(left, categoryById).localeCompare(buildCategoryTrail(right, categoryById), "tr"))
+    .map((category) => ({
+      value: `category:${category.slug}`,
+      label: `Kategori: ${buildCategoryTrail(category, categoryById)}`,
+      href: `/products?category=${category.slug}`,
+      kind: "category" as const,
+    }));
+
+  return [
+    { value: "none", label: "Yonlendirme yok", href: "", kind: "none" },
+    { value: "products", label: "Tum urunler", href: "/products", kind: "preset" },
+    { value: "technical-service", label: "Teknik servis", href: "/technical-service", kind: "preset" },
+    { value: "contact", label: "Iletisim", href: "/iletisim", kind: "preset" },
+    ...categoryOptions,
+    { value: "custom", label: "Ozel baglanti", href: "", kind: "custom" },
+  ];
+}
+
+export function resolveCampaignCtaSelection(ctaLink: string, options: CampaignCtaOption[]) {
+  const normalizedLink = ctaLink.trim();
+  if (!normalizedLink) {
+    return "none";
+  }
+
+  const matchedOption = options.find((option) => option.kind !== "custom" && option.href === normalizedLink);
+  return matchedOption?.value ?? "custom";
+}
 
 function expandHexColor(value: string) {
   if (value.length === 4) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, useMemo, useState } from "react";
+import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,24 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useBanners, useCreateBanner, useDeleteBanner } from "@/hooks/use-admin";
 import { BANNER_PLACEMENT_LABELS, BANNER_PLACEMENTS, type BannerCampaignRecord } from "@/lib/admin";
+import { resizeImageForUpload, type UploadImagePreset } from "@/lib/client-image";
+import {
+  buildCampaignCtaOptions,
+  resolveCampaignCtaSelection,
+  type CampaignCategoryOption,
+} from "@/lib/campaigns";
+
+type ApiResponse<T> = {
+  data: T;
+  error: { message: string } | null;
+};
+
+type AdminCategoryRecord = {
+  id: string;
+  name: string;
+  slug: string;
+  parent_category_id?: string | null;
+};
 
 type BannerFormState = {
   id?: string;
@@ -78,9 +96,10 @@ const triggerLabels: Record<BannerFormState["triggerType"], string> = {
   exit_intent: "Çıkış niyeti",
 };
 
-async function uploadBannerImage(file: File) {
+async function uploadBannerImage(file: File, preset: UploadImagePreset) {
+  const preparedFile = await resizeImageForUpload(file, preset);
   const body = new FormData();
-  body.append("file", file);
+  body.append("file", preparedFile);
   body.append("kind", "image");
   body.append("scope", "site-content");
 
@@ -92,6 +111,17 @@ async function uploadBannerImage(file: File) {
   }
 
   return `${payload?.data?.url ?? ""}`;
+}
+
+function resolveBannerUploadPreset(
+  placement: BannerCampaignRecord["placement"],
+  field: "imageUrl" | "mobileImageUrl",
+): UploadImagePreset {
+  if (placement === "popup") {
+    return "popup-main";
+  }
+
+  return field === "imageUrl" ? "banner-main" : "banner-mobile";
 }
 
 function toDateTimeValue(value: string | null | undefined) {
@@ -288,6 +318,7 @@ function CampaignPreview({ form }: { form: BannerFormState }) {
 
 export default function AdminBanners() {
   const [form, setForm] = useState<BannerFormState>(defaultForm);
+  const [categories, setCategories] = useState<CampaignCategoryOption[]>([]);
   const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<BannerStatusFilter>("all");
@@ -296,6 +327,44 @@ export default function AdminBanners() {
   const saveBanner = useCreateBanner();
   const deleteBanner = useDeleteBanner();
   const banners = bannersQuery.data ?? EMPTY_BANNERS;
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/admin/categories", { cache: "no-store" });
+        const payload = (await response.json().catch(() => null)) as ApiResponse<AdminCategoryRecord[]> | null;
+
+        if (!response.ok || payload?.error) {
+          throw new Error(payload?.error?.message || "Banner hedef kategorileri alinamadi");
+        }
+
+        if (!mounted) {
+          return;
+        }
+
+        setCategories(
+          (payload?.data ?? []).map((category) => ({
+            id: category.id,
+            name: category.name,
+            slug: category.slug,
+            parentCategoryId: category.parent_category_id ?? null,
+          })),
+        );
+      } catch (error) {
+        if (mounted) {
+          console.error(error);
+        }
+      }
+    };
+
+    void fetchCategories();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const filteredBanners = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -328,6 +397,22 @@ export default function AdminBanners() {
     return { total: banners.length, activeCount, popupCount, scheduledCount };
   }, [banners]);
 
+  const ctaOptions = useMemo(() => buildCampaignCtaOptions(categories), [categories]);
+  const selectedCtaTarget = useMemo(() => resolveCampaignCtaSelection(form.ctaHref, ctaOptions), [ctaOptions, form.ctaHref]);
+
+  const handleCtaTargetChange = (nextValue: string) => {
+    if (nextValue === "custom") {
+      setForm((current) => ({
+        ...current,
+        ctaHref: current.ctaHref.trim() ? current.ctaHref : "/products",
+      }));
+      return;
+    }
+
+    const selectedOption = ctaOptions.find((option) => option.value === nextValue);
+    setForm((current) => ({ ...current, ctaHref: selectedOption?.href ?? "" }));
+  };
+
   const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>, field: "imageUrl" | "mobileImageUrl") => {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -337,7 +422,8 @@ export default function AdminBanners() {
 
     try {
       setUploading(true);
-      const url = await uploadBannerImage(file);
+      const preset = resolveBannerUploadPreset(form.placement, field);
+      const url = await uploadBannerImage(file, preset);
       setForm((current) => ({ ...current, [field]: url }));
       toast.success("Banner görseli yuklendi");
     } catch (error) {
@@ -543,9 +629,31 @@ export default function AdminBanners() {
                   <Input value={form.ctaLabel} onChange={(event) => setForm((current) => ({ ...current, ctaLabel: event.target.value }))} placeholder="Hemen incele" />
                 </div>
                 <div className="space-y-2">
-                  <Label>CTA linki</Label>
-                  <Input value={form.ctaHref} onChange={(event) => setForm((current) => ({ ...current, ctaHref: event.target.value }))} placeholder="/products?campaign=yeni-sezon" />
+                  <Label>Hedef sayfa</Label>
+                  <Select value={selectedCtaTarget} onValueChange={handleCtaTargetChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Kullanici nereye gitsin?" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-80">
+                      {ctaOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+              </div>
+              {selectedCtaTarget === "custom" ? (
+                <div className="space-y-2">
+                  <Label>Ozel baglanti</Label>
+                  <Input value={form.ctaHref} onChange={(event) => setForm((current) => ({ ...current, ctaHref: event.target.value }))} placeholder="/products?category=iphone-kiliflari" />
+                  <p className="text-xs text-muted-foreground">Site ici sayfalarda baglantiyi genelde `/` ile baslatin. Ornek: `/products` veya `/iletisim`.</p>
+                </div>
+              ) : null}
+              <div className="rounded-xl border border-border/70 bg-background px-4 py-3 text-sm text-muted-foreground">
+                Secili hedef:
+                {form.ctaHref ? <span className="ml-2 rounded-full border border-border/60 px-2 py-1 text-xs">{form.ctaHref}</span> : <span className="ml-2">Yonlendirme yok</span>}
               </div>
             </div>
 
@@ -710,4 +818,5 @@ export default function AdminBanners() {
     </div>
   );
 }
+
 

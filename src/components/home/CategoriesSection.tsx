@@ -2,11 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import {
-  sectionReveal,
-  type HomeCategory,
-  type HomeSiteContent,
-} from "@/components/home/home-data";
+import { sectionReveal, type HomeCategory, type HomeSiteContent } from "@/components/home/home-data";
 import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type CategoriesSectionProps = {
@@ -23,10 +19,7 @@ export function CategoriesSection({ categories: _categories, content }: Categori
 
   return (
     <motion.section id="home-categories" data-section="categories" className="relative bg-background pb-10 md:pb-12">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-20 hidden h-[32rem] overflow-hidden md:block"
-      >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-20 hidden h-[32rem] overflow-hidden md:block">
         <div className="absolute left-[8%] top-12 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute right-[10%] top-40 h-56 w-56 rounded-full bg-secondary/20 blur-3xl" />
       </div>
@@ -49,97 +42,123 @@ export function CategoriesSection({ categories: _categories, content }: Categori
           <div className="relative grid items-start gap-8 text-left lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:gap-12">
             <motion.div className="max-w-[38rem] space-y-5">
               <div className="flex flex-wrap flex-col gap-3">
-                <span className="flex shrink-0 items-center rounded-full bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground md:bg-background/75 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/6 dark:text-white/82">
-                  {content.category_banner_badge_text || "Brand Finance 2025"}
-                </span>
+                {content.category_banner_badge_text ? (
+                  <span className="flex shrink-0 items-center rounded-full bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground md:bg-background/75 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/6 dark:text-white/82">
+                    {content.category_banner_badge_text}
+                  </span>
+                ) : null}
 
                 {(content.hero_logo_dark_url || content.hero_logo_light_url) && (
                   <div className="flex shrink-0 items-center rounded-[1.5rem] bg-card px-4 py-3 shadow-[0_14px_30px_rgba(15,23,42,0.08)] md:bg-background/80 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/6 dark:md:shadow-[0_20px_60px_rgba(2,6,23,0.28)]">
-                    {(content.hero_logo_light_url || content.hero_logo_dark_url) && (
+                    {content.hero_logo_light_url ? (
                       <Image
-                        src={getOptimizedImageUrl(content.hero_logo_light_url || content.hero_logo_dark_url, { kind: "logo" })}
-                        alt="Cep Dünyası"
+                        src={getOptimizedImageUrl(content.hero_logo_light_url, { kind: "logo" })}
+                        alt="Cep Dunyasi"
                         width={240}
                         height={72}
                         sizes={getResponsiveImageSizes("logo")}
                         className="block h-auto w-[180px] dark:hidden md:w-[240px]"
                       />
-                    )}
-                    {(content.hero_logo_dark_url || content.hero_logo_light_url) && (
+                    ) : null}
+                    {content.hero_logo_dark_url ? (
                       <Image
-                        src={getOptimizedImageUrl(content.hero_logo_dark_url || content.hero_logo_light_url, { kind: "logo" })}
-                        alt="Cep Dünyası"
+                        src={getOptimizedImageUrl(content.hero_logo_dark_url, { kind: "logo" })}
+                        alt="Cep Dunyasi"
                         width={240}
                         height={72}
                         sizes={getResponsiveImageSizes("logo")}
                         className="hidden h-auto w-[180px] dark:block md:w-[240px]"
                       />
-                    )}
+                    ) : null}
                   </div>
                 )}
               </div>
 
-              <h3 className="max-w-[11ch] font-display text-4xl font-bold leading-[1.02] tracking-tight text-foreground md:text-[3.6rem] dark:text-white">
-                {content.category_banner_brand_title}
-              </h3>
+              {content.category_banner_brand_title ? (
+                <h3 className="max-w-[11ch] font-display text-4xl font-bold leading-[1.02] tracking-tight text-foreground md:text-[3.6rem] dark:text-white">
+                  {content.category_banner_brand_title}
+                </h3>
+              ) : null}
 
-              <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base dark:text-white/76">
-                {content.category_banner_intro_text || "Premium teknoloji vitrini, güven veren marka konumlanması ve temiz bir sunum diliyle desteklenir."}
-              </p>
+              {content.category_banner_intro_text ? (
+                <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base dark:text-white/76">
+                  {content.category_banner_intro_text}
+                </p>
+              ) : null}
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[1.3rem] bg-card px-4 py-3.5 md:bg-background/80 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/[0.05]">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/90 dark:text-white/62">
-                    {content.category_banner_stat_1_label || "Odak"}
-                  </p>
-                  <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">
-                    {content.category_banner_stat_1_value || "Premium mobil deneyim"}
-                  </p>
+              {(content.category_banner_stat_1_label || content.category_banner_stat_1_value || content.category_banner_stat_2_label || content.category_banner_stat_2_value) ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-[1.3rem] bg-card px-4 py-3.5 md:bg-background/80 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/[0.05]">
+                    {content.category_banner_stat_1_label ? (
+                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/90 dark:text-white/62">
+                        {content.category_banner_stat_1_label}
+                      </p>
+                    ) : null}
+                    {content.category_banner_stat_1_value ? (
+                      <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">
+                        {content.category_banner_stat_1_value}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="rounded-[1.3rem] bg-card px-4 py-3.5 md:bg-background/80 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/[0.05]">
+                    {content.category_banner_stat_2_label ? (
+                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/90 dark:text-white/62">
+                        {content.category_banner_stat_2_label}
+                      </p>
+                    ) : null}
+                    {content.category_banner_stat_2_value ? (
+                      <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">
+                        {content.category_banner_stat_2_value}
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
-                <div className="rounded-[1.3rem] bg-card px-4 py-3.5 md:bg-background/80 md:backdrop-blur-xl dark:bg-slate-900 dark:md:bg-white/[0.05]">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/90 dark:text-white/62">
-                    {content.category_banner_stat_2_label || "Konum"}
-                  </p>
-                  <p className="mt-1.5 text-base font-semibold text-foreground md:text-lg dark:text-white">
-                    {content.category_banner_stat_2_value || "Güçlü marka algısı"}
-                  </p>
-                </div>
-              </div>
+              ) : null}
             </motion.div>
 
             <motion.div className="grid auto-rows-max content-start self-start gap-3 lg:pl-2">
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                viewport={{ once: true, amount: 0.35 }}
-                className="rounded-[1.45rem] bg-card px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.08)] md:bg-background/82 md:backdrop-blur-2xl dark:bg-slate-900 dark:md:bg-white/[0.05] dark:md:shadow-[0_18px_46px_rgba(2,6,23,0.18)]"
-              >
-                <p className="text-base leading-7 text-muted-foreground md:text-[1.03rem] dark:text-white/80">{content.category_banner_brand_desc_1}</p>
-              </motion.div>
+              {content.category_banner_brand_desc_1 ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  className="rounded-[1.45rem] bg-card px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.08)] md:bg-background/82 md:backdrop-blur-2xl dark:bg-slate-900 dark:md:bg-white/[0.05] dark:md:shadow-[0_18px_46px_rgba(2,6,23,0.18)]"
+                >
+                  <p className="text-base leading-7 text-muted-foreground md:text-[1.03rem] dark:text-white/80">{content.category_banner_brand_desc_1}</p>
+                </motion.div>
+              ) : null}
 
-              <motion.div
-                initial={{ opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-                viewport={{ once: true, amount: 0.35 }}
-                className="rounded-[1.55rem] bg-card px-5 py-4 shadow-[0_16px_36px_rgba(15,23,42,0.10)] md:bg-[linear-gradient(135deg,rgba(255,255,255,0.88),rgba(255,255,255,0.68))] md:backdrop-blur-2xl dark:bg-slate-900 dark:md:bg-[linear-gradient(135deg,rgba(255,255,255,0.11),rgba(255,255,255,0.04))] dark:md:shadow-[0_22px_56px_rgba(2,6,23,0.22)]"
-              >
-                <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-primary/80 dark:text-fuchsia-100/70">
-                  {content.category_banner_highlight_label || "Öne Çıkan Vurgu"}
-                </p>
-                <p className="mt-2.5 text-lg font-semibold leading-8 text-foreground md:text-[1.38rem] dark:text-white">{content.category_banner_brand_desc_2}</p>
-              </motion.div>
+              {(content.category_banner_highlight_label || content.category_banner_brand_desc_2) ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  className="rounded-[1.55rem] bg-card px-5 py-4 shadow-[0_16px_36px_rgba(15,23,42,0.10)] md:bg-[linear-gradient(135deg,rgba(255,255,255,0.88),rgba(255,255,255,0.68))] md:backdrop-blur-2xl dark:bg-slate-900 dark:md:bg-[linear-gradient(135deg,rgba(255,255,255,0.11),rgba(255,255,255,0.04))] dark:md:shadow-[0_22px_56px_rgba(2,6,23,0.22)]"
+                >
+                  {content.category_banner_highlight_label ? (
+                    <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-primary/80 dark:text-fuchsia-100/70">
+                      {content.category_banner_highlight_label}
+                    </p>
+                  ) : null}
+                  {content.category_banner_brand_desc_2 ? (
+                    <p className="mt-2.5 text-lg font-semibold leading-8 text-foreground md:text-[1.38rem] dark:text-white">{content.category_banner_brand_desc_2}</p>
+                  ) : null}
+                </motion.div>
+              ) : null}
 
-              <motion.div
-                initial={{ opacity: 0, y: 32 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                viewport={{ once: true, amount: 0.35 }}
-                className="rounded-[1.45rem] bg-card px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.08)] md:bg-background/82 md:backdrop-blur-2xl dark:bg-slate-900 dark:md:bg-white/[0.05] dark:md:shadow-[0_18px_46px_rgba(2,6,23,0.18)]"
-              >
-                <p className="text-base leading-7 text-muted-foreground md:text-[1.03rem] dark:text-white/80">{content.category_banner_brand_desc_3}</p>
-              </motion.div>
+              {content.category_banner_brand_desc_3 ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 32 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  className="rounded-[1.45rem] bg-card px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.08)] md:bg-background/82 md:backdrop-blur-2xl dark:bg-slate-900 dark:md:bg-white/[0.05] dark:md:shadow-[0_18px_46px_rgba(2,6,23,0.18)]"
+                >
+                  <p className="text-base leading-7 text-muted-foreground md:text-[1.03rem] dark:text-white/80">{content.category_banner_brand_desc_3}</p>
+                </motion.div>
+              ) : null}
             </motion.div>
           </div>
         </motion.div>

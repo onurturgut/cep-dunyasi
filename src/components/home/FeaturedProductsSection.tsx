@@ -1,12 +1,12 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ProductCard } from "@/components/products/ProductCard";
-import { Link } from "@/lib/router";
 import { type HomeProduct, type HomeSiteContent } from "@/components/home/home-data";
-import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
 import { ProductRailCarousel } from "@/components/home/ProductRailCarousel";
+import { ProductCard } from "@/components/products/ProductCard";
+import { Button } from "@/components/ui/button";
+import { Link } from "@/lib/router";
+import { getDefaultProductVariant, getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
 
 type FeaturedProductsSectionProps = {
   featuredProducts: HomeProduct[];
@@ -14,12 +14,12 @@ type FeaturedProductsSectionProps = {
 };
 
 export function FeaturedProductsSection({ featuredProducts, content }: FeaturedProductsSectionProps) {
+  if (featuredProducts.length === 0 && !content.featured_section_title && !content.featured_section_cta_label) {
+    return null;
+  }
+
   return (
-    <section
-      id="home-featured"
-      data-section="featured"
-      className="relative py-6 md:py-10"
-    >
+    <section id="home-featured" data-section="featured" className="relative py-6 md:py-10">
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 hidden h-72 overflow-hidden md:block">
         <div className="absolute left-[12%] top-20 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute right-[10%] top-10 h-44 w-44 rounded-full bg-secondary/15 blur-3xl" />
@@ -28,12 +28,14 @@ export function FeaturedProductsSection({ featuredProducts, content }: FeaturedP
       <div className="container">
         <div className="rounded-3xl border border-border/60 bg-card/55 p-4 shadow-sm backdrop-blur-xl sm:p-5 md:p-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-5xl">{content.featured_section_title}</h2>
-            <Button variant="ghost" asChild className="w-full justify-center sm:w-auto">
-              <Link to={content.featured_section_cta_href || "/products"}>
-                {content.featured_section_cta_label} <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
+            <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-5xl">{content.featured_section_title || "Öne Çıkan Ürünler"}</h2>
+            {content.featured_section_cta_label ? (
+              <Button variant="ghost" asChild className="w-full justify-center sm:w-auto">
+                <Link to={content.featured_section_cta_href || "/products"}>
+                  {content.featured_section_cta_label} <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            ) : null}
           </div>
 
           {featuredProducts.length > 0 ? (

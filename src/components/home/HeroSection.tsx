@@ -1,12 +1,12 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "@/lib/router";
 import { benefitIcons, type HomeSiteContent } from "@/components/home/home-data";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Link } from "@/lib/router";
 import { getOptimizedImageUrl, getResponsiveImageSizes } from "@/lib/media";
 
 type HeroSectionProps = {
@@ -85,6 +85,13 @@ export function HeroSection({ activeSlide, onSlideChange: _onSlideChange, conten
 
   const heroSlides = content.hero_slides.filter((slide) => slide.image_url);
   const heroBenefits = content.hero_benefits.filter((benefit) => benefit.title || benefit.desc);
+  const hasHeroText = Boolean(content.hero_title_prefix || content.hero_title_highlight || content.hero_title_suffix || content.hero_subtitle);
+  const hasHeroLogo = Boolean(content.hero_logo_light_url || content.hero_logo_dark_url);
+  const hasHeroCta = Boolean(content.hero_cta_label && content.hero_cta_href);
+
+  if (!hasHeroText && !hasHeroLogo && !hasHeroCta && heroSlides.length === 0 && heroBenefits.length === 0) {
+    return null;
+  }
 
   return (
     <section id="home-hero" data-section="hero" className="bg-background pb-8 sm:pb-10 md:pb-12">
@@ -100,67 +107,78 @@ export function HeroSection({ activeSlide, onSlideChange: _onSlideChange, conten
           <div className="container flex min-h-[calc(100svh-4rem)] items-center py-8 sm:py-10 md:py-14 sm:min-h-[calc(100svh-4.5rem)]">
             <div className="grid w-full items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,540px)] lg:gap-6">
               <div className="max-w-2xl">
-                <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground md:drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] sm:text-5xl md:text-6xl xl:text-7xl">
-                  {content.hero_title_prefix}
-                  <span className="text-primary"> {content.hero_title_highlight} </span>
-                  <span className="mx-1 inline-flex align-middle dark:hidden">
-                    <Image
-                      src={getOptimizedImageUrl(content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-black-v3-tight.png"), { kind: "logo" })}
-                      alt="eep Dunyasi logosu"
-                      width={300}
-                      height={90}
-                      priority
-                      sizes={getResponsiveImageSizes("logo")}
-                      className="h-auto w-[160px] sm:w-[200px] md:w-[240px] xl:w-[300px]"
-                    />
-                  </span>
-                  <span className="mx-1 hidden align-middle dark:inline-flex">
-                    <Image
-                      src={getOptimizedImageUrl(
-                        content.hero_logo_dark_url || content.hero_logo_light_url || encodeURI("/images/cep-dunyasi-logo-dark-v3-tight.png"),
-                        { kind: "logo" },
-                      )}
-                      alt="eep Dunyasi logosu"
-                      width={300}
-                      height={90}
-                      priority
-                      sizes={getResponsiveImageSizes("logo")}
-                      className="h-auto w-[160px] sm:w-[200px] md:w-[240px] xl:w-[300px]"
-                    />
-                  </span>
-                  {content.hero_title_suffix}
-                </h1>
-                <p className="mt-4 max-w-xl text-sm text-muted-foreground md:drop-shadow-[0_8px_18px_rgba(0,0,0,0.16)] sm:text-base md:text-lg">
-                  {content.hero_subtitle}
-                </p>
-                <div className="mt-7">
-                  <Button size="lg" asChild className="w-full shadow-sm sm:w-auto md:shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
-                    <Link to={content.hero_cta_href || "/products"}>
-                      {content.hero_cta_label} <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
+                {hasHeroText || hasHeroLogo ? (
+                  <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground md:drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] sm:text-5xl md:text-6xl xl:text-7xl">
+                    {content.hero_title_prefix}
+                    {content.hero_title_highlight ? <span className="text-primary"> {content.hero_title_highlight} </span> : null}
+                    {content.hero_logo_light_url ? (
+                      <span className="mx-1 inline-flex align-middle dark:hidden">
+                        <Image
+                          src={getOptimizedImageUrl(content.hero_logo_light_url, { kind: "logo" })}
+                          alt="Cep Dunyasi logosu"
+                          width={300}
+                          height={90}
+                          priority
+                          sizes={getResponsiveImageSizes("logo")}
+                          className="h-auto w-[160px] sm:w-[200px] md:w-[240px] xl:w-[300px]"
+                        />
+                      </span>
+                    ) : null}
+                    {content.hero_logo_dark_url ? (
+                      <span className="mx-1 hidden align-middle dark:inline-flex">
+                        <Image
+                          src={getOptimizedImageUrl(content.hero_logo_dark_url, { kind: "logo" })}
+                          alt="Cep Dunyasi logosu"
+                          width={300}
+                          height={90}
+                          priority
+                          sizes={getResponsiveImageSizes("logo")}
+                          className="h-auto w-[160px] sm:w-[200px] md:w-[240px] xl:w-[300px]"
+                        />
+                      </span>
+                    ) : null}
+                    {content.hero_title_suffix}
+                  </h1>
+                ) : null}
 
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  {heroBenefits.map((benefit) => {
-                    const Icon = benefitIcons[benefit.icon] || benefitIcons.Truck;
+                {content.hero_subtitle ? (
+                  <p className="mt-4 max-w-xl text-sm text-muted-foreground md:drop-shadow-[0_8px_18px_rgba(0,0,0,0.16)] sm:text-base md:text-lg">
+                    {content.hero_subtitle}
+                  </p>
+                ) : null}
 
-                    return (
-                      <div key={benefit.title} className="rounded-xl border border-border/60 bg-card/70 p-3 shadow-sm sm:px-4 sm:py-3.5 md:shadow-[0_24px_52px_rgba(0,0,0,0.24)]">
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <Icon className="h-3.5 w-3.5" />
+                {hasHeroCta ? (
+                  <div className="mt-7">
+                    <Button size="lg" asChild className="w-full shadow-sm sm:w-auto md:shadow-[0_12px_28px_rgba(0,0,0,0.24)]">
+                      <Link to={content.hero_cta_href}>
+                        {content.hero_cta_label} <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                ) : null}
+
+                {heroBenefits.length > 0 ? (
+                  <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                    {heroBenefits.map((benefit) => {
+                      const Icon = benefitIcons[benefit.icon] || benefitIcons.Truck;
+
+                      return (
+                        <div key={benefit.title} className="rounded-xl border border-border/60 bg-card/70 p-3 shadow-sm sm:px-4 sm:py-3.5 md:shadow-[0_24px_52px_rgba(0,0,0,0.24)]">
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                              <Icon className="h-3.5 w-3.5" />
+                            </div>
+                            <p className="text-sm font-semibold text-foreground md:drop-shadow-[0_6px_16px_rgba(0,0,0,0.2)] sm:text-base">{benefit.title}</p>
                           </div>
-                          <p className="text-sm font-semibold text-foreground md:drop-shadow-[0_6px_16px_rgba(0,0,0,0.2)] sm:text-base">{benefit.title}</p>
+                          <p className="mt-1 text-xs text-muted-foreground md:drop-shadow-[0_4px_12px_rgba(0,0,0,0.18)] sm:text-[13px]">{benefit.desc}</p>
                         </div>
-                        <p className="mt-1 text-xs text-muted-foreground md:drop-shadow-[0_4px_12px_rgba(0,0,0,0.18)] sm:text-[13px]">{benefit.desc}</p>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </div>
 
-              <div className="mx-auto w-full max-w-[560px] lg:-ml-8">
+              <div className={`mx-auto w-full max-w-[560px] ${heroSlides.length > 0 ? "lg:-ml-8" : ""}`}>
                 <div className="relative h-[320px] w-full sm:h-[420px] md:h-[520px] lg:h-[620px]">
                   <div className="absolute inset-x-10 bottom-10 hidden h-24 rounded-full bg-primary/15 blur-3xl md:block" />
                   {heroSlides.map((slide, index) => (
@@ -176,7 +194,6 @@ export function HeroSection({ activeSlide, onSlideChange: _onSlideChange, conten
                       }`}
                     />
                   ))}
-
                 </div>
               </div>
             </div>
@@ -186,5 +203,3 @@ export function HeroSection({ activeSlide, onSlideChange: _onSlideChange, conten
     </section>
   );
 }
-
-

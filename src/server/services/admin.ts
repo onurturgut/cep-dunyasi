@@ -226,14 +226,27 @@ const bulkActionSchema = z.object({
   value: z.union([z.string(), z.number(), z.null(), z.undefined()]).optional(),
 });
 
+function isSupportedAssetUrl(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return false;
+  }
+
+  if (trimmed.startsWith("/")) {
+    return true;
+  }
+
+  return /^https?:\/\//i.test(trimmed);
+}
+
 const bannerSchema = z.object({
   id: z.string().trim().optional(),
   placement: z.enum(BANNER_PLACEMENTS),
   title: z.string().trim().min(1, "Banner basligi zorunludur").max(120, "Banner basligi en fazla 120 karakter olabilir"),
   subtitle: z.string().trim().max(180, "Alt baslik en fazla 180 karakter olabilir").optional().nullable().or(z.literal("")),
   description: z.string().trim().max(600, "Aciklama en fazla 600 karakter olabilir").optional().nullable().or(z.literal("")),
-  imageUrl: z.string().trim().url("Banner görseli gecersiz"),
-  mobileImageUrl: z.string().trim().url("Mobil banner görseli gecersiz").optional().nullable().or(z.literal("")),
+  imageUrl: z.string().trim().refine(isSupportedAssetUrl, "Banner görseli gecersiz"),
+  mobileImageUrl: z.string().trim().refine(isSupportedAssetUrl, "Mobil banner görseli gecersiz").optional().nullable().or(z.literal("")),
   ctaLabel: z.string().trim().max(50, "CTA metni en fazla 50 karakter olabilir").optional().nullable().or(z.literal("")),
   ctaHref: z.string().trim().max(255, "CTA linki en fazla 255 karakter olabilir").optional().nullable().or(z.literal("")),
   badgeText: z.string().trim().max(40, "Rozet metni en fazla 40 karakter olabilir").optional().nullable().or(z.literal("")),

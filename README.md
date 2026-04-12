@@ -377,20 +377,6 @@ Public medya akisinda:
 
 R2 public domain ve bucket ayarlari dogru degilse upload ve medya URL'leri calismaz.
 
-## Seed ve Demo Veri
-
-Uygulama bos veritabaniyla acildiginda ornek veri uretebilen seed mantigina sahiptir.
-
-Icerik olarak tipik olarak:
-- kategoriler
-- ornek urunler
-- kuponlar
-- dashboard icin satis verisi
-uretimi bulunur.
-
-Ana seed dosyasi:
-- `src/server/seed.ts`
-
 ## Bilinen Teknik Notlar
 
 - Projede service-first yone gecis var ama `POST /api/db/query` gibi legacy generic veri erisim noktasi halen tamamen kapanmis degil.

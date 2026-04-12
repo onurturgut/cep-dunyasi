@@ -10,12 +10,32 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { defaultCampaignFormValues, toCampaignFormValues, type CampaignFormValues, type CampaignRecord } from "@/lib/campaigns";
+import { resizeImageForUpload, type UploadImagePreset } from "@/lib/client-image";
+import {
+  defaultCampaignFormValues,
+  toCampaignFormValues,
+  type CampaignCategoryOption,
+  type CampaignFormValues,
+  type CampaignRecord,
+} from "@/lib/campaigns";
 import { useAdminCampaigns, useCreateCampaign, useDeleteCampaign, useReorderCampaigns, useUpdateCampaign } from "@/hooks/use-campaigns";
 
-async function uploadCampaignImage(file: File) {
+type ApiResponse<T> = {
+  data: T;
+  error: { message: string } | null;
+};
+
+type AdminCategoryRecord = {
+  id: string;
+  name: string;
+  slug: string;
+  parent_category_id?: string | null;
+};
+
+async function uploadCampaignImage(file: File, preset: UploadImagePreset) {
+  const preparedFile = await resizeImageForUpload(file, preset);
   const body = new FormData();
-  body.append("file", file);
+  body.append("file", preparedFile);
   body.append("kind", "image");
   body.append("scope", "site-content");
 
@@ -47,6 +67,7 @@ export default function AdminCampaigns() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<CampaignFormValues>(defaultCampaignFormValues);
   const [orderedCampaigns, setOrderedCampaigns] = useState<CampaignRecord[]>([]);
+  const [categories, setCategories] = useState<CampaignCategoryOption[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -56,6 +77,44 @@ export default function AdminCampaigns() {
       setOrderedCampaigns(campaignsQuery.data);
     }
   }, [campaignsQuery.data]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/admin/categories", { cache: "no-store" });
+        const payload = (await response.json().catch(() => null)) as ApiResponse<AdminCategoryRecord[]> | null;
+
+        if (!response.ok || payload?.error) {
+          throw new Error(payload?.error?.message || "Kampanya hedef kategorileri alinamadi");
+        }
+
+        if (!mounted) {
+          return;
+        }
+
+        setCategories(
+          (payload?.data ?? []).map((category) => ({
+            id: category.id,
+            name: category.name,
+            slug: category.slug,
+            parentCategoryId: category.parent_category_id ?? null,
+          })),
+        );
+      } catch (error) {
+        if (mounted) {
+          console.error(error);
+        }
+      }
+    };
+
+    void fetchCategories();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const hasOrderChanges = useMemo(() => {
     if (!campaignsQuery.data) {
@@ -90,7 +149,8 @@ export default function AdminCampaigns() {
   const handleImageUpload = async (field: "imageUrl" | "mobileImageUrl", file: File) => {
     try {
       setUploading(true);
-      const url = await uploadCampaignImage(file);
+      const preset = field === "imageUrl" ? "campaign-main" : "campaign-mobile";
+      const url = await uploadCampaignImage(file, preset);
       setForm((current) => ({ ...current, [field]: url }));
       toast.success("öörsel yuklendi");
     } catch (error) {
@@ -238,6 +298,7 @@ export default function AdminCampaigns() {
               </DialogTitle>
             </DialogHeader>
             <CampaignForm
+              categories={categories}
               value={form}
               uploading={uploading}
               submitting={createCampaign.isPending || updateCampaign.isPending}

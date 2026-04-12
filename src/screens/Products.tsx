@@ -30,15 +30,7 @@ import {
 } from "@/lib/product-catalog";
 import { getVariantGallery, getVariantLabel, normalizeProductVariants } from "@/lib/product-variants";
 
-const defaultCategories = [
-  { id: "default-telefon", name: "Telefon", slug: "telefon", icon: "Smartphone" },
-  { id: "default-ikinci-el-telefon", name: "2. El Telefonlar", slug: "ikinci-el-telefon", icon: "Smartphone" },
-  { id: "default-akilli-saat", name: "Akıllı Saatler", slug: "akilli-saatler", icon: "Watch" },
-  { id: "default-kilif", name: "Kılıf", slug: "kilif", icon: "ShieldCheck" },
-  { id: "default-sarj", name: "Şarj Aleti", slug: "sarj-aleti", icon: "BatteryCharging" },
-  { id: "default-power", name: "Power Bank", slug: "power-bank", icon: "Battery" },
-  { id: "default-servis", name: "Teknik Servis", slug: "teknik-servis", icon: "Wrench" },
-];
+const defaultCategories: Array<Record<string, string>> = [];
 
 const SORT_OPTIONS: Array<{ value: ProductSortOption; label: string }> = [
   { value: "newest", label: "En Yeniler" },
@@ -832,4 +824,5 @@ export default function Products({ initialCategories = defaultCategories }: Prod
     </Layout>
   );
 }
+
 
